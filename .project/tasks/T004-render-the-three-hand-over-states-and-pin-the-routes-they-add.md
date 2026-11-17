@@ -2,10 +2,10 @@
 id: T004
 title: Render the three hand-over states and pin the routes they add
 wave: 3
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T004
+base: a8b166cc110694837141d2646b21db26fb6e1dfd
 worktree: null
 task_branch: null
 files:
@@ -67,3 +67,4 @@ node --test scripts/panel-routes.test.mjs && npm run check && npx prettier --che
 ## Log
 
 - Queued by the plan for M046 copy-to-agent. No work has run yet.
+- Landed paths: `apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `scripts/panel-routes.test.mjs`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts` — each is read from this tree, ready.

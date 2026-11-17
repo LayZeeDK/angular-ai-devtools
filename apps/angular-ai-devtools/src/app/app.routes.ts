@@ -177,4 +177,15 @@ export const appRoutes: Route[] = [
     loadComponent: loadPanelDemo,
     data: { surface: 'console' },
   },
+  // The M046 SC1-SC3 surface: the hand-off the join `extension/copy-to-agent.js` answers for the text a
+  // pane drew — the control sentence naming what will be sent and the body itself as the pane rendered
+  // it, the same with the absence a finding names still stated, or the `cannot-tell` reason and nothing
+  // beside it. It installs the shared loader above, so the demo module is imported once and the panel's
+  // initial bundle keeps the bytes it had. Lazy for the same reason as the surfaces above it — the
+  // panel's eager bundle is measured.
+  {
+    path: 'console-read',
+    loadComponent: loadPanelDemo,
+    data: { surface: 'console-read' },
+  },
 ];

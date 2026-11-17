@@ -75,6 +75,17 @@
  * that entry's own title, and a code it lacks must print the code with `no-digest-entry`. Nothing the
  * capture does not record is printed — no cause, no element and no remedy — and neither absence is
  * rendered as an empty list or a count.
+ *
+ * M046 T004 extends it to the `console-read` surface, and to the chain the hand-off is: the sample
+ * fact is not written beside the pane but derived through it and through the join. The console pane
+ * renders the `console` fact above, the shipped `extension/copy-to-agent.js` is handed that rendering,
+ * and the fact the demo is given must equal the join's answer field for field — `body` being the pane's
+ * text and `control` the join's own sentence read off it. So a demo fact that drifted from either
+ * reddens here, and so does a route, a loader key or a surface name that went missing. The three
+ * hand-over states are then held to the pane: `handed-over` renders the control and the body as the
+ * answer carries them, `absence-carried` renders the same text with the absence still stated and
+ * nothing filled in for it, and `cannot-tell` renders the join's own reason and no cause, element,
+ * remedy or rule identity (INTENT.md SC1, SC2, SC3; N1, N2, N3).
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -85,6 +96,14 @@ import { fieldsPanel } from './panel-fields';
 import { errorBoundaryPanel } from './panel-error-boundary';
 import { stabilityPanel } from './panel-stability';
 import { consolePanel } from './panel-console';
+import {
+  ABSENCE_CARRIED,
+  CANNOT_TELL,
+  HANDED_OVER,
+  NO_ANSWER_TEXT,
+  STATE_TEXTS,
+  consoleReadPanel,
+} from './panel-copy-to-agent';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -974,6 +993,50 @@ function consoleJoin(): ConsoleJoin {
   return join;
 }
 
+/** One hand-off of the join's answer, for the fields this spec reads. */
+interface HandOffAnswer {
+  state: string;
+  body?: string;
+  control?: string;
+  reason?: string;
+}
+
+/** The page's own hand-off namespace, as `extension/copy-to-agent.js` publishes it. */
+interface CopyToAgentJoin {
+  copyToAgent(input: { rendered?: unknown; subject?: unknown }): HandOffAnswer;
+}
+
+/**
+ * The join `extension/copy-to-agent.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `console-read` sample fact is held to the join's answer for the text the
+ * console pane draws, not to a copy of that answer written in this spec. The module is an IIFE with no
+ * imports, so running it is the whole of loading it.
+ */
+function copyToAgentJoin(): CopyToAgentJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/copy-to-agent.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/copy-to-agent.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as { angularAiCopyToAgent?: CopyToAgentJoin }
+  ).angularAiCopyToAgent;
+  if (join === undefined || typeof join.copyToAgent !== 'function') {
+    throw new Error('extension/copy-to-agent.js published no copyToAgent');
+  }
+  return join;
+}
+
 /** The demo rendered for one surface name, once its lazy surface has answered. */
 async function renderDemo(surface: string): Promise<PanelDemoComponent> {
   await TestBed.configureTestingModule({
@@ -1846,8 +1909,9 @@ describe('the panel demo', () => {
       'error-boundary',
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
+      'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
     ]);
-    expect(appRoutes).toHaveLength(25);
+    expect(appRoutes).toHaveLength(26);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -1943,6 +2007,154 @@ describe('the panel demo', () => {
       if (line.startsWith('text: ')) continue;
       expect(line).not.toMatch(/angular/i);
     }
+  });
+
+  /**
+   * The M046 half — the hand-off itself. The surface behind `/console-read` is reached through its own
+   * route entry, and the fact it renders is the shipped join's answer for the text the console pane
+   * draws for the `console` sample above: the pane's rendering is the body, the join's own sentence
+   * naming what will be sent is the control, and this spec derives both rather than restating either.
+   * The three states are then held to the pane — the hand-off with its control and body, the same
+   * hand-off with the absence a finding names still stated and nothing filled in for it, and the
+   * cannot-tell reason with no cause, element, remedy or rule identity beside it (SC1, SC2, SC3; N1,
+   * N2, N3).
+   */
+  it('renders the hand-off, the absence it carries and the cannot-tell reason, and composes none of them', async () => {
+    const join = copyToAgentJoin();
+    /** The pane's sentence for one state word, refused rather than blanked when the pane has none. */
+    const stateText = (word: string): string => {
+      const text = STATE_TEXTS[word];
+      if (text === undefined) {
+        throw new Error(
+          `the console-read pane registers no sentence for ${word}`,
+        );
+      }
+      return text;
+    };
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'console-read',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the console-read surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the console-read route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('console-read');
+
+    // The chain the fact is: the console pane renders its own fact, the shipped join is handed that
+    // rendering, and the fact the demo carries is that join's answer — field for field, with no field
+    // of it written beside the chain here.
+    const pane = consolePanel(FACTS['console']);
+    const finding = (FACTS['console'] as ConsoleAnswer).findings[0];
+    const answer = join.copyToAgent({
+      rendered: pane.text,
+      subject: { code: finding?.code },
+    });
+    expect(answer.state).toBe(HANDED_OVER);
+    expect(answer.body).toBe(pane.text);
+    expect(answer.control).toBe(
+      `Send ${pane.lines.length} lines from the console pane to the agent, beginning: ${pane.lines[0]}`,
+    );
+    expect(FACTS['console-read']).toEqual(answer);
+
+    // handed-over: the state word, that state's own sentence, the control and the body — as the answer
+    // carries them, and nothing else.
+    const demo = await renderDemo(surfaceName);
+    const handedOver = consoleReadPanel(FACTS['console-read']);
+    expect(demo.state()).toBe(HANDED_OVER);
+    expect(demo.lines()).toEqual(handedOver.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(handedOver.lines).toEqual([
+      `state: ${HANDED_OVER}`,
+      stateText(HANDED_OVER),
+      `control: ${answer.control}`,
+      `body: ${answer.body}`,
+    ]);
+    // The body is the pane's own text, argument for argument: every line the console pane drew is one
+    // of its lines, and the whole rendering the pane joined is in the pane's text unchanged.
+    expect(answer.body?.split('\n')).toEqual([...pane.lines]);
+    expect(handedOver.text).toContain(pane.text);
+
+    // absence-carried: the same control and the same body, with the absence the finding names still
+    // stated in it. Nothing is filled in, inferred or repaired — the body is byte for byte the one the
+    // handed-over state printed.
+    const absence = 'no-digest-entry';
+    expect(pane.lines.some((line) => line.startsWith(`${absence}: `))).toBe(
+      true,
+    );
+    const absenceCarried = consoleReadPanel({
+      state: ABSENCE_CARRIED,
+      control: answer.control,
+      body: answer.body,
+      absence,
+    });
+    expect(absenceCarried.state).toBe(ABSENCE_CARRIED);
+    expect(absenceCarried.lines).toEqual([
+      `state: ${ABSENCE_CARRIED}`,
+      stateText(ABSENCE_CARRIED),
+      `control: ${answer.control}`,
+      `body: ${answer.body}`,
+      `absence: ${absence}`,
+    ]);
+    // The absence is stated inside the text the pane drew, and no completion of it is written.
+    expect(absenceCarried.lines[3]).toContain(
+      `${absence}: the digest carries no entry for NG04002`,
+    );
+    expect(absenceCarried.text).toContain(answer.body ?? '');
+    for (const filled of ['cause: ', 'element: ', 'remedy: ', 'component: ']) {
+      expect(absenceCarried.lines.some((line) => line.startsWith(filled))).toBe(
+        false,
+      );
+    }
+
+    // cannot-tell: the join's own answer for a rendering it was not handed, rendered as the reason and
+    // nothing beside it — no cause, no element, no remedy and no rule identity.
+    const cannotTellAnswer = join.copyToAgent({ rendered: '' });
+    expect(cannotTellAnswer).toEqual({
+      state: CANNOT_TELL,
+      reason: 'nothing-rendered',
+    });
+    const cannotTell = consoleReadPanel(cannotTellAnswer);
+    expect(cannotTell.state).toBe(CANNOT_TELL);
+    expect(cannotTell.lines).toEqual([
+      `state: ${CANNOT_TELL}`,
+      stateText(CANNOT_TELL),
+      'reason: nothing-rendered',
+    ]);
+    for (const asserted of [
+      'cause: ',
+      'element: ',
+      'remedy: ',
+      'rule: ',
+      'component: ',
+    ]) {
+      expect(cannotTell.lines.some((line) => line.startsWith(asserted))).toBe(
+        false,
+      );
+    }
+
+    // N1: the pane composes no text from a fact list. Handed a body beside the fields a record carries,
+    // it renders the body and none of them.
+    const withRecordFields = consoleReadPanel({
+      ...answer,
+      findings: (FACTS['console'] as ConsoleAnswer).findings,
+      component: 'WidgetComponent',
+      cause: 'a required input was not set',
+      remedy: 'bind the input',
+      rule: 'NG0950',
+    });
+    expect(withRecordFields.lines).toEqual(handedOver.lines);
+
+    // An answer nobody gave is its own named absence: never a blank pane, never a state invented.
+    expect(consoleReadPanel(undefined).lines).toEqual([NO_ANSWER_TEXT]);
   });
 
   /**

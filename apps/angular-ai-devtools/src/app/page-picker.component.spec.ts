@@ -411,11 +411,11 @@ describe('PagePickerComponent', () => {
     expect(route.component).toBeUndefined();
     expect(await route.loadComponent()).toBe(PagePickerComponent);
     // The picker's own reading of the table is the list of lazy paths. It is re-cut whenever a
-    // surface is appended — M039 adds `render-phase` after this one, M040 adds `performance` and
-    // M045 adds `console` last — so a route that quietly stopped being lazy reddens here as well as
-    // in the app suite rather than going unread. The list of lazy paths is one reading of the table
-    // and it is not the count: the whole table is pinned below, so an eager surface appended last
-    // cannot slip past this suite either (M045 T007).
+    // surface is appended — M039 adds `render-phase` after this one, M040 adds `performance`, M045
+    // adds `console` last and M046 adds `console-read` after that — so a route that quietly stopped
+    // being lazy reddens here as well as in the app suite rather than going unread. The list of lazy
+    // paths is one reading of the table and it is not the count: the whole table is pinned below, so
+    // an eager surface appended last cannot slip past this suite either (M045 T007, M046 T004).
     const lazy = appRoutes
       .filter((candidate) => candidate.loadComponent !== undefined)
       .map((candidate) => candidate.path);
@@ -426,6 +426,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('error-boundary');
     expect(lazy).toContain('stability');
     expect(lazy).toContain('console');
+    expect(lazy).toContain('console-read');
     expect(lazy).toEqual([
       'interop',
       'chat',
@@ -447,9 +448,10 @@ describe('PagePickerComponent', () => {
       'error-boundary',
       'stability',
       'console',
+      'console-read',
     ]);
 
-    // The whole table, in order and to the count — twenty-five paths, exactly the ordered list
+    // The whole table, in order and to the count — twenty-six paths, exactly the ordered list
     // `app.spec.ts` and `chat-entry.component.spec.ts` pin. The lazy list above is one reading of the
     // table; without this one an eager route appended to the end would leave this suite green, which
     // is what M045 T007 repairs here.
@@ -479,8 +481,9 @@ describe('PagePickerComponent', () => {
       'error-boundary',
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
+      'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
     ]);
-    expect(appRoutes).toHaveLength(25);
+    expect(appRoutes).toHaveLength(26);
   });
 });
 

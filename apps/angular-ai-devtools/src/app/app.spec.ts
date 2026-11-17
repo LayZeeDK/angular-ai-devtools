@@ -29,8 +29,8 @@ describe('App', () => {
  * after that, M036 appends `resource` after that, M038 appends `linked-state`, M039 appends
  * `render-phase` after that, M040 appends `performance` last, M041 appends `navigation` after
  * that, M042 appends `error-boundary` after that and M043 appends `stability` after that, the same
- * way. M045 appends `console` after `stability`, which is why the count moves from twenty-four to
- * twenty-five.
+ * way. M045 appends `console` after `stability` and M046 appends `console-read` after that, which is
+ * why the count moves from twenty-four to twenty-six.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -60,6 +60,7 @@ describe('the route table', () => {
       'error-boundary', // M042 SC1-4 surface: the declaring and throwing components apart, the error, the fallback, each named absence
       'stability', // M043 SC5 surface: the state and its emission, the settle time or its absence, the repeated work, apart
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic, the unmatched code named
+      'console-read', // M046 SC1-3 surface: the control that names what will be sent, the body the pane drew, and the absence or the cannot-tell reason
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -186,5 +187,17 @@ describe('the route table', () => {
     expect(consoleRoute.data?.['surface']).toBe('console');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(consoleRoute.data?.['surface']).not.toBe('stability');
+
+    const consoleRead = appRoutes.find(
+      (route) => route.path === 'console-read',
+    );
+    expect(consoleRead?.component).toBeUndefined();
+    if (consoleRead?.loadComponent === undefined) {
+      throw new Error('the console-read surface must load lazily');
+    }
+    expect(await consoleRead.loadComponent()).toBe(PanelDemoComponent);
+    expect(consoleRead.data?.['surface']).toBe('console-read');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(consoleRead.data?.['surface']).not.toBe('console');
   });
 });
