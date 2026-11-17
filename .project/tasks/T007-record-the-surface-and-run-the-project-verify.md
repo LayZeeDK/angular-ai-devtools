@@ -5,7 +5,7 @@ wave: 5
 status: in-progress
 deps: [T002, T004, T005, T006]
 agent: build_T007
-base: b368e47ef10e7e2163e65e2ee8688f0bd46c14a2
+base: 1fc7b8a58c7d983dfd99a7657199b330194ad6bc
 worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
@@ -17,6 +17,7 @@ files:
   - research/raw/m056-gate-stability.json
   - .project/research/inspect-inventory.txt
   - scripts/user-scope-autonomy.mjs
+  - scripts/held-out-nested-run.mjs
 ---
 
 # T007 — Record the surface and run the project verify
