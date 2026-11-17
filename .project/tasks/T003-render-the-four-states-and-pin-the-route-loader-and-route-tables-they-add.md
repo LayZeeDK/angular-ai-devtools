@@ -46,7 +46,11 @@ the loader key is removed.
 
 ## Interface contract
 
-None
+`componentSearch(record, query)` receives `{ components, source }` and returns
+`{ state, rows, matched, reason }`. `state` is one of `listed`, `empty`, `cannot-tell`; `rows` is an
+array of `{ name, instanceCount }`; `matched` is the number of rows after filtering; `reason` is
+present only when `state` is `cannot-tell`, and is one of a closed set. No other file implements this
+function, and no caller reads the DOM to build the list.
 
 ## Files
 
