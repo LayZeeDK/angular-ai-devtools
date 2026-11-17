@@ -16,9 +16,10 @@ files:
   - apps/angular-ai-devtools/src/app/page-picker.component.spec.ts
   - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
   - scripts/panel-routes.test.mjs
-- apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
-- scripts/gate-integrity.test.mjs
-- tests/held-out/fixture-explainers-unchanged.test.mjs
+  - apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
+  - scripts/gate-integrity.test.mjs
+  - scripts/gate-integrity-default-tasks.test.mjs
+  - tests/held-out/fixture-explainers-unchanged.test.mjs
 ---
 
 # T003 — Render the four states and pin the route, loader and route tables they add
