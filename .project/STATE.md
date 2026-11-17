@@ -1,11 +1,11 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: null
-phase: inspect
+milestone: component-search
+phase: define
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M047
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1019,3 +1019,6 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-17 — ship — build done; final review pending
 - 2026-11-17 — shipped — archive preflight passed; shipment recorded
 - 2026-11-17 — inspect — router bound next milestone
+- 2026-11-17 — inspect — inspection measured and closed
+- 2026-11-17 — define — define opened for component-search
+- 2026-11-17 — define — milestone intent approved
