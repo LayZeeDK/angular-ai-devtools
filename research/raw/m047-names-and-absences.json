@@ -689,5 +689,140 @@
     "The record does not claim the agent's names are unique, complete or ordered. enumerateComponentNodes deduplicates by class name (extension/agent-main.js:888), so two instances of one class appear once, and the record states that and claims nothing about instance identity.",
     "No production page was opened for this task. The production-page absences are read from the code (extension/agent-main.js:509, :529, :862, :1364) and from the two readings research/raw/m022-ng-context.json already holds at its lines 179 and 181."
   ],
-  "verdict": "measured: eight of the page agent's nine recorded name readers yield a name read from the page — a profiler instance's host tag or class name, the picker's owning instance (host tag, class name and the ancestor class path), the enumerated node's class name and the error capture's class name — and the ninth yields the literal word 'component'. Against those, eight absences are recorded: three are the picker's own named states, two are the agent or its debug reader finding nothing on a page that publishes no window.ng, two are readers returning null or an empty list, and one is a profiler event that passed no instance, which the frame-level entry records as componentName: null and which cannot reach the 'component' fallback. The panel's route table declares 26 routes and not one of them lists components. The roadmap's premise that the page agent already captures a component tree does not hold at this head: components arrive as one flat node list with no children field anywhere in the file, and the record's only edges are the signal graph's consumer/producer pairs."
+  "verdict": "measured: eight of the page agent's nine recorded name readers yield a name read from the page — a profiler instance's host tag or class name, the picker's owning instance (host tag, class name and the ancestor class path), the enumerated node's class name and the error capture's class name — and the ninth yields the literal word 'component'. Against those, eight absences are recorded: three are the picker's own named states, two are the agent or its debug reader finding nothing on a page that publishes no window.ng, two are readers returning null or an empty list, and one is a profiler event that passed no instance, which the frame-level entry records as componentName: null and which cannot reach the 'component' fallback. The panel's route table declares 26 routes and not one of them lists components. The roadmap's premise that the page agent already captures a component tree does not hold at this head: components arrive as one flat node list with no children field anywhere in the file, and the record's only edges are the signal graph's consumer/producer pairs.",
+  "search": {
+    "task": "T002",
+    "file": "extension/component-search.js",
+    "function": "componentSearch(record, query)",
+    "contract": "the record is { components, source }; the answer is { state, rows, matched, reason } — state one of listed, empty, cannot-tell; rows of { name, instanceCount }; matched the number of rows after filtering; reason present only for cannot-tell, and a member of reasons.",
+    "record": {
+      "components": "the list the page agent enumerated, one entry per component it named: name is the text it read from the page (sources[per-check-host-tag], sources[per-check-class-name]) and instanceCount a count the record states. A row copies the entry's name and its non-negative integer count, or null where the record states none — a count this file made up would be the invention the filter exists to refuse.",
+      "source": "{ state: 'read' } when the list is the page's own, or { state: 'unreadable', reason: <one of reasons> } when it is not.",
+      "readOrder": "the source first, then the list: a record whose source could not be read answers cannot-tell with that cause whatever its list holds, because an unread list is not the page's statement."
+    },
+    "states": [
+      {
+        "id": "listed",
+        "statement": "the list was read and the query kept rows, or kept none: an empty rows with matched 0 is a filter that matched nothing, not a page that rendered nothing."
+      },
+      {
+        "id": "empty",
+        "statement": "the list was read and the record states the page rendered no components — an empty list beside source { state: 'read' }."
+      },
+      {
+        "id": "cannot-tell",
+        "statement": "the source could not be read; reason names why, and a zero-length list is never offered in its place."
+      }
+    ],
+    "reasons": [
+      {
+        "id": "agent-not-installed",
+        "absence": "agent-not-installed",
+        "producer": {
+          "file": "extension/agent-main.js",
+          "line": 509,
+          "lineText": "if (!ngObj) return 'waiting';"
+        },
+        "why": "the page publishes no window.ng, so the agent installs nothing and enumerates nothing: there is no list to read."
+      },
+      {
+        "id": "no-profiler",
+        "absence": "no-profiler",
+        "producer": {
+          "file": "extension/agent-main.js",
+          "line": 531,
+          "lineText": "return 'notsupported';"
+        },
+        "why": "the page publishes no ɵsetProfiler, so no frame is ever produced. The agent's own word for this cause is 'notsupported', which it answers for four different causes (:518, :531, :544, :552) — so this filter takes causes and never translates the agent's state words, and an ambiguous word is not a cause it states."
+      },
+      {
+        "id": "enumerate-without-getter",
+        "absence": "enumerate-without-getter",
+        "producer": {
+          "file": "extension/agent-main.js",
+          "line": 862,
+          "lineText": "if (!getComponent) return [];"
+        },
+        "why": "the page publishes no component getter, so the enumeration answers an empty array — an emptiness that is not a statement that the page rendered none, which is the pair E4 holds apart."
+      },
+      {
+        "id": "unreadable-source",
+        "absence": null,
+        "producer": null,
+        "why": "this file's own, because it is not a page's cause but the record's unreadability: the record carries no source, or a cause outside this list. A cause the record invented is never repeated as though it had been measured (N3)."
+      },
+      {
+        "id": "unreadable-record",
+        "absence": null,
+        "producer": null,
+        "why": "this file's own: the record is not { components, source } in the shape this filter reads — no list at all, or a list whose entry carries no name. Dropping such an entry would shorten the list the page named."
+      }
+    ],
+    "emptyVersusCannotTell": {
+      "record": "{ components: [], source: { state: 'read' } } answers empty; { components: [], source: { state: 'unreadable', reason: 'enumerate-without-getter' } } answers cannot-tell with that reason.",
+      "why": "one record shape, two sources. The state is decided by what the record states about the source and never by the length of the list, so a stated empty list cannot collapse into a read that did not happen (E4, SC2).",
+      "heldOut": "E4",
+      "test": "scripts/component-search.test.mjs"
+    },
+    "matching": {
+      "rule": "the query is trimmed and lowercased once, and a row matches when that text is a substring of the recorded name — case-insensitive, and against the name only: not an element label, not a class name the record did not carry, and not a name completed from framework knowledge (N1).",
+      "emptyQuery": "keeps every row: a filter that matched everything, not a claim about the page."
+    },
+    "mutants": [
+      {
+        "id": "case-sensitivity",
+        "defect": "matches only the recorded name's case",
+        "names": "matches a case-insensitive substring",
+        "pin": "a query of APP keeps app-counter and app"
+      },
+      {
+        "id": "framework-completion",
+        "defect": "matches a name the record lacks, by completing the framework's app-root from knowledge",
+        "names": "never completes a name from framework knowledge",
+        "pin": "a query for root keeps nothing"
+      },
+      {
+        "id": "invented-row",
+        "defect": "emits a row the record does not carry",
+        "names": "emits no row the record does not carry",
+        "pin": "the rows are the record's own rows"
+      },
+      {
+        "id": "invented-count",
+        "defect": "substitutes a count where the record states none",
+        "names": "a count the record does not state is null",
+        "pin": "the count is null where the record states none"
+      },
+      {
+        "id": "invented-cause",
+        "defect": "repeats a cause the record invented as though it had been measured",
+        "names": "never repeats a cause the record invented",
+        "pin": "a reason outside the closed set answers unreadable-source"
+      },
+      {
+        "id": "empty-for-unreadable",
+        "defect": "reports empty where the source is unreadable",
+        "names": "an unreadable source is cannot-tell with its reason",
+        "pin": "E4: the same empty list, stated and unstated"
+      },
+      {
+        "id": "order-defect",
+        "defect": "reorders the rows out of the record's order",
+        "names": "identical rows in identical order",
+        "pin": "the same record and query twice"
+      },
+      {
+        "id": "dom-read",
+        "defect": "reads the page's elements instead of the record",
+        "names": "the list is read from the record",
+        "pin": "the module names no document"
+      }
+    ],
+    "notPinned": [
+      "The counts in the fixtures are fixture data, not measurements: the enumerator deduplicates by class name (extension/agent-main.js:888) and states no instance count, so nothing here claims how many instances of a class a page carries.",
+      "No running page was read for this task. The filter was proven over records built from the names T001 measured, not over a live answer; what a served page's list looks like is research/raw/m022-ng-context.json's own reading.",
+      "The filter's two own reasons have no producer line in the agent, because they are not a page's causes; the record states that instead of citing a line that would not produce them.",
+      "Idempotency is asserted (the same record and query twice, in one realm and across two) and its mutant is the order defect: a pure function's second answer can only differ if it mutates the record or its own state, and the fixtures are deep-frozen so such a write throws rather than passing."
+    ]
+  }
 }

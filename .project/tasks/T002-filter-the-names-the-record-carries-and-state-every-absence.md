@@ -2,10 +2,10 @@
 id: T002
 title: Filter the names the record carries and state every absence
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 32f92b092b8c70f46d4f85cd1026a3a046703835
 worktree: null
 task_branch: null
 files:
@@ -68,3 +68,4 @@ node --test scripts/component-search.test.mjs && npx prettier --check extension/
 ## Log
 
 - pending.
+- Landed paths: `extension/component-search.js`, `scripts/component-search.test.mjs`, `research/raw/m047-names-and-absences.json` — each is read from this tree, ready.

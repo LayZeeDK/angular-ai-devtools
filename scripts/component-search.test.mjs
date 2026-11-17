@@ -10,10 +10,11 @@
 // `yieldsName` claim must be the kind of line its citation carries. A record that claims a name
 // over a line that yields none is the failure this suite exists for (INTENT.md SC1, SC2; T001 AC2).
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { createContext, runInContext } from 'node:vm';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const RECORD = 'research/raw/m047-names-and-absences.json';
@@ -564,5 +565,536 @@ test('a citation that slid off its line is refused', () => {
     () => validate(slid),
     /sources\[per-check-host-tag\]/,
     'a citation one line off is not the line the record read',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// T002 — componentSearch(record, query): the pure join from the record to rows
+// ---------------------------------------------------------------------------
+//
+// T001 measured what the agent can name; T002 filters that list and states every absence. Each pin
+// below is proven the way every join in this tree is proven: the pin runs against the untouched
+// module first, then against a copy mutated at one anchor, and the mutant's failure must name the
+// defect the pin is about. A mutant that survives its pin would make the pin decoration, so a
+// surviving mutant fails the test rather than passing quietly.
+
+const SEARCH = 'extension/component-search.js';
+const SEARCH_SRC = readFileSync(
+  new URL('../extension/component-search.js', import.meta.url),
+  'utf8',
+);
+
+/** Each mutant's defect, as the phrase its pin's failure names — the same phrase the record states. */
+const DEFECTS = Object.freeze({
+  'case-sensitivity': 'matches a case-insensitive substring',
+  'framework-completion': 'never completes a name from framework knowledge',
+  'invented-row': 'emits no row the record does not carry',
+  'invented-count': 'a count the record does not state is null',
+  'invented-cause': 'never repeats a cause the record invented',
+  'empty-for-unreadable': 'an unreadable source is cannot-tell with its reason',
+  'order-defect': 'identical rows in identical order',
+  'dom-read': 'the list is read from the record',
+});
+
+/**
+ * The filter booted the way the panel boots it: the shipped file evaluated in a bare realm, the
+ * namespace read off that realm's global. Nothing below re-implements the filter.
+ * @param {string} [source]
+ */
+function loadSearch(source = SEARCH_SRC) {
+  const context = createContext({});
+  runInContext(source, context);
+  const api = context.angularAiComponentSearch;
+  assert.ok(api, `${SEARCH} publishes angularAiComponentSearch in its realm`);
+  return api;
+}
+
+/** The module with one anchor replaced — a copy, never the file on disk. */
+function mutatedSource(anchor, replacement) {
+  const source = SEARCH_SRC.replace(anchor, replacement);
+  assert.notEqual(
+    source,
+    SEARCH_SRC,
+    `the mutation must find its anchor: ${anchor}`,
+  );
+  return source;
+}
+
+/** One mutant, booted. */
+function mutated(anchor, replacement) {
+  return loadSearch(mutatedSource(anchor, replacement));
+}
+
+/**
+ * A value the filter answered with, copied into this realm. The filter runs in its own realm, whose
+ * `Object.prototype` and `Array.prototype` are not this file's, so a strict deep comparison of two
+ * realms' objects fails on the prototype alone — the copy is what makes the comparison about the
+ * answer rather than about which realm built it.
+ * @param {any} value
+ */
+function plain(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+/** The failure a pin raises, or a failure naming the pin that let the mutant through. */
+function failureOf(pin) {
+  try {
+    pin();
+  } catch (error) {
+    assert.ok(error instanceof Error, 'the pin must fail with an Error');
+    return error;
+  }
+  assert.fail('the mutant must redden its pin, but the pin passed');
+}
+
+/**
+ * The three-phase proof: the pin on the untouched module, then each mutant reddening it and naming
+ * its defect by string. Returns one line per mutant, for the run's own log.
+ * @param {(api: any) => void} pin
+ * @param {{what: string, anchor: string, replacement: string, names: string}[]} mutations
+ */
+function proveNonVacuous(pin, mutations) {
+  pin(loadSearch());
+  const failures = [];
+  for (const mutation of mutations) {
+    const failure = failureOf(() =>
+      pin(mutated(mutation.anchor, mutation.replacement)),
+    );
+    assert.ok(
+      failure.message.includes(mutation.names),
+      `the mutant must redden naming the defect: ${mutation.what} failed with ${failure.message.split('\n')[0]}`,
+    );
+    failures.push(`${mutation.what} -> ${failure.message.split('\n')[0]}`);
+  }
+  return failures;
+}
+
+/**
+ * The two names this record carries are the two texts T001 measured for the demo fixture — the
+ * counter's host tag and the `App` class name (`sources[per-check-host-tag]`,
+ * `sources[per-check-class-name]`). The counts are fixture data. The record is deep-frozen: a
+ * filter that writes to the list it was handed throws instead of quietly editing it.
+ */
+const NAMED = Object.freeze({
+  components: Object.freeze([
+    Object.freeze({ name: 'app-counter', instanceCount: 3 }),
+    Object.freeze({ name: 'app', instanceCount: 1 }),
+  ]),
+  source: Object.freeze({ state: 'read' }),
+});
+
+/** The same list with one count stated and one not: a count the record does not carry. */
+const PARTLY_COUNTED = Object.freeze({
+  components: Object.freeze([
+    Object.freeze({ name: 'app-counter' }),
+    Object.freeze({ name: 'app', instanceCount: 1 }),
+  ]),
+  source: Object.freeze({ state: 'read' }),
+});
+
+/** One list, no components: the record's statement, which two sources read two ways (E4). */
+const NO_COMPONENTS = Object.freeze([]);
+
+/** Pin: the query is a case-insensitive substring of the recorded name, and of nothing else. */
+function pinMatchIsASubstring(api) {
+  const upper = api.componentSearch(NAMED, 'APP');
+  assert.deepEqual(
+    plain(upper.rows.map((row) => row.name)),
+    ['app-counter', 'app'],
+    'the filter matches a case-insensitive substring: APP keeps app-counter, and app',
+  );
+  assert.equal(upper.matched, 2, 'matched counts the rows the query kept');
+  const narrowed = api.componentSearch(NAMED, 'counter');
+  assert.deepEqual(
+    plain(narrowed),
+    {
+      state: 'listed',
+      rows: [{ name: 'app-counter', instanceCount: 3 }],
+      matched: 1,
+    },
+    'a substring of one recorded name keeps that row and no other',
+  );
+}
+
+/** Pin: a readable list that keeps nothing is still listed, and no name is completed. */
+function pinNothingMatchedIsListed(api) {
+  const absent = api.componentSearch(NAMED, 'zzz');
+  assert.deepEqual(
+    plain(absent),
+    { state: 'listed', rows: [], matched: 0 },
+    'a query that matches no recorded name keeps no row and still reports the list as listed',
+  );
+  assert.equal(
+    'reason' in absent,
+    false,
+    'a listed answer states no reason, even when nothing matched',
+  );
+  const frameworkName = api.componentSearch(NAMED, 'root');
+  assert.deepEqual(
+    plain(frameworkName),
+    { state: 'listed', rows: [], matched: 0 },
+    'the filter never completes a name from framework knowledge: a query for the framework’s app-root keeps nothing, because this record does not carry it',
+  );
+}
+
+/** Pin: the rows are the record's rows — its names, its order, and only the counts it states. */
+function pinRowsAreTheRecords(api) {
+  const listed = api.componentSearch(NAMED, 'app');
+  assert.deepEqual(
+    plain(listed.rows),
+    [
+      { name: 'app-counter', instanceCount: 3 },
+      { name: 'app', instanceCount: 1 },
+    ],
+    'the filter emits no row the record does not carry, and copies the count the record states',
+  );
+  assert.equal(
+    listed.matched,
+    listed.rows.length,
+    'matched is the number of rows after filtering',
+  );
+  const uncounted = api.componentSearch(PARTLY_COUNTED, '');
+  assert.deepEqual(
+    plain(uncounted.rows),
+    [
+      { name: 'app-counter', instanceCount: null },
+      { name: 'app', instanceCount: 1 },
+    ],
+    'a count the record does not state is null, never a count the record lacks',
+  );
+}
+
+/** Pin: an unreadable source is cannot-tell with a cause from the closed set, never a list. */
+function pinCannotTellIsStated(api) {
+  const absent = api.componentSearch(
+    {
+      components: NO_COMPONENTS,
+      source: { state: 'unreadable', reason: 'agent-not-installed' },
+    },
+    '',
+  );
+  assert.equal(
+    absent.state,
+    'cannot-tell',
+    'an unreadable source is cannot-tell rather than a list',
+  );
+  assert.deepEqual(
+    plain(absent.rows),
+    [],
+    'a cannot-tell answer offers no rows in place of an answer',
+  );
+  assert.equal(
+    absent.matched,
+    0,
+    'a cannot-tell answer matched nothing, because nothing was read',
+  );
+  assert.equal(
+    absent.reason,
+    'agent-not-installed',
+    'the reason is the cause the record states',
+  );
+
+  const invented = api.componentSearch(
+    {
+      components: NO_COMPONENTS,
+      source: { state: 'unreadable', reason: 'framework-not-detected' },
+    },
+    '',
+  );
+  assert.ok(
+    api.reasons.indexOf(invented.reason) !== -1,
+    'the filter never repeats a cause the record invented: the reason is a member of the closed set',
+  );
+  assert.notEqual(
+    invented.reason,
+    'framework-not-detected',
+    'a cause nobody measured is not repeated as one',
+  );
+
+  const bare = api.componentSearch({ components: NO_COMPONENTS }, '');
+  assert.equal(
+    bare.reason,
+    'unreadable-source',
+    'a record that states no source at all is unreadable-source',
+  );
+  const nothing = api.componentSearch(null, '');
+  assert.equal(
+    nothing.state,
+    'cannot-tell',
+    'a record that is not a record is cannot-tell',
+  );
+  assert.equal(
+    nothing.reason,
+    'unreadable-record',
+    'the reason names the record itself as what could not be read',
+  );
+}
+
+/**
+ * Held-out E4: one record shape, two sources. `components: []` beside a readable source is the page
+ * rendering nothing; the same empty list beside an unreadable source is a read that did not happen.
+ * Both are asserted here so the two states cannot drift into one.
+ */
+function pinEmptyBesideCannotTell(api) {
+  const stated = api.componentSearch(
+    { components: NO_COMPONENTS, source: { state: 'read' } },
+    'nodata',
+  );
+  const unstated = api.componentSearch(
+    {
+      components: NO_COMPONENTS,
+      source: { state: 'unreadable', reason: 'enumerate-without-getter' },
+    },
+    'nodata',
+  );
+  assert.deepEqual(
+    plain(stated),
+    { state: 'empty', rows: [], matched: 0 },
+    'a record that states the page rendered no components answers empty, with no reason',
+  );
+  assert.equal(
+    unstated.state,
+    'cannot-tell',
+    'an unreadable source is cannot-tell with its reason, never an empty list presented as a result',
+  );
+  assert.equal(
+    unstated.reason,
+    'enumerate-without-getter',
+    'the reason is the measured cause: the page published no component getter (agent-main.js:862)',
+  );
+  assert.deepEqual(
+    plain(unstated.rows),
+    [],
+    'a cannot-tell answer carries no rows',
+  );
+  assert.notEqual(
+    stated.state,
+    unstated.state,
+    'the same empty list, one stated and one unstated, cannot collapse into one state',
+  );
+  assert.equal(
+    'reason' in stated,
+    false,
+    'the stated empty answer names no cause, because there is none to name',
+  );
+}
+
+/** Pin: the same record and query answer identically, row for row and order for order. */
+function pinIdempotent(api) {
+  const first = api.componentSearch(NAMED, 'app');
+  const second = api.componentSearch(NAMED, 'app');
+  assert.deepEqual(
+    plain(second),
+    plain(first),
+    'the same record and query answer identically',
+  );
+  assert.deepEqual(
+    plain(first.rows.map((row) => row.name)),
+    ['app-counter', 'app'],
+    'identical rows in identical order, in the order the record carries them',
+  );
+  assert.notEqual(
+    second.rows,
+    first.rows,
+    'each answer is its own list, so a caller cannot edit the next answer',
+  );
+  const other = api.componentSearch(NAMED, 'APP');
+  assert.deepEqual(
+    plain(other),
+    plain(first),
+    'the same query in another case answers identically',
+  );
+}
+
+test('T002 — a query keeps the names the record carries, matched case-insensitively', () => {
+  const failures = proveNonVacuous(pinMatchIsASubstring, [
+    {
+      what: 'a case-sensitive match',
+      anchor:
+        "    return typeof query === 'string' ? query.trim().toLowerCase() : '';",
+      replacement: "    return typeof query === 'string' ? query.trim() : '';",
+      names: DEFECTS['case-sensitivity'],
+    },
+  ]);
+  console.log(`T002 substring: ${failures.join(' | ')}`);
+});
+
+test('T002 — a query that names no recorded name matches nothing and invents none', () => {
+  const failures = proveNonVacuous(pinNothingMatchedIsListed, [
+    {
+      what: 'a name completed from framework knowledge',
+      anchor: '    return name.toLowerCase().indexOf(query) !== -1;',
+      replacement: [
+        '    // mutant: every Angular app has an app-root, so a query for it is completed from knowledge',
+        "    if (query === 'root' || query === 'app-root') return true;",
+        '    return name.toLowerCase().indexOf(query) !== -1;',
+      ].join('\n'),
+      names: DEFECTS['framework-completion'],
+    },
+  ]);
+  console.log(`T002 nothing matched: ${failures.join(' | ')}`);
+});
+
+test('T002 — the rows are the record’s rows, and no row or count is invented', () => {
+  const failures = proveNonVacuous(pinRowsAreTheRecords, [
+    {
+      what: 'a row the record does not carry',
+      anchor:
+        '      rows.push({ name: name, instanceCount: recordedCount(entry) });',
+      replacement: [
+        '      rows.push({ name: name, instanceCount: recordedCount(entry) });',
+        "      rows.push({ name: 'app-root', instanceCount: recordedCount(entry) });",
+      ].join('\n'),
+      names: DEFECTS['invented-row'],
+    },
+    {
+      what: 'a count the record does not state',
+      anchor: '    return stated ? count : null;',
+      replacement: '    return stated ? count : 1;',
+      names: DEFECTS['invented-count'],
+    },
+  ]);
+  console.log(`T002 rows: ${failures.join(' | ')}`);
+});
+
+test('T002 — an unreadable source is cannot-tell with a reason from the closed set', () => {
+  const failures = proveNonVacuous(pinCannotTellIsStated, [
+    {
+      what: 'a cause the record invented, repeated as though measured',
+      anchor: "    return 'unreadable-source';",
+      replacement: [
+        '    return readable && typeof source.reason === ' +
+          "'string' ? source.reason : 'unreadable-source';",
+      ].join('\n'),
+      names: DEFECTS['invented-cause'],
+    },
+  ]);
+  console.log(`T002 cannot-tell: ${failures.join(' | ')}`);
+});
+
+test('E4 — an empty list that is stated is not a source that could not be read', () => {
+  const failures = proveNonVacuous(pinEmptyBesideCannotTell, [
+    {
+      what: 'empty reported where the source is unreadable',
+      anchor:
+        '    return { state: CANNOT_TELL, rows: [], matched: 0, reason: reason };',
+      replacement: '    return { state: EMPTY, rows: [], matched: 0 };',
+      names: DEFECTS['empty-for-unreadable'],
+    },
+  ]);
+  console.log(`E4 empty beside cannot-tell: ${failures.join(' | ')}`);
+});
+
+test('T002 — the same record and query answer identical rows in identical order', () => {
+  const failures = proveNonVacuous(pinIdempotent, [
+    {
+      what: 'rows reordered out of the record’s order',
+      anchor: '    return { state: LISTED, rows: kept, matched: kept.length };',
+      replacement:
+        '    kept.reverse();\n    return { state: LISTED, rows: kept, matched: kept.length };',
+      names: DEFECTS['order-defect'],
+    },
+  ]);
+  console.log(`T002 idempotency: ${failures.join(' | ')}`);
+});
+
+test('T002 — the filter is one implementation and it reads the record, never the page', () => {
+  const pinNoDom = (/** @type {string} */ text) => {
+    assert.doesNotMatch(
+      text,
+      /\bdocument\b/,
+      'the list is read from the record, and no caller reads the DOM to build it',
+    );
+  };
+  pinNoDom(SEARCH_SRC);
+  const failure = failureOf(() =>
+    pinNoDom(
+      mutatedSource(
+        '  function componentSearch(record, query) {',
+        "  function componentSearch(record, query) {\n    document.querySelectorAll('*');",
+      ),
+    ),
+  );
+  assert.ok(
+    failure.message.includes(DEFECTS['dom-read']),
+    `the DOM-reading mutant must redden naming the defect: ${failure.message.split('\n')[0]}`,
+  );
+
+  const extension = new URL('../extension/', import.meta.url);
+  const implementers = readdirSync(extension)
+    .filter((name) => name.endsWith('.js') && name !== 'component-search.js')
+    .filter((name) =>
+      readFileSync(
+        new URL(`../extension/${name}`, import.meta.url),
+        'utf8',
+      ).includes('componentSearch'),
+    );
+  assert.deepEqual(
+    implementers,
+    [],
+    'no other file implements componentSearch',
+  );
+  console.log(`T002 one implementation: ${failure.message.split('\n')[0]}`);
+});
+
+test('T002 — the closed reason set is the one the record names, and every cause is measured', () => {
+  const api = loadSearch();
+  assert.deepEqual(
+    plain(api.reasons),
+    record.search.reasons.map((reason) => reason.id),
+    'the module states exactly the reasons the record states, in the same order',
+  );
+  assert.deepEqual(
+    plain(api.states),
+    record.search.states.map((state) => state.id),
+    'the module states exactly the states the record states, in the same order',
+  );
+
+  // Two of the five are this file's own, and say so: they name the record's unreadability, not a
+  // page's cause. The other three must be absence ids this record already measured (N3).
+  const own = record.search.reasons
+    .filter((reason) => reason.producer === null)
+    .map((reason) => reason.id);
+  assert.deepEqual(
+    own,
+    ['unreadable-source', 'unreadable-record'],
+    'exactly two reasons are the filter’s own, because they are not a page’s causes',
+  );
+  const absenceIds = record.absences.map((entry) => entry.id);
+  const measured = api.reasons.filter((id) => own.indexOf(id) === -1);
+  assert.deepEqual(
+    measured.length,
+    3,
+    `three reasons are measured causes and two are the filter's own, not ${measured.length} and ${own.length}`,
+  );
+  for (const id of measured)
+    assert.ok(
+      absenceIds.includes(id),
+      `the reason ${id} is an absence case this record measured, not a cause the filter invented`,
+    );
+  for (const reason of record.search.reasons)
+    if (reason.producer !== null)
+      assertCitation(reason.producer, `search.reasons[${reason.id}].producer`);
+
+  // The record's mutants are the ones this suite runs, and each names its defect by the phrase the
+  // failure carries — so a record that quietly drops a mutant is a red test.
+  assert.deepEqual(
+    record.search.mutants.map((mutant) => mutant.id),
+    Object.keys(DEFECTS),
+    'the record lists the mutants this suite runs, in the same order',
+  );
+  for (const mutant of record.search.mutants)
+    assert.equal(
+      mutant.names,
+      DEFECTS[mutant.id],
+      `mutants[${mutant.id}] names the defect by the phrase its pin's failure carries`,
+    );
+  assert.equal(
+    api.reasons.indexOf('framework-not-detected'),
+    -1,
+    'a cause nobody measured is not in the vocabulary',
+  );
+  console.log(
+    `T002 closed set: ${api.reasons.length} reasons, ${own.length} of them the filter’s own`,
   );
 });
