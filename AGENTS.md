@@ -259,3 +259,27 @@ What that changes:
 
 This is the exit condition the superseded subsection wrote for itself, discharged by measurement rather than by waiting for someone
 to declare the migration done.
+
+### Why a landing is expensive, measured on M046
+
+M046 took about eighteen hours of wall clock and thirty-two commits for seven tasks. The cost was
+not the product work; it was four mechanical failures, each of which now has a check:
+
+- **An undeclared path costs a full Verify.** `isolation.py land` refuses the allow-list after the
+  Verify has run, so one path a task's `files:` omitted wasted an eighteen-minute verify — three
+  times. `gsd land` now checks the allow-list first and names every undeclared path at once.
+- **The Verify's output was invisible.** `gsd land` printed eight lines, and the harness wrote
+  zero-byte logs, so six attempts were made blind. `gsd land` now writes the whole output to
+  `.project/build/verify-<TASK>.log` and prints that path. **Read that file before re-running.**
+- **Recordings drift on every commit.** `research/raw/m044-gate-shapes.json` and
+  `m056-gate-stability.json` derive their range from HEAD, so any commit after a capture makes them
+  stale, and the failure reads as a product defect. Re-derive both as the **last** commit before a
+  landing: `M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs` and
+  `M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs`.
+- **A nested suite can time out under load and look like a product failure.**
+  `scripts/user-scope-autonomy.mjs` runs the whole helper suite (334 tests, ~105 s alone) with a
+  child ceiling; under `npm test`'s parallelism it hit a 240 s ceiling and reported as a failing
+  pin. The ceiling is now 600 s with the measurement in the comment.
+
+The rule that follows: a landing is one attempt per iteration, and before every attempt the tree is
+clean, both recordings are re-derived, and every path the Verify writes is declared.
