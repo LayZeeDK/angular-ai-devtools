@@ -87,3 +87,13 @@ Surfaces: panel
 ## Open questions
 
 - docs/feature-proposals.md — whether the hand-off is a message or a prompt, which decides the control's label.
+
+- 2026-11-16 — SC2 narrowed to what the surface can prove. T005 measured that `absence-carried` has no producer:
+  `extension/copy-to-agent.js` hands any rendered string over unchanged and refuses only an empty or non-string
+  one, so the state is never returned. A producer was implemented and measured: it reddens four of T003's pins
+  plus two of `panel-demo.spec.ts`, because those assert both recorded subjects are `handed-over`. It is also
+  undecidable from the record - `panel-demo.ts:412` names two absences (`no-digest-entry:` and `no-code:`) where
+  the answer carries one, and `panel-demo.spec.ts:2089-2106` shapes `absence` as a label while the task asked for
+  the whole line. Choosing one of two absences, or one of two shapes, would be the inference N1 forbids. SC2 is
+  therefore met as: the surface renders the absence case in the pane's own words and claims no state the join
+  cannot produce. The producer is deferred until a task owns the pins that assert the current states.
