@@ -14,6 +14,8 @@ files:
   - references/ai-browsers-verification.md
   - research/spikes/sourcemap-future-scope.md
   - plans/angular-ai-devtools-program-backlog.md
+  - references/edge-dev-aion-model.md
+  - capability-dependency-matrix.md
 ---
 
 # T006 — Correct the citations the inspection measured and retire the moved-path claims
