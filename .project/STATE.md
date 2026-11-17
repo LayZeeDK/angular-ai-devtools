@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: console-read
+milestone: copy-to-agent
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M045
-archive: .project/archive/045-console-read
+branch: gsd-path/M046
+archive: .project/archive/046-copy-to-agent
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1005,3 +1005,16 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-16 — build — build started
 - 2026-11-16 — ship — build done; final review pending
 - 2026-11-16 — shipped — archive preflight passed; shipment recorded
+- 2026-11-16 — inspect — router bound the next milestone at 33704745
+- 2026-11-16 — inspect — inspection complete; audit assembled
+- 2026-11-16 — define — inspection complete; audit assembled
+- 2026-11-16 — roadmap — roadmap re-slice started
+- 2026-11-16 — roadmap — program roadmap approved
+- 2026-11-16 — define — roadmap approved unchanged; the repairs join this milestone's plan
+- 2026-11-16 — define — STATE repair: milestone rebound from "copy-to-agent" to null
+- 2026-11-16 — define — milestone intent approved
+- 2026-11-16 — plan — planning started
+- 2026-11-16 — plan — plan approved
+- 2026-11-16 — build — build started
+- 2026-11-17 — ship — build done; final review pending
+- 2026-11-17 — shipped — archive preflight passed; shipment recorded

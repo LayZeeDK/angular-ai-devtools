@@ -52,6 +52,7 @@ const LOADERS: Record<
   'error-boundary': () => import('./panel-error-boundary') as never,
   stability: () => import('./panel-stability') as never,
   console: () => import('./panel-console') as never,
+  'console-read': () => import('./panel-copy-to-agent') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -396,6 +397,21 @@ export const FACTS: Record<string, unknown> = {
       },
       { text: 'the app failed' },
     ],
+  },
+  // The join's own answer (`extension/copy-to-agent.js`, T003) for the text the console pane draws for
+  // the `console` fact above, and nothing beside it: `{ state, body, control }`, where `body` is that
+  // pane's rendered text — `consolePanel(FACTS['console']).lines.join('\n')`, the `text` the pane builds
+  // at `panel-console.ts:392` — and `control` is the one sentence the join reads off that same text. No
+  // line of the body is written here: the string below is the console pane's own ten lines, and
+  // `panel-demo.spec.ts` re-derives it from that pane and runs the shipped join over it, holding this
+  // fact to the join's answer field for field, so a fact that drifted from either reddens there. The
+  // finding's identifiers travel in the join's `subject` and are read for nothing, which is why no code,
+  // element or title is written beside them here (N1, N3).
+  'console-read': {
+    state: 'handed-over',
+    body: "state: joined\njoined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\ncode: NG0100\ntitle: Expression Changed After Checked\ntext: NG0100: Expression has changed after it was checked.\ncode: NG04002\nno-digest-entry: the digest carries no entry for NG04002, so this finding is named by the code it carried and no title is rendered\ntext: NG04002: Cannot match any routes. URL Segment: this-route-does-not-exist\nno-code: the captured message carried no code, so this finding carries no code and no title\ntext: the app failed",
+    control:
+      'Send 10 lines from the console pane to the agent, beginning: state: joined',
   },
 };
 

@@ -334,7 +334,11 @@ export function runGsdTests(root) {
     {
       cwd: gsdDir,
       encoding: 'utf8',
-      timeout: 240_000,
+      // Measured on M046: the helper suite takes about 105 s alone and passed 334/334 when run
+      // on its own, yet exceeded this ceiling while the rest of `npm test` ran in parallel, so
+      // the copied-suite pins failed on contention rather than on the injected failure they
+      // exist to prove. The ceiling is a bound on a slow machine, not on what the suite asserts.
+      timeout: 600_000,
       maxBuffer: 256 * 1024 * 1024,
       env: childEnv(),
     },

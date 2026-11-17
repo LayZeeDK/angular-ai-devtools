@@ -306,7 +306,7 @@ Gates: S20, S21, S22, S23, TST-S1..S3, RTH-S1, HTT-S1, HTT-S2, HAR-S1, PWT-S2..S
 
 ## 6. Open gates
 
-- The bind (`gsd-path/M018`) — blocks every write to `CHARTER.md` and `ROADMAP.md`.
+- The bind (`gsd-path/M018`) closed when M018 shipped; no branch bind is open, so nothing is blocked behind it.
 - ~26 named spikes gate individual milestones; the largest are S9/S10 (forms, boundary), S5
   (image tokens), S16/S23 (companion package), S20/S21 (Vitest attach), TS1–TS12 (tutor).
 - Generation 1's charter scope admission (A3 programme 1) is recorded as a Correction at the bind.
@@ -315,8 +315,8 @@ Gates: S20, S21, S22, S23, TST-S1..S3, RTH-S1, HTT-S1, HTT-S2, HAR-S1, PWT-S2..S
 
 ## Scheduled changes — verification target and portal control (queued 2026-11-08)
 
-Recorded here rather than acted on now, because the pipeline state does not allow it: M040 is `build/active`
-(`gsd-path/M040`, `performance-narrator`) and its worktree is held by an in-flight task. Both items rank **above** the
+Recorded here rather than acted on at the time: M040 `performance-narrator` has since shipped and its worktree
+is free, so neither item waits on the pipeline. Both items rank **above** the
 remaining Generation 2 entries, because every milestone after them inherits their outcome.
 
 ### Q1 — re-target verification to the zoneless portal, and shrink the fixture fallback list

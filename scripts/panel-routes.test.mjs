@@ -32,6 +32,7 @@ const surfaces = [
   'navigation',
   'error-boundary',
   'stability',
+  'console-read',
 ];
 
 function routeBlock(source, surface) {
@@ -342,6 +343,25 @@ test('E1: a panel route installs a component through the one shared loader, neve
       String(err.message).includes('route stability must exist'),
     'a table without the stability route must fail naming the missing surface',
   );
+
+  // Mutant: the M046 surface's route entry removed from the table entirely. It is the route this task
+  // appends last, so the per-surface half must name it rather than pass on the older surfaces alone.
+  const withoutConsoleRead = source.replace(
+    "  {\n    path: 'console-read',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'console-read' },\n  },\n",
+    '',
+  );
+  assert.notEqual(
+    withoutConsoleRead,
+    source,
+    'the removed-console-read-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutConsoleRead),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route console-read must exist'),
+    'a table without the console-read route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -359,6 +379,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     navigation: ['panel-navigation', 'navigationPanel'],
     'error-boundary': ['panel-error-boundary', 'errorBoundaryPanel'],
     stability: ['panel-stability', 'stabilityPanel'],
+    'console-read': ['panel-copy-to-agent', 'consoleReadPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -398,6 +419,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'navigationPanel(',
     'errorBoundaryPanel(',
     'stabilityPanel(',
+    'consoleReadPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -649,5 +671,30 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       err instanceof assert.AssertionError &&
       String(err.message).includes('stability'),
     'removing the stability loader must fail naming the missing surface stability',
+  );
+
+  // Mutant: remove the console-read key from LOADERS. The M046 route is the one this task adds, so the
+  // check must name it when its loader is gone rather than pass on the surfaces before it. It is a
+  // quoted key whose import is the only reference to `panel-copy-to-agent.ts`, so a route that dropped
+  // it would leave the hand-off surface unreachable while every earlier surface still loaded. The
+  // assertion reads the failure's whole message: the missing-key sentence and the surface it names.
+  const withoutConsoleRead = demoSource.replace(
+    "  'console-read': () => import('./panel-copy-to-agent') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutConsoleRead,
+    demoSource,
+    'the console-read mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutConsoleRead),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: console-read'),
+    'removing the console-read loader must fail naming the missing surface console-read',
   );
 });

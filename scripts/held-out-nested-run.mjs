@@ -29,6 +29,9 @@ export const DEPTH_ENV = 'HELD_OUT_CORPUS_DEPTH';
 /** How many lines of a failing child's output a message carries. */
 const TAIL_LIMIT = 40;
 
+/** How many failing test names a message carries above the tail, so a red names itself. */
+const FAILING_NAME_LIMIT = 40;
+
 /** The repository this module ships in, so `package.json` is read beside the module and not the cwd. */
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -306,7 +309,18 @@ export function exitStatusMessage(label, result, output) {
   const status = result?.status ?? null;
   const signal = result?.signal ?? null;
   const head = `${label} exited ${status}${signal ? ` on signal ${signal}` : ''}`;
-  return `${head}\n${tailLines(output)}`;
+  // A tail alone hides which tests failed: measured on M046, a nested `npm test` reported 24
+  // failing tests and the 40-line tail kept the summary block but dropped every `✖` line, so
+  // the cause took seven runs to find. The failing names are carried above the tail, in order.
+  const names = String(output ?? '')
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('✖'))
+    .filter((line, index, all) => all.indexOf(line) === index)
+    .slice(0, FAILING_NAME_LIMIT);
+  const failed = names.length === 0 ? '' : `\nfailing:\n${names.join('\n')}`;
+  return `${head}${failed}\n${tailLines(output)}`;
 }
 
 /**

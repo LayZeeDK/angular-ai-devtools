@@ -1641,7 +1641,7 @@ Success criteria
 2. A code the digest does not carry reports cannot-tell with the code named and no guessed construct.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the console-read proposal, including whether a per-page diagnostic budget applies.
 
@@ -1651,8 +1651,8 @@ Goal: A finding can be handed to the agent as a question about itself, and what 
 Depends on: [M020]
 Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/046-copy-to-agent
 Integrated: null
 
 Scope: in
@@ -1671,7 +1671,7 @@ Success criteria
 2. A finding carrying a named absence is handed over with that absence, not with an empty finding.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the copy-to-agent proposal, including whether the hand-off is a message or a prompt.
 
@@ -1701,7 +1701,7 @@ Success criteria
 2. An unreadable tree reports cannot-tell naming the absence, never an empty list.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the component-search proposal, including whether search spans components or instances.
 
@@ -1731,7 +1731,7 @@ Success criteria
 2. A record with no text reports the named absence, not a clean result.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the ui-copy-check proposal, including what corpus of expected strings it compares against.
 
@@ -1761,7 +1761,7 @@ Success criteria
 2. No step names an intent, a cause or an owner that the event does not carry.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the interaction-story proposal, including whether steps group by navigation.
 
@@ -1791,7 +1791,7 @@ Success criteria
 2. The window is quoted from the record, never assumed from a constant.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the dead-click proposal (S17), including the window it measures over.
 
@@ -1821,7 +1821,7 @@ Success criteria
 2. Incomparable records report the named absence, never an empty diff.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the what-changed proposal (S18), including which record fields are comparable.
 
@@ -1851,7 +1851,7 @@ Success criteria
 2. An app with no tools reports the absence, not an empty successful audit.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md and docs/filing-ledger.md §9 — the WebMCP draft's annotation set, including `debugging`.
 
@@ -1881,7 +1881,7 @@ Success criteria
 2. No tool available reports cannot-tell naming the absence, never a simulated success.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the webmcp-rehearsal proposal, including which tools are read-only by declaration.
 
@@ -1911,7 +1911,7 @@ Success criteria
 2. An unmeasurable element reports the named absence, not a zero.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the visual-qa proposal (S5), including which element the measurement targets.
 
@@ -1941,7 +1941,7 @@ Success criteria
 2. A question no artefact answers reports the named absence, never a paraphrase.
 3. A subject that does not match this milestone's premise reports "cannot tell" rather than naming a wrong cause.
 
-## Open questions
+#### Open questions
 
 - docs/feature-proposals.md — the tutor-foundations proposal (TS1-TS12), including whether later tutor milestones reuse this surface.
 

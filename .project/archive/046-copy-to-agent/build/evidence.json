@@ -1,0 +1,176 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "2e26bc058391c42b6c321f234ce8fc5540766584",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M046",
+        "candidates": [
+          {
+            "base": "af433755e8f3734a81a01eb3434f7838bb868de0",
+            "commit": "c3e7ff350a6d86dc73c8f4fe7e2f37bde1956072",
+            "valid": true
+          }
+        ],
+        "head": "2e26bc058391c42b6c321f234ce8fc5540766584",
+        "subject": "T001: Measure what the panel renders and what a copy path composes today"
+      },
+      "landed_commit": "c3e7ff350a6d86dc73c8f4fe7e2f37bde1956072",
+      "reasons": [],
+      "task": {
+        "base": "af433755e8f3734a81a01eb3434f7838bb868de0",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-measure-what-the-panel-renders-and-what-a-copy-path-composes.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M046",
+        "candidates": [
+          {
+            "base": "43125f9d4fbc9066f803a5dda105621e02119af6",
+            "commit": "4623c97b953b61a8d71df919246f45432cd561b5",
+            "valid": true
+          }
+        ],
+        "head": "2e26bc058391c42b6c321f234ce8fc5540766584",
+        "subject": "T002: Remove the .claude mirror and the rule that maintained it"
+      },
+      "landed_commit": "4623c97b953b61a8d71df919246f45432cd561b5",
+      "reasons": [],
+      "task": {
+        "base": "43125f9d4fbc9066f803a5dda105621e02119af6",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-remove-the-claude-mirror-and-the-rule-that-maintained-it.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M046",
+        "candidates": [
+          {
+            "base": "4623c97b953b61a8d71df919246f45432cd561b5",
+            "commit": "a8b166cc110694837141d2646b21db26fb6e1dfd",
+            "valid": true
+          }
+        ],
+        "head": "2e26bc058391c42b6c321f234ce8fc5540766584",
+        "subject": "T003: Build the hand-off from the pane text and a control that names what it sends"
+      },
+      "landed_commit": "a8b166cc110694837141d2646b21db26fb6e1dfd",
+      "reasons": [],
+      "task": {
+        "base": "4623c97b953b61a8d71df919246f45432cd561b5",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-build-the-hand-off-from-the-pane-text-and-a-control-that-names-what-it-sends.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M046",
+        "candidates": [
+          {
+            "base": "a8b166cc110694837141d2646b21db26fb6e1dfd",
+            "commit": "c0b1036caa3067389c81f69e217d07bb160d66f6",
+            "valid": true
+          }
+        ],
+        "head": "2e26bc058391c42b6c321f234ce8fc5540766584",
+        "subject": "T004: Render the three hand-over states and pin the routes they add"
+      },
+      "landed_commit": "c0b1036caa3067389c81f69e217d07bb160d66f6",
+      "reasons": [],
+      "task": {
+        "base": "a8b166cc110694837141d2646b21db26fb6e1dfd",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-render-the-three-hand-over-states-and-pin-the-routes-they-add.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M046",
+        "candidates": [
+          {
+            "base": "c0b1036caa3067389c81f69e217d07bb160d66f6",
+            "commit": "10701535737ce6a20beeda2a2a85de01924eda97",
+            "valid": true
+          }
+        ],
+        "head": "2e26bc058391c42b6c321f234ce8fc5540766584",
+        "subject": "T005: Give cannot-tell a closed reason set and prove an invented cause reddens"
+      },
+      "landed_commit": "10701535737ce6a20beeda2a2a85de01924eda97",
+      "reasons": [],
+      "task": {
+        "base": "c0b1036caa3067389c81f69e217d07bb160d66f6",
+        "id": "T005",
+        "status": "done",
+        "task_file": ".project/tasks/T005-give-cannot-tell-a-closed-reason-set-and-prove-an-invented-cause-reddens.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M046",
+        "candidates": [
+          {
+            "base": "33e9b6c0ebcd78843be4330cfd03d6890547078c",
+            "commit": "1165852bc1ac50c926b767beda0403bfc9af05dd",
+            "valid": true
+          }
+        ],
+        "head": "2e26bc058391c42b6c321f234ce8fc5540766584",
+        "subject": "T006: Correct the citations the inspection measured and retire the moved-path claims"
+      },
+      "landed_commit": "1165852bc1ac50c926b767beda0403bfc9af05dd",
+      "reasons": [],
+      "task": {
+        "base": "33e9b6c0ebcd78843be4330cfd03d6890547078c",
+        "id": "T006",
+        "status": "done",
+        "task_file": ".project/tasks/T006-correct-the-citations-the-inspection-measured-and-retire-the-moved-path-claims.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M046",
+        "candidates": [
+          {
+            "base": "47b119431128d84e03f64d8d8887e9bb2cc9a1e1",
+            "commit": "c6505f15f8254af41f20e5a9d9abee374f019b00",
+            "valid": true
+          }
+        ],
+        "head": "2e26bc058391c42b6c321f234ce8fc5540766584",
+        "subject": "T007: Record the surface and run the project verify"
+      },
+      "landed_commit": "c6505f15f8254af41f20e5a9d9abee374f019b00",
+      "reasons": [],
+      "task": {
+        "base": "47b119431128d84e03f64d8d8887e9bb2cc9a1e1",
+        "id": "T007",
+        "status": "done",
+        "task_file": ".project/tasks/T007-record-the-surface-and-run-the-project-verify.md"
+      }
+    }
+  ]
+}
