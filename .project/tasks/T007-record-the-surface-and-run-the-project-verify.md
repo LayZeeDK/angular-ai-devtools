@@ -11,6 +11,7 @@ task_branch: null
 files:
   - research/raw/m046-surface.json
   - scripts/copy-to-agent.test.mjs
+  - .project/research/DOCS-AUDIT.md
 ---
 
 # T007 — Record the surface and run the project verify
@@ -41,7 +42,8 @@ None
 ## Acceptance criteria
 
 1. The record is derived from this tree, and a default run writes no byte.
-2. The project verify passes at the head this task lands.
+2. The docs audit covers the single tree: `check_docs_audit.py` passes, so its frozen inventory no longer names the 41 documents the mirror deletion removed and its summary tallies equal the claim rows it keeps.
+3. The project verify passes at the head this task lands.
 
 ## Verify
 
