@@ -2,10 +2,10 @@
 id: T006
 title: Correct the citations the inspection measured and retire the moved-path claims
 wave: 4
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T006
+base: 33e9b6c0ebcd78843be4330cfd03d6890547078c
 worktree: null
 task_branch: null
 files:

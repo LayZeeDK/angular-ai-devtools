@@ -332,7 +332,7 @@ test('references/ai-browsers-verification.md attributes the 600 s to the check, 
     'checks/state.mjs must set the 600 s per-call timeout',
   );
   assert(
-    text.includes('checks/state.mjs:253'),
+    text.includes('checks/state.mjs:321'),
     'the re-attribution must cite the line',
   );
   assert(
