@@ -24,7 +24,7 @@ the page rendered, filtered by a name they type, with an absence reported as an 
 | E1 | SC1 | boundary | criterion SC1 | A component name the record carries is matched only when the typed text is a substring of that recorded name. |
 | E2 | SC1 | precision | criterion SC1 | A name typed with different case matches the recorded name; the match is case-insensitive and says so. |
 | E3 | SC2 | empty | criterion SC2 | A page whose component source could not be read reports `cannot-tell` with its reason, never a zero-length list. |
-| E4 | SC2 | boundary | criterion SC2 | A page that rendered no components reports a stated empty list, which is distinct from `cannot-tell`. |
+| E4 | SC2 | boundary | held-out | A page that rendered no components reports a stated empty list, which is distinct from `cannot-tell`. |
 | E5 | SC3 | boundary | criterion SC3 | A subject outside this milestone's premise reports the mismatch it observed, not a component name. |
 | E6 | SC1 | idempotency | criterion SC1 | Filtering the same text twice returns the same rows in the same order. |
 | E7 | SC1 | precision | criterion SC1 | A duplicated name in one list appears once per rendered instance, and the count says which. |
