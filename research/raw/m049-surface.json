@@ -77,83 +77,83 @@
     "resolvedBy": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 561,
+        "line": 617,
         "lineText": "const loader = LOADERS[name];",
         "holds": "LOADERS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 567,
+        "line": 623,
         "lineText": "void loader().then((mod) => {",
         "holds": "loader()"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 568,
+        "line": 624,
         "lineText": "const surface = mod.default(FACTS[name]);",
         "holds": "FACTS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 569,
+        "line": 625,
         "lineText": "this.state.set(surface.state);",
         "holds": "surface.state"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 570,
+        "line": 626,
         "lineText": "this.lines.set(surface.lines);",
         "holds": "surface.lines"
       }
     ],
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 459,
+      "line": 460,
       "lineText": "'interaction-story': {",
       "holds": "'interaction-story'"
     },
     "sampleFactAnswer": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 460,
+        "line": 461,
         "lineText": "state: 'steps',",
         "holds": "state: 'steps'"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 504,
+        "line": 505,
         "lineText": "cannotTell: [],",
         "holds": "cannotTell: []"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 505,
+        "line": 506,
         "lineText": "reason: null,",
         "holds": "reason: null"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 506,
+        "line": 507,
         "lineText": "bounded:",
         "holds": "bounded"
       }
     ],
     "sampleFactBounded": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 507,
+      "line": 508,
       "lineText": "'a story is what the record kept, not what the page did: routerEvents keeps 512 arrivals, pendingWorkEvents 64 and boundaryEntries 128, and the oldest fall off the front, so every story is incomplete',",
       "holds": "a story is what the record kept"
     },
     "sampleFactComment": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 447,
+        "line": 448,
         "lineText": "// The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds",
         "holds": "interaction-story.js"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 448,
+        "line": 449,
         "lineText": "// from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with",
         "holds": "m049-streams.json"
       }
@@ -248,7 +248,7 @@
           },
           {
             "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-            "line": 506,
+            "line": 507,
             "lineText": "bounded:",
             "holds": "bounded"
           }
@@ -598,7 +598,7 @@
         },
         {
           "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-          "line": 506,
+          "line": 507,
           "lineText": "bounded:",
           "holds": "bounded"
         },

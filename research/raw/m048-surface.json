@@ -78,53 +78,53 @@
     "resolvedBy": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 561,
+        "line": 617,
         "lineText": "const loader = LOADERS[name];",
         "holds": "LOADERS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 567,
+        "line": 623,
         "lineText": "void loader().then((mod) => {",
         "holds": "loader()"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 568,
+        "line": 624,
         "lineText": "const surface = mod.default(FACTS[name]);",
         "holds": "FACTS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 569,
+        "line": 625,
         "lineText": "this.state.set(surface.state);",
         "holds": "surface.state"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 570,
+        "line": 626,
         "lineText": "this.lines.set(surface.lines);",
         "holds": "surface.lines"
       }
     ],
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 446,
-      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 135 },",
-      "holds": "checked: 135"
+      "line": 447,
+      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 154 },",
+      "holds": "checked: 154"
     },
     "sampleFactComment": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 438,
+        "line": 439,
         "lineText": "// The join's own answer (`extension/copy-check.js`, T002) for T001's measurement",
         "holds": "copy-check.js"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 440,
-        "lineText": "// (`extension/copy-digest.json`): all 135 compared strings are explained, so the record reads",
-        "holds": "135"
+        "line": 441,
+        "lineText": "// (`extension/copy-digest.json`): all 154 compared strings are explained, so the record reads",
+        "holds": "154"
       }
     ],
     "statement": "the `copy-check` key is the nineteenth `LOADERS` key (:57) and no longer the last one — M049’s T003 appended `interaction-story` after it (:58), which is what moved the resolution lines below — and this key is the only path to `panel-copy-check.ts`: the demo looks the key up by the name the route’s `data.surface` states (:561), awaits the dynamic import (:567), calls the module’s default export with the sample fact (:568), and sets the state (:569) and the lines (:570) the module answers. The fact it is handed (:446) is `{ state: 'clean', unexplained: [], checked: 122 }` — the join’s answer over the twenty-surface record M048 measured — so this route’s fact is one re-measurement behind the record T004 authored at this head, whose twenty-one surfaces answer `checked: 134`. The comment above it (:440) still says 113, a second count the fact no longer agrees with. Neither line is in T004’s declared paths at this head, so the record names the divergence instead of repairing it."
