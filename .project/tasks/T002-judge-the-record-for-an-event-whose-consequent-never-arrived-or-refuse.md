@@ -18,9 +18,14 @@ files:
 
 ## Context
 
-T001 measures the three consequence chains, their pairing fields and the window. This task judges the
-record with that measurement: an event whose consequent is absent within the window is a finding, and
-a record whose window cannot be bounded is `cannot-tell` rather than a list of dangling events.
+T001 measured the three chains and narrowed this task to one. **Only the router's chain is
+judgeable**: `NavigationStart` and its terminal share the navigation's `id`
+(`extension/agent-main.js:1639`), so a start with no terminal is a finding. The work chain is
+refused — `pair`/`end` identify no particular start (`:637`, `:697`, `:698`) and `ComponentStart`
+carries no identity (`:620`), so pairing would be pairing by position, which N3 forbids. The
+boundary chain is refused because the record keeps no reset, so its consequent cannot be absent.
+Both refusals are `cannot-tell` reasons from the closed set, not silent omissions. A record whose
+window cannot be bounded is `cannot-tell` rather than a list of dangling events.
 
 ## Approach
 
@@ -55,7 +60,7 @@ clock.
 
 ## Acceptance criteria
 
-1. A dangling start is reported with its own fields and the window; a paired start is never reported; a pairing that relies on adjacency rather than the measured field reddens.
+1. A router start whose terminal is absent from the recorded window is reported with its own fields and the window; a paired start is never reported; a pairing that relies on adjacency rather than the measured `id` reddens. The work and boundary chains answer `cannot-tell` with their own reasons rather than being silently dropped.
 2. Held-out E4: one dangling beside one paired event yields exactly one finding, and the same test asserts the all-paired case.
 3. An unbounded record is `cannot-tell` with a closed reason, and an event outside every measured chain is counted and not reported.
 4. The suite pins the untouched module, each of the four mutants reddens naming the defect by string, and judging the same record twice returns identical findings in identical order.

@@ -59,8 +59,10 @@ Surfaces: panel
 **The roadmap's premise is falsified on its own subject, and the milestone is re-pointed at the
 consequence chains the record defines.** Measured at `74d00e63`:
 
-- The page records no click: `interaction` occurs 0 times in `extension/agent-main.js` and across the
-  twenty-eight `extension/*.js` files.
+- The page records no click: `interaction` occurs 0 times in `extension/agent-main.js`. Across
+  `extension/*.js` it now occurs 7 times, all of them in `extension/interaction-story.js` — M049's
+  narration, which reads the record rather than recording anything. Measured by T001, which
+  corrected this line: the earlier 0-across-every-file count was taken before that module existed.
 - The only click listener in `extension/` is the panel's own element picker: `attachInput(window,
   'click', onClick, true)` at `extension/overlay.js:507`, through `attachInput` at `:440`; `onClick`
   (`:356`) returns unless `armed`, then calls `preventDefault` and locks the element. It selects what
@@ -79,6 +81,19 @@ A second correction, of the previous milestone's evidence: M049's record claimed
 registers a UI listener, because its search looked for `addEventListener('click'` and the overlay
 attaches through a wrapper. That is corrected in `research/raw/m049-streams.json` at `74d00e63`; the
 conclusion stands, the evidence did not.
+
+**T001 narrowed the judgeable chain, and the plan follows the measurement.** Only the router's chain
+pairs a start with its consequent on an identity field: `NavigationStart` and its terminal carry the
+navigation's own `id` (`extension/agent-main.js:1639`). The work chain is refused — `pair`/`end`
+(`:697`, `:698`) name a family and a side and identify no particular start, the file says so itself at
+`:637`, and `ComponentStart` carries no identity (`:620`), so pairing two open starts would be pairing
+by position (N3). The boundary chain is refused because the record keeps no reset at all: the twelve
+`boundaryReset`-related lines are the agent's own teardown, so the consequent cannot be absent.
+
+Survival was measured and did not narrow anything: a dangling start **does** survive into the published
+record (`events: c.events.slice(),` `:1048`, dispatched `:1059`), because the frame's close is what
+publishes it. My hypothesis in `## Open questions` was that dangling work events are dropped; the
+measurement says otherwise, so the refusal rests on pairing rather than survival.
 
 ## Risks
 
