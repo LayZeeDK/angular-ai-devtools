@@ -113,3 +113,17 @@ Review depth: full
 T004 records the route, the loader key and each state with the report field it reads; re-measures the copy
 record and digest so the new surface's sentences are explained; captures `research/raw/m051-verdict-claims.json`;
 re-derives both gate recordings; and runs `npm test` — the whole suite — before the project verify.
+
+## Corrections
+
+**Correction 2 (ruled at `7b054ee6`; the intent's approved text still says "two recorded snapshots of the
+same page", so this section is where the binding is decided while that sentence stands).** T001 measured that
+the record publishes no page snapshot at two moments — two publication sites only, `agent-main.js:1059` per
+frame and `:1432` per install — and that no field binds two records to one page: `identity.bindingField:
+null`, `claimants: 0`, with `tabId` present only in the transport (`background.js:23`) and zero page
+readers in `agent-main.js`. Evidence: `research/raw/m051-snapshots.json`.
+
+The pair is therefore bound by **the panel's own inspected tab**, not by a field of the record, and the
+surface must say so: a reader sees that the binding is the panel's and that the record carries no page
+identity. A pair the panel cannot bind to one tab reports `cannot-tell`. Rewriting the intent's SC1 wording
+is owed as a define-phase step; this milestone does not pretend the sentence was already corrected.

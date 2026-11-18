@@ -67,20 +67,8 @@ Consequences, taken here rather than at build time:
 
 ## Risks
 
-- **Correction 2, ruled at `7b054ee6` (delegated, under `AGENTS.md`'s standing milestone authority).**
-  T001 measured that the record publishes **no page snapshot at two moments** — exactly two publication
-  sites, one per change-detection frame (`agent-main.js:1059`) and one per install (`:1432`) — and that
-  **no field binds two records to one page**: `identity.bindingField: null`, `claimants: 0`, with `tabId`
-  present only in the transport (`background.js:23`, added by the sender) and zero page readers in
-  `agent-main.js`. Evidence: `research/raw/m051-snapshots.json`, schema `m051-snapshots/v1`, 341 citations
-  re-read by `scripts/what-changed.test.mjs`.
-  Ruling: **SC1 is compared against two records the panel holds for one inspected tab**, and the pair is
-  bound by the panel's own tab rather than by a field of the record. The surface must state that the record
-  carries no page identity, so a reader sees that the binding is the panel's and not the record's. SC2 keeps
-  its meaning: a pair the panel cannot bind to one tab still reports `cannot-tell`.
-  Why not abandon: the record does carry two comparable records of one page's tab, and naming what differs
-  between them answers a real question. Why not invent a recorder: that is a different milestone, and a
-  surface comparing nothing would be the vacuity this programme keeps removing.
+- A snapshot shape that exists only in one field would make SC2 always refuse, and the surface would ship
+  green while answering nothing. E2 and E4 exist to make that visible.
 - The comparison must not become a general diff utility; it reads the named fields the record states.
 
 ## Open questions
