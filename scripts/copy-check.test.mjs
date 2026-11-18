@@ -947,9 +947,11 @@ test('a surface that declares copy cannot be recorded as declaring nothing', () 
 });
 
 test('the record names the task that authors the digest, and measures no join itself', () => {
-  // T001's half ends at the measurement: the join and the digest are T002's, and neither exists at
-  // this head. This test asserts what the record says about itself and nothing about a file T002
-  // will add, so T002 can append its own section to this suite without reddening this one.
+  // T001's half ends at the measurement: the join and the digest are T002's, and this record still
+  // measures no join of its own. The verdict said no digest of this copy existed yet when T001 wrote
+  // it; T002 authored that digest from this record and T004 extended it over the twentieth surface,
+  // so the pin holds the sentence the record states now — the digest as the first one that holds this
+  // copy — rather than the future tense it carried at a head where the digest did not exist.
   assert.match(
     record.verdict,
     /T002/,
@@ -957,8 +959,8 @@ test('the record names the task that authors the digest, and measures no join it
   );
   assert.match(
     record.verdict,
-    /will be the first one that holds it/,
-    'the record states that no digest of this copy exists yet, rather than implying one does',
+    /is the first one that holds it/,
+    'the record names the digest as the first one that holds this copy, as it is once T002 has authored it and T004 has extended it',
   );
   assert.ok(
     record.notCaptured.some((claim) =>
@@ -975,13 +977,18 @@ test('the record names the task that authors the digest, and measures no join it
 // T002 — the copy digest, and the join that explains the declared sentences against it.
 //
 // T001 measured 19 surfaces, 79 sentences declared in a map or a module constant and 34 written
-// inline where no map can reach them. `extension/copy-digest.json` is authored from that record and
-// nothing else, and `extension/copy-check.js` is the pure join that reads it. This section holds the
-// three together, and each of its claims is a pin rather than a paragraph:
+// inline where no map can reach them. T004 re-measured the record over the twentieth surface,
+// `panel-copy-check.ts`, which declares nine more: 88 sentences in a map or a constant and the same
+// 34 inline, which is 122 sentences carrying 121 distinct texts. `extension/copy-digest.json` is
+// authored from that record and nothing else, and `extension/copy-check.js` is the pure join that
+// reads it. This section holds the three together, and each of its claims is a pin rather than a
+// paragraph:
 //
 // 1. The digest is the record's sentences. Every row names a sentence the record carries, under the
 //    surface and the key the record gives it; the digest carries no row for a string no surface
-//    renders, and no row is a copy of the record's citations (E1, N1).
+//    renders, and no row is a copy of the record's citations (E1, N1). One row per distinct text: the
+//    twentieth surface declares `no-reason` with the exact text `components` already declares, and
+//    one row explains a string wherever a surface renders it.
 // 2. The join explains exactly those strings and nothing else. A sentence one word from a digest row,
 //    or the record's U+2019 apostrophe spelled with an ASCII one, is reported rather than explained:
 //    the comparison is `===` on the digest's own text (E2, N1).
@@ -1115,10 +1122,27 @@ test('T002 — the digest is the record’s sentences, under the surface and key
 
   const entries = shippedDigest.entries;
   assert.ok(Array.isArray(entries), 'the digest carries an entries list');
+  // One row per distinct sentence text, not per sentence occurrence. Two surfaces can declare the
+  // same string — `panel-copy-check.ts:128` declares `no-reason` with the exact text
+  // `panel-components.ts:147` already declares — and the join explains a string wherever it is
+  // rendered, so a second row for one text would be a second explanation of one string. The
+  // difference between the sentences and the rows is measured from the record rather than assumed:
+  // it must be exactly the texts another sentence already carries, so the row count leaves no
+  // sentence out and no row is written for a sentence the record does not carry.
+  const sentences = recordSentenceRows();
+  const distinct = new Set(
+    sentences.map((/** @type {{text: string}} */ row) => row.text),
+  );
+  const repeats = sentences.length - distinct.size;
   assert.equal(
     entries.length,
+    distinct.size,
+    `the digest carries one row per distinct sentence the record declares (${distinct.size}) and none besides; it carries ${entries.length} row(s) for ${sentences.length} sentence(s)`,
+  );
+  assert.equal(
+    entries.length + repeats,
     record.counts.declaredSentences + record.counts.inlineSentences,
-    'the digest carries one row per sentence the record declares, declared and inline, and none besides',
+    'every sentence the record declares is either the row that explains it or an occurrence of a text a row already explains, so the row count leaves no sentence unexplained',
   );
 
   // Every row is a sentence the record carries, under the surface and the key the record gives it.
@@ -1195,7 +1219,7 @@ test('T002 — the digest is the record’s sentences, under the surface and key
     `the digest carries ${texts.length} sentences, which is the copy this milestone measured`,
   );
   console.log(
-    `T002 digest: ${texts.length} sentences, ${digestBytes} bytes against the record's ${RECORD_BYTES}`,
+    `T002 digest: ${texts.length} rows for ${sentences.length} sentences (${repeats} repeat(s)), ${digestBytes} bytes against the record's ${RECORD_BYTES}`,
   );
 });
 
@@ -2214,4 +2238,306 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
     lines.push(`${mutation.id}: ${failure.message.split('\n')[0]}`);
   }
   console.log(`T002 mutants: ${lines.join(' || ')}`);
+});
+
+// ------------------------------------------------------------------------------------------------
+// T004 — the twentieth surface, measured and digested.
+//
+// `panel-copy-check.ts` shipped in T003 as the twentieth `panel-*.ts` surface, and a record that
+// stopped at nineteen was a check that could not see its own surface: the drift it reports on every
+// other pane was invisible in the one that renders its answer, and `panel-demo.spec.ts` did not exist
+// to notice it either. T004 re-measured the record over all twenty — every citation re-read, the
+// twentieth surface's nine sentences and seven inline labels cited — and authored the digest rows for
+// the new sentences from that measurement rather than from the pane's own render, which is the one
+// source that would make the digest agree with the surface by construction.
+//
+// Two facts the pins below state rather than assume:
+//
+//   * the digest holds one row per distinct sentence text, so 121 rows explain 122 sentences: the
+//     `no-reason` sentence `panel-copy-check.ts:128` declares is byte for byte the one
+//     `panel-components.ts:147` declares, and the one row explains both;
+//   * no sentence is written inline on that pane. Its seven inline entries are labels (`state:`,
+//     `string:`, `surface:`, `checked:`, `reason:`), the answer's own fields, so every one of them is
+//     a kind the join reads past and none of them is a row the digest could hold.
+
+test('T004 — the twentieth surface is measured, and the digest explains every sentence the record carries', () => {
+  const api = loadCopy();
+  const copyCheck = surfaceOf('copy-check');
+
+  assert.equal(
+    record.counts.surfaces,
+    20,
+    `the record measures every panel-*.ts surface the tree carries, and it measures ${record.counts.surfaces}`,
+  );
+  assert.equal(
+    copyCheck.file,
+    `${APP}/panel-copy-check.ts`,
+    'the twentieth surface is the copy-check pane',
+  );
+  assert.equal(
+    copyCheck.declares,
+    'map',
+    'the pane declares its copy in a registry rather than inline',
+  );
+  assert.equal(
+    copyCheck.declaration?.name,
+    'PANE_SENTENCES',
+    'and the registry is the one its declaration names',
+  );
+
+  // The nine sentences, in the order the registry states them: the three states, then the six
+  // absences the pane can state about the answer it was handed.
+  const sentences = recordSentences(copyCheck);
+  assert.deepEqual(
+    sentences.map((row) => row.key),
+    [
+      'state-clean',
+      'state-unexplained',
+      'state-cannot-tell',
+      'no-copy-check-answer',
+      'no-checked',
+      'no-unexplained-list',
+      'no-unexplained-string',
+      'no-unexplained-surface',
+      'no-reason',
+    ],
+    'the pane declares the three state sentences and the six absences, in the order its registry states them',
+  );
+  assert.equal(
+    sentences.length,
+    9,
+    `the pane declares ${sentences.length} sentences and its registry carries nine`,
+  );
+
+  // Seven distinct interpolated literals, every one of them a label, so none is a sentence and none
+  // is digested. Five of the seven are built once; two are built twice, and the record cites the
+  // first line that builds each — the reading it already gives panel-fields.ts's `submit: ${submit}`.
+  assert.equal(
+    copyCheck.inline.length,
+    7,
+    `the pane builds ${copyCheck.inline.length} distinct labels inline and the record carries seven`,
+  );
+  for (const line of copyCheck.inline) {
+    assert.equal(
+      line.kind,
+      'label',
+      `the pane writes "${line.text}" inline and it is a label of the answer's own field`,
+    );
+    assert.equal(
+      line.interpolated,
+      true,
+      `"${line.text}" is built from a value, so it is interpolated`,
+    );
+  }
+  assert.equal(
+    copyCheck.inline.filter((line) => line.kind === 'sentence').length,
+    0,
+    'no sentence is written inline on this pane, which is why no inline entry of it is digested',
+  );
+
+  // The digest's cardinality, stated as the two numbers it is: one row per distinct text, and the
+  // repeated occurrence named so the row count cannot be read as a sentence left out.
+  const all = recordSentenceRows();
+  assert.equal(
+    shippedDigest.entries.length,
+    121,
+    `the digest carries ${shippedDigest.entries.length} rows and the record carries 121 distinct sentence texts`,
+  );
+  assert.equal(
+    shippedDigest.entries.length,
+    new Set(all.map((row) => row.text)).size,
+    'a row per distinct sentence text, and none besides',
+  );
+  assert.equal(
+    all.length,
+    122,
+    `the record carries ${all.length} sentences: 88 declared in a map or a constant and 34 written inline`,
+  );
+
+  // The one repeated sentence: two surfaces declare it, the digest holds one row for it, and the row
+  // is filed under the surface that declared it first.
+  const shared = recordSentenceText('copy-check', 'no-reason');
+  assert.equal(
+    shared,
+    recordSentenceText('components', 'no-reason'),
+    'the twentieth surface declares the same `no-reason` sentence the components pane declares, byte for byte',
+  );
+  const sharedRows = shippedDigest.entries.filter(
+    (/** @type {{text: string}} */ entry) => entry.text === shared,
+  );
+  assert.equal(
+    sharedRows.length,
+    1,
+    `the digest holds ${sharedRows.length} row(s) for "${shared}": one row explains a string wherever a surface renders it`,
+  );
+  assert.deepEqual(
+    sharedRows[0],
+    { surface: 'components', key: 'no-reason', text: shared },
+    'the shared row is filed under the surface that declared it first, and copy-check’s sentence is explained by it',
+  );
+
+  // The pane's own row over its own surface: the digest explains all nine of its sentences.
+  const row = copyOf(api.copyCheck(copyOf([copyCheck]), copyOf(shippedDigest)));
+  assert.deepEqual(
+    row,
+    { state: 'clean', unexplained: [], checked: 9 },
+    `the copy-check pane's own row answers ${JSON.stringify(row)} rather than clean over nine compared sentences`,
+  );
+
+  // The whole record, at the counts this milestone re-measured.
+  const whole = copyOf(
+    api.copyCheck(copyOf(record.surfaces), copyOf(shippedDigest)),
+  );
+  assert.equal(
+    whole.state,
+    'clean',
+    `the record answers "${whole.state}" naming "${whole.unexplained[0]?.string ?? ''}"`,
+  );
+  assert.equal(
+    whole.checked,
+    122,
+    `every sentence the record declares is compared, the shared one at both surfaces, and ${whole.checked} were`,
+  );
+  assert.equal(
+    whole.checked,
+    record.counts.declaredSentences + record.counts.inlineSentences,
+    'the count the record states is the count the join compared',
+  );
+  assert.deepEqual(
+    whole.unexplained,
+    [],
+    `the digest explains all ${whole.checked} sentences`,
+  );
+  console.log(
+    `T004 surface: copy-check declares ${sentences.length} sentences and builds ${copyCheck.inline.length} labels; ` +
+      `the digest holds ${shippedDigest.entries.length} rows for ${whole.checked} sentences, two of them one text`,
+  );
+});
+
+// The route record `research/raw/m048-surface.json` is T004's second half: the route, the loader key,
+// the three states and the field of the answer each reads, so a reader can reach the pane without
+// opening the browser. It is a new file with no suite of its own in the milestone's file list, so the
+// pin lives here — every citation it makes is re-read, and the text each citation says its line holds
+// must be on that line. A citation that slid off its line, or a name whose line moved, reddens here
+// rather than in review.
+const SURFACE_RECORD = 'research/raw/m048-surface.json';
+
+/**
+ * Every citation one record makes, wherever it sits and whatever it is called: an object carrying a
+ * `file` and a 1-indexed `line` is a citation, and the walk names the path it sits at.
+ * @param {any} value
+ * @param {string} where
+ * @returns {Generator<[string, Citation]>}
+ */
+function* citationsIn(value, where) {
+  if (Array.isArray(value)) {
+    for (const [index, item] of value.entries())
+      yield* citationsIn(item, `${where}[${index}]`);
+    return;
+  }
+  if (value === null || typeof value !== 'object') return;
+  if (typeof value.file === 'string' && Number.isInteger(value.line)) {
+    yield [where, value];
+    return;
+  }
+  for (const [key, item] of Object.entries(value))
+    yield* citationsIn(item, where === '' ? key : `${where}.${key}`);
+}
+
+test('T004 — the route record names the route, the loader key, the three states and what each reads', () => {
+  const surfaceRecord = JSON.parse(
+    readFileSync(join(ROOT, SURFACE_RECORD), 'utf8'),
+  );
+  assert.equal(
+    surfaceRecord.schema,
+    'm048-surface/v1',
+    'the route record declares its own schema',
+  );
+  assert.match(
+    String(surfaceRecord.head),
+    /^[0-9a-f]{40}$/,
+    'the route record names the one commit it was read at',
+  );
+
+  // The route and the loader key are the same name: the demo looks the key up by the name the
+  // route's `data.surface` states, so a record whose two names differ describes a route that
+  // reaches nothing.
+  assert.equal(
+    surfaceRecord.route.name,
+    'copy-check',
+    `the route the record names is "${surfaceRecord.route.name}"`,
+  );
+  assert.equal(
+    surfaceRecord.loader.key,
+    surfaceRecord.route.name,
+    'the loader key is the name the route states in its data',
+  );
+  assert.match(
+    surfaceRecord.loader.module,
+    /^apps\/angular-ai-devtools\/src\/app\/panel-copy-check\.ts$/,
+    `the loader key reaches ${surfaceRecord.loader.module}`,
+  );
+
+  // The three states the record names are the join's three, in the join's order, and each one names
+  // the report field it reads — which is what makes the record a reading of the answer rather than a
+  // list of words.
+  const api = loadCopy();
+  assert.deepEqual(
+    surfaceRecord.states.map(
+      (/** @type {{word: string}} */ state) => state.word,
+    ),
+    copyOf(api.STATES),
+    'the states the route record names are the three the join publishes, in its order',
+  );
+  for (const state of surfaceRecord.states) {
+    assert.ok(
+      Array.isArray(state.reads) && state.reads.length > 0,
+      `${state.word} names the field of the answer it reads`,
+    );
+    for (const one of state.reads)
+      assert.equal(
+        typeof one.field,
+        'string',
+        `${state.word}’s read names a field of the answer`,
+      );
+    assert.ok(
+      state.sentenceAt.length > 0,
+      `${state.word} cites the sentence the pane renders for it`,
+    );
+  }
+  const read = surfaceRecord.states.flatMap(
+    (/** @type {{reads: {field: string}[]}} */ state) =>
+      state.reads.map((one) => one.field),
+  );
+  for (const field of ['state', 'checked', 'unexplained', 'reason'])
+    assert.ok(
+      read.includes(field),
+      `the record names "${field}" among the fields its states read`,
+    );
+
+  // Every citation, re-read from the file it names.
+  let citations = 0;
+  for (const [where, citation] of citationsIn(surfaceRecord, '')) {
+    const line = citedLine(citation, `${SURFACE_RECORD}:${where}`);
+    assert.equal(
+      line,
+      citation.lineText.trim(),
+      `${SURFACE_RECORD}:${where} quotes the line as "${citation.lineText.trim()}" and the file reads "${line}"`,
+    );
+    for (const key of ['holds', 'name'])
+      if (typeof citation[key] === 'string')
+        assert.ok(
+          line.includes(citation[key]),
+          `${SURFACE_RECORD}:${where} says the line holds "${citation[key]}" and the line reads "${line}"`,
+        );
+    citations += 1;
+  }
+  assert.ok(
+    citations >= 40,
+    `the route record cites ${citations} line(s), and every name in it carries one`,
+  );
+  console.log(
+    `T004 route record: ${citations} citations re-read, ${surfaceRecord.states.length} states, ` +
+      `loader key "${surfaceRecord.loader.key}", fields ${JSON.stringify([...new Set(read)])}`,
+  );
 });

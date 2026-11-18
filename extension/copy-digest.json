@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m048",
+  "version": "m048+t004",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -567,6 +567,46 @@
       "surface": "panel-demo",
       "key": null,
       "text": "error: no such surface"
+    },
+    {
+      "surface": "copy-check",
+      "key": "state-clean",
+      "text": "clean: every string the surfaces declare is explained by the digest, and the count below is how many were compared"
+    },
+    {
+      "surface": "copy-check",
+      "key": "state-unexplained",
+      "text": "unexplained: the digest does not explain the strings below, and each is named with the surface that renders it"
+    },
+    {
+      "surface": "copy-check",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the copy could not be checked, so no string is reported as explained and the reason below states why"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-copy-check-answer",
+      "text": "no-copy-check-answer: no copy-check answer was handed over, so no state, no string, no count and no reason are reported"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-checked",
+      "text": "no-checked: the answer states no count of compared strings, so no count is rendered"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-unexplained-list",
+      "text": "no-unexplained-list: the answer reported unexplained without a list of strings, so no string is rendered"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-unexplained-string",
+      "text": "no-unexplained-string: an unexplained entry arrived with no string, so no string is rendered for it"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-unexplained-surface",
+      "text": "no-unexplained-surface: an unexplained entry arrived with no surface, so no surface is rendered for it"
     }
   ]
 }

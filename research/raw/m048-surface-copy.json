@@ -1,31 +1,31 @@
 {
   "schema": "m048-surface-copy/v1",
   "milestone": "M048 ui-copy-check",
-  "task": "T001",
+  "task": "T004",
   "title": "Measure the copy each panel surface declares and where it declares none",
   "question": "which sentences does each panel surface declare for itself, at which path:line, which does it render from a literal nobody keeps in a map, and which surface declares none at all?",
-  "head": "cfdff38990b7715e38a917976dad957b64840cd5",
+  "head": "b428f0680dc7679a84944d36c4174b14e98767ca",
   "headCommand": "git rev-parse HEAD",
-  "measuredAt": "static: all nineteen apps/angular-ai-devtools/src/app/panel-*.ts surfaces (the two *.spec.ts files are named in `excluded`) were read line by line at the head above, every non-comment line carrying a string literal was extracted with a throwaway script that prints `file:line|trimmed line` (kept in the session scratchpad and not checked in), and every citation below was re-read from the file when this record was written. No browser was opened, no page was read, no build and no test of the app was run; the only command executed against these files was that extraction and the verify suite named in `verify`, which re-reads all of them.",
+  "measuredAt": "static: all twenty apps/angular-ai-devtools/src/app/panel-*.ts surfaces (the two *.spec.ts files are named in `excluded`) were read line by line at the head above, every non-comment line carrying a string literal was extracted with a throwaway script that prints `file:line|trimmed line` (kept in the session scratchpad and not checked in), and every citation below was re-read from the file when this record was re-measured. No browser was opened, no page was read, no build and no test of the app was run; the only commands executed against these files were that extraction and the verify suite named in `verify`, which re-reads all of them. T001 wrote this record over the nineteen surfaces that existed at cfdff389; T004 re-read every line over the twentieth, panel-copy-check.ts, and repaired the three citations in panel-demo.ts that the T003 commit moved.",
   "lineTextConvention": "every `lineText` is the cited line with its leading and trailing whitespace trimmed and nothing else removed, so a line that is a bare string literal carries its quotes and its trailing comma. `line` is 1-indexed. The suite re-reads each cited line and requires it to equal `lineText` exactly and to contain the sentence the record quotes.",
   "scope": [
     "Recorded per surface: (a) every sentence it declares in a map or a module constant, with the key it is declared under; (b) every sentence — fixed or interpolated — written inside a function body or a component template instead of being declared; (c) the label prefix of every line the surface builds from a label and a value, because that prefix is copy the surface writes; (d) the multi-word prose fragment a surface substitutes for a value it does not have.",
     "Not enumerated as entries: single-token value words a surface derives into a line (`true`/`false` in panel-navigation.ts:186, `disabled`/`unknown` in panel-fields.ts:232 and :235, `valid`/`invalid` in panel-fields.ts:142). They are named in the surface’s own `notes`, and they are values of a line rather than sentences.",
-    "Not recorded at all: the `Error` messages `sentenceText` throws for an id the registry does not carry (panel-components.ts:170, panel-console.ts:268, panel-copy-to-agent.ts:159). They are developer-facing throws and are never rendered to a reader."
+    "Not recorded at all: the `Error` messages `sentenceText` throws for an id the registry does not carry (panel-components.ts:170, panel-console.ts:268, panel-copy-to-agent.ts:159, panel-copy-check.ts:151). They are developer-facing throws and are never rendered to a reader."
   ],
   "counts": {
-    "surfaces": 19,
-    "surfacesWithMap": 6,
+    "surfaces": 20,
+    "surfacesWithMap": 7,
     "surfacesWithConstantsOnly": 11,
     "surfacesWithInlineOnly": 1,
     "surfacesWithNothing": 1,
-    "declaredSentences": 79,
+    "declaredSentences": 88,
     "declaredLabels": 3,
     "declaredWordsAndFragments": 8,
     "inlineSentences": 34,
-    "inlineLabels": 111,
+    "inlineLabels": 118,
     "inlineWords": 7,
-    "citations": 303
+    "citations": 322
   },
   "surfaces": [
     {
@@ -2488,7 +2488,7 @@
           "kind": "sentence",
           "interpolated": false,
           "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-          "line": 447,
+          "line": 457,
           "lineText": "<h2>panel surface: {{ name() }}</h2>"
         },
         {
@@ -2496,7 +2496,7 @@
           "kind": "label",
           "interpolated": false,
           "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-          "line": 448,
+          "line": 458,
           "lineText": "<p class=\"state\">state: {{ state() }}</p>"
         },
         {
@@ -2504,14 +2504,15 @@
           "kind": "sentence",
           "interpolated": false,
           "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-          "line": 491,
+          "line": 501,
           "lineText": "this.lines.set(['error: no such surface ' + name]);"
         }
       ],
       "notes": [
-        "The demo host declares its own two template lines inside the component’s `template` string (:447, :448) and its one error sentence by string concatenation (:491). Nothing it writes is in a constant or a map.",
-        "It is recorded because it is a `panel-*.ts` file and it renders copy of its own; it is not one of the eighteen subject surfaces, and the lines it renders for them are theirs.",
-        "The template also renders `{{ block.state }}` (:456) and `{{ line }}` (:458, :464), which are values with no pane text of their own."
+        "The demo host declares its own two template lines inside the component’s `template` string (:457, :458) and its one error sentence by string concatenation (:501). Nothing it writes is in a constant or a map.",
+        "It is recorded because it is a `panel-*.ts` file and it renders copy of its own; it is not one of the nineteen subject surfaces, and the lines it renders for them are theirs.",
+        "The template also renders `{{ block.state }}` (:466) and `{{ line }}` (:468, :474), which are values with no pane text of their own.",
+        "The three lines moved from :447, :448 and :491 at T001’s head when the `copy-check` sample fact was appended to `FACTS` above them (panel-demo.ts:437-:445); the citations here were re-read at this head rather than shifted."
       ]
     },
     {
@@ -2555,6 +2556,158 @@
         "why": "The only string literals in the file’s code are the members of two union types (`outstanding`/`answered`/`failed` and `zone`/`noop`/`unknown`) and the object keys it writes: no template literal, no quoted string containing a space, and no map. Its doc comments are prose and are never rendered. The scan that says so is the suite’s own — scripts/copy-check.test.mjs, the test named \"a surface that declares no sentences is recorded as an absence, not skipped\" — which strips the comments and then requires zero template literals and zero string literals containing whitespace, with panel-components.ts beside it as the control where the same scan finds nine sentence literals.",
         "consequence": "The join in T002 has to answer `cannot-tell` for this surface rather than an empty list, and the record states the absence so that answer is read off a measurement rather than inferred from a missing entry."
       }
+    },
+    {
+      "id": "copy-check",
+      "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+      "renderer": "copyCheckPanel",
+      "declares": "map",
+      "declaration": {
+        "kind": "array-registry",
+        "name": "PANE_SENTENCES",
+        "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+        "line": 85,
+        "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = ["
+      },
+      "sentences": [
+        {
+          "key": "state-clean",
+          "text": "clean: every string the surfaces declare is explained by the digest, and the count below is how many were compared",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 88,
+          "lineText": "text: 'clean: every string the surfaces declare is explained by the digest, and the count below is how many were compared',"
+        },
+        {
+          "key": "state-unexplained",
+          "text": "unexplained: the digest does not explain the strings below, and each is named with the surface that renders it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 93,
+          "lineText": "text: 'unexplained: the digest does not explain the strings below, and each is named with the surface that renders it',"
+        },
+        {
+          "key": "state-cannot-tell",
+          "text": "cannot-tell: the copy could not be checked, so no string is reported as explained and the reason below states why",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 98,
+          "lineText": "text: 'cannot-tell: the copy could not be checked, so no string is reported as explained and the reason below states why',"
+        },
+        {
+          "key": "no-copy-check-answer",
+          "text": "no-copy-check-answer: no copy-check answer was handed over, so no state, no string, no count and no reason are reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 103,
+          "lineText": "text: 'no-copy-check-answer: no copy-check answer was handed over, so no state, no string, no count and no reason are reported',"
+        },
+        {
+          "key": "no-checked",
+          "text": "no-checked: the answer states no count of compared strings, so no count is rendered",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 108,
+          "lineText": "text: 'no-checked: the answer states no count of compared strings, so no count is rendered',"
+        },
+        {
+          "key": "no-unexplained-list",
+          "text": "no-unexplained-list: the answer reported unexplained without a list of strings, so no string is rendered",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 113,
+          "lineText": "text: 'no-unexplained-list: the answer reported unexplained without a list of strings, so no string is rendered',"
+        },
+        {
+          "key": "no-unexplained-string",
+          "text": "no-unexplained-string: an unexplained entry arrived with no string, so no string is rendered for it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 118,
+          "lineText": "text: 'no-unexplained-string: an unexplained entry arrived with no string, so no string is rendered for it',"
+        },
+        {
+          "key": "no-unexplained-surface",
+          "text": "no-unexplained-surface: an unexplained entry arrived with no surface, so no surface is rendered for it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 123,
+          "lineText": "text: 'no-unexplained-surface: an unexplained entry arrived with no surface, so no surface is rendered for it',"
+        },
+        {
+          "key": "no-reason",
+          "text": "no-reason: the answer reported cannot-tell without a reason, so no reason is stated",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 128,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',"
+        }
+      ],
+      "inline": [
+        {
+          "text": "string: ${string}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 259,
+          "lineText": "? `string: ${string}`"
+        },
+        {
+          "text": "surface: ${surfaceId}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 264,
+          "lineText": "? `surface: ${surfaceId}`"
+        },
+        {
+          "text": "state: ${answerWord}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 289,
+          "lineText": "return surface(answerWord, [`state: ${answerWord}`]);"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 298,
+          "lineText": "reason === null ? NO_REASON_TEXT : `reason: ${reason}`,"
+        },
+        {
+          "text": "checked: ${checked}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 303,
+          "lineText": "const count = checked === null ? NO_CHECKED_TEXT : `checked: ${checked}`;"
+        },
+        {
+          "text": "state: ${CLEAN}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 306,
+          "lineText": "return surface(CLEAN, [`state: ${CLEAN}`, sentence, count]);"
+        },
+        {
+          "text": "state: ${UNEXPLAINED}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 315,
+          "lineText": "`state: ${UNEXPLAINED}`,"
+        }
+      ],
+      "notes": [
+        "Nine sentences in one registry and no loose constant: the three state sentences in the order `STATES` names them (:88, :93, :98), then the six absences the pane can state about the answer it was handed (:103, :108, :113, :118, :123, :128).",
+        "The three state words are module constants (:59, :60, :61) and `STATES` (:64) holds them in the order the surface states them. A state word is the value of a line and not a sentence, so it is named here rather than recorded as an entry, as `scope` states for the value words of other surfaces.",
+        "Each distinct interpolated literal is one entry, cited at the first line that builds it: `state: ${answerWord}` is built at :289 and again at :296, and `state: ${UNEXPLAINED}` at :315 and again at :322. That is the reading the record already gives panel-fields.ts, whose `submit: ${submit}` is one entry (:147) although :179 builds it a second time.",
+        "The lines the pane builds are all labels: `state:`, `string:`, `surface:`, `checked:` and `reason:`, the answer’s own fields. No sentence is written inline, which is why this surface’s inline entries are all read past by the join’s `SCOPE` and none of them is digested.",
+        "The sentence registered as `no-reason` (:128) carries the exact text panel-components.ts:147 declares for its own `no-reason`; `corrections` records that, because it is why the digest holds one row for two sentences."
+      ]
     }
   ],
   "absences": [
@@ -2566,7 +2719,8 @@
     "console-read",
     "stability",
     "error-boundary",
-    "fields"
+    "fields",
+    "copy-check"
   ],
   "noMapSurfaces": [
     "navigation",
@@ -2610,7 +2764,7 @@
       "what": "no panel sentence is explained by a digest: how many of this record’s sentences occur in either digest the repository ships",
       "command": "node -e \"const fs=require('fs');const r=JSON.parse(fs.readFileSync('research/raw/m048-surface-copy.json','utf8'));const d=['extension/error-digest.json','extension/image-digest.json'].map(f=>fs.readFileSync(f,'utf8')).join('\\n');let hit=0,total=0;for(const s of r.surfaces)for(const x of s.sentences){total++;if(d.includes(x.text))hit++}console.log('sentences '+total);console.log('explainedByADigest '+hit)\"",
       "output": [
-        "sentences 90",
+        "sentences 99",
         "explainedByADigest 1"
       ]
     }
@@ -2618,7 +2772,7 @@
   "corrections": [
     {
       "claim": "the milestone brief and INTENT.md § Scope cite the sentence map at `apps/angular-ai-devtools/src/app/panel-components.ts:47` and say that pattern is \"the same pattern every recent surface uses\"",
-      "measured": "line 47 is a doc-comment line that mentions `PANE_SENTENCES`; the map itself is declared at panel-components.ts:104. And the pattern is not the one every surface uses: 6 of the 19 surfaces declare their copy in a map, 11 declare it as loose module constants, 1 (panel-demo.ts) declares it entirely inside a template and a function, and 1 (panel-context.ts) declares nothing because it renders nothing.",
+      "measured": "line 47 is a doc-comment line that mentions `PANE_SENTENCES`; the map itself is declared at panel-components.ts:104. And the pattern is not the one every surface uses: 7 of the 20 surfaces declare their copy in a map, 11 declare it as loose module constants, 1 (panel-demo.ts) declares it entirely inside a template and a function, and 1 (panel-context.ts) declares nothing because it renders nothing.",
       "citations": [
         {
           "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
@@ -2641,7 +2795,7 @@
           "lineText": "function readZoneMode(value: string | null): 'zone' | 'noop' | 'unknown' {"
         }
       ],
-      "consequence": "a digest authored from \"the sentence maps\" would cover the 6 map surfaces and miss 12 surfaces’ copy. The record carries the location of every sentence it found, per surface, so the digest can be authored against the measurement rather than against the brief’s sentence."
+      "consequence": "a digest authored from \"the sentence maps\" would cover the 7 map surfaces and miss 12 surfaces’ copy. The record carries the location of every sentence it found, per surface, so the digest can be authored against the measurement rather than against the brief’s sentence."
     },
     {
       "claim": "a surface that cannot be read is an absence for SC2 — INTENT.md § Open questions asks whether every surface declares its copy in one place or some interpolate sentences inline, and T001 answers it",
@@ -2664,15 +2818,45 @@
         }
       ],
       "consequence": "the absence case for SC2 is one surface, not a class of surfaces, and the inline sentences are copy a digest must still explain — which is why they are enumerated here with their own path:line."
+    },
+    {
+      "claim": "the digest T002 authored carries one row per sentence the record declares, so a digest row and a declared sentence are the same count",
+      "measured": "one sentence is declared twice. `panel-copy-check.ts:128` registers `no-reason` with the exact text `panel-components.ts:147` declares for its own `no-reason` — `no-reason: the answer reported cannot-tell without a reason, so no reason is stated`, byte for byte — so this record’s 122 sentences carry 121 distinct texts.",
+      "citations": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 147,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 128,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',"
+        }
+      ],
+      "consequence": "the digest carries 121 rows for 122 sentences, one row per distinct string, and the shared row is filed under `components`/`no-reason` because that surface declared it first. A second row for the same text would be a second explanation of one string, which explains nothing the first does not; the join compares the digest’s texts with `===` and so explains the sentence at both surfaces from the one row. The row-per-sentence count is therefore 121 and not 122, and the suite states the difference as the measured duplicate rather than as a rounding."
     }
   ],
   "notCaptured": [
     "No page text was read and no browser was opened for this record. The roadmap’s own observable — the strings a page renders — is not measured here and does not exist in this repository: `innerText` and `textContent` occur 0 times in extension/agent-main.js, counted by the command in `measurements`. Nothing in this record is a reading of a served page.",
-    "The record does not measure what a surface renders at runtime. It records the literals the source declares, and a rendered line is those literals joined with values the answer carried; which fields a join supplies, and what a pane does with an absent one, is T002’s join and not this record.",
+    "The record does not measure what a surface renders at runtime. It records the literals the source declares, and a rendered line is those literals joined with values the answer carried; which fields a join supplies, and what a pane does with an absent one, is T002’s join and not this record. Nor does it measure a sentence composed at render: `panel-sanitizer.ts:180` builds a plural from a count, and the digest records that decision rather than a row for a string the pane never renders.",
     "The record does not claim to be exhaustive about single-token value words (see `scope`), and it does not read the baseline stylesheet, the routes table or the demo’s sample facts. `panel-demo.ts` is recorded only for the copy it writes itself.",
     "The record does not judge the copy. It does not claim a sentence is accurate, consistent with its siblings, or supported by the record the pane was handed; it states where each sentence is and what it says, and the three surfaces whose wording the record singles out (panel-navigation.ts:283, panel-sanitizer.ts:180, panel-fields.ts:196) are described and not graded.",
-    "No test of the app was run and no build was made. The verify command below runs this record’s own suite and prettier, and nothing else was executed."
+    "No test of the app was run and no build was made. The verify command below runs this record’s own suite and prettier, and nothing else was executed.",
+    "The verify command above does not send this file to prettier, because `.prettierignore` excludes every `*.json` (`*.json` is line 22 of that file) and `npx prettier --check research/raw/m048-surface-copy.json` therefore prints \"All matched files use Prettier code style!\" without reading a byte of it — exit 0 however the file is formatted. The gate that actually reads this record is `scripts/copy-check.test.mjs`, which re-reads all 322 citations it makes and re-derives every count it states; T001’s `verify` field claimed the prettier check as its second gate, and T004 states the limit rather than repeating the claim."
   ],
-  "verify": "node --test scripts/copy-check.test.mjs && node -e \"JSON.parse(require('fs').readFileSync('research/raw/m048-surface-copy.json','utf8'))\" && npx prettier --check scripts/copy-check.test.mjs research/raw/m048-surface-copy.json",
-  "verdict": "measured: this repository has 19 panel-*.ts surfaces (two more files match the glob and are vitest specs, named in `excluded`). 6 declare their sentences in a map, 11 in loose module constants, 1 only inside a component template and a function, and 1 — panel-context.ts, the signal-to-context adapter — declares no sentence at all because it renders nothing. 79 sentences are declared in a map or a constant, 34 more are written inline where no map can reach them, and 111 label prefixes and 7 prose words are built into lines inline. The roadmap’s premise does not survive the reading: no surface compares anything against a copy digest, and of the 90 sentences this record carries exactly 1 occurs in either digest the repository ships (extension/error-digest.json, extension/image-digest.json) — the one hit is the single word `available` (error-boundary/RESET_TEXT), which occurs in a digest body and explains no rendered line. What exists is the copy measured here, and the digest T002 authors will be the first one that holds it."
+  "verify": "node --test scripts/copy-check.test.mjs && node -e \"JSON.parse(require('fs').readFileSync('research/raw/m048-surface-copy.json','utf8'))\" && npx prettier --check scripts/copy-check.test.mjs",
+  "verdict": "measured: this repository has 20 panel-*.ts surfaces (two more files match the glob and are vitest specs, named in `excluded`). 7 declare their sentences in a map, 11 in loose module constants, 1 only inside a component template and a function, and 1 — panel-context.ts, the signal-to-context adapter — declares no sentence at all because it renders nothing. 88 sentences are declared in a map or a constant, 34 more are written inline where no map can reach them, and 118 label prefixes and 7 prose words are built into lines inline. The roadmap’s premise does not survive the reading: no surface compares anything against a copy digest, and of the 99 sentences this record declares in a map or a constant exactly 1 occurs in either digest the repository ships (extension/error-digest.json, extension/image-digest.json) — the one hit is the single word `available` (error-boundary/RESET_TEXT), which occurs in a digest body and explains no rendered line. What exists is the copy measured here, and the digest T002 authored from this record — which T004 extended to the twentieth surface — is the first one that holds it.",
+  "revision": {
+    "author": "T001",
+    "head": "cfdff38990b7715e38a917976dad957b64840cd5",
+    "surfaces": 19,
+    "sentences": 113,
+    "remeasuredBy": {
+      "task": "T004",
+      "head": "b428f0680dc7679a84944d36c4174b14e98767ca",
+      "why": "panel-copy-check.ts shipped as the twentieth surface in T003, so the record measured nineteen of the twenty `panel-*.ts` files the tree carries and the digest explained the 113 sentences those nineteen declare",
+      "what": "every citation re-read, the twentieth surface measured, and the three panel-demo.ts citations the T003 commit moved repaired"
+    }
+  }
 }
