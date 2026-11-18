@@ -3571,7 +3571,7 @@ const TREE_ROOTS = [
  */
 const SUITE_DIFF_REASONS = {
   'scripts/panel-routes.test.mjs':
-    'the surface list gained `console-read`, so E1 checks that route and E2 exports it; E4 gained a mutant that drops its LOADERS key and E1 gained one that deletes its route entry, and no existing assertion was removed; M047 T003 appends `components` to the same list and adds its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs',
+    'the surface list gained `console-read`, so E1 checks that route and E2 exports it; E4 gained a mutant that drops its LOADERS key and E1 gained one that deletes its route entry, and no existing assertion was removed; M047 T003 appends `components` to the same list and adds its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M048 T003 appends `copy-check` to the same list with its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs',
   'scripts/copy-to-agent.test.mjs':
     'a suite this milestone added rather than changed: it pins the measurement record `research/raw/m046-pane-and-copy.json`, its five assertions are all additions and none was removed, and every cited path and line is read from that record rather than spelled here',
   'scripts/doc-fix-alignment.test.mjs':
@@ -3603,13 +3603,13 @@ const SUITE_DIFF_REASONS = {
   'scripts/console-join.test.mjs':
     'wholly added at this head: M045 T002 pins the join of a captured diagnostic to the shipped digest by the code it carries — one finding per diagnostic in capture order, a code the digest lacks named rather than counted, a message with no code saying so, and an empty capture kept distinct from no diagnostics — with five mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit',
   'apps/angular-ai-devtools/src/app/app.spec.ts':
-    'the ordered route-table pin gained the `console` surface M045 T003 appends last, and the lazy-component / route-data / own-name block for it; every earlier path is unchanged and no assertion line was removed; M047 T003 appends `components` to the same pin with its own lazy-component / route-data / own-name block, and no assertion line was removed',
+    'the ordered route-table pin gained the `console` surface M045 T003 appends last, and the lazy-component / route-data / own-name block for it; every earlier path is unchanged and no assertion line was removed; M047 T003 appends `components` to the same pin with its own lazy-component / route-data / own-name block, and no assertion line was removed; M048 T003 appends `copy-check` to the same pin with its own lazy-component / route-data / own-name block, and no assertion line was removed',
   'apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts':
-    'the chat suite’s two ordered route-table pins gained the `console` surface M045 T003 appends last — in the full path list and in the lazy list — and the per-surface loop names it; no earlier path was reordered and no assertion line was removed; M047 T003 appends `components` to both ordered lists and to that loop, and no earlier path was reordered',
+    'the chat suite’s two ordered route-table pins gained the `console` surface M045 T003 appends last — in the full path list and in the lazy list — and the per-surface loop names it; no earlier path was reordered and no assertion line was removed; M047 T003 appends `components` to both ordered lists and to that loop, and no earlier path was reordered; M048 T003 appends `copy-check` to both ordered lists and to that loop, and no earlier path was reordered',
   'apps/angular-ai-devtools/src/app/page-picker.component.spec.ts':
-    'the picker suite’s lazy-path list gained the `console` surface M045 T003 appends last, so a route appended without registering still reddens here; the comment above it says so, and no assertion line was removed; M047 T003 appends `components` to both lists and moves the pinned count to twenty-seven, and no assertion line was removed',
+    'the picker suite’s lazy-path list gained the `console` surface M045 T003 appends last, so a route appended without registering still reddens here; the comment above it says so, and no assertion line was removed; M047 T003 appends `components` to both lists and moves the pinned count to twenty-seven, and no assertion line was removed; M048 T003 appends `copy-check` to both lists and moves the pinned count to twenty-eight, and no assertion line was removed',
   'apps/angular-ai-devtools/src/app/panel-demo.spec.ts':
-    'the demo suite gained the M045 T003 console pin: its route, its sample fact held to the shipped digest and to the join, and its rendered lines held to E7 — no cause, no element, no remedy, no count and no empty list; the earlier surfaces’ pins are unchanged and no assertion line was removed; M047 T003 adds the components pin — its route, its sample fact held to the shipped component-search join, and the four states with a stated count, a stated absence for a missing count, the filtered count and the cannot-tell reason — and the table pin gains `components`',
+    'the demo suite gained the M045 T003 console pin: its route, its sample fact held to the shipped digest and to the join, and its rendered lines held to E7 — no cause, no element, no remedy, no count and no empty list; the earlier surfaces’ pins are unchanged and no assertion line was removed; M047 T003 adds the components pin — its route, its sample fact held to the shipped component-search join, and the four states with a stated count, a stated absence for a missing count, the filtered count and the cannot-tell reason — and the table pin gains `components`; M048 T003 adds the copy-check pin — its route, its sample fact held to the shipped copy-check join over T001’s recorded surfaces and the digest, and the three states with the clean count, each unexplained string named with its surface verbatim, and the cannot-tell reason never rendered as clean — and the table pin gains `copy-check`',
   'scripts/console-panel-render.test.mjs':
     'wholly added at this head: M045 T003 pins the console pane’s rendering of the join’s `{ state, findings[] }` — captured-nothing as a statement, an unmatched code named rather than counted, and no cause, element, remedy or unattributed wording — with six mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit',
   'scripts/console-panel-record.test.mjs':
@@ -5633,4 +5633,14 @@ test('T011: the corpus reading counts are pinned, so no branch can move them sil
       mutated.claims,
     )}, ${String(mutated.pins)} and ${String(mutated.mentions)}`,
   );
+});
+
+// The reason for a suite this milestone added after the lines the M044 recording pins in this file.
+// It travels here rather than in the literal above because every project-directory reference in
+// this file is recorded with its line number, and a line added above one of them would stale a
+// pinned row by moving it. The reason is the same kind of reading as the entries above: what
+// differs and why.
+Object.assign(SUITE_DIFF_REASONS, {
+  'scripts/copy-check.test.mjs':
+    'wholly added at this head: M048 T002 pins the join `extension/copy-check.js` — the record-level clean answer with its compared count, each unexplained string with the surface that renders it, and the two cannot-tell reasons in the contract order — over T001’s measured surfaces and the shipped digest, with a copy-less surface kept in its own row rather than deciding the record, a reading the measured commit carries no file to edit',
 });

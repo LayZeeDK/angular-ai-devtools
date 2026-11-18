@@ -29,8 +29,9 @@ describe('App', () => {
  * after that, M036 appends `resource` after that, M038 appends `linked-state`, M039 appends
  * `render-phase` after that, M040 appends `performance` last, M041 appends `navigation` after
  * that, M042 appends `error-boundary` after that and M043 appends `stability` after that, the same
- * way. M045 appends `console` after `stability`, M046 appends `console-read` after that and M047
- * appends `components` after that, which is why the count moves from twenty-four to twenty-seven.
+ * way. M045 appends `console` after `stability`, M046 appends `console-read` after that, M047
+ * appends `components` after that and M048 appends `copy-check` after that, which is why the count
+ * moves from twenty-four to twenty-eight.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -62,6 +63,7 @@ describe('the route table', () => {
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic, the unmatched code named
       'console-read', // M046 SC1-3 surface: the control that names what will be sent, the body the pane drew, and the absence or the cannot-tell reason
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
+      'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -210,5 +212,15 @@ describe('the route table', () => {
     expect(components.data?.['surface']).toBe('components');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(components.data?.['surface']).not.toBe('console-read');
+
+    const copyCheck = appRoutes.find((route) => route.path === 'copy-check');
+    expect(copyCheck?.component).toBeUndefined();
+    if (copyCheck?.loadComponent === undefined) {
+      throw new Error('the copy-check surface must load lazily');
+    }
+    expect(await copyCheck.loadComponent()).toBe(PanelDemoComponent);
+    expect(copyCheck.data?.['surface']).toBe('copy-check');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(copyCheck.data?.['surface']).not.toBe('components');
   });
 });

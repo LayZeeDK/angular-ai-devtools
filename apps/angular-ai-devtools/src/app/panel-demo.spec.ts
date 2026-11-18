@@ -113,6 +113,12 @@ import {
   NO_INSTANCE_COUNT_TEXT,
   componentsPanel,
 } from './panel-components';
+import {
+  CANNOT_TELL as COPY_CANNOT_TELL,
+  CLEAN as COPY_CLEAN,
+  UNEXPLAINED as COPY_UNEXPLAINED,
+  copyCheckPanel,
+} from './panel-copy-check';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -1118,6 +1124,118 @@ const COMPONENTS_RECORD = {
   source: { state: 'read' },
 };
 
+/** One surface T001's copy measurement records, for the fields this spec reads. */
+interface SurfaceCopyRecording {
+  counts: {
+    surfaces: number;
+    declaredSentences: number;
+    inlineSentences: number;
+  };
+  surfaces: {
+    id: string;
+    declares: string;
+    sentences: { key: string; text: string; kind: string }[];
+    inline: { text: string; kind: string }[];
+  }[];
+}
+
+/** The shipped copy digest, for the fields this spec reads. */
+interface CopyDigest {
+  entries: { surface: string; key: string; text: string }[];
+}
+
+/** One sentence the digest does not explain, as the copy-check join answers it. */
+interface CopyCheckUnexplained {
+  string: string;
+  surface: string;
+}
+
+/** The copy-check join's answer: the four fields the surface renders. */
+interface CopyCheckAnswer {
+  state: string;
+  unexplained: CopyCheckUnexplained[];
+  checked: number;
+  reason?: string;
+}
+
+/** The page's own copy-check namespace, as `extension/copy-check.js` publishes it. */
+interface CopyCheckJoin {
+  copyCheck(surfaces: unknown, digest: unknown): CopyCheckAnswer;
+  STATES: readonly string[];
+  REASONS: readonly string[];
+}
+
+/** The M048 surface-copy recording and its text, inlined from disk the same way. */
+function readSurfaceCopyRecording(): {
+  recording: SurfaceCopyRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m048-surface-copy.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m048-surface-copy.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as SurfaceCopyRecording, text };
+}
+
+/** The shipped copy digest and its text, inlined from disk the same way. */
+function readCopyDigest(): { digest: CopyDigest; text: string } {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/copy-digest.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/copy-digest.json was not inlined above this spec file',
+    );
+  }
+  return { digest: JSON.parse(text) as CopyDigest, text };
+}
+
+/**
+ * The join `extension/copy-check.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `copy-check` sample fact is held to the join's answer for T001's
+ * measured surfaces beside the shipped digest, not to a copy of that answer written in this
+ * spec. The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function copyCheckJoin(): CopyCheckJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/copy-check.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/copy-check.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (globalThis as unknown as { angularAiCopyCheck?: CopyCheckJoin })
+    .angularAiCopyCheck;
+  if (join === undefined || typeof join.copyCheck !== 'function') {
+    throw new Error('extension/copy-check.js published no copyCheck');
+  }
+  return join;
+}
+
 /** The demo rendered for one surface name, once its lazy surface has answered. */
 async function renderDemo(surface: string): Promise<PanelDemoComponent> {
   await TestBed.configureTestingModule({
@@ -1992,8 +2110,9 @@ describe('the panel demo', () => {
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
+      'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
     ]);
-    expect(appRoutes).toHaveLength(27);
+    expect(appRoutes).toHaveLength(28);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -2453,6 +2572,201 @@ describe('the panel demo', () => {
 
     // N4, N5: the pane adds no DOM and writes no element, cause, remedy or rule identity of its
     // own. Every line is a labelled field of the answer or one of the pane's sentences.
+    expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
+    for (const label of ['cause: ', 'element: ', 'remedy: ', 'rule: ']) {
+      expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
+    }
+  });
+
+  /**
+   * The M048 half — E7, this task's held-out case: the surface behind `/copy-check` is reached
+   * through its own route entry, and the sample fact it renders is the join's own answer for
+   * T001's measured surfaces beside the shipped digest. The clean answer states that every string
+   * is explained and how many were compared; the unexplained answer names each string and the
+   * surface that renders it, verbatim; and the cannot-tell answer states the join's reason word and
+   * never renders an absence as clean. A demo that drifted from the record or the digest, or a
+   * route or loader key that went missing, reddens here rather than shipping.
+   */
+  it('E7: renders the clean count, each unexplained string with its surface, and the reason, never an absence as clean', async () => {
+    const { recording, text: recordingText } = readSurfaceCopyRecording();
+    const { digest, text: digestText } = readCopyDigest();
+    const join = copyCheckJoin();
+    const answer = join.copyCheck(recording.surfaces, digest);
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'copy-check',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the copy-check surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the copy-check route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('copy-check');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'copy-check'),
+    ).toHaveLength(1);
+
+    // The measured record's answer: every string it declares is explained, and the count is the
+    // join's own comparison — not a count written in this spec or in the demo fact.
+    expect(answer).toEqual({
+      state: COPY_CLEAN,
+      unexplained: [],
+      checked: 113,
+    });
+    expect(answer.checked).toBe(digest.entries.length);
+    expect(recording.counts.surfaces).toBe(recording.surfaces.length);
+    expect(recording.counts.surfaces).toBe(19);
+
+    // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
+    // with its own reason, while the record stays clean. Both answers are the join's.
+    const context = recording.surfaces.find((entry) => entry.id === 'context');
+    if (context === undefined) {
+      throw new Error(
+        'the M048 recording must carry the surface that renders no copy',
+      );
+    }
+    expect(context.declares).toBe('nothing');
+    expect(join.copyCheck([context], digest)).toEqual({
+      state: COPY_CANNOT_TELL,
+      unexplained: [],
+      checked: 0,
+      reason: 'surface-declares-nothing',
+    });
+    expect(join.copyCheck(recording.surfaces, {})).toEqual({
+      state: COPY_CANNOT_TELL,
+      unexplained: [],
+      checked: 0,
+      reason: 'no-digest',
+    });
+    // The pane's vocabulary is the join's own closed state set, in its order.
+    expect([COPY_CLEAN, COPY_UNEXPLAINED, COPY_CANNOT_TELL]).toEqual([
+      ...join.STATES,
+    ]);
+    expect(join.REASONS.length).toBeGreaterThan(0);
+
+    // The fact the pane is handed is the join's answer, field for field.
+    expect(FACTS['copy-check']).toEqual(answer);
+
+    // Every value the pane prints is in the committed files' bytes, not only in this spec.
+    expect(recordingText.includes('"surfaces": 19')).toBe(true);
+    expect(digestText.includes('"entries"')).toBe(true);
+
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(COPY_CLEAN);
+    const pane = copyCheckPanel(FACTS['copy-check']);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(demo.lines()).toEqual([
+      `state: ${COPY_CLEAN}`,
+      pane.lines[1],
+      `checked: ${answer.checked}`,
+    ]);
+    // The clean sentence says what the join answered: every string is explained, and the count
+    // states how many were compared.
+    expect(pane.lines[1]).toContain(
+      'every string the surfaces declare is explained',
+    );
+    expect(pane.lines[1]).toContain('how many were compared');
+    expect(demo.lines().some((line) => line.startsWith('reason: '))).toBe(
+      false,
+    );
+
+    // The unexplained state names each string verbatim and the surface that renders it, in the
+    // join's order. Whitespace, a quote and a dash are copied through exactly: a normalisation
+    // here would explain a string the digest does not.
+    const unexplainedAnswer: CopyCheckAnswer = {
+      state: COPY_UNEXPLAINED,
+      unexplained: [
+        {
+          string: "a string with  two spaces, a ' quote and a — dash",
+          surface: 'copy-check',
+        },
+        { string: 'second: string', surface: 'context' },
+      ],
+      checked: 2,
+    };
+    const unexplainedPane = copyCheckPanel(unexplainedAnswer);
+    expect(unexplainedPane.state).toBe(COPY_UNEXPLAINED);
+    expect(unexplainedPane.lines[0]).toBe(`state: ${COPY_UNEXPLAINED}`);
+    expect(unexplainedPane.lines[1]).toContain('does not explain');
+    expect(unexplainedPane.lines.slice(2, -1)).toEqual([
+      `string: ${unexplainedAnswer.unexplained[0]?.string}`,
+      'surface: copy-check',
+      'string: second: string',
+      'surface: context',
+    ]);
+    expect(unexplainedPane.lines.at(-1)).toBe('checked: 2');
+    // Every string the answer names is rendered whole, wrapped by no quote of the pane's own.
+    for (const entry of unexplainedAnswer.unexplained)
+      expect(unexplainedPane.text).toContain(entry.string);
+
+    // A cannot-tell answer states the join's reason word verbatim and never renders clean.
+    for (const reason of join.REASONS) {
+      const cannotAnswer: CopyCheckAnswer = {
+        state: COPY_CANNOT_TELL,
+        unexplained: [],
+        checked: 0,
+        reason,
+      };
+      const cannotPane = copyCheckPanel(cannotAnswer);
+      expect(cannotPane.state).toBe(COPY_CANNOT_TELL);
+      expect(cannotPane.lines).toContain(`reason: ${reason}`);
+      expect(cannotPane.lines).not.toContain(`state: ${COPY_CLEAN}`);
+      expect(cannotPane.text).not.toContain(
+        'every string the surfaces declare is explained',
+      );
+    }
+
+    // The three states never collapse: three words and three different sentences.
+    const cleanPane = copyCheckPanel({
+      state: COPY_CLEAN,
+      unexplained: [],
+      checked: 1,
+    });
+    const cannotPane = copyCheckPanel({
+      state: COPY_CANNOT_TELL,
+      unexplained: [],
+      checked: 0,
+      reason: join.REASONS[0],
+    });
+    expect(
+      new Set([cleanPane.state, unexplainedPane.state, cannotPane.state]).size,
+    ).toBe(3);
+    expect(
+      new Set([
+        cleanPane.lines[1],
+        unexplainedPane.lines[1],
+        cannotPane.lines[1],
+      ]).size,
+    ).toBe(3);
+
+    // An answer nobody gave is its own named absence, and a state word this pane was not written
+    // for renders as the word it was given and nothing else.
+    expect(copyCheckPanel(undefined).state).toBe('no-copy-check-answer');
+    expect(copyCheckPanel(undefined).lines).toHaveLength(1);
+    expect(copyCheckPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+    // A cannot-tell answer that names no reason says so rather than rendering clean.
+    const noReason = copyCheckPanel({ state: COPY_CANNOT_TELL });
+    expect(noReason.lines.some((line) => line.startsWith('no-reason:'))).toBe(
+      true,
+    );
+    expect(noReason.text).not.toContain(`state: ${COPY_CLEAN}`);
+
+    // Idempotency: the same fact renders the same lines in the same order, twice.
+    expect(copyCheckPanel(FACTS['copy-check'])).toEqual(
+      copyCheckPanel(FACTS['copy-check']),
+    );
+
+    // It adds no DOM to an inspected page and writes no element, cause, remedy or rule identity.
     expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
     for (const label of ['cause: ', 'element: ', 'remedy: ', 'rule: ']) {
       expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
