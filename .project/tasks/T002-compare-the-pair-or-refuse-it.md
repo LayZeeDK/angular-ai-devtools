@@ -2,11 +2,11 @@
 id: T002
 title: Compare the pair or refuse it
 wave: 2
-status: pending
+status: done
 deps:
   - T001
-agent: null
-base: null
+agent: build_T002
+base: f8ab3192f6f8552a48990392eb0e044db9f56c19
 worktree: null
 task_branch: null
 files:
@@ -59,3 +59,4 @@ node --test scripts/what-changed.test.mjs && npx prettier --check extension/what
 ## Log
 
 - pending.
+- Landed paths: `extension/what-changed.js`, `scripts/what-changed.test.mjs`, `research/raw/m051-snapshots.json` — each is read from this tree, ready.
