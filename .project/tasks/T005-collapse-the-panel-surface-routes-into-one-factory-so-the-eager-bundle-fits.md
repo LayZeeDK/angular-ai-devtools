@@ -2,12 +2,12 @@
 id: T005
 title: Collapse the panel surface routes into one factory so the eager bundle fits the baseline
 wave: 5
-status: in-progress
+status: done
 deps:
   - T004
 agent: build_T005
-base: d0b8b61c4ddee8e1fd5ceb179ced21922d2984b9
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 6ab455886666ec527ffee6554da569db2b8291fe
+worktree: null
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/app.routes.ts
@@ -127,3 +127,4 @@ because `npm run check`'s `gate:verification` stage stamps it; the ship gate reg
 ## Log
 
 - pending.
+- Landed paths: `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/panel-bundle-budget.test.mjs`, `scripts/panel-routes.test.mjs`, `scripts/after-render-fixture.test.mjs`, `scripts/component-search.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `tests/held-out/fixture-explainers-unchanged.test.mjs`, `research/raw/m044-gate-shapes.json`, `.project/review/BUNDLE-PROBE.md`, `extension/panel/index.html` — each is read from this tree, ready.

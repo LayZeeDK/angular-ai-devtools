@@ -14,8 +14,8 @@ const ROUTES = join(
 );
 
 /** Every surface the panel's route table declares, in table order. Each one is a route a user
- * clicks, so a surface that loses its path, its component or its own name in route data fails E1
- * by that name rather than as a smaller count. */
+ * clicks, so a surface that loses its name, its position or its own route data fails E1 by that name
+ * rather than as a smaller count. */
 const surfaces = [
   'after-render',
   'sanitizer',
@@ -32,20 +32,13 @@ const surfaces = [
   'navigation',
   'error-boundary',
   'stability',
+  'console',
   'console-read',
   'components',
   'copy-check',
   'interaction-story',
   'dead-click',
 ];
-
-function routeBlock(source, surface) {
-  const needle = "path: '" + surface + "'";
-  const at = source.indexOf(needle);
-  if (at < 0) return null;
-  const next = source.indexOf("path: '", at + needle.length);
-  return source.slice(at, next < 0 ? undefined : next);
-}
 
 /** The identifier every panel-demo route installs. */
 const SHARED_LOADER = 'loadPanelDemo';
@@ -59,38 +52,102 @@ const SHARED_LOADER_DEFINITION =
 const DEMO_IMPORT = /import\('\.\/panel-demo'\)/g;
 
 /**
- * E1's first half, at the route entries: every named surface still has a route, that route still
- * installs something through `loadComponent` rather than a surface function, and it still names its
- * own surface in route data.
+ * The surface names the route factory is handed, in source order, read from the `PANEL_SURFACES`
+ * list. That list is now the one place a surface is named, so it is the one place a surface can be
+ * lost, and E1 reads it as a list rather than as a substring of a route object.
+ */
+function declaredSurfaces(source) {
+  const marker = source.indexOf('const PANEL_SURFACES = [');
+  if (marker < 0) return [];
+  const end = source.indexOf('\n];', marker);
+  if (end < 0) return [];
+  const block = source.slice(marker, end);
+  const out = [];
+  const re = /^\s*'([^']+)',$/gm;
+  let m;
+  while ((m = re.exec(block)) !== null) out.push(m[1]);
+  return out;
+}
+
+/**
+ * The one object literal every panel route is built from: the argument of the `PANEL_SURFACES.map`
+ * call in `appRoutes`. Twenty-one of these used to sit in the table, one per surface, which is the
+ * duplication the factory replaced; there is one now, and it is the only text that can carry a
+ * route's shape.
+ */
+function routeLiteral(source) {
+  const marker = source.indexOf('PANEL_SURFACES.map(');
+  if (marker < 0) return null;
+  const end = source.indexOf('\n];', marker);
+  return source.slice(marker, end < 0 ? undefined : end);
+}
+
+/**
+ * E1's first half, at the factory: every named surface is in `PANEL_SURFACES` exactly once and in
+ * table order, so every one of them still gets a route at its own path; and the single literal those
+ * names are mapped over installs a component lazily, takes its path from the name it is mapped over,
+ * and carries that same name in route data.
  *
- * This half deliberately says nothing about *which* loader a block installs. Which loader it
+ * This half deliberately says nothing about *which* loader the literal installs. Which loader it
  * installs is `assertOneSharedLoader`'s property, one level down, and separating the two is what
- * lets a route that kept its own copy of the closure fail the duplication count by name instead of
+ * lets a literal carrying its own copy of the closure fail the duplication count by name instead of
  * vanishing into a per-surface list.
  */
 function assertSurfaceRoutes(source) {
+  const declared = declaredSurfaces(source);
   for (const surface of surfaces) {
-    const block = routeBlock(source, surface);
-    assert.ok(block, 'route ' + surface + ' must exist');
-    assert.ok(
-      !block.includes('as any)'),
+    assert.equal(
+      declared.filter((name) => name === surface).length,
+      1,
       'route ' +
         surface +
-        ' must not install a surface function as a component: ' +
-        block,
-    );
-    assert.ok(
-      block.includes('loadComponent:'),
-      'route ' +
-        surface +
-        ' must install a component through loadComponent: ' +
-        block,
-    );
-    assert.ok(
-      block.includes("surface: '" + surface + "'"),
-      'route ' + surface + ' must name its surface in route data: ' + block,
+        ' must exist exactly once in PANEL_SURFACES, so exactly one route answers at its path: ' +
+        JSON.stringify(declared),
     );
   }
+  assert.deepEqual(
+    declared,
+    surfaces,
+    'PANEL_SURFACES must carry every surface in the order the table declares them, so the factory neither loses nor reorders one',
+  );
+  const block = routeLiteral(source);
+  assert.ok(block, 'the panel routes must be one literal, not a table of them');
+  assert.ok(
+    !block.includes('as any)'),
+    'a panel route must not install a surface function as a component: ' +
+      block,
+  );
+  assert.ok(
+    block.includes('loadComponent:'),
+    'every panel surface route must install a component through loadComponent: ' +
+      block,
+  );
+  assert.ok(
+    block.includes('path: surface,'),
+    'every panel surface route must take its path from the name it is mapped over, so a path cannot drift from its data: ' +
+      block,
+  );
+  assert.ok(
+    block.includes('data: { surface }'),
+    'every panel surface route must name its surface in route data, from the name that is its path: ' +
+      block,
+  );
+}
+
+/**
+ * E1's third reading: the routes are built, not written out. A route that spells its own surface in
+ * route data is the per-surface literal this factory replaced — one surface's bytes copied back into
+ * the eager table — so it reddens here by count rather than passing as an extra working route.
+ */
+function assertNoSpelledOutSurfaceRoutes(source) {
+  const spelled = [...source.matchAll(/data:\s*\{\s*surface:\s*'/g)].length;
+  assert.equal(
+    spelled,
+    0,
+    'every panel surface route must take its name from PANEL_SURFACES; ' +
+      spelled +
+      ' route(s) spell their own surface in route data, which is the per-surface literal the factory replaced',
+  );
 }
 
 /**
@@ -137,7 +194,7 @@ function assertOneSharedLoader(source) {
   );
   const installed = [...source.matchAll(/loadComponent:\s*loadPanelDemo\b/g)]
     .length;
-  const panelRoutes = [...source.matchAll(/data:\s*\{\s*surface:/g)].length;
+  const panelRoutes = [...source.matchAll(/data:\s*\{\s*surface\b/g)].length;
   assert.equal(
     installed,
     panelRoutes,
@@ -150,12 +207,13 @@ function assertOneSharedLoader(source) {
   );
 }
 
-test('E1: a panel route installs a component through the one shared loader, never a surface function', () => {
+test('E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name', () => {
   const source = readFileSync(ROUTES, 'utf8');
 
-  // Green first, both halves, on the real table.
+  // Green first, all three halves, on the real table.
   assertSurfaceRoutes(source);
   assertOneSharedLoader(source);
+  assertNoSpelledOutSurfaceRoutes(source);
 
   const definition = SHARED_LOADER_DEFINITION.exec(source);
   assert.ok(
@@ -163,12 +221,12 @@ test('E1: a panel route installs a component through the one shared loader, neve
     'the pin must be able to find the shared loader definition it mutates',
   );
 
-  // Mutant: one route keeps its own copy of the closure instead of the shared loader. This is the
-  // shape the thirteenth entry had. The per-surface half must stay green — the entry is intact —
-  // and the duplication half must fail, naming the repeated dynamic import.
+  // Mutant: the literal keeps its own copy of the closure instead of the shared loader. This is the
+  // shape the thirteenth entry had. The per-surface half must stay green — every surface still has
+  // its route — and the duplication half must fail, naming the repeated dynamic import.
   const ownClosure = source.replace(
-    "    path: 'navigation',\n    loadComponent: loadPanelDemo,",
-    "    path: 'navigation',\n    loadComponent: () =>\n      import('./panel-demo').then((m) => m.PanelDemoComponent),",
+    '    loadComponent: loadPanelDemo,\n',
+    "    loadComponent: () =>\n      import('./panel-demo').then((m) => m.PanelDemoComponent),\n",
   );
   assert.notEqual(
     ownClosure,
@@ -177,7 +235,7 @@ test('E1: a panel route installs a component through the one shared loader, neve
   );
   assert.doesNotThrow(
     () => assertSurfaceRoutes(ownClosure),
-    'a route with its own closure keeps every surface entry intact, so the per-surface half must not redden for it',
+    'a route literal carrying its own closure keeps every surface entry intact, so the per-surface half must not redden for it',
   );
   assert.throws(
     () => assertOneSharedLoader(ownClosure),
@@ -189,32 +247,27 @@ test('E1: a panel route installs a component through the one shared loader, neve
     'a route carrying its own closure must fail the duplication check naming the repeated dynamic import',
   );
 
-  // Mutant: a surface dropped from the shared loader — the route entry stays, its loader does not.
-  // The pin must fail naming the surface it left behind, not merely report a smaller count.
-  const withoutShared = source.replace(
-    "    path: 'linked-state',\n    loadComponent: loadPanelDemo,\n",
-    "    path: 'linked-state',\n",
-  );
+  // Mutant: a surface dropped from the list the factory is handed — the route that named it goes
+  // with it. The pin must fail naming the surface it left behind, not merely report a smaller count.
+  const withoutShared = source.replace("  'linked-state',\n", '');
   assert.notEqual(
     withoutShared,
     source,
-    'the dropped-loader mutant must change app.routes.ts',
+    'the dropped-surface mutant must change app.routes.ts',
   );
   assert.throws(
     () => assertSurfaceRoutes(withoutShared),
     (err) =>
       err instanceof assert.AssertionError &&
-      String(err.message).includes(
-        'route linked-state must install a component through loadComponent',
-      ),
-    'a route no longer installing the shared loader must fail naming the surface linked-state',
+      String(err.message).includes('route linked-state must exist'),
+    'a surface no longer in PANEL_SURFACES must fail naming the surface linked-state',
   );
 
-  // Mutant: a route pointed at a surface function instead of a component — the failure the
-  // original text pin caught, still caught here by name.
+  // Mutant: the literal pointed at a surface function instead of a component — the failure the
+  // original text pin caught, still caught here by the name of the property it lost.
   const surfaceFunction = source.replace(
-    "    path: 'navigation',\n    loadComponent: loadPanelDemo,",
-    "    path: 'navigation',\n    loadComponent: () =>\n      import('./panel-navigation').then((m) => m.navigationPanel as any),",
+    '    loadComponent: loadPanelDemo,\n',
+    "    loadComponent: () =>\n      import('./panel-navigation').then((m) => m.navigationPanel as any),\n",
   );
   assert.notEqual(
     surfaceFunction,
@@ -226,15 +279,16 @@ test('E1: a panel route installs a component through the one shared loader, neve
     (err) =>
       err instanceof assert.AssertionError &&
       String(err.message).includes(
-        'route navigation must not install a surface function as a component',
+        'must not install a surface function as a component',
       ),
-    'a route pointed at a surface function must fail naming the surface navigation',
+    'a route pointed at a surface function must fail naming the property it lost',
   );
 
-  // Mutant: a surface whose route is gone from the table entirely — the pin must name it.
+  // Mutant: a surface renamed in the list the factory is handed — the route the old name answered is
+  // gone from the table entirely. The pin must name the surface whose route went with it.
   const renamedPath = source.replace(
-    "    path: 'navigation',",
-    "    path: 'navigation-renamed',",
+    "  'navigation',\n",
+    "  'navigation-renamed',\n",
   );
   assert.notEqual(
     renamedPath,
@@ -288,11 +342,8 @@ test('E1: a panel route installs a component through the one shared loader, neve
     'a loader that resolves no component must fail naming the property it lost',
   );
 
-  // Mutant: a route that keeps its loader but drops the surface it names in route data.
-  const unnamedSurface = source.replace(
-    "    data: { surface: 'performance' },\n",
-    '',
-  );
+  // Mutant: the literal keeps its loader but drops the surface it names in route data.
+  const unnamedSurface = source.replace('    data: { surface },\n', '');
   assert.notEqual(
     unnamedSurface,
     source,
@@ -302,19 +353,33 @@ test('E1: a panel route installs a component through the one shared loader, neve
     () => assertSurfaceRoutes(unnamedSurface),
     (err) =>
       err instanceof assert.AssertionError &&
-      String(err.message).includes(
-        'route performance must name its surface in route data',
-      ),
+      String(err.message).includes('must name its surface in route data'),
     'a route that no longer names its surface must fail naming it',
   );
 
-  // Mutant: the M042 surface's route entry removed from the table entirely. This is the mutation the
-  // task's own red-then-green proof applies to `app.routes.ts`, replayed here so the pin carries it
-  // rather than relying on a log: the check must name the surface whose entry is gone.
-  const withoutErrorBoundary = source.replace(
-    "  {\n    path: 'error-boundary',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'error-boundary' },\n  },\n",
-    '',
+  // Mutant: a surface's route written out again as its own literal beside the factory — the shape
+  // every surface used to carry, and the duplication this factory exists to remove.
+  const spelledOut = source.replace(
+    '  ...PANEL_SURFACES.map(',
+    "  {\n    path: 'fields',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'fields' },\n  },\n  ...PANEL_SURFACES.map(",
   );
+  assert.notEqual(
+    spelledOut,
+    source,
+    'the spelled-out-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertNoSpelledOutSurfaceRoutes(spelledOut),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('spell their own surface in route data'),
+    'a route written out per surface must fail naming the per-surface literal it restored',
+  );
+
+  // Mutant: the M042 surface dropped from the list the factory is handed. This is the mutation the
+  // task's own red-then-green proof applies to `app.routes.ts`, replayed here so the pin carries it
+  // rather than relying on a log: the check must name the surface whose route is gone.
+  const withoutErrorBoundary = source.replace("  'error-boundary',\n", '');
   assert.notEqual(
     withoutErrorBoundary,
     source,
@@ -328,13 +393,10 @@ test('E1: a panel route installs a component through the one shared loader, neve
     'a table without the error-boundary route must fail naming the missing surface',
   );
 
-  // Mutant: the M043 surface's route entry removed from the table entirely. This is the mutation the
+  // Mutant: the M043 surface dropped from the list the factory is handed. This is the mutation the
   // task's own red-then-green proof applies to `app.routes.ts`, replayed here so the pin carries it
-  // rather than relying on a log: the check must name the surface whose entry is gone.
-  const withoutStability = source.replace(
-    "  {\n    path: 'stability',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'stability' },\n  },\n",
-    '',
-  );
+  // rather than relying on a log: the check must name the surface whose route is gone.
+  const withoutStability = source.replace("  'stability',\n", '');
   assert.notEqual(
     withoutStability,
     source,
@@ -348,12 +410,10 @@ test('E1: a panel route installs a component through the one shared loader, neve
     'a table without the stability route must fail naming the missing surface',
   );
 
-  // Mutant: the M046 surface's route entry removed from the table entirely. It is the route this task
-  // appends last, so the per-surface half must name it rather than pass on the older surfaces alone.
-  const withoutConsoleRead = source.replace(
-    "  {\n    path: 'console-read',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'console-read' },\n  },\n",
-    '',
-  );
+  // Mutant: the M046 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the console hand-off, so the per-surface half must name it rather than pass on the
+  // older surfaces alone.
+  const withoutConsoleRead = source.replace("  'console-read',\n", '');
   assert.notEqual(
     withoutConsoleRead,
     source,
@@ -367,13 +427,10 @@ test('E1: a panel route installs a component through the one shared loader, neve
     'a table without the console-read route must fail naming the missing surface',
   );
 
-  // Mutant: the M047 surface's route entry removed from the table entirely. It is the route this
-  // task appends last, so the per-surface half must name it rather than pass on the older surfaces
-  // alone.
-  const withoutComponents = source.replace(
-    "  {\n    path: 'components',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'components' },\n  },\n",
-    '',
-  );
+  // Mutant: the M047 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the component search, so the per-surface half must name it rather than pass on the
+  // older surfaces alone.
+  const withoutComponents = source.replace("  'components',\n", '');
   assert.notEqual(
     withoutComponents,
     source,
@@ -387,13 +444,10 @@ test('E1: a panel route installs a component through the one shared loader, neve
     'a table without the components route must fail naming the missing surface',
   );
 
-  // Mutant: the M048 surface's route entry removed from the table entirely. It is the route this
-  // task appends last, so the per-surface half must name it rather than pass on the older surfaces
-  // alone.
-  const withoutCopyCheck = source.replace(
-    "  {\n    path: 'copy-check',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'copy-check' },\n  },\n",
-    '',
-  );
+  // Mutant: the M048 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the copy digest, so the per-surface half must name it rather than pass on the older
+  // surfaces alone.
+  const withoutCopyCheck = source.replace("  'copy-check',\n", '');
   assert.notEqual(
     withoutCopyCheck,
     source,
@@ -407,11 +461,11 @@ test('E1: a panel route installs a component through the one shared loader, neve
     'a table without the copy-check route must fail naming the missing surface',
   );
 
-  // Mutant: the M049 surface's route entry removed from the table entirely. It is the route this
-  // task appends last, so the per-surface half must name it rather than pass on the older surfaces
-  // alone.
+  // Mutant: the M049 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the interaction story, so the per-surface half must name it rather than pass on the
+  // older surfaces alone.
   const withoutInteractionStory = source.replace(
-    "  {\n    path: 'interaction-story',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'interaction-story' },\n  },\n",
+    "  'interaction-story',\n",
     '',
   );
   assert.notEqual(
@@ -427,13 +481,10 @@ test('E1: a panel route installs a component through the one shared loader, neve
     'a table without the interaction-story route must fail naming the missing surface',
   );
 
-  // Mutant: the M050 surface's route entry removed from the table entirely. It is the route this
-  // task appends last, so the per-surface half must name it rather than pass on the older surfaces
-  // alone.
-  const withoutDeadClick = source.replace(
-    "  {\n    path: 'dead-click',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'dead-click' },\n  },\n",
-    '',
-  );
+  // Mutant: the M050 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the dangling start, so the per-surface half must name it rather than pass on the
+  // older surfaces alone.
+  const withoutDeadClick = source.replace("  'dead-click',\n", '');
   assert.notEqual(
     withoutDeadClick,
     source,
@@ -521,14 +572,6 @@ test('E3: the demo module renders the surface text it is handed', () => {
     );
   }
 });
-
-function declaredSurfaces(routesSource) {
-  const out = [];
-  const re = /surface:\s*'([^']+)'/g;
-  let m;
-  while ((m = re.exec(routesSource)) !== null) out.push(m[1]);
-  return out;
-}
 
 function loaderKeys(demoSource) {
   const start = demoSource.indexOf('const LOADERS');
