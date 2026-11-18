@@ -2,20 +2,26 @@
 id: T006
 title: Re-derive the route-table citation and put the whole suite in the Verify
 wave: 6
-status: pending
+status: in-progress
 deps:
   - T005
-agent: null
-base: null
-worktree: null
+agent: build_T006
+base: 36e88448b38c75ee4a6efaa67a2c6625f3f57059
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - research/raw/m047-names-and-absences.json
+  - research/raw/m047-surface.json
+  - research/raw/m048-surface.json
+  - research/raw/m049-surface.json
+  - research/raw/m050-surface.json
   - scripts/component-search.test.mjs
+  - scripts/copy-check.test.mjs
+  - scripts/docs-audit-disposition.test.mjs
   - scripts/gate-integrity.test.mjs
   - research/raw/m044-gate-shapes.json
+  - .project/research/DOCS-AUDIT.md
   - extension/panel/index.html
-  - .project/review/VERIFICATION.json
 ---
 
 # T006 — Re-derive the route-table citation and put the whole suite in the Verify
@@ -82,13 +88,33 @@ None
 ## Verify
 
 ```bash
-npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm test && git checkout -- extension/panel/index.html && git checkout -- .project/review/VERIFICATION.json
+npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm test && git checkout -- extension/panel/index.html
 ```
 
 `npm test` is the whole suite on purpose. The build leg comes first because the budget suites refuse a
 `extension/panel/index.html` older than the newest source, and `--skip-nx-cache` because a cached replay
 restores its recorded output without refreshing that timestamp. `*.json` is in `.prettierignore`, so the
 formatting leg covers source files only; the JSON is checked by the suite that reads it.
+`.project/review/VERIFICATION.json` is untracked in this checkout, so `git checkout --` on it fails and
+the leg is gone: `npm run check` regenerates it and it needs no restore.
+
+## Rulings
+
+Delegated under the owner's standing grant of milestone decision authority (`AGENTS.md`, "Every milestone
+runs unattended"), and recorded here because the evidence settles them:
+
+- **A generated route's per-field citations.** Three surface records (`m047`, `m048`, `m049`, `m050`)
+  cite a route's `path`, `loadComponent` and `surfaceData` at literal lines that no longer exist. The
+  ruling is that each field cites the line that still assigns it: `path` cites the surface's own name in
+  `PANEL_SURFACES` (the line that declares that path value), `loadComponent` cites
+  `loadComponent: loadPanelDemo,` in the mapped literal, `surfaceData` cites `data: { surface },` in the
+  same literal, and `table.line` cites the `export const appRoutes` line. The record keeps its meaning —
+  every field still names the line that assigns it — and it no longer pretends a literal route exists.
+- **`LESSONS.md` and the docs audit.** `LESSONS.md` is tracked at the root and the head audit derives it
+  into its inventory while covering no row for it, so `docs-audit-disposition.test.mjs` is red. The
+  document is real and belongs to the programme, so the audit gains its row; the suite's rule is not
+  relaxed to skip it.
+
 
 ## Log
 
