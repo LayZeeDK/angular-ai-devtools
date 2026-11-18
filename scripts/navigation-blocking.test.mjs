@@ -2637,24 +2637,37 @@ function tableRows(section, columns, what) {
   return rows;
 }
 
+/** The five column names the owner's ruling makes authoritative, in the order it names them. */
+const EDGE_COLUMNS = ['Edge', 'Criterion', 'Category', 'Disposition', 'Detail'];
+
 /**
  * The edges the bound intent's own edge-coverage table binds to each criterion, read as the five
  * columns the owner's ruling makes authoritative: `Edge | Criterion | Category | Disposition | Detail`.
- * The table no longer names a suite - the test-to-edge mapping lives once, in the plan's held-out
- * checks - so a criterion's proof is derived rather than taken from a sixth cell.
+ * The header is read as written, so a table headed with another name - a sixth `Test` column among
+ * them - is refused rather than read as though its cells were the ruling's. The table no longer names
+ * a suite: the test-to-edge mapping lives once, in the plan's held-out checks, so a criterion's proof
+ * is derived rather than taken from a sixth cell.
  *
  * @param {string} source
  * @returns {Array<{ edge: string, criterion: string, category: string, disposition: string, detail: string }>}
  */
 function intentEdges(source) {
   const section = sectionOf(source, '## Edge coverage');
+  const cells = tableRows(section, 5, "the intent's edge-coverage table");
+  assert.ok(
+    cells.length > 0,
+    'the intent must list its edge coverage as a five-column table, so a criterion has an edge it is held by',
+  );
+  assert.deepEqual(
+    cells[0],
+    EDGE_COLUMNS,
+    `the intent's edge-coverage table must be headed exactly ${EDGE_COLUMNS.join(
+      ' | ',
+    )}, and it is headed ${JSON.stringify(cells[0])}`,
+  );
   /** @type {Array<{ edge: string, criterion: string, category: string, disposition: string, detail: string }>} */
   const rows = [];
-  for (const data of tableRows(
-    section,
-    5,
-    "the intent's edge-coverage table",
-  )) {
+  for (const data of cells) {
     if (!/^E\d+$/.test(data[0] ?? '')) continue;
     rows.push({
       edge: data[0] ?? '',
@@ -3459,10 +3472,26 @@ describe('the claim list', () => {
       );
     }
 
-    // The mapping the ruling moves to one place: every held-out test the plan names is a suite this
-    // checkout carries, and the derivation cites only suites that exist.
+    // The mapping the ruling moves to one place: the plan's `## Held-out checks` table names the task
+    // and the test for every edge the intent marks `held-out`, and for no other edge - an in-scope
+    // edge listed there would be a shape `check_handoffs.py` refuses ("names edges that are not
+    // held-out"), so the table is read in both directions rather than as a superset.
     const heldOut = heldOutChecks(planSource);
+    const heldOutEdges = edges
+      .filter((edge) => edge.disposition === 'held-out')
+      .map((edge) => edge.edge);
+    assert.deepEqual(
+      [...heldOut.keys()].sort(),
+      [...heldOutEdges].sort(),
+      `the plan's held-out table must map exactly the edges the intent marks held-out: the intent marks ${JSON.stringify(
+        heldOutEdges,
+      )} and the plan lists ${JSON.stringify([...heldOut.keys()])}`,
+    );
     for (const [edge, row] of heldOut) {
+      assert.ok(
+        row.task !== '',
+        `${edge} must name the task the plan assigns it`,
+      );
       assert.ok(
         row.test !== '',
         `${edge} must name the test the plan assigns it`,
@@ -3471,6 +3500,22 @@ describe('the claim list', () => {
         existsSync(join(CLAIM_ROOT, row.test)),
         `the plan assigns ${edge} to ${row.test}, which this checkout does not carry`,
       );
+    }
+
+    // Every edge in the intent has a row in the plan: the held-out table above where the edge is
+    // held out, and the `## Intent coverage` row for its criterion - and the suite that task's own
+    // `files:` list declares - where it is not. Each one resolves to a test this checkout carries,
+    // so no edge is left with a citation this suite cannot open.
+    const coverage = intentCoverage(planSource);
+    const tasksDir = join(dirname(planPath), '..', 'tasks');
+    const mapped = [];
+    for (const edge of edges) {
+      const suite = suiteForEdge(edge, heldOut, coverage, tasksDir);
+      assert.ok(
+        existsSync(join(CLAIM_ROOT, suite)),
+        `${edge.edge} is mapped by the plan to ${suite}, which this checkout does not carry`,
+      );
+      mapped.push(`${edge.edge} -> ${suite}`);
     }
     const derived = derivedClaimsFrom(
       intentSource,
@@ -3494,9 +3539,11 @@ describe('the claim list', () => {
       `${CLAIMS_REL} names an edge id its artefact does not state`,
     );
     console.log(
-      `${shown(planPath)} held-out mapping: ${JSON.stringify(
-        [...heldOut.entries()].map(([edge, row]) => `${edge} -> ${row.test}`),
-      )}; ${String(edges.length)} edge row(s) read as five columns`,
+      `${shown(planPath)} maps ${mapped.join(
+        ', ',
+      )} (${String(heldOut.size)} held-out row(s)); ${String(
+        edges.length,
+      )} edge row(s) read as five columns`,
     );
   });
 

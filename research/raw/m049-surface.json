@@ -77,88 +77,88 @@
     "resolvedBy": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 617,
+        "line": 674,
         "lineText": "const loader = LOADERS[name];",
         "holds": "LOADERS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 623,
+        "line": 680,
         "lineText": "void loader().then((mod) => {",
         "holds": "loader()"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 624,
+        "line": 681,
         "lineText": "const surface = mod.default(FACTS[name]);",
         "holds": "FACTS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 625,
+        "line": 682,
         "lineText": "this.state.set(surface.state);",
         "holds": "surface.state"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 626,
+        "line": 683,
         "lineText": "this.lines.set(surface.lines);",
         "holds": "surface.lines"
       }
     ],
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 460,
+      "line": 461,
       "lineText": "'interaction-story': {",
       "holds": "'interaction-story'"
     },
     "sampleFactAnswer": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 461,
+        "line": 462,
         "lineText": "state: 'steps',",
         "holds": "state: 'steps'"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 505,
+        "line": 506,
         "lineText": "cannotTell: [],",
         "holds": "cannotTell: []"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 506,
+        "line": 507,
         "lineText": "reason: null,",
         "holds": "reason: null"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 507,
+        "line": 508,
         "lineText": "bounded:",
         "holds": "bounded"
       }
     ],
     "sampleFactBounded": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 508,
+      "line": 509,
       "lineText": "'a story is what the record kept, not what the page did: routerEvents keeps 512 arrivals, pendingWorkEvents 64 and boundaryEntries 128, and the oldest fall off the front, so every story is incomplete',",
       "holds": "a story is what the record kept"
     },
     "sampleFactComment": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 448,
+        "line": 449,
         "lineText": "// The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds",
         "holds": "interaction-story.js"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 449,
+        "line": 450,
         "lineText": "// from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with",
         "holds": "m049-streams.json"
       }
     ],
-    "statement": "the `interaction-story` key is the last key `LOADERS` carries (:58), and it is the only path to `panel-interaction-story.ts`: the demo looks the key up by the name the route's `data.surface` states (:561), awaits the dynamic import (:567), calls the module's default export with the sample fact (:568), and sets the state (:569) and the lines (:570) the module answers. The fact it is handed (:459-:507) is the join's own answer for a record the spec rebuilds from T001's measurement (`research/raw/m049-streams.json`), with the join's own `BOUNDED_STATEMENT` under `bounded` (:506, :507) — the fifth field the answer carries beside the four the contract names. The comment above the fact (:447, :448) names both the join and the recording, so the fact is annotated with the reading it came from rather than with a count."
+    "statement": "the `interaction-story` key is no longer the last key `LOADERS` carries (:58) — M051's T003 appended `what-changed` after it (:60) — and it is the only path to `panel-interaction-story.ts`: the demo looks the key up by the name the route's `data.surface` states (:674), awaits the dynamic import (:680), calls the module's default export with the sample fact (:681), and sets the state (:682) and the lines (:683) the module answers. The fact it is handed (:460-:508) is the join's own answer for a record the spec rebuilds from T001's measurement (`research/raw/m049-streams.json`), with the join's own `BOUNDED_STATEMENT` under `bounded` (:507, :508) — the fifth field the answer carries beside the four the contract names. The comment above the fact (:448, :449) names both the join and the recording, so the fact is annotated with the reading it came from rather than with a count."
   },
   "answer": {
     "shape": "{ state, steps, cannotTell, reason } beside `bounded`",
@@ -248,12 +248,12 @@
           },
           {
             "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-            "line": 507,
+            "line": 508,
             "lineText": "bounded:",
             "holds": "bounded"
           }
         ],
-        "note": "the fifth field, and the one the four-field contract does not name: the join does not put it in its answer — it exports `BOUNDED_STATEMENT` (:282) and `panel-demo.ts` hands it over under `bounded` (:506, :507), because a panel surface may not import the join. The pane reads it in both states (:371) and renders it as `bounded: <statement>` (:373), or its own `no-bounded-statement` sentence (:155) where the answer carries none, so a story never reads as a complete history."
+        "note": "the fifth field, and the one the four-field contract does not name: the join does not put it in its answer — it exports `BOUNDED_STATEMENT` (:282) and `panel-demo.ts` hands it over under `bounded` (:507, :508), because a panel surface may not import the join. The pane reads it in both states (:371) and renders it as `bounded: <statement>` (:373), or its own `no-bounded-statement` sentence (:155) where the answer carries none, so a story never reads as a complete history."
       }
     ],
     "statement": "the pane is handed this answer and renders it; it sorts nothing, merges nothing, reads no record and reads no page. The state is the answer's own word (:357): `steps` renders the list in the order the answer already carries (:397, :407) and `cannot-tell` renders the reason verbatim (:381, :390). The fifth field `bounded` is stated beside the four rather than inside the contract, and it is the field the join's `BOUNDED_STATEMENT` travels in — the measurement that says a story is what the record kept."
@@ -588,7 +588,7 @@
   "corrections": [
     {
       "claim": "the contract's answer is four fields — `{ state, steps, cannotTell, reason }` — and that is the whole of what the pane is handed",
-      "measured": "it is four contract fields plus a fifth, `bounded`, at this head. The join exports `BOUNDED_STATEMENT` (:92-:95) as a constant rather than answering it, and `panel-demo.ts` hands it over under `bounded` (:506, :507) because a panel surface has no runtime imports and so cannot read the join's export itself. The pane reads the fifth field in both states (:371) and states its absence rather than claiming completeness where it is missing (:155).",
+      "measured": "it is four contract fields plus a fifth, `bounded`, at this head. The join exports `BOUNDED_STATEMENT` (:92-:95) as a constant rather than answering it, and `panel-demo.ts` hands it over under `bounded` (:507, :508) because a panel surface has no runtime imports and so cannot read the join's export itself. The pane reads the fifth field in both states (:371) and states its absence rather than claiming completeness where it is missing (:155).",
       "citations": [
         {
           "file": "extension/interaction-story.js",
@@ -598,7 +598,7 @@
         },
         {
           "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-          "line": 507,
+          "line": 508,
           "lineText": "bounded:",
           "holds": "bounded"
         },
@@ -640,9 +640,9 @@
   "notCaptured": [
     "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture.",
     "The record does not measure what the pane looks like. The lines each state writes are held by `panel-demo.spec.ts` over the shipped join and its sample fact, and this record names the states and the field each reads rather than reproducing the sentences' rendering.",
-    "The answer's fifth field is recorded as data and not as a contract change: `extension/interaction-story.js` still answers the four fields (:233, :271) and the bound travels beside them. This record does not claim the join was changed, and it names the file that hands the bound over (:506) because that is where the fifth field is created.",
+    "The answer's fifth field is recorded as data and not as a contract change: `extension/interaction-story.js` still answers the four fields (:233, :271) and the bound travels beside them. This record does not claim the join was changed, and it names the file that hands the bound over (:507) because that is where the fifth field is created.",
     "The route table's total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
-    "The sample fact at `panel-demo.ts:459-:508` is fixture data the spec rebuilds from T001's measurement, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what the page recorded."
+    "The sample fact at `panel-demo.ts:460-:509` is fixture data the spec rebuilds from T001's measurement, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what the page recorded."
   ],
-  "verdict": "measured: `/interaction-story` is one lazy route — the `PANEL_SURFACES` entry at :103, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `interaction-story` key of `panel-demo.ts`'s `LOADERS` (:58), and that key is the only path to `panel-interaction-story.ts`. The surface renders the join's two states and adds none of its own: `steps` reads `steps` in the answer's own order with each step's `stream`, `at` and `fields` beside the `cannotTell` streams and the answer's `reason`, and `cannot-tell` reads `reason` and the `cannotTell` streams and no step. The answer carries a fifth field the four-field contract does not name — `bounded`, the join's own `BOUNDED_STATEMENT` handed over by the demo (:506, :507) — and the pane reads and renders it in both states rather than letting a story read as a complete history."
+  "verdict": "measured: `/interaction-story` is one lazy route — the `PANEL_SURFACES` entry at :103, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `interaction-story` key of `panel-demo.ts`'s `LOADERS` (:58), and that key is the only path to `panel-interaction-story.ts`. The surface renders the join's two states and adds none of its own: `steps` reads `steps` in the answer's own order with each step's `stream`, `at` and `fields` beside the `cannotTell` streams and the answer's `reason`, and `cannot-tell` reads `reason` and the `cannotTell` streams and no step. The answer carries a fifth field the four-field contract does not name — `bounded`, the join's own `BOUNDED_STATEMENT` handed over by the demo (:507, :508) — and the pane reads and renders it in both states rather than letting a story read as a complete history."
 }
