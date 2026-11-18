@@ -2,10 +2,10 @@
 id: T001
 title: Measure what a recorded snapshot carries and what binds two of them
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: 7c34b8e090e8840aa4c2a6416b874aa9f9de7b22
 worktree: null
 task_branch: null
 files:
@@ -57,3 +57,4 @@ node --test scripts/what-changed.test.mjs && node -e "JSON.parse(require('fs').r
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m051-snapshots.json`, `scripts/what-changed.test.mjs` — each is read from this tree, ready.
