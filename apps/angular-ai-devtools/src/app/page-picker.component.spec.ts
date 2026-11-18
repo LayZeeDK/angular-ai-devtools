@@ -412,8 +412,9 @@ describe('PagePickerComponent', () => {
     expect(await route.loadComponent()).toBe(PagePickerComponent);
     // The picker's own reading of the table is the list of lazy paths. It is re-cut whenever a
     // surface is appended — M039 adds `render-phase` after this one, M040 adds `performance`, M045
-    // adds `console` last, M046 adds `console-read` after that, M047 adds `components` after that
-    // and M048 adds `copy-check` after that — so a route that quietly stopped being lazy reddens
+    // adds `console` last, M046 adds `console-read` after that, M047 adds `components` after that,
+    // M048 adds `copy-check` after that and M049 adds `interaction-story` after that — so a route
+    // that quietly stopped being lazy reddens
     // here as well as in the app suite rather than going unread. The list of lazy paths is one
     // reading of the table and it is not the count: the whole table is pinned below, so an eager
     // surface appended last cannot slip past this suite either (M045 T007, M046 T004).
@@ -430,6 +431,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('console-read');
     expect(lazy).toContain('components');
     expect(lazy).toContain('copy-check');
+    expect(lazy).toContain('interaction-story');
     expect(lazy).toEqual([
       'interop',
       'chat',
@@ -454,9 +456,10 @@ describe('PagePickerComponent', () => {
       'console-read',
       'components',
       'copy-check',
+      'interaction-story',
     ]);
 
-    // The whole table, in order and to the count — twenty-eight paths, exactly the ordered list
+    // The whole table, in order and to the count — twenty-nine paths, exactly the ordered list
     // `app.spec.ts` and `chat-entry.component.spec.ts` pin. The lazy list above is one reading of
     // the table; without this one an eager route appended to the end would leave this suite green,
     // which is what M045 T007 repairs here.
@@ -489,8 +492,9 @@ describe('PagePickerComponent', () => {
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
+      'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(28);
+    expect(appRoutes).toHaveLength(29);
   });
 });
 

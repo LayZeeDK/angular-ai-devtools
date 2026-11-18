@@ -27,10 +27,10 @@
       "readingLine": "gate-integrity: fix-record clean - examined 4 claim(s) in 5 task log(s) of .project/archive/044-gate-integrity/tasks (logs of M044) against 52 changed path(s) of d94502d174aff31b0b1ebbab200d5e47939dec39..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule ship: M043's ship commit, d94502d1 (ship: M043 — stability-explainer); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
       "plainRun": {
         "command": "npm run gate:fix-record",
-        "milestone": "M048",
+        "milestone": "M049",
         "exitCode": 0,
         "refusal": null,
-        "summary": "gate-integrity: pass - 0 finding(s), 31 mention(s)",
+        "summary": "gate-integrity: pass - 0 finding(s), 34 mention(s)",
         "refusalLines": []
       }
     }
@@ -70,7 +70,7 @@
       "prints": "pass - 0 finding(s), 4 mention(s)",
       "lines": [
         "gate-integrity: <root> milestone M056; stages fix-record",
-        "gate-integrity: fix-record clean - examined 4 claim(s) in 7 task log(s) of .project/archive/056-gate-phase-stability/tasks (logs of M056) against 415 changed path(s) of 034a5d722c6a84bbfe15bc2e65bfd4ad6b685bed..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule newest-ship: git log names no ship commit for M055, so the base is the newest it carries, 034a5d72 (ship: M047 — component-search); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
+        "gate-integrity: fix-record clean - examined 4 claim(s) in 7 task log(s) of .project/archive/056-gate-phase-stability/tasks (logs of M056) against 445 changed path(s) of 5c9ba40af3966142a9cfee3afdb19eb03a9f0659..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule newest-ship: git log names no ship commit for M055, so the base is the newest it carries, 5c9ba40a (ship: M048 — ui-copy-check); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
         "gate-integrity: mention build-guard.ts at .project/archive/056-gate-phase-stability/tasks/T001-reproduce-the-three-red-assertions-and-publish-one-record.md:81 (T001) - recorded and not judged",
         "gate-integrity: mention SYNTHESIS.md at .project/archive/056-gate-phase-stability/tasks/T003-hold-the-recording-to-a-range-that-does-not-move-when-the-ship-commit-appears.md:82 (T003) - recorded and not judged",
         "gate-integrity: mention research/raw/m056-gate-stability.json at .project/archive/056-gate-phase-stability/tasks/T003-hold-the-recording-to-a-range-that-does-not-move-when-the-ship-commit-appears.md:89 (T003) - recorded and not judged",

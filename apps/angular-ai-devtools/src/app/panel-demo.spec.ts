@@ -119,6 +119,15 @@ import {
   UNEXPLAINED as COPY_UNEXPLAINED,
   copyCheckPanel,
 } from './panel-copy-check';
+import {
+  CANNOT_TELL as STORY_CANNOT_TELL,
+  EMPTY_BESIDE_STEPS_TEXT,
+  NO_ANSWER_TEXT as STORY_NO_ANSWER_TEXT,
+  NO_STEPS_TEXT,
+  STEPS as STORY_STEPS,
+  STATE_TEXTS as STORY_STATE_TEXTS,
+  interactionStoryPanel,
+} from './panel-interaction-story';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -1236,6 +1245,223 @@ function copyCheckJoin(): CopyCheckJoin {
   return join;
 }
 
+/** The part of T001's M049 streams record this spec reads. */
+interface StreamsRecording {
+  clock: { reader: string };
+  answer: { sharedField: string };
+  streams: {
+    id: string;
+    stream: string;
+    publishedAs?: string;
+    entry: {
+      fields: { name: string }[];
+      nested: { parent: string; fields: { name: string }[] } | null;
+    };
+  }[];
+}
+
+/** One step of the interaction-story join's answer, for the fields this spec reads. */
+interface StoryStep {
+  stream: string;
+  at: number;
+  fields: Record<string, unknown>;
+}
+
+/** The interaction-story join's answer: the four contract fields. */
+interface StoryAnswer {
+  state: string;
+  steps: StoryStep[];
+  cannotTell: string[];
+  reason: string | null;
+}
+
+/** The page's own narration namespace, as `extension/interaction-story.js` publishes it. */
+interface InteractionStoryJoin {
+  interactionStory(record: unknown): StoryAnswer;
+  STEPS: string;
+  CANNOT_TELL: string;
+  BOUNDED_STATEMENT: string;
+  REASONS: readonly string[];
+  STREAM_NAMES: readonly string[];
+  BOUNDS: Record<string, number>;
+}
+
+/** The M049 streams record and its text, inlined from disk the same way. */
+function readStreamsRecording(): {
+  recording: StreamsRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m049-streams.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m049-streams.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as StreamsRecording, text };
+}
+
+/**
+ * The join `extension/interaction-story.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `interaction-story` fact is held to the join's answer for a record
+ * this spec rebuilds from T001's measurement, not to a copy of that answer written here. The module
+ * is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function interactionStoryJoin(): InteractionStoryJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/interaction-story.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/interaction-story.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as {
+      angularAiInteractionStory?: InteractionStoryJoin;
+    }
+  ).angularAiInteractionStory;
+  if (join === undefined || typeof join.interactionStory !== 'function') {
+    throw new Error(
+      'extension/interaction-story.js published no interactionStory',
+    );
+  }
+  return join;
+}
+
+/** The receipt reading each stream's one fixture entry carries, in the order the join must sort. */
+const STORY_READINGS: Readonly<Record<string, number>> = {
+  routerEvents: 30,
+  pendingWorkEvents: 10,
+  boundaryEntries: 20,
+};
+
+/**
+ * The values each entry carries, keyed by the stream's own recorded name. The `at` field is the
+ * reading above, and every other key is filled from the field list T001 measured, so the record
+ * this spec rebuilds carries the fields the record cites and no key it does not.
+ */
+const STORY_VALUES: Readonly<
+  Record<string, Readonly<Record<string, unknown>>>
+> = {
+  routerEvents: {
+    type: 'NavigationEnd',
+    id: 1,
+    url: '/a',
+    urlAfterRedirects: '/a',
+    route: null,
+    reason: null,
+    code: null,
+    error: null,
+    shouldActivate: null,
+    matchedPaths: [],
+  },
+  pendingWorkEvents: {
+    type: 1,
+    pair: 'TemplateUpdate',
+    end: false,
+    componentName: '_App',
+  },
+  boundaryEntries: {
+    route: 'hook',
+    error: { name: 'TypeError', message: 'boom' },
+  },
+};
+
+/** One measured stream of the M049 record, as this spec reads it. */
+type MeasuredStream = StreamsRecording['streams'][number];
+
+/**
+ * One entry built from the field list T001 measured for a stream: every key the record cites, in
+ * the order it cites them, with `at` set to the reading the caller names (or `null` where the
+ * record is asked to carry no measured order). A nested field's own keys come from the measured
+ * nested list and are `null`, the presence-tested shape the page agent writes.
+ */
+function storyEntry(
+  stream: MeasuredStream,
+  at: number | null,
+): Record<string, unknown> {
+  const values = STORY_VALUES[stream.stream] ?? {};
+  const entry: Record<string, unknown> = {};
+  for (const field of stream.entry.fields) {
+    if (field.name === 'at') {
+      entry['at'] = at;
+      continue;
+    }
+    const nested = stream.entry.nested;
+    if (nested !== null && nested.parent === field.name) {
+      const inner: Record<string, unknown> = {};
+      for (const child of nested.fields) inner[child.name] = null;
+      entry[field.name] = inner;
+      continue;
+    }
+    entry[field.name] = Object.hasOwn(values, field.name)
+      ? values[field.name]
+      : null;
+  }
+  return entry;
+}
+
+/**
+ * The record the page agent publishes, rebuilt from T001's measurement: one entry per measured
+ * stream, with the streams the caller names left empty and the streams it names carrying no `at`
+ * asked for by name. The join reads `routerEvents`, the frame's `events` and `boundary.entries`,
+ * and nothing else, so that is all this record carries.
+ */
+function storyRecord(
+  recording: StreamsRecording,
+  options: {
+    readonly empty?: readonly string[];
+    readonly noAt?: readonly string[];
+  } = {},
+) {
+  const empty = options.empty ?? [];
+  const noAt = options.noAt ?? [];
+  const entries: Record<string, Record<string, unknown>> = {};
+  for (const stream of recording.streams) {
+    entries[stream.stream] = storyEntry(
+      stream,
+      noAt.includes(stream.stream)
+        ? null
+        : (STORY_READINGS[stream.stream] ?? 0),
+    );
+  }
+  const list = (name: string): Record<string, unknown>[] => {
+    const entry = entries[name];
+    return empty.includes(name) || entry === undefined ? [] : [entry];
+  };
+  return {
+    routerEvents: list('routerEvents'),
+    events: list('pendingWorkEvents'),
+    boundary: { entries: list('boundaryEntries') },
+  };
+}
+
+/** The record's three lists under the stream names T001 measured, for the field-set pin. */
+function storyLists(
+  record: ReturnType<typeof storyRecord>,
+): Record<string, readonly Record<string, unknown>[]> {
+  return {
+    routerEvents: record.routerEvents,
+    pendingWorkEvents: record.events,
+    boundaryEntries: record.boundary.entries,
+  };
+}
+
 /** The demo rendered for one surface name, once its lazy surface has answered. */
 async function renderDemo(surface: string): Promise<PanelDemoComponent> {
   await TestBed.configureTestingModule({
@@ -2078,7 +2304,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — twenty-seven paths, the same ordered list
+    // The whole table, in order and to the count — twenty-nine paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -2111,8 +2337,9 @@ describe('the panel demo', () => {
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
+      'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(28);
+    expect(appRoutes).toHaveLength(29);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -2615,19 +2842,19 @@ describe('the panel demo', () => {
 
     // The measured record's answer: every string it declares is explained, and the count is the
     // join's own comparison — not a count written in this spec or in the demo fact. The count is
-    // larger than the digest's row count because one sentence is declared by two surfaces and an
-    // explanation of one string is still one row: 122 sentences compared, 121 distinct rows.
+    // larger than the digest's row count because one sentence is declared by three surfaces and an
+    // explanation of one string is still one row: 135 sentences compared, 133 distinct rows.
     expect(answer).toEqual({
       state: COPY_CLEAN,
       unexplained: [],
-      checked: 122,
+      checked: 135,
     });
     expect(answer.checked).toBe(
       recording.counts.declaredSentences + recording.counts.inlineSentences,
     );
     expect(digest.entries.length).toBeLessThan(answer.checked);
     expect(recording.counts.surfaces).toBe(recording.surfaces.length);
-    expect(recording.counts.surfaces).toBe(20);
+    expect(recording.counts.surfaces).toBe(21);
 
     // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
     // with its own reason, while the record stays clean. Both answers are the join's.
@@ -2772,6 +2999,264 @@ describe('the panel demo', () => {
     );
 
     // It adds no DOM to an inspected page and writes no element, cause, remedy or rule identity.
+    expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
+    for (const label of ['cause: ', 'element: ', 'remedy: ', 'rule: ']) {
+      expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
+    }
+  });
+
+  /**
+   * The M049 half — SC1 and SC2 on the surface. The route is reached through its own entry, and the
+   * fact it renders is the shipped join's answer for a record rebuilt from T001's measurement, with
+   * the join's own `BOUNDED_STATEMENT` handed beside it. The `steps` state prints the order the
+   * shared `at` reading supports, each step naming its stream and every field the event recorded;
+   * an empty stream is named beside the story, never as quiet; and the `cannot-tell` reasons are
+   * echoed verbatim with no step offered in their place.
+   */
+  it('renders the measured steps, the empty streams beside them and the cannot-tell reasons the M049 record supports', async () => {
+    const { recording, text: recordingText } = readStreamsRecording();
+    const join = interactionStoryJoin();
+    const record = storyRecord(recording);
+    const answer = join.interactionStory(record);
+
+    // The rebuilt record carries exactly the fields T001 measured for each stream's builder.
+    const lists = storyLists(record);
+    for (const stream of recording.streams) {
+      const entries = lists[stream.stream] ?? [];
+      expect(entries).toHaveLength(1);
+      const measured = stream.entry.fields.map((field) => field.name).sort();
+      expect(Object.keys(entries[0] ?? {}).sort()).toEqual(measured);
+    }
+
+    // The join's own order is the `at` order across the three streams: work 10, boundary 20,
+    // router 30 — an interleaving no stream-name or list-position sort produces.
+    expect(answer.state).toBe(STORY_STEPS);
+    expect(answer.steps.map((step) => step.stream)).toEqual([
+      'pendingWorkEvents',
+      'boundaryEntries',
+      'routerEvents',
+    ]);
+    expect(answer.steps.map((step) => step.at)).toEqual([10, 20, 30]);
+    expect(answer.cannotTell).toEqual([]);
+    expect(answer.reason).toBeNull();
+    expect(join.STREAM_NAMES).toEqual([
+      'routerEvents',
+      'pendingWorkEvents',
+      'boundaryEntries',
+    ]);
+    expect(join.BOUNDS).toEqual({
+      routerEvents: 512,
+      pendingWorkEvents: 64,
+      boundaryEntries: 128,
+    });
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'interaction-story',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error(
+        'the interaction-story surface must exist and load lazily',
+      );
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the interaction-story route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('interaction-story');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'interaction-story'),
+    ).toHaveLength(1);
+
+    // The fact the pane is handed is the join's answer, field for field, beside the join's own
+    // bounded statement — the one field the pane cannot read from the join itself.
+    expect(FACTS['interaction-story']).toEqual({
+      ...answer,
+      bounded: join.BOUNDED_STATEMENT,
+    });
+
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(STORY_STEPS);
+    const pane = interactionStoryPanel(FACTS['interaction-story']);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+
+    // The steps state: its own word and sentence, then one block per step in the answer's order.
+    expect(pane.lines[0]).toBe(`state: ${STORY_STEPS}`);
+    expect(pane.lines[1]).toBe(STORY_STATE_TEXTS[STORY_STEPS]);
+    let cursor = 2;
+    for (const [index, step] of answer.steps.entries()) {
+      expect(pane.lines[cursor]).toBe(`step: ${index + 1}`);
+      expect(pane.lines[cursor + 1]).toBe(`stream: ${step.stream}`);
+      expect(pane.lines[cursor + 2]).toBe(`at: ${step.at}`);
+      cursor += 3;
+      for (const [name, value] of Object.entries(step.fields)) {
+        const rendered =
+          typeof value === 'string'
+            ? value
+            : typeof value === 'number' || typeof value === 'boolean'
+              ? String(value)
+              : value === null
+                ? 'null'
+                : JSON.stringify(value);
+        expect(pane.lines[cursor]).toBe(`field ${name}: ${rendered}`);
+        cursor += 1;
+      }
+    }
+    // The bound is rendered last, so a bounded story never reads as a complete history.
+    expect(pane.lines.at(-1)).toBe(`bounded: ${join.BOUNDED_STATEMENT}`);
+    expect(join.BOUNDED_STATEMENT).toContain('what the record kept');
+    expect(join.BOUNDED_STATEMENT).toContain('not what the page did');
+    expect(join.BOUNDED_STATEMENT).toContain('incomplete');
+
+    // Nested recorded values are copied as their own JSON: the error is the error and the details
+    // are the details, never a summary of either.
+    expect(pane.lines).toContain(
+      'field error: {"name":"TypeError","message":"boom"}',
+    );
+    expect(pane.lines).toContain(
+      'field details: {"declarationType":null,"declarationInstanceName":null,"caughtBy":null,"boundaryType":null,"boundaryReset":null}',
+    );
+    // Every stream the pane names is one the committed measurement names.
+    for (const needle of [
+      'pendingWorkEvents',
+      'boundaryEntries',
+      'routerEvents',
+      'nowMs',
+    ]) {
+      expect(recordingText).toContain(needle);
+    }
+
+    // E4: one empty stream beside the story. The populated streams render, the empty one is named
+    // as empty beside them, and the state never reads as quiet.
+    const oneEmpty = join.interactionStory(
+      storyRecord(recording, { empty: ['boundaryEntries'] }),
+    );
+    expect(oneEmpty.state).toBe(STORY_STEPS);
+    expect(oneEmpty.cannotTell).toEqual(['boundaryEntries']);
+    expect(oneEmpty.reason).toBe('stream-empty');
+    const beside = interactionStoryPanel({
+      ...oneEmpty,
+      bounded: join.BOUNDED_STATEMENT,
+    });
+    expect(beside.state).toBe(STORY_STEPS);
+    expect(beside.lines).toContain('empty: boundaryEntries');
+    expect(beside.lines).toContain(EMPTY_BESIDE_STEPS_TEXT);
+    expect(beside.lines).toContain('reason: stream-empty');
+    expect(
+      beside.lines
+        .filter((line) => line.startsWith('stream: '))
+        .map((line) => line.slice('stream: '.length)),
+    ).toEqual(['pendingWorkEvents', 'routerEvents']);
+    expect(beside.text).not.toMatch(/\b(quiet|clean|healthy|ok)\b/i);
+
+    // SC2: every stream empty is cannot-tell with the named reason, never a zero-step story.
+    const allEmpty = join.interactionStory(
+      storyRecord(recording, {
+        empty: ['routerEvents', 'pendingWorkEvents', 'boundaryEntries'],
+      }),
+    );
+    expect(allEmpty.state).toBe(STORY_CANNOT_TELL);
+    expect(allEmpty.steps).toEqual([]);
+    expect(allEmpty.reason).toBe('all-streams-empty');
+    expect(allEmpty.cannotTell).toEqual([
+      'routerEvents',
+      'pendingWorkEvents',
+      'boundaryEntries',
+    ]);
+    const nothing = interactionStoryPanel({
+      ...allEmpty,
+      bounded: join.BOUNDED_STATEMENT,
+    });
+    expect(nothing.state).toBe(STORY_CANNOT_TELL);
+    expect(nothing.lines).toContain(`state: ${STORY_CANNOT_TELL}`);
+    expect(nothing.lines).toContain('reason: all-streams-empty');
+    for (const stream of allEmpty.cannotTell) {
+      expect(nothing.lines).toContain(`cannot tell: ${stream}`);
+    }
+    expect(nothing.lines.some((line) => line.startsWith('step:'))).toBe(false);
+    expect(nothing.lines).not.toContain(`state: ${STORY_STEPS}`);
+
+    // SC3: a populated stream whose entry carries no measured `at` is refused, never ordered.
+    const noOrder = join.interactionStory(
+      storyRecord(recording, { noAt: ['routerEvents'] }),
+    );
+    expect(noOrder.state).toBe(STORY_CANNOT_TELL);
+    expect(noOrder.reason).toBe('no-shared-order');
+    expect(noOrder.cannotTell).toEqual(['routerEvents']);
+    const refused = interactionStoryPanel({
+      ...noOrder,
+      bounded: join.BOUNDED_STATEMENT,
+    });
+    expect(refused.lines).toContain('reason: no-shared-order');
+    expect(refused.lines).toContain('cannot tell: routerEvents');
+    expect(refused.lines.some((line) => line.startsWith('step:'))).toBe(false);
+
+    // A record the join cannot read is refused with its own reason, not read as empty streams.
+    const unreadable = join.interactionStory({
+      routerEvents: [],
+      events: [],
+      boundary: null,
+    });
+    expect(unreadable.state).toBe(STORY_CANNOT_TELL);
+    expect(unreadable.reason).toBe('record-unreadable');
+    expect(
+      interactionStoryPanel({ ...unreadable, bounded: join.BOUNDED_STATEMENT })
+        .lines,
+    ).toContain('reason: record-unreadable');
+
+    // Every reason of the join's closed set is echoed verbatim, so the pane states no cause of its
+    // own and drops none the join carries.
+    for (const reason of join.REASONS) {
+      const shaped =
+        reason === 'stream-empty'
+          ? storyRecord(recording, { empty: ['boundaryEntries'] })
+          : reason === 'all-streams-empty'
+            ? storyRecord(recording, {
+                empty: ['routerEvents', 'pendingWorkEvents', 'boundaryEntries'],
+              })
+            : reason === 'no-shared-order'
+              ? storyRecord(recording, { noAt: ['routerEvents'] })
+              : null;
+      const answerForReason = join.interactionStory(shaped);
+      expect(answerForReason.reason).toBe(reason);
+      expect(
+        interactionStoryPanel({
+          ...answerForReason,
+          bounded: join.BOUNDED_STATEMENT,
+        }).lines,
+      ).toContain(`reason: ${reason}`);
+    }
+
+    // An answer nobody gave is its own named absence, a state word outside the registry renders as
+    // the word alone, and an answer reporting steps without a list states that absence.
+    expect(interactionStoryPanel(undefined).lines).toEqual([
+      STORY_NO_ANSWER_TEXT,
+    ]);
+    expect(interactionStoryPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+    expect(
+      interactionStoryPanel({
+        state: STORY_STEPS,
+        steps: [],
+        cannotTell: [],
+        reason: null,
+        bounded: join.BOUNDED_STATEMENT,
+      }).lines,
+    ).toContain(NO_STEPS_TEXT);
+
+    // Idempotency: the same fact renders the same lines in the same order, twice.
+    expect(interactionStoryPanel(FACTS['interaction-story'])).toEqual(
+      interactionStoryPanel(FACTS['interaction-story']),
+    );
+
+    // N4, N1: the pane adds no DOM and writes no cause, element, remedy or rule identity of its
+    // own. Every line is a labelled field of the answer or one of the pane's sentences.
     expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
     for (const label of ['cause: ', 'element: ', 'remedy: ', 'rule: ']) {
       expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);

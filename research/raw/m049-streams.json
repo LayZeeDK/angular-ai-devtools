@@ -1,0 +1,816 @@
+{
+  "schema": "m049-streams/v1",
+  "milestone": "M049 interaction-story",
+  "task": "T001",
+  "title": "Measure the three arrival-ordered streams and whether they share an order",
+  "question": "do any two of the three arrival-ordered streams — routerEvents, pendingWorkEvents/the frame's events list, and boundary.entries — carry a comparable field (a timestamp, a sequence number, an arrival index) that would let one merged story be honest?",
+  "head": "642ce70a0f4434b46a201b634e7f43256ae5248b",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: extension/agent-main.js was read line by line at the head above, every citation below was printed from the file with its leading and trailing whitespace trimmed and then re-read, and the three counts in `measurements` were produced by the commands recorded beside them. No page was read, no browser was opened, nothing was rendered and no build was run; the only commands executed were the counting commands in `measurements` and the verify suite at scripts/interaction-story.test.mjs.",
+  "lineTextConvention": "every `lineText` is the cited line with its leading and trailing whitespace trimmed and nothing else removed; `line` is 1-indexed. The suite re-reads every cited line and requires trimmed equality with `lineText`, so a citation that slides off its line fails.",
+  "measurements": [
+    {
+      "id": "no-ui-capture",
+      "claims": "no stream records an interaction and no extension file registers a UI listener",
+      "commands": [
+        "node -e \"const s=require('fs').readFileSync('extension/agent-main.js','utf8');console.log('interaction',[...s.matchAll(/interaction/g)].length)\"",
+        "node -e \"const fs=require('fs');const files=fs.readdirSync('extension').filter(f=>f.endsWith('.js'));let i=0,a=0,u=0;for(const f of files){const s=fs.readFileSync('extension/'+f,'utf8');i+=[...s.matchAll(/interaction/g)].length;a+=[...s.matchAll(/addEventListener/g)].length;u+=[...s.matchAll(/addEventListener\\(\\s*.(?:click|pointer|mouse|key)/g)].length}console.log('files',files.length,'interaction',i,'addEventListener',a,'uiListenerNames',u)\""
+      ],
+      "output": [
+        "interaction 0",
+        "files 28 interaction 0 addEventListener 19 uiListenerNames 0"
+      ],
+      "note": "the six listeners extension/agent-main.js registers are the two custom events DI_QUERY_EVENT and PICK_EVENT (:2484, :2489) and the two global error events 'error' and 'unhandledrejection' (:2550, :2557); none of them is a click, pointer, mouse or key listener."
+    },
+    {
+      "id": "no-sequence-field",
+      "claims": "no stream records a cross-stream sequence number or arrival index",
+      "command": "node -e \"const s=require('fs').readFileSync('extension/agent-main.js','utf8');for(const [k,re] of [['seq',/seq/g],['sequence',/sequence/g],['arrivalIndex',/arrivalIndex/g],['index:',/index:/g]])console.log(k,[...s.matchAll(re)].length)\"",
+      "output": ["seq 0", "sequence 0", "arrivalIndex 0", "index: 0"],
+      "note": "the file's only per-arrival counters are the router's own navigation id (:1639) and the per-frame cycleId (:740, :741), and neither is recorded on a boundary or a work entry."
+    }
+  ],
+  "clock": {
+    "reader": "nowMs",
+    "site": {
+      "file": "extension/agent-main.js",
+      "line": 728,
+      "lineText": "function nowMs() {"
+    },
+    "reads": [
+      {
+        "file": "extension/agent-main.js",
+        "line": 733,
+        "lineText": "return globalThis.performance.now();"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 735,
+        "lineText": "return Date.now();"
+      }
+    ],
+    "also": [
+      {
+        "file": "extension/agent-main.js",
+        "line": 726,
+        "lineText": "// The page's own clock, read at receipt. One reader, so the record's `at` and the cycle's"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 727,
+        "lineText": "// `startedAt` are the same measurement on the same scale."
+      }
+    ],
+    "statement": "one reader answers the page's own performance.now() and falls back to Date.now() where the realm publishes none; the comment at :726–:727 states that this one reader makes the entries' `at` and the frame's `startedAt` the same measurement on the same scale."
+  },
+  "streams": [
+    {
+      "id": "router",
+      "stream": "routerEvents",
+      "file": "extension/agent-main.js",
+      "declaration": {
+        "file": "extension/agent-main.js",
+        "line": 1474,
+        "lineText": "var routerEvents = []; // one entry per Router.events emission, in arrival order"
+      },
+      "entry": {
+        "builder": {
+          "file": "extension/agent-main.js",
+          "line": 1635,
+          "lineText": "function recordRouterEvent(event) {"
+        },
+        "opener": {
+          "file": "extension/agent-main.js",
+          "line": 1636,
+          "lineText": "var entry = {"
+        },
+        "closer": {
+          "file": "extension/agent-main.js",
+          "line": 1648,
+          "lineText": "};"
+        },
+        "nested": null,
+        "fields": [
+          {
+            "name": "type",
+            "kind": "derived",
+            "from": "routerClassNameOf(event) — the class name the runtime reports for the event, never its number",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1637,
+              "lineText": "type: routerClassNameOf(event),"
+            }
+          },
+          {
+            "name": "at",
+            "kind": "derived",
+            "from": "nowMs() — the page's own clock read at receipt",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1638,
+              "lineText": "at: nowMs(),"
+            }
+          },
+          {
+            "name": "id",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'id') — the event's own navigation id where it carries one, otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1639,
+              "lineText": "id: routerPrimitiveOf(event, 'id'),"
+            }
+          },
+          {
+            "name": "url",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'url') — the event's own primitive url, otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1640,
+              "lineText": "url: routerPrimitiveOf(event, 'url'),"
+            }
+          },
+          {
+            "name": "urlAfterRedirects",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'urlAfterRedirects'), otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1641,
+              "lineText": "urlAfterRedirects: routerPrimitiveOf(event, 'urlAfterRedirects'),"
+            }
+          },
+          {
+            "name": "route",
+            "kind": "derived",
+            "from": "routerRoutePathOf(event) — the route config's own path string, never the Route object",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1642,
+              "lineText": "route: routerRoutePathOf(event),"
+            }
+          },
+          {
+            "name": "reason",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'reason'), otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1643,
+              "lineText": "reason: routerPrimitiveOf(event, 'reason'),"
+            }
+          },
+          {
+            "name": "code",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'code'), otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1644,
+              "lineText": "code: routerPrimitiveOf(event, 'code'),"
+            }
+          },
+          {
+            "name": "error",
+            "kind": "derived",
+            "from": "routerErrorOf(event) — the error's own name and message as plain data, or null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1645,
+              "lineText": "error: routerErrorOf(event),"
+            }
+          },
+          {
+            "name": "shouldActivate",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'shouldActivate'), otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1646,
+              "lineText": "shouldActivate: routerPrimitiveOf(event, 'shouldActivate'),"
+            }
+          },
+          {
+            "name": "matchedPaths",
+            "kind": "derived",
+            "from": "routerMatchedPathsOf(event) — the primary chain's own config path strings, bounded by ROUTER_CHAIN_LIMIT",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1647,
+              "lineText": "matchedPaths: routerMatchedPathsOf(event),"
+            }
+          }
+        ]
+      },
+      "bound": {
+        "limit": 512,
+        "limitSite": {
+          "file": "extension/agent-main.js",
+          "line": 1471,
+          "lineText": "var ROUTER_EVENT_LIMIT = 512; // arrivals kept: a page-health guard, not a curation"
+        },
+        "enforced": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1653,
+            "lineText": "if (routerEvents.length > ROUTER_EVENT_LIMIT) {"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1654,
+            "lineText": "routerEvents.splice(0, routerEvents.length - ROUTER_EVENT_LIMIT);"
+          }
+        ],
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1650,
+            "lineText": "// Bounded as a page-health guard, not as a curation: below the bound nothing is dropped,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1651,
+            "lineText": "// coalesced or reordered, and above it the oldest arrivals fall off the front so the newest — the"
+          }
+        ],
+        "above": "above 512 arrivals the oldest fall off the front: they are dropped, and nothing is reordered or coalesced. Below the bound no arrival is dropped, coalesced or reordered, and a late arrival keeps its own place in arrival order (:1659–:1660)."
+      },
+      "order": {
+        "stated": true,
+        "statement": "One entry per emission, in arrival order, built from the event alone, one shape for every class",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1459,
+          "lineText": "// One entry per emission, in arrival order, built from the event alone, one shape for every class:"
+        },
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1474,
+            "lineText": "var routerEvents = []; // one entry per Router.events emission, in arrival order"
+          }
+        ]
+      },
+      "comparable": {
+        "fields": [
+          {
+            "name": "at",
+            "kind": "timestamp",
+            "shared": true,
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1638,
+              "lineText": "at: nowMs(),"
+            },
+            "reader": "nowMs"
+          },
+          {
+            "name": "id",
+            "kind": "navigation-id",
+            "shared": false,
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1639,
+              "lineText": "id: routerPrimitiveOf(event, 'id'),"
+            },
+            "scope": "the router's own navigation id: only the events that carry one record it (the two route-config classes carry none), and no work or boundary entry records an id."
+          }
+        ],
+        "statement": "the entry records `at` from nowMs() at receipt, the same reader the other two streams call, so the field is comparable across streams; `id` is comparable only within the router stream."
+      },
+      "reader": {
+        "function": "routerEventList",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1671,
+          "lineText": "function routerEventList() {"
+        },
+        "yields": {
+          "file": "extension/agent-main.js",
+          "line": 1672,
+          "lineText": "return routerEvents.slice();"
+        },
+        "cumulative": true,
+        "callSites": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1050,
+            "lineText": "routerEvents: routerEventList(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1440,
+            "lineText": "routerEvents: routerEventList(),"
+          }
+        ],
+        "note": "the frame (:1050) and the initial snapshot (:1440) both publish a copy of the whole list, so successive records repeat earlier arrivals; a narration must take the union, never the concatenation."
+      }
+    },
+    {
+      "id": "work",
+      "stream": "pendingWorkEvents",
+      "publishedAs": "events",
+      "file": "extension/agent-main.js",
+      "declaration": {
+        "file": "extension/agent-main.js",
+        "line": 639,
+        "lineText": "var pendingWorkEvents = []; // entries recorded before the frame's opener: { type, pair, ... }"
+      },
+      "entry": {
+        "builder": {
+          "file": "extension/agent-main.js",
+          "line": 692,
+          "lineText": "function recordWorkEvent(event, instance) {"
+        },
+        "opener": {
+          "file": "extension/agent-main.js",
+          "line": 695,
+          "lineText": "var entry = {"
+        },
+        "closer": {
+          "file": "extension/agent-main.js",
+          "line": 701,
+          "lineText": "};"
+        },
+        "nested": null,
+        "fields": [
+          {
+            "name": "type",
+            "kind": "derived",
+            "from": "the profiler event value passed to recordWorkEvent, recorded as it arrived",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 696,
+              "lineText": "type: event,"
+            }
+          },
+          {
+            "name": "pair",
+            "kind": "derived",
+            "from": "kind.pair — the pair name the one table (WORK_EVENT_PAIRS) gives the event value",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 697,
+              "lineText": "pair: kind.pair,"
+            }
+          },
+          {
+            "name": "end",
+            "kind": "derived",
+            "from": "kind.end — whether the event value is the pair's end, from the same table",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 698,
+              "lineText": "end: kind.end,"
+            }
+          },
+          {
+            "name": "at",
+            "kind": "derived",
+            "from": "nowMs() — the page's own clock read at receipt, before the entry is held or adopted",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 699,
+              "lineText": "at: nowMs(),"
+            }
+          },
+          {
+            "name": "componentName",
+            "kind": "derived",
+            "from": "instanceNameFor(instance) — the host tag or class name lowercased, or null when the profiler passed no instance or the instance yields no name; never the 'component' fallback word",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 700,
+              "lineText": "componentName: instanceNameFor(instance),"
+            }
+          }
+        ]
+      },
+      "bound": {
+        "limit": 64,
+        "limitSite": {
+          "file": "extension/agent-main.js",
+          "line": 640,
+          "lineText": "var PENDING_WORK_EVENT_LIMIT = 64; // one frame's worth; a page that never ticks holds no record"
+        },
+        "enforced": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 711,
+            "lineText": "if (pendingWorkEvents.length > PENDING_WORK_EVENT_LIMIT) {"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 712,
+            "lineText": "pendingWorkEvents.splice("
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 714,
+            "lineText": "pendingWorkEvents.length - PENDING_WORK_EVENT_LIMIT,"
+          }
+        ],
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 708,
+            "lineText": "pendingWorkEvents.push(entry);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 709,
+            "lineText": "// Bounded: a frame is one task's worth of work, so a page that emits work events and never"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 710,
+            "lineText": "// opens a frame keeps at most the most recent bound rather than growing without limit."
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 702,
+            "lineText": "if (cycle) cycle.events.push(entry);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1048,
+            "lineText": "events: c.events.slice(),"
+          }
+        ],
+        "above": "the held list is bounded to 64 and the oldest held entries fall off the front (dropped, never reordered or coalesced); a page that never opens a frame keeps at most the most recent 64. The frame's own list, cycle.events, carries no bound anywhere in this file — it is written at :702 and copied whole at :1048 — so the only bound on it is one frame's own work."
+      },
+      "order": {
+        "stated": true,
+        "statement": "One entry per recorded value, in emission order.",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 690,
+          "lineText": "// One entry per recorded value, in emission order. The entry is built from the table and the"
+        },
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 719,
+            "lineText": "// The frame the task opens takes the events held before its opener, in arrival order."
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1047,
+            "lineText": "// The frame's own work, in arrival order; the per-check `events` below keeps the bare numbers."
+          }
+        ]
+      },
+      "comparable": {
+        "fields": [
+          {
+            "name": "at",
+            "kind": "timestamp",
+            "shared": true,
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 699,
+              "lineText": "at: nowMs(),"
+            },
+            "reader": "nowMs"
+          }
+        ],
+        "statement": "the entry records `at` from nowMs() at receipt — before the entry is held in pendingWorkEvents and before a later frame adopts it — so the timestamp orders a held entry against router and boundary arrivals even though the arrival itself is published later."
+      },
+      "reader": {
+        "function": "closeCycle",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1038,
+          "lineText": "function closeCycle() {"
+        },
+        "yields": {
+          "file": "extension/agent-main.js",
+          "line": 1048,
+          "lineText": "events: c.events.slice(),"
+        },
+        "cumulative": false,
+        "callSites": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 747,
+            "lineText": "globalThis.queueMicrotask(closeCycle);"
+          }
+        ],
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 703,
+            "lineText": "else holdPendingWorkEvent(entry);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 720,
+            "lineText": "function adoptPendingWorkEvents() {"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 744,
+            "lineText": "events: adoptPendingWorkEvents(),"
+          }
+        ],
+        "note": "the published list is frame-scoped: closeCycle copies that frame's own work, and the frame's opener starts from the held entries adopted at :744. A narration must therefore take the union of the frames' events lists, and must not read pendingWorkEvents directly — the held list is emptied by adoption (:721–:723) and is never published as itself."
+      }
+    },
+    {
+      "id": "boundary",
+      "stream": "boundaryEntries",
+      "publishedAs": "boundary.entries",
+      "file": "extension/agent-main.js",
+      "declaration": {
+        "file": "extension/agent-main.js",
+        "line": 1942,
+        "lineText": "var boundaryEntries = []; // one entry per arrival, in arrival order"
+      },
+      "entry": {
+        "builder": {
+          "file": "extension/agent-main.js",
+          "line": 2046,
+          "lineText": "function recordBoundaryArrival(error, details) {"
+        },
+        "opener": {
+          "file": "extension/agent-main.js",
+          "line": 2051,
+          "lineText": "var entry = {"
+        },
+        "closer": {
+          "file": "extension/agent-main.js",
+          "line": 2074,
+          "lineText": "};"
+        },
+        "nested": {
+          "parent": "details",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 2054,
+            "lineText": "details: {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 2072,
+            "lineText": "},"
+          },
+          "fields": [
+            {
+              "name": "declarationType",
+              "kind": "derived",
+              "from": "boundaryTypeNameOf(details.declarationType) — the payload's type constructor's own name, or null",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2055,
+                "lineText": "declarationType: boundaryTypeNameOf("
+              }
+            },
+            {
+              "name": "declarationInstanceName",
+              "kind": "derived",
+              "from": "instanceNameFor(details.declarationInstance) — the declaring instance's host tag or class name, or null",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2058,
+                "lineText": "declarationInstanceName: instanceNameFor("
+              }
+            },
+            {
+              "name": "caughtBy",
+              "kind": "derived",
+              "from": "typeof caughtBy === 'function' ? true : null — a presence bit, never the function itself",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2065,
+                "lineText": "caughtBy: typeof caughtBy === 'function' ? true : null,"
+              }
+            },
+            {
+              "name": "boundaryType",
+              "kind": "derived",
+              "from": "boundaryTypeNameOf(details.boundary.type) where the payload carried a boundary, otherwise null",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2066,
+                "lineText": "boundaryType: hasBoundary"
+              }
+            },
+            {
+              "name": "boundaryReset",
+              "kind": "derived",
+              "from": "whether details.boundary.reset is a function where the payload carried a boundary, otherwise null",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2069,
+                "lineText": "boundaryReset: hasBoundary"
+              }
+            }
+          ]
+        },
+        "fields": [
+          {
+            "name": "route",
+            "kind": "literal",
+            "from": "the literal word 'hook' where the payload carried `details`, 'handler' where it carried none — a word this file writes, chosen by a presence test",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2052,
+              "lineText": "route: carried ? 'hook' : 'handler',"
+            }
+          },
+          {
+            "name": "error",
+            "kind": "derived",
+            "from": "boundaryErrorOf(error) — the error's own name and message, with a cause only where the boundary wrapped a non-Error",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2053,
+              "lineText": "error: boundaryErrorOf(error),"
+            }
+          },
+          {
+            "name": "details",
+            "kind": "derived",
+            "from": "the payload's own detail fields, each behind a presence test — the nested object below",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2054,
+              "lineText": "details: {"
+            }
+          },
+          {
+            "name": "at",
+            "kind": "derived",
+            "from": "nowMs() — the page's own clock read at receipt",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2073,
+              "lineText": "at: nowMs(),"
+            }
+          }
+        ]
+      },
+      "bound": {
+        "limit": 128,
+        "limitSite": {
+          "file": "extension/agent-main.js",
+          "line": 1939,
+          "lineText": "var BOUNDARY_ENTRY_LIMIT = 128; // arrivals kept: a page-health guard, not a curation"
+        },
+        "enforced": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2076,
+            "lineText": "if (boundaryEntries.length > BOUNDARY_ENTRY_LIMIT) {"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2077,
+            "lineText": "boundaryEntries.splice(0, boundaryEntries.length - BOUNDARY_ENTRY_LIMIT);"
+          }
+        ],
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2075,
+            "lineText": "boundaryEntries.push(entry);"
+          }
+        ],
+        "truncation": {
+          "limit": 128,
+          "limitSite": {
+            "file": "extension/agent-main.js",
+            "line": 1940,
+            "lineText": "var BOUNDARY_TEXT_LIMIT = 128; // characters of an error message or a wrapped cause kept"
+          },
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1989,
+            "lineText": "? text.slice(0, BOUNDARY_TEXT_LIMIT) + '...'"
+          },
+          "statement": "the entry count is bounded separately from the text: an error message or a wrapped cause keeps its first 128 characters and then '...', so a long message is truncated as well as the oldest arrivals being dropped."
+        },
+        "above": "above 128 arrivals the oldest fall off the front: they are dropped, and nothing is reordered or coalesced; below the bound nothing is dropped, coalesced or reordered."
+      },
+      "order": {
+        "stated": true,
+        "statement": "One entry per arrival, in arrival order, one shape for every arrival",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 2042,
+          "lineText": "// One entry per arrival, in arrival order, one shape for every arrival: the route it arrived by,"
+        },
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1942,
+            "lineText": "var boundaryEntries = []; // one entry per arrival, in arrival order"
+          }
+        ]
+      },
+      "comparable": {
+        "fields": [
+          {
+            "name": "at",
+            "kind": "timestamp",
+            "shared": true,
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2073,
+              "lineText": "at: nowMs(),"
+            },
+            "reader": "nowMs"
+          }
+        ],
+        "statement": "the entry records `at` from nowMs() at receipt, the same reader the other two streams call. The arrival's own route (hook or handler) is a literal word and no sequence number is recorded."
+      },
+      "reader": {
+        "function": "boundaryField",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 2248,
+          "lineText": "function boundaryField() {"
+        },
+        "yields": {
+          "file": "extension/agent-main.js",
+          "line": 2256,
+          "lineText": "entries: boundaryEntries.slice(),"
+        },
+        "cumulative": true,
+        "callSites": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1051,
+            "lineText": "boundary: boundaryField(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1441,
+            "lineText": "boundary: boundaryField(),"
+          }
+        ],
+        "note": "the frame (:1051) and the initial snapshot (:1441) both publish a copy of every arrival so far, so successive records repeat earlier arrivals; a narration must take the union, never the concatenation."
+      }
+    }
+  ],
+  "answer": {
+    "sharedOrder": true,
+    "sharedField": "at",
+    "sharedKind": "timestamp",
+    "sharedReader": "nowMs",
+    "evidence": [
+      {
+        "stream": "router",
+        "file": "extension/agent-main.js",
+        "line": 1638,
+        "lineText": "at: nowMs(),"
+      },
+      {
+        "stream": "work",
+        "file": "extension/agent-main.js",
+        "line": 699,
+        "lineText": "at: nowMs(),"
+      },
+      {
+        "stream": "boundary",
+        "file": "extension/agent-main.js",
+        "line": 2073,
+        "lineText": "at: nowMs(),"
+      }
+    ],
+    "statement": "yes, all three streams carry `at`, written by one reader — nowMs() at extension/agent-main.js:728 — as the page's own performance.now() reading taken at receipt (router :1638, work :699, boundary :2073). The same function, in the same realm, answers every entry, and the comment at :726–:727 states that one reader makes these readings and the frame's `startedAt` the same measurement on the same scale. Sorting the union of the three streams by `at` ascending is therefore a measurement rather than an invention. It is also all the record offers: no stream carries a cross-stream sequence number or arrival index (seq/sequence/arrivalIndex occur 0 times in the file), so two entries that share one `at` cannot be ordered from this record, and `at` is the page's own reading, not a wall-clock instant.",
+    "tiebreak": {
+      "exists": false,
+      "statement": "no field orders two entries that share an `at`: the only per-arrival number the file records is the router's own navigation id (:1639), which the two route-config classes do not carry and which no work or boundary entry records; the per-frame cycleId (:741) is one value per frame, not one per arrival.",
+      "citations": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1639,
+          "lineText": "id: routerPrimitiveOf(event, 'id'),"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 741,
+          "lineText": "startedAt: nowMs(),"
+        }
+      ]
+    },
+    "consequence": [
+      "The narration may interleave the three streams by `at` ascending. It must sort the union of the entries it holds and never concatenate the streams or their per-record copies, because a work entry published in a later frame can carry an earlier `at` (held at :703, adopted at :744) and because routerEvents and boundary.entries are cumulative copies that repeat earlier arrivals.",
+      "Two entries with equal `at` are one instant to this record: the narration must render them as simultaneous, or state that the order between them is not recorded. It must never pick a winner from list position, stream order or the router's `id`.",
+      "`at` is the page's own clock reading: it may be rendered as the page's own time (milliseconds from performance.now(), with the Date.now() fallback at :735) and must not be rendered as a wall-clock time or a date.",
+      "The narration must state that what it merges is bounded: 512 router arrivals (:1471), 64 held work entries (:640) and 128 boundary arrivals (:1939) are kept, and the oldest fall off the front. A merged story orders what the record still holds and never claims completeness.",
+      "The merged story narrates what the page emitted and nothing the user did: no stream records an interaction, `interaction` occurs 0 times in extension/agent-main.js and in all 28 extension/*.js files, and no extension file registers a click, pointer, mouse or key listener (measurements.no-ui-capture). A narration that named a user action from these three streams would be inventing it (N3)."
+    ]
+  },
+  "notClaimed": [
+    "No page was read and no browser was opened: every citation in this record was read from extension/agent-main.js as a source file at the recorded head. Nothing was executed against a page, nothing was rendered and no running page's clock was observed, so the statement that the three streams share `at` is a reading of three assignment lines and of the one reader they call, not an observation of three arrivals on one clock.",
+    "Nothing here claims what the merged narration will look like or that it exists: the narration is T002 and no file for it exists at this head.",
+    "Nothing here claims that the three streams together record what a user did: `interaction` occurs 0 times in extension/agent-main.js and in all 28 extension/*.js files, and no extension file registers a click, pointer, mouse or key listener (measurements.no-ui-capture).",
+    "Nothing here claims the streams are complete: the oldest arrivals are dropped above each bound (512 router, 64 held work, 128 boundary), so a merged story can only order the entries the record still holds.",
+    "The `at` readings are the page's own clock readings, not wall-clock instants: nowMs() answers performance.now() and falls back to Date.now(), and the entry does not record which of the two answered it.",
+    "Nothing here claims a tiebreak between entries whose `at` readings are equal: no stream records a cross-stream sequence number or an arrival index (measurements.no-sequence-field)."
+  ],
+  "verdict": "measured: the three arrival-ordered streams do share one comparable field. routerEvents (:1474), the frame's events list built from pendingWorkEvents (:639, :692) and boundaryEntries (:1942) each record `at` from a single reader, nowMs() (:728), as the page's performance.now() reading at receipt (:1638, :699, :2073), so a merged story ordered by `at` is honest. What the record does not offer is a tiebreak — no cross-stream sequence number or arrival index exists in the file — so equal `at` readings are one instant, not an order the narration may choose. The streams are bounded as page-health guards, not curations (512, 64 and 128 kept, oldest dropped), routerEvents and boundary.entries are cumulative copies while the work list is frame-scoped, and no stream records an interaction at all: `interaction` occurs 0 times across extension/agent-main.js and the 28 extension/*.js files. The narration must treat the shared clock as a measurement, the absence of a sequence number as a refusal to order ties, the bounds as an incompleteness it states, and the absence of a user-action stream as a thing it will not invent (SC1, SC3; N3)."
+}

@@ -39,13 +39,13 @@
  * (`state:`, `string:`, `surface:`, `checked:`, `reason:`), so a new sentence is a deliberate
  * edit to the registry rather than a wording that slips past a matcher.
  *
- * `extension/copy-digest.json` was authored from T001's measurement of the nineteen existing
- * `panel-*.ts` surfaces, and this file is the twentieth. Its sentences were new copy that the
- * digest did not explain until the milestone's fourth task re-measured the record over all
- * twenty surfaces and authored their rows from the source; the gap is closed. One of them,
- * `no-reason`, is byte-for-byte the sentence `panel-components.ts` already declares, so it
- * shares that row rather than adding a second explanation of one string. That is why the
- * record compares 122 sentences against 121 distinct digest rows.
+ * `extension/copy-digest.json` was authored from T001's measurement of nineteen surfaces, and
+ * this file was the twentieth. Its sentences were new copy the digest did not explain until a
+ * fourth task re-measured the record and authored their rows from the source; that gap closed
+ * then, and M049's fourth task re-measured again over twenty-one surfaces. One sentence,
+ * `no-reason`, is byte-for-byte what `panel-components.ts` declares, so it shares that row
+ * rather than adding a second explanation of one string. The record now compares 135 sentences
+ * against 133 distinct digest rows, the two differences both measured repeats.
  *
  * No runtime imports and no global CSS: the route `copy-check` reaches this module lazily
  * through `panel-demo.ts` (see `app.routes.ts`), the way `panel-components.ts` and

@@ -1,0 +1,19 @@
+✔ the record is three streams, one clock, an answer and what it does not claim (47.747ms)
+✔ every cited path and line is the one the record read (55.393ms)
+✔ every stream records exactly the fields its cited builder assigns (1.8533ms)
+✔ the shared field is read from one clock at every receipt (1.8225ms)
+✔ no stream records a user interaction, and the record says so (5.4464ms)
+✔ no stream records a cross-stream sequence number (1.1278ms)
+✔ a doctored record reddens the check it violates (165.8094ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 547.8409
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/interaction-story.test.mjs research/raw/m049-streams.json

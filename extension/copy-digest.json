@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m048+t004",
+  "version": "m049+t004",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -607,6 +607,66 @@
       "surface": "copy-check",
       "key": "no-unexplained-surface",
       "text": "no-unexplained-surface: an unexplained entry arrived with no surface, so no surface is rendered for it"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "state-steps",
+      "text": "steps: the record carries this story in the order its shared `at` reading supports, and every step below quotes the fields the event recorded"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the record carries no story this surface may render, so no step is drawn and the reason below is the word the narration answered with"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "no-story-answer",
+      "text": "no-story-answer: no interaction-story answer was handed over, so no state, no step and no reason are reported"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "no-steps",
+      "text": "no-steps: the answer reported steps without a list of them, so no step is rendered"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "no-step-stream",
+      "text": "no-step-stream: a step arrived naming no stream, so no stream is rendered for it"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "no-step-at",
+      "text": "no-step-at: a step arrived with no measured `at` reading, so no time is rendered for it"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "no-step-fields",
+      "text": "no-step-fields: a step arrived with no recorded fields, so no field is rendered for it"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "no-cannot-tell-stream",
+      "text": "no-cannot-tell-stream: the answer named a stream that is not a name, so no stream is rendered for it"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "no-cannot-tell-streams",
+      "text": "no-cannot-tell-streams: the refusal named no stream, so no stream is named beside the reason"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "empty-beside-steps",
+      "text": "empty-beside-steps: the streams named empty beside this story were empty in the record, and the steps above are the story of the streams that were not empty"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "no-empty-reason",
+      "text": "no-empty-reason: the story names an empty stream without a reason, so no reason is stated"
+    },
+    {
+      "surface": "interaction-story",
+      "key": "no-bounded-statement",
+      "text": "no-bounded-statement: the answer carried no statement of what the record kept, so this surface claims no complete history"
     }
   ]
 }

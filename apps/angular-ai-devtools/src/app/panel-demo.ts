@@ -55,6 +55,7 @@ const LOADERS: Record<
   'console-read': () => import('./panel-copy-to-agent') as never,
   components: () => import('./panel-components') as never,
   'copy-check': () => import('./panel-copy-check') as never,
+  'interaction-story': () => import('./panel-interaction-story') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -436,13 +437,75 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 113 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 135 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
   // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
   // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 122 },
+  'copy-check': { state: 'clean', unexplained: [], checked: 135 },
+  // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
+  // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
+  // each entry's keys taken from the field list the record cites for that stream's builder and the
+  // three readings (10, 20 and 30) spelled in the spec. The join sorts the union by the measured
+  // `at` field, so the three steps below are the work entry at 10, the boundary entry at 20 and the
+  // router entry at 30 — an interleaving no stream-name or list-position sort produces. `bounded`
+  // carries the join's own `BOUNDED_STATEMENT`, handed beside the four contract fields because this
+  // pane may not import the join: a panel surface has no runtime imports, so the sentence travels
+  // as data. `panel-demo.spec.ts` evaluates the shipped join, runs it over that rebuilt record and
+  // holds this fact to its answer field for field, so a fact that drifted from either reddens
+  // there. Nothing here is a paraphrase: the boundary entry's `error` and `details` are the
+  // objects the record carries, printed by the pane as their own JSON.
+  'interaction-story': {
+    state: 'steps',
+    steps: [
+      {
+        stream: 'pendingWorkEvents',
+        at: 10,
+        fields: {
+          type: 1,
+          pair: 'TemplateUpdate',
+          end: false,
+          componentName: '_App',
+        },
+      },
+      {
+        stream: 'boundaryEntries',
+        at: 20,
+        fields: {
+          route: 'hook',
+          error: { name: 'TypeError', message: 'boom' },
+          details: {
+            declarationType: null,
+            declarationInstanceName: null,
+            caughtBy: null,
+            boundaryType: null,
+            boundaryReset: null,
+          },
+        },
+      },
+      {
+        stream: 'routerEvents',
+        at: 30,
+        fields: {
+          type: 'NavigationEnd',
+          id: 1,
+          url: '/a',
+          urlAfterRedirects: '/a',
+          route: null,
+          reason: null,
+          code: null,
+          error: null,
+          shouldActivate: null,
+          matchedPaths: [],
+        },
+      },
+    ],
+    cannotTell: [],
+    reason: null,
+    bounded:
+      'a story is what the record kept, not what the page did: routerEvents keeps 512 arrivals, pendingWorkEvents 64 and boundaryEntries 128, and the oldest fall off the front, so every story is incomplete',
+  },
 };
 
 @Component({

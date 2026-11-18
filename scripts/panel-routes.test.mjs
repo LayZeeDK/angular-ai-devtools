@@ -35,6 +35,7 @@ const surfaces = [
   'console-read',
   'components',
   'copy-check',
+  'interaction-story',
 ];
 
 function routeBlock(source, surface) {
@@ -404,6 +405,26 @@ test('E1: a panel route installs a component through the one shared loader, neve
       String(err.message).includes('route copy-check must exist'),
     'a table without the copy-check route must fail naming the missing surface',
   );
+
+  // Mutant: the M049 surface's route entry removed from the table entirely. It is the route this
+  // task appends last, so the per-surface half must name it rather than pass on the older surfaces
+  // alone.
+  const withoutInteractionStory = source.replace(
+    "  {\n    path: 'interaction-story',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'interaction-story' },\n  },\n",
+    '',
+  );
+  assert.notEqual(
+    withoutInteractionStory,
+    source,
+    'the removed-interaction-story-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutInteractionStory),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route interaction-story must exist'),
+    'a table without the interaction-story route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -424,6 +445,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'console-read': ['panel-copy-to-agent', 'consoleReadPanel'],
     components: ['panel-components', 'componentsPanel'],
     'copy-check': ['panel-copy-check', 'copyCheckPanel'],
+    'interaction-story': ['panel-interaction-story', 'interactionStoryPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -466,6 +488,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'consoleReadPanel(',
     'componentsPanel(',
     'copyCheckPanel(',
+    'interactionStoryPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -792,5 +815,31 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: copy-check'),
     'removing the copy-check loader must fail naming the missing surface copy-check',
+  );
+
+  // Mutant: remove the interaction-story key from LOADERS. The M049 route is the one this task
+  // adds, so the check must name it when its loader is gone rather than pass on the surfaces before
+  // it. It is a quoted key whose import is the only reference to `panel-interaction-story.ts`, so a
+  // route that dropped it would leave the story surface unreachable while every earlier surface
+  // still loaded. The assertion reads the failure's whole message: the missing-key sentence and the
+  // surface it names.
+  const withoutInteractionStory = demoSource.replace(
+    "  'interaction-story': () => import('./panel-interaction-story') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutInteractionStory,
+    demoSource,
+    'the interaction-story mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutInteractionStory),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: interaction-story'),
+    'removing the interaction-story loader must fail naming the missing surface interaction-story',
   );
 });

@@ -210,4 +210,16 @@ export const appRoutes: Route[] = [
     loadComponent: loadPanelDemo,
     data: { surface: 'copy-check' },
   },
+  // The M049 SC1-SC2 surface: the record's steps in the order its shared `at` reading supports,
+  // each naming its stream and quoting its recorded fields, the streams that were empty named
+  // beside the story — never as quiet — and the joined-with-nothing state stating the narration's
+  // own reason word, with the bound that says a story is what the record kept and not what the page
+  // did. It installs the shared loader above, so the demo module is imported once and the panel's
+  // initial bundle keeps the bytes it had. Lazy for the same reason as the surfaces above it — the
+  // panel's eager bundle is measured.
+  {
+    path: 'interaction-story',
+    loadComponent: loadPanelDemo,
+    data: { surface: 'interaction-story' },
+  },
 ];
