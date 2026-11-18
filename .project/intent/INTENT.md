@@ -23,12 +23,12 @@ that something looks different.
 
 ## Edge coverage
 
-| Edge | Criterion | Category | Disposition | Test | Detail |
+| Edge | Criterion | Category | Disposition | Detail |
 |------|-----------|----------|-------------|--------|
-| E1 | SC1 | boundary | criterion SC1 | scripts/what-changed.test.mjs | A field present in one snapshot and absent from the other is reported as added or removed, never as a change of value. |
-| E2 | SC2 | boundary | criterion SC2 | scripts/what-changed.test.mjs | Two snapshots with no field establishing the same page report `cannot-tell` with the absent identity named. |
-| E3 | SC3 | empty | criterion SC3 | scripts/what-changed.test.mjs | One snapshot, or two identical ones, renders its own state rather than an empty finding list. |
-| E4 | SC1 | boundary | held-out | scripts/what-changed.test.mjs | A snapshot pair identical except in one field renders exactly one finding, and the same suite asserts the identical-pair case, so "one change" cannot collapse into "no comparison". |
+| E1 | SC1 | boundary | criterion SC1 | A field present in one snapshot and absent from the other is reported as added or removed, never as a change of value. |
+| E2 | SC2 | boundary | criterion SC2 | Two snapshots with no field establishing the same page report `cannot-tell` with the absent identity named. |
+| E3 | SC3 | empty | criterion SC3 | One snapshot, or two identical ones, renders its own state rather than an empty finding list. |
+| E4 | SC1 | boundary | held-out | A snapshot pair identical except in one field renders exactly one finding, and the same suite asserts the identical-pair case, so "one change" cannot collapse into "no comparison". |
 
 ## Prohibitions
 
