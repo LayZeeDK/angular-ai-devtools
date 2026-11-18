@@ -283,3 +283,17 @@ not the product work; it was four mechanical failures, each of which now has a c
 
 The rule that follows: a landing is one attempt per iteration, and before every attempt the tree is
 clean, both recordings are re-derived, and every path the Verify writes is declared.
+
+## Correction, 2026-11-18 — a gate must own the output it measures
+
+Each row pairs a rule this programme learned the expensive way with what now fails when it is broken.
+A rule with nothing in the second column is a rule that will be broken again.
+
+| Rule | Enforced by |
+|---|---|
+| A task that changes a table declares every suite that enumerates it | `gsd plan-lint` refuses the plan: `pinned-file` is a blocker, not a warning (`lib/plan-lint.ts`) |
+| A verify measures a build it produced, not whatever is on disk | `scripts/panel-bundle-budget.test.mjs` refuses an output older than the newest source, naming the rebuild command |
+| A project verify builds before it measures | the plan's `Project verify:` line leads with the build; `prepare-final` runs that line and records its exit in the ledger |
+| A bookkeeping artefact must not exist only in the working tree | `.project/review/` is tracked; deleting it is a diff, not a loss |
+| An archive is prepared, then rendered, then committed | `render_manifest` refuses an archive already in HEAD (`archive_milestone.py:1696`), so committing before rendering cannot happen twice |
+| An identifier is read, never assembled | `--expected-head` must resolve; a padded SHA fails before it is recorded |
