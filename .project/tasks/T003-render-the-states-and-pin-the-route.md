@@ -2,12 +2,12 @@
 id: T003
 title: Render the states and pin the route
 wave: 3
-status: pending
+status: in-progress
 deps:
   - T002
-agent: null
-base: null
-worktree: null
+agent: build_T003
+base: ab67a17d4d2a1b0d13bfdf9e2e8a30b2f6b3abb7
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-what-changed.ts
