@@ -62,7 +62,7 @@ None
 
 ## Acceptance criteria
 
-1. The route renders each of the three states, and `scripts/panel-routes.test.mjs` reddens naming a surface whose loader key is missing.
+1. The route renders each of the three states, and the `cannot-tell` state names both that the record carries no page identity and that the binding is the panel's own tab, and `scripts/panel-routes.test.mjs` reddens naming a surface whose loader key is missing.
 2. The whole suite passes at the head, with `scripts/component-search.test.mjs` green in the same run — the suite M050's fourth Verify leg omitted.
 3. The panel's initial total stays at or below the 535.44 kB baseline, measured from a build this task ran.
 

@@ -25,8 +25,8 @@ T001 measured which fields the record publishes for a snapshot and which field, 
 ## Approach
 
 Build `extension/what-changed.js`: a pure function from two snapshots to `{ state, changes, compared, reason }`.
-Diff only the fields T001 recorded, report each difference with its before and after, and refuse a pair that no
-field binds. Pin the untouched module first, then mutate four ways: a differing field reported equal, an equal
+Diff only the fields T001 recorded, report each difference with its before and after, and refuse a pair the panel cannot bind to one inspected tab. The pair is bound by the panel's own tab, not by a
+field of the record — T001 measured that the record carries no page identity (identity.bindingField: null). Pin the untouched module first, then mutate four ways: a differing field reported equal, an equal
 field reported as a change, an unbound pair compared as one page, and an invented before or after.
 
 ## Interface contract
@@ -41,7 +41,7 @@ None
 ## Acceptance criteria
 
 1. A differing field is reported with its before and after; an equal field is not reported; the mutant that does either wrongly reddens naming the field. Held-out E4 lives here: one field differing renders exactly one finding, and the identical-pair case is asserted in the same suite so "one change" cannot collapse into "no comparison".
-2. A pair with no binding field renders `cannot-tell` naming the absence, proven by that state and by the mutant that compares it anyway.
+2. A pair the panel cannot bind to one tab renders `cannot-tell` naming that the record carries no page identity and that the binding is the panel's, proven by that state and by the mutant that compares it anyway.
 3. The comparison reads no file and no clock, asserted by the suite.
 
 ## Verify
