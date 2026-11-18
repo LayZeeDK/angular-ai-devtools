@@ -11,7 +11,7 @@
   "measurements": [
     {
       "id": "no-ui-capture",
-      "claims": "no stream records an interaction and no extension file registers a UI listener",
+      "claims": "no stream records an interaction; the only click listener in extension/ is the panel's own element picker (overlay.js:507 via attachInput :440), which preventDefaults and locks an element rather than recording a user action",
       "commands": [
         "node -e \"const s=require('fs').readFileSync('extension/agent-main.js','utf8');console.log('interaction',[...s.matchAll(/interaction/g)].length)\"",
         "node -e \"const fs=require('fs');const files=fs.readdirSync('extension').filter(f=>f.endsWith('.js'));let i=0,a=0,u=0;for(const f of files){const s=fs.readFileSync('extension/'+f,'utf8');i+=[...s.matchAll(/interaction/g)].length;a+=[...s.matchAll(/addEventListener/g)].length;u+=[...s.matchAll(/addEventListener\\(\\s*.(?:click|pointer|mouse|key)/g)].length}console.log('files',files.length,'interaction',i,'addEventListener',a,'uiListenerNames',u)\""
@@ -20,7 +20,7 @@
         "interaction 0",
         "files 28 interaction 0 addEventListener 19 uiListenerNames 0"
       ],
-      "note": "the six listeners extension/agent-main.js registers are the two custom events DI_QUERY_EVENT and PICK_EVENT (:2484, :2489) and the two global error events 'error' and 'unhandledrejection' (:2550, :2557); none of them is a click, pointer, mouse or key listener."
+      "note": "the six listeners extension/agent-main.js registers are the two custom events DI_QUERY_EVENT and PICK_EVENT (:2484, :2489) and the two global error events 'error' and 'unhandledrejection' (:2550, :2557); none of them is a click, pointer, mouse or key listener. Corrected while defining M050: extension/overlay.js DOES register one, at :507 attachInput(window, 'click', onClick, true), through attachInput at :440. It is the panel's element picker — onClick (:356) returns unless armed, then preventDefaults and locks the element — so it selects what to inspect and records no interaction. The count above searched for addEventListener('click' literally and was blind to attachInput, a wrapper; it measured 0 where the truth is 1."
     },
     {
       "id": "no-sequence-field",
