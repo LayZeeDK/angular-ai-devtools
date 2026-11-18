@@ -5,7 +5,7 @@ milestone: dead-click
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M050
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1060,3 +1060,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-18 — build — build blocked
 - 2026-11-18 — plan — build plan repair requested
 - 2026-11-18 — plan — build recovery: {"base": "5f5657fa49b03f48f0205dbcb787a4d7ec8433af", "branch": "gsd-path/M050", "kind": "plan", "source": "build"}
+- 2026-11-18 — plan — plan approved
