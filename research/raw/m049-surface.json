@@ -17,26 +17,26 @@
     "name": "interaction-story",
     "path": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 221,
-      "lineText": "path: 'interaction-story',",
+      "line": 103,
+      "lineText": "'interaction-story',",
       "holds": "interaction-story"
     },
     "loadComponent": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 222,
+      "line": 146,
       "lineText": "loadComponent: loadPanelDemo,",
       "holds": "loadPanelDemo"
     },
     "surfaceData": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 223,
-      "lineText": "data: { surface: 'interaction-story' },",
-      "holds": "'interaction-story'"
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "surface"
     },
     "table": {
       "name": "appRoutes",
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 17,
+      "line": 113,
       "lineText": "export const appRoutes: Route[] = [",
       "holds": "appRoutes"
     },
@@ -56,7 +56,7 @@
         "holds": "PanelDemoComponent"
       }
     ],
-    "statement": "one route, appended last to the `appRoutes` table (:17), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:223) as every demo-backed route does. The route carries no `component` key and no `children` key, so the surface is reached by the lazy component and not by a nested route. It is the last entry of the table at this head; the table's own total is not pinned here, because a later milestone appends to it on purpose and a recorded total would go stale without changing what this route says."
+    "statement": "one entry of the `PANEL_SURFACES` list (:103), spread into the `appRoutes` table (:113) by the one mapped literal the table ends with (:144-:148), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:147) as every demo-backed route does. The route carries no `component` key and no `children` key, so the surface is reached by the lazy component and not by a nested route. It was the last entry of the list when this record was taken; a later milestone appends to the list on purpose, so the table's own total is not pinned here and a recorded total would go stale without changing what this route says."
   },
   "loader": {
     "map": {
@@ -644,5 +644,5 @@
     "The route table's total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
     "The sample fact at `panel-demo.ts:459-:508` is fixture data the spec rebuilds from T001's measurement, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what the page recorded."
   ],
-  "verdict": "measured: `/interaction-story` is one lazy route (:221) whose `data.surface` names the `interaction-story` key of `panel-demo.ts`'s `LOADERS` (:58), and that key is the only path to `panel-interaction-story.ts`. The surface renders the join's two states and adds none of its own: `steps` reads `steps` in the answer's own order with each step's `stream`, `at` and `fields` beside the `cannotTell` streams and the answer's `reason`, and `cannot-tell` reads `reason` and the `cannotTell` streams and no step. The answer carries a fifth field the four-field contract does not name — `bounded`, the join's own `BOUNDED_STATEMENT` handed over by the demo (:506, :507) — and the pane reads and renders it in both states rather than letting a story read as a complete history."
+  "verdict": "measured: `/interaction-story` is one lazy route — the `PANEL_SURFACES` entry at :103, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `interaction-story` key of `panel-demo.ts`'s `LOADERS` (:58), and that key is the only path to `panel-interaction-story.ts`. The surface renders the join's two states and adds none of its own: `steps` reads `steps` in the answer's own order with each step's `stream`, `at` and `fields` beside the `cannotTell` streams and the answer's `reason`, and `cannot-tell` reads `reason` and the `cannotTell` streams and no step. The answer carries a fifth field the four-field contract does not name — `bounded`, the join's own `BOUNDED_STATEMENT` handed over by the demo (:506, :507) — and the pane reads and renders it in both states rather than letting a story read as a complete history."
 }

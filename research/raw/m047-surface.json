@@ -17,20 +17,20 @@
     "name": "components",
     "path": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 198,
-      "lineText": "path: 'components',"
+      "line": 93,
+      "lineText": "'components',"
     },
     "loadComponent": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 199,
+      "line": 146,
       "lineText": "loadComponent: loadPanelDemo,"
     },
     "surfaceData": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 200,
-      "lineText": "data: { surface: 'components' },"
+      "line": 147,
+      "lineText": "data: { surface },"
     },
-    "statement": "one route, appended last to the 27-entry `appRoutes` table, lazy through the shared `loadPanelDemo` closure the table defines once, and naming its surface in `data.surface` as every demo-backed route does. The route carries no `components` key and no `children` key, which is the finding `research/raw/m047-names-and-absences.json` records at its `panelRoutes` section: the panel's route table is not a component tree either."
+    "statement": "one entry of the `PANEL_SURFACES` list, spread into the `appRoutes` table (:113) by the one mapped literal the table ends with (:144-:148), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:147) as every demo-backed route does. The route carries no `components` key and no `children` key, which is the finding `research/raw/m047-names-and-absences.json` records at its `panelRoutes` section: the panel's route table is not a component tree either."
   },
   "loader": {
     "map": {

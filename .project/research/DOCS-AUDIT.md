@@ -8,7 +8,7 @@ Alignment mode: no
 
 | Verdict | Count |
 |---------|-------|
-| verified | 394 |
+| verified | 398 |
 | stale | 30 |
 | aspirational | 1 |
 | unverifiable | 100 |
@@ -711,6 +711,15 @@ Alignment mode: no
 | "`.claude/skills/` holds byte copies of them" | structure | verified | byte comparison of the pairs — .commandcode and .claude `verify-ai-browsers/SKILL.md` are both 15326 bytes and identical, `control-ai-browsers/SKILL.md` both 50500 and identical; `verify-angular-devtools/SKILL.md` differs (6309 vs 6284 bytes), the older-copy drift the same rule records |
 | "The app serves the route (`apps/angular-ai-devtools/src/app/app.routes.ts:14`)" | structure | stale | apps/angular-ai-devtools/src/app/app.routes.ts:14 declares the `loadPanelDemo` arrow function; the `interop` route is declared at :24 as `{ path: 'interop', ... }` |
 | "GLM-5.3 Flash for `reviewer`, `skeptic` and `review_panel`" | config | stale | .project/model-policy.json:4-7 — the panel roles are `reviewer_panel_beam`, `reviewer_panel_glyph`, `reviewer_panel_glm` and `gap_review`; no role is named `reviewer`, `skeptic` or `review_panel` |
+
+## Doc: LESSONS.md
+
+| Claim | Type | Verdict | Evidence |
+|-------|------|---------|----------|
+| "`extension/overlay.js:507` registers `attachInput(window, 'click', onClick, true)`" | integration | verified | extension/overlay.js:507 — `attachInput(window, 'click', onClick, true);`, the one click listener anywhere under extension/, taken through the wrapper at :440 |
+| "`attachInput` (`:440`) is the wrapper that calls `addEventListener`" | structure | verified | extension/overlay.js:440 — `function attachInput(target, type, handler, capture) {`, whose body registers at :443 with `target.addEventListener(type, handler, useCapture);` |
+| "`onClick` (`:356`) returns unless `armed`, then `preventDefault`s and locks the element" | feature | verified | extension/overlay.js:356 — `function onClick(event) {`, whose first statement at :357 returns while the picker is not armed or an element is already locked, with `event.preventDefault()` at :360 and `lock(element)` at :362 |
+| "Corrected in `research/raw/m049-streams.json` at `74d00e63`" | structure | verified | research/raw/m049-streams.json:23 — the correction note names overlay.js at :507, attachInput at :440 and onClick at :356; `git cat-file -t 74d00e63` answers `commit` |
 
 ## Doc: docs/afk-run-2026-10-12.md
 

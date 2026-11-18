@@ -2,12 +2,12 @@
 id: T006
 title: Re-derive the route-table citation and put the whole suite in the Verify
 wave: 6
-status: in-progress
+status: done
 deps:
   - T005
 agent: build_T006
-base: 36e88448b38c75ee4a6efaa67a2c6625f3f57059
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 27fb769f6d1fca72c026f422b6795307da402152
+worktree: null
 task_branch: null
 files:
   - research/raw/m047-names-and-absences.json
@@ -120,3 +120,4 @@ runs unattended"), and recorded here because the evidence settles them:
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m047-names-and-absences.json`, `research/raw/m047-surface.json`, `research/raw/m048-surface.json`, `research/raw/m049-surface.json`, `research/raw/m050-surface.json`, `scripts/component-search.test.mjs`, `scripts/copy-check.test.mjs`, `scripts/docs-audit-disposition.test.mjs`, `scripts/gate-integrity.test.mjs`, `research/raw/m044-gate-shapes.json`, `.project/research/DOCS-AUDIT.md`, `.prettierignore`, `extension/panel/index.html` — each is read from this tree, ready.

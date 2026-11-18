@@ -18,26 +18,26 @@
     "name": "copy-check",
     "path": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 209,
-      "lineText": "path: 'copy-check',",
+      "line": 97,
+      "lineText": "'copy-check',",
       "holds": "copy-check"
     },
     "loadComponent": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 210,
+      "line": 146,
       "lineText": "loadComponent: loadPanelDemo,",
       "holds": "loadPanelDemo"
     },
     "surfaceData": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 211,
-      "lineText": "data: { surface: 'copy-check' },",
-      "holds": "'copy-check'"
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "surface"
     },
     "table": {
       "name": "appRoutes",
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 17,
+      "line": 113,
       "lineText": "export const appRoutes: Route[] = [",
       "holds": "appRoutes"
     },
@@ -57,7 +57,7 @@
         "holds": "PanelDemoComponent"
       }
     ],
-    "statement": "one route, appended last to the `appRoutes` table (:17), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:211) as every demo-backed route does. The route carries no `component` key and no `children` key: the panel’s route table is a flat list of lazy entries, so the surface is reached by the lazy component and not by a nested route."
+    "statement": "one entry of the `PANEL_SURFACES` list (:97), spread into the `appRoutes` table (:113) by the one mapped literal the table ends with (:144-:148), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:147) as every demo-backed route does. The route carries no `component` key and no `children` key: the panel’s route table is a flat list of lazy entries, so the surface is reached by the lazy component and not by a nested route."
   },
   "loader": {
     "map": {
@@ -540,5 +540,5 @@
     "The counts in the sample fact are fixture data, not measurements: the 122 is the join’s answer for a record and a digest that no longer match it, and repairing the fact is a change to `panel-demo.ts`, not a measurement this record could take.",
     "The route table’s total is not pinned here. A sibling task in a later milestone adds a route on purpose, and a total recorded in this file would go stale without changing what the record says about `copy-check`."
   ],
-  "verdict": "measured: `/copy-check` is one lazy route (:209) whose `data.surface` names the `copy-check` key of `panel-demo.ts`’s `LOADERS` (:57), and that key is the only path to `panel-copy-check.ts`. The surface renders the join’s three states and adds none of its own: `clean` reads `checked`, `unexplained` reads `unexplained[].string` and `unexplained[].surface` beside `checked`, and `cannot-tell` reads `reason`, which is always one of the two closed reasons — an answer carrying none renders `no-reason` rather than an invented word. The sample fact the demo hands the pane says `checked: 122`, one re-measurement behind the 134 the copy record answers at this head, which is the one value on this route that does not agree with the record T004 measured."
+  "verdict": "measured: `/copy-check` is one lazy route — the `PANEL_SURFACES` entry at :97, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `copy-check` key of `panel-demo.ts`’s `LOADERS` (:57), and that key is the only path to `panel-copy-check.ts`. The surface renders the join’s three states and adds none of its own: `clean` reads `checked`, `unexplained` reads `unexplained[].string` and `unexplained[].surface` beside `checked`, and `cannot-tell` reads `reason`, which is always one of the two closed reasons — an answer carrying none renders `no-reason` rather than an invented word. The sample fact the demo hands the pane says `checked: 122`, one re-measurement behind the 134 the copy record answers at this head, which is the one value on this route that does not agree with the record T004 measured."
 }
