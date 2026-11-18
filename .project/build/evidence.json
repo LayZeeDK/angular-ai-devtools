@@ -1,0 +1,104 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "4e6b29e0992802d8a871d467b8d12256cbe8b970",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M047",
+        "candidates": [
+          {
+            "base": "84704872b6dc221aae4b0dea41bced9672584c79",
+            "commit": "32f92b092b8c70f46d4f85cd1026a3a046703835",
+            "valid": true
+          }
+        ],
+        "head": "4e6b29e0992802d8a871d467b8d12256cbe8b970",
+        "subject": "T001: Measure what the page agent can name and where it can name nothing"
+      },
+      "landed_commit": "32f92b092b8c70f46d4f85cd1026a3a046703835",
+      "reasons": [],
+      "task": {
+        "base": "84704872b6dc221aae4b0dea41bced9672584c79",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-measure-what-the-page-agent-can-name-and-where-it-can-name-nothing.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M047",
+        "candidates": [
+          {
+            "base": "32f92b092b8c70f46d4f85cd1026a3a046703835",
+            "commit": "b0f16b4ef667dab9b9e3eedf19e7045c712a5007",
+            "valid": true
+          }
+        ],
+        "head": "4e6b29e0992802d8a871d467b8d12256cbe8b970",
+        "subject": "T002: Filter the names the record carries and state every absence"
+      },
+      "landed_commit": "b0f16b4ef667dab9b9e3eedf19e7045c712a5007",
+      "reasons": [],
+      "task": {
+        "base": "32f92b092b8c70f46d4f85cd1026a3a046703835",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-filter-the-names-the-record-carries-and-state-every-absence.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M047",
+        "candidates": [
+          {
+            "base": "1cee63a30822ed58d02e8d823ddc165bbcfdc79d",
+            "commit": "2f29d689377f5f2d1e5c31304bbc031e490b775f",
+            "valid": true
+          }
+        ],
+        "head": "4e6b29e0992802d8a871d467b8d12256cbe8b970",
+        "subject": "T003: Render the four states and pin the route, loader and route tables they add"
+      },
+      "landed_commit": "2f29d689377f5f2d1e5c31304bbc031e490b775f",
+      "reasons": [],
+      "task": {
+        "base": "1cee63a30822ed58d02e8d823ddc165bbcfdc79d",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-render-the-four-states-and-pin-the-route-loader-and-route-tables-they-add.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M047",
+        "candidates": [
+          {
+            "base": "2be2edbd1d0576876633e4cb32e2cfb6abc15d05",
+            "commit": "51568cceae963d908095e052e2d07fc2e4033dba",
+            "valid": true
+          }
+        ],
+        "head": "4e6b29e0992802d8a871d467b8d12256cbe8b970",
+        "subject": "T004: Record the surface and run the project verify"
+      },
+      "landed_commit": "51568cceae963d908095e052e2d07fc2e4033dba",
+      "reasons": [],
+      "task": {
+        "base": "2be2edbd1d0576876633e4cb32e2cfb6abc15d05",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-record-the-surface-and-run-the-project-verify.md"
+      }
+    }
+  ]
+}
