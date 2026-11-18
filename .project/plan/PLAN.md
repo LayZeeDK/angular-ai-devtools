@@ -13,7 +13,7 @@ Project verify: `npm run check && npm test`
 
 | Criterion | Wave | Task |
 |-----------|------|------|
-| SC1 | 1, 2, 3, 5 | T001, T002, T003, T005 |
+| SC1 | 1, 2, 3, 5, 6 | T001, T002, T003, T005, T006 |
 | SC2 | 2, 3 | T002, T003 |
 | SC3 | 1, 2 | T001, T002 |
 
@@ -30,6 +30,7 @@ Project verify: `npm run check && npm test`
 | SC2 | T003 | AC1 |
 | SC1 | T004 | AC1 |
 | SC1 | T005 | AC1 |
+| SC1 | T006 | AC1 |
 
 ## Prohibitions
 
@@ -133,4 +134,18 @@ T005 declares the surface names once and maps them over a single object literal,
 order and its `data.surface`, builds, and proves the measured total moved under the baseline. The
 constant is not raised: the evidence for the failure, and the two measurements that show the gate was
 reading a stale build for three milestones, are in `.project/review/BUNDLE-PROBE.md`.
+
+## Wave 6 — re-derive the citation the collapse moved, and stop hand-picking the Verify
+
+Goal: the suite that enumerates the route table is green at the head, and no future task can land with a
+red suite because its author listed four suites instead of five.
+
+Review depth: full
+
+Wave 5's review found what T005's Verify could not: `scripts/component-search.test.mjs` holds
+`research/raw/m047-names-and-absences.json`'s citation of `app.routes.ts:17` to that line's own text, and
+the collapse moved the export to `:113`. T006 re-derives the citation from the tree, checks every other
+citation in the record for the same slide, and puts `npm test` — the whole suite — into its Verify. This
+is the sixth occurrence of one rule; the durable part of the repair is the Verify, not the line number.
+
 
