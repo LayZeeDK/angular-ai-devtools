@@ -1,0 +1,28 @@
+T001 surfaces: 19 surfaces, 79 declared sentences, 34 inline sentences, 1 absence
+T001 citations: 303 lines re-read
+T001 verbatim: 90 sentences found in their files
+T001 coverage: 19 surfaces and 2 specs on disk
+T001 absence: context declares nothing, 13 single-token literals, 0 templates, and cites 5 lines
+T001 boundary: the copy is measured and the digest is T002’s, not this record’s
+✔ the record is every panel surface, the copy each declares, and the absence (7.7269ms)
+✔ every cited path and line is the one the record read (1.7292ms)
+✔ every declared sentence appears verbatim in the file it is cited in (0.6291ms)
+✔ every surface on disk is in the record, and the specs are named as excluded (0.7978ms)
+✔ the counts the record states are the counts its entries carry (0.2331ms)
+✔ a surface that declares no sentences is recorded as an absence, not skipped (0.4203ms)
+✔ the record states what it does not claim (0.1405ms)
+✔ a citation that slid off its line, or lost its text, is refused (1.6578ms)
+✔ a surface that declares copy cannot be recorded as declaring nothing (2.4343ms)
+✔ the record names the task that authors the digest, and measures no join itself (0.2783ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 152.8774
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/copy-check.test.mjs research/raw/m048-surface-copy.json
