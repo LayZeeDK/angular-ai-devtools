@@ -1,0 +1,733 @@
+{
+  "schema": "m051-surface/v1",
+  "milestone": "M051 what-changed",
+  "task": "T003",
+  "title": "Render the states and pin the route",
+  "question": "which route renders the what-changed surface, which LOADERS key serves it, which three states does the surface render, which field of the judgement's answer does each state read, and how does the surface say that the pair is bound by the panel's own inspected tab rather than by a field of either record?",
+  "head": "57fc3104b76def2fa38056e2acf60fc4db087702",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: the files the `sources` block names were read line by line at the head above, and every citation below is that read. No browser was opened, no page was read and no build was run; the only commands executed against these files are the suite that re-reads this record and the join it loads in a bare `node:vm` context.",
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+    "join": "extension/what-changed.js",
+    "measurement": "research/raw/m051-snapshots.json"
+  },
+  "route": {
+    "name": "what-changed",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 111,
+      "lineText": "'what-changed',",
+      "holds": "what-changed"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadComponent: loadPanelDemo,"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "data: { surface },"
+    },
+    "table": {
+      "name": "appRoutes",
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "export const appRoutes: Route[] = ["
+    },
+    "closure": [
+      {
+        "name": "loadPanelDemo",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "const loadPanelDemo = () =>"
+      },
+      {
+        "name": "PanelDemoComponent",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "import('./panel-demo').then((m) => m.PanelDemoComponent);"
+      }
+    ],
+    "statement": "one entry of the `PANEL_SURFACES` list (:111), spread into the `appRoutes` table (:113) by the one mapped literal the table ends with (:144-:148), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:147) as every demo-backed route does. The route carries no `component` key and no `children` key, so the surface is reached by the lazy component and not by a nested route. It is the last entry of the list at this head; the table's own total is not pinned here, because a later milestone appends to the list on purpose and a recorded total would go stale without changing what this route says."
+  },
+  "loader": {
+    "map": {
+      "name": "LOADERS",
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "const LOADERS: Record<"
+    },
+    "key": "what-changed",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 60,
+      "lineText": "'what-changed': () => import('./panel-what-changed') as never,",
+      "holds": "'what-changed': () => import('./panel-what-changed') as never,"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 674,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "const loader = LOADERS[name];"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 680,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "void loader().then((mod) => {"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 681,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "const surface = mod.default(FACTS[name]);"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 682,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "this.state.set(surface.state);"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 683,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "this.lines.set(surface.lines);"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 579,
+      "lineText": "'what-changed': {",
+      "holds": "'what-changed': {"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 580,
+        "lineText": "state: 'changes',",
+        "holds": "state: 'changes',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 581,
+        "lineText": "changes: [",
+        "holds": "changes: ["
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 582,
+        "lineText": "{ field: 'cycleId', kind: 'changed', before: 41, after: 42 },",
+        "holds": "{ field: 'cycleId', kind: 'changed', before: 41, after: 42 },"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 585,
+        "lineText": "field: 'stability',",
+        "holds": "field: 'stability',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 586,
+        "lineText": "kind: 'removed',",
+        "holds": "kind: 'removed',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 596,
+        "lineText": "field: 'checks',",
+        "holds": "field: 'checks',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 597,
+        "lineText": "kind: 'added',",
+        "holds": "kind: 'added',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 609,
+        "lineText": "compared: [",
+        "holds": "compared: ["
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 620,
+        "lineText": "reason: null,",
+        "holds": "reason: null,"
+      }
+    ],
+    "sampleFactComment": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 566,
+        "lineText": "// The judgement's own answer (`extension/what-changed.js`, T002) for a pair of records this demo",
+        "holds": "// The judgement's own answer (`extension/what-changed.js`, T002) for a pair of records this demo"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 567,
+        "lineText": "// writes in the shape T001 measured (`research/raw/m051-snapshots.json`, `record.keyOrder`: the",
+        "holds": "// writes in the shape T001 measured (`research/raw/m051-snapshots.json`, `record.keyOrder`: the"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 576,
+        "lineText": "// surface needs to render. The binding is the panel's inspected tab, so the answer is the",
+        "holds": "// surface needs to render. The binding is the panel's inspected tab, so the answer is the"
+      }
+    ],
+    "statement": "the `what-changed` key is the last key `LOADERS` carries (:60), and it is the only path to `panel-what-changed.ts`: the demo looks the key up by the name the route's `data.surface` states (:674), awaits the dynamic import (:680), calls the module's default export with the sample fact (:681), and sets the state (:682) and the lines (:683) the module answers. The fact it is handed (:579-:621) is the judgement's own `changes` answer for a pair of records the demo writes in the shape T001 measured (`research/raw/m051-snapshots.json`): `cycleId` and `startedAt` changed with both values, `stability` removed with the value that exists and no invented counterpart, `checks` added the same way, and the nine measured keys under `compared` (:609-:619) — so the pane is handed an answer the join `extension/what-changed.js` really produces for a bound pair, and the binding is the panel's, as the comment says (:576)."
+  },
+  "answer": {
+    "shape": "{ state, changes, compared, reason }",
+    "joinAt": {
+      "name": "whatChanged",
+      "file": "extension/what-changed.js",
+      "line": 214,
+      "lineText": "function whatChanged(before, after, binding) {",
+      "holds": "function whatChanged(before, after, binding) {"
+    },
+    "fields": [
+      {
+        "field": "state",
+        "builtAt": [
+          {
+            "file": "extension/what-changed.js",
+            "line": 174,
+            "lineText": "return { state: CANNOT_TELL, changes: [], compared: [], reason: reason };",
+            "holds": "return { state: CANNOT_TELL, changes: [], compared: [], reason: reason };"
+          },
+          {
+            "file": "extension/what-changed.js",
+            "line": 260,
+            "lineText": "const state = changes.length === 0 ? UNCHANGED : CHANGES;",
+            "holds": "const state = changes.length === 0 ? UNCHANGED : CHANGES;"
+          },
+          {
+            "file": "extension/what-changed.js",
+            "line": 261,
+            "lineText": "return { state: state, changes: changes, compared: compared, reason: null };",
+            "holds": "return { state: state, changes: changes, compared: compared, reason: null };"
+          }
+        ],
+        "note": "one of the three words the join publishes (:57, :58, :59); the pane reads it first (:348) and renders a word it was not written for as that word alone (:358)"
+      },
+      {
+        "field": "changes",
+        "builtAt": [
+          {
+            "file": "extension/what-changed.js",
+            "line": 174,
+            "lineText": "return { state: CANNOT_TELL, changes: [], compared: [], reason: reason };",
+            "holds": "return { state: CANNOT_TELL, changes: [], compared: [], reason: reason };"
+          },
+          {
+            "file": "extension/what-changed.js",
+            "line": 261,
+            "lineText": "return { state: state, changes: changes, compared: compared, reason: null };",
+            "holds": "return { state: state, changes: changes, compared: compared, reason: null };"
+          }
+        ],
+        "note": "one `{ field, kind, before, after }` per field that differs, in T001’s measured order (:45-:55); `[]` on every refusal (:174), so a refusal never offers a zero-finding list in the reason’s place; a field only one record carries is `added` or `removed` with the one value that exists (:237-:242) and no key for the absent side, which is why the pane reads each side off the finding’s own keys (:319, :320) rather than deciding it from `kind`"
+      },
+      {
+        "field": "compared",
+        "builtAt": [
+          {
+            "file": "extension/what-changed.js",
+            "line": 174,
+            "lineText": "return { state: CANNOT_TELL, changes: [], compared: [], reason: reason };",
+            "holds": "return { state: CANNOT_TELL, changes: [], compared: [], reason: reason };"
+          },
+          {
+            "file": "extension/what-changed.js",
+            "line": 225,
+            "lineText": "if (carries(before, field) || carries(after, field)) compared.push(field);",
+            "holds": "if (carries(before, field) || carries(after, field)) compared.push(field);"
+          },
+          {
+            "file": "extension/what-changed.js",
+            "line": 261,
+            "lineText": "return { state: state, changes: changes, compared: compared, reason: null };",
+            "holds": "return { state: state, changes: changes, compared: compared, reason: null };"
+          }
+        ],
+        "note": "the measured fields either record carries, in the measured order (:45-:55, :223-:225), so \"no change\" is never \"no comparison\"; a pair carrying none of them is refused (:226) rather than answered with an empty comparison"
+      },
+      {
+        "field": "reason",
+        "builtAt": [
+          {
+            "file": "extension/what-changed.js",
+            "line": 174,
+            "lineText": "return { state: CANNOT_TELL, changes: [], compared: [], reason: reason };",
+            "holds": "return { state: CANNOT_TELL, changes: [], compared: [], reason: reason };"
+          },
+          {
+            "file": "extension/what-changed.js",
+            "line": 218,
+            "lineText": "return cannotTell(absentReason(beforePresent, afterPresent));",
+            "holds": "return cannotTell(absentReason(beforePresent, afterPresent));"
+          },
+          {
+            "file": "extension/what-changed.js",
+            "line": 221,
+            "lineText": "if (!bindingSupplied(binding)) return cannotTell(NO_BINDING_REASON);",
+            "holds": "if (!bindingSupplied(binding)) return cannotTell(NO_BINDING_REASON);"
+          },
+          {
+            "file": "extension/what-changed.js",
+            "line": 226,
+            "lineText": "if (compared.length === 0) return cannotTell(NO_COMPARED_FIELD_REASON);",
+            "holds": "if (compared.length === 0) return cannotTell(NO_COMPARED_FIELD_REASON);"
+          },
+          {
+            "file": "extension/what-changed.js",
+            "line": 261,
+            "lineText": "return { state: state, changes: changes, compared: compared, reason: null };",
+            "holds": "return { state: state, changes: changes, compared: compared, reason: null };"
+          }
+        ],
+        "note": "present only for `cannot-tell`, and it is the join’s own sentence: the two facts spelled once (:70, :73) and composed into `NO_BINDING_REASON` (:76), `NO_COMPARED_FIELD_REASON` (:82) and the absence reason (:185-:199). The pane renders it verbatim (:366) or its own `no-reason` sentence (:154) where the answer carries none"
+      }
+    ],
+    "statement": "the pane is handed this answer and renders it; it compares nothing, copies nothing out of a record, reads no page and touches no DOM. The state is the answer’s own word (:348); `changes` renders one block per finding in the answer’s own order (:387-:397) plus the count the answer states (:390), `unchanged` renders the count (:374-:380), and `cannot-tell` renders the reason verbatim (:364-:368). Every state renders, beside that, the pane’s own sentence that the pair is bound by the panel’s inspected tab (:367, :379, :396), because no field of either record says the two are one page."
+  },
+  "states": [
+    {
+      "id": "changes",
+      "word": "changes",
+      "declaredAt": {
+        "name": "CHANGES",
+        "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+        "line": 76,
+        "lineText": "export const CHANGES = 'changes';",
+        "holds": "export const CHANGES = 'changes';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+          "line": 104,
+          "lineText": "text: 'changes: the two records disagree on at least one measured field, and each finding below names the field it concerns with the kind of difference the judgement stated — before and after for a changed value, and the one value that exists, with no counterpart invented, for a field only one record carries',",
+          "holds": "text: 'changes: the two records disagree on at least one measured field"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/what-changed.js",
+          "line": 260,
+          "lineText": "const state = changes.length === 0 ? UNCHANGED : CHANGES;",
+          "holds": "const state = changes.length === 0 ? UNCHANGED : CHANGES;"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 348,
+            "lineText": "const answerWord = nonEmptyString(answer['state']);",
+            "holds": "const answerWord = nonEmptyString(answer['state']);"
+          }
+        },
+        {
+          "field": "changes",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 385,
+            "lineText": "const changes = Array.isArray(answer['changes']) ? answer['changes'] : null;",
+            "holds": "const changes = Array.isArray(answer['changes'])"
+          }
+        },
+        {
+          "field": "compared",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 386,
+            "lineText": "const count = comparedCount(answer['compared']);",
+            "holds": "const count = comparedCount(answer['compared']);"
+          }
+        },
+        {
+          "field": "changes[].field",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 313,
+            "lineText": "const field = nonEmptyString(finding['field']);",
+            "holds": "const field = nonEmptyString(finding['field']);"
+          }
+        },
+        {
+          "field": "changes[].kind",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 316,
+            "lineText": "const kind = nonEmptyString(finding['kind']);",
+            "holds": "const kind = nonEmptyString(finding['kind']);"
+          }
+        },
+        {
+          "field": "changes[].before",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 319,
+            "lineText": "const hasBefore = carries(finding, 'before');",
+            "holds": "const hasBefore = carries(finding, 'before');"
+          }
+        },
+        {
+          "field": "changes[].after",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 320,
+            "lineText": "const hasAfter = carries(finding, 'after');",
+            "holds": "const hasAfter = carries(finding, 'after');"
+          }
+        },
+        {
+          "field": "binding",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 396,
+            "lineText": "lines.push(BOUND_BY_THE_PANEL_TEXT);",
+            "holds": "lines.push(BOUND_BY_THE_PANEL_TEXT);"
+          }
+        }
+      ],
+      "statement": "one block per finding, in the answer's own order: the field the finding names, the kind the answer stated, and then only the sides the finding carries — `before:` and `after:` for a change of value, one of them and no counterpart at all for an addition or a removal (E1). A finding that names no field, no kind or neither value states that absence in a sentence of the pane's own (:134, :139, :144) rather than borrowing a value from a neighbour; a `changes` answer that carries no list renders `no-changes-list` (:129), and a comparison the answer does not state renders `no-compared` (:149). The count the answer states is rendered beside them, and the binding sentence follows in this state as in every other (:396)."
+    },
+    {
+      "id": "unchanged",
+      "word": "unchanged",
+      "declaredAt": {
+        "name": "UNCHANGED",
+        "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+        "line": 77,
+        "lineText": "export const UNCHANGED = 'unchanged';",
+        "holds": "export const UNCHANGED = 'unchanged';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+          "line": 109,
+          "lineText": "text: 'unchanged: the two records agree on every field the judgement compared, and the count below states how many fields that was, so no change is never read as no comparison',",
+          "holds": "text: 'unchanged: the two records agree on every field the judgement compared"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/what-changed.js",
+          "line": 260,
+          "lineText": "const state = changes.length === 0 ? UNCHANGED : CHANGES;",
+          "holds": "const state = changes.length === 0 ? UNCHANGED : CHANGES;"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 348,
+            "lineText": "const answerWord = nonEmptyString(answer['state']);",
+            "holds": "const answerWord = nonEmptyString(answer['state']);"
+          }
+        },
+        {
+          "field": "compared",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 374,
+            "lineText": "const count = comparedCount(answer['compared']);",
+            "holds": "const count = comparedCount(answer['compared']);"
+          }
+        },
+        {
+          "field": "binding",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 379,
+            "lineText": "BOUND_BY_THE_PANEL_TEXT,",
+            "holds": "BOUND_BY_THE_PANEL_TEXT,"
+          }
+        }
+      ],
+      "statement": "the state word, its sentence and the count the answer states (:378) — never a claim that nothing was compared: the count is the length of the answer's own `compared` list, and an answer that states no list renders `no-compared` (:149) rather than a zero the pane made up. The binding sentence follows (:379), so 'unchanged' is read as a pair the panel bound and compared, not as a page nobody identified."
+    },
+    {
+      "id": "cannot-tell",
+      "word": "cannot-tell",
+      "declaredAt": {
+        "name": "CANNOT_TELL",
+        "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+        "line": 78,
+        "lineText": "export const CANNOT_TELL = 'cannot-tell';",
+        "holds": "export const CANNOT_TELL = 'cannot-tell';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+          "line": 114,
+          "lineText": "text: 'cannot-tell: the pair was refused and nothing was compared, because the record carries no page identity — no url, no tab and no page key — and the pair is bound by the panel’s inspected tab rather than by a field of the record, so the reason below is the judgement’s own words',",
+          "holds": "text: 'cannot-tell: the pair was refused and nothing was compared, because the record carries no page identity"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/what-changed.js",
+          "line": 218,
+          "lineText": "return cannotTell(absentReason(beforePresent, afterPresent));",
+          "holds": "return cannotTell(absentReason(beforePresent, afterPresent));"
+        },
+        {
+          "file": "extension/what-changed.js",
+          "line": 221,
+          "lineText": "if (!bindingSupplied(binding)) return cannotTell(NO_BINDING_REASON);",
+          "holds": "if (!bindingSupplied(binding)) return cannotTell(NO_BINDING_REASON);"
+        },
+        {
+          "file": "extension/what-changed.js",
+          "line": 226,
+          "lineText": "if (compared.length === 0) return cannotTell(NO_COMPARED_FIELD_REASON);",
+          "holds": "if (compared.length === 0) return cannotTell(NO_COMPARED_FIELD_REASON);"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 348,
+            "lineText": "const answerWord = nonEmptyString(answer['state']);",
+            "holds": "const answerWord = nonEmptyString(answer['state']);"
+          }
+        },
+        {
+          "field": "reason",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 364,
+            "lineText": "const reason = nonEmptyString(answer['reason']);",
+            "holds": "const reason = nonEmptyString(answer['reason']);"
+          }
+        },
+        {
+          "field": "binding",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+            "line": 367,
+            "lineText": "lines.push(BOUND_BY_THE_PANEL_TEXT);",
+            "holds": "lines.push(BOUND_BY_THE_PANEL_TEXT);"
+          }
+        }
+      ],
+      "statement": "the answer's `reason`, echoed as the join's own words, and nothing beside it: no cause, no element, no remedy and no rule identity. A zero-finding list is never offered in the reason's place, and an absence is never rendered as `unchanged` (:363-:368). An answer that carries no reason renders `no-reason` (:154) rather than an invented one, and the sentence this state is written for names both that the record carries no page identity and that the binding is the panel's own inspected tab (:114), so a reader is never left thinking the record proved the pair was one page."
+    }
+  ],
+  "stateWords": {
+    "join": {
+      "words": [
+        "changes",
+        "unchanged",
+        "cannot-tell"
+      ],
+      "at": {
+        "name": "CHANGES",
+        "file": "extension/what-changed.js",
+        "line": 57,
+        "lineText": "const CHANGES = 'changes';",
+        "holds": "const CHANGES = 'changes';"
+      },
+      "alsoAt": [
+        {
+          "name": "UNCHANGED",
+          "file": "extension/what-changed.js",
+          "line": 58,
+          "lineText": "const UNCHANGED = 'unchanged';",
+          "holds": "const UNCHANGED = 'unchanged';"
+        },
+        {
+          "name": "CANNOT_TELL",
+          "file": "extension/what-changed.js",
+          "line": 59,
+          "lineText": "const CANNOT_TELL = 'cannot-tell';",
+          "holds": "const CANNOT_TELL = 'cannot-tell';"
+        }
+      ],
+      "note": "the join publishes the three words as three constants rather than as one list, so a reader that wants the list reads all three lines; the three finding kinds `changed`, `added` and `removed` are published beside them (:64, :65, :66) and are not state words."
+    },
+    "surface": {
+      "words": [
+        "changes",
+        "unchanged",
+        "cannot-tell"
+      ],
+      "at": {
+        "name": "STATES",
+        "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+        "line": 81,
+        "lineText": "export const STATES = [CHANGES, UNCHANGED, CANNOT_TELL] as const;",
+        "holds": "export const STATES = [CHANGES, UNCHANGED, CANNOT_TELL] as const;"
+      }
+    },
+    "statement": "the surface renders the join’s three words and adds none of its own: `STATES` (:81) holds `CHANGES` (:76), `UNCHANGED` (:77) and `CANNOT_TELL` (:78) in the order the pane states them, and a state word the pane was not written for is rendered as the word it was given (:358) rather than as a sentence it does not have. The lookup is an own-property one (`Object.hasOwn`, :351), so a word that collides with an `Object.prototype` key is a word and not a sentence."
+  },
+  "binding": {
+    "ruling": "Correction 2 of the plan (ruled at 7b054ee6)",
+    "statement": "the intent's SC1 says the surface compares two recorded snapshots of the same page; the record does not say the two are one page, and the plan's Correction 2 rules that the binding is the panel's own inspected tab. T001 measured it: `identity.bindingField` is null and `claimants` is 0, because no field of the record is stable across two records of one page, differs between pages and is stated by the tree to mean a page. The join therefore reads the binding from its caller (:106-:110) and refuses a pair nobody bound (:221), and the pane says so in a sentence of its own (:119) rendered in every state (:367, :379, :396).",
+    "identity": {
+      "file": "research/raw/m051-snapshots.json",
+      "line": 2536,
+      "lineText": "\"bindingField\": null,",
+      "holds": "\"bindingField\": null,"
+    },
+    "claimants": {
+      "file": "research/raw/m051-snapshots.json",
+      "line": 2539,
+      "lineText": "\"claimants\": 0,",
+      "holds": "\"claimants\": 0,"
+    },
+    "suppliedBy": {
+      "file": "extension/what-changed.js",
+      "line": 106,
+      "lineText": "function bindingSupplied(binding) {",
+      "holds": "function bindingSupplied(binding) {"
+    },
+    "refusedWithout": {
+      "file": "extension/what-changed.js",
+      "line": 221,
+      "lineText": "if (!bindingSupplied(binding)) return cannotTell(NO_BINDING_REASON);",
+      "holds": "if (!bindingSupplied(binding)) return cannotTell(NO_BINDING_REASON);"
+    },
+    "statedByTheJoin": [
+      {
+        "file": "extension/what-changed.js",
+        "line": 70,
+        "lineText": "const NO_PAGE_IDENTITY =",
+        "holds": "const NO_PAGE_IDENTITY ="
+      },
+      {
+        "file": "extension/what-changed.js",
+        "line": 73,
+        "lineText": "const PANEL_BINDING =",
+        "holds": "const PANEL_BINDING ="
+      },
+      {
+        "file": "extension/what-changed.js",
+        "line": 76,
+        "lineText": "const NO_BINDING_REASON =",
+        "holds": "const NO_BINDING_REASON ="
+      }
+    ],
+    "statedByTheSurface": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+        "line": 119,
+        "lineText": "text: 'bound-by-the-panel: the record carries no page identity, so the two records this answer compared are one pair because the panel’s inspected tab binds them, and no field of either record says so',",
+        "holds": "text: 'bound-by-the-panel: the record carries no page identity"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+        "line": 214,
+        "lineText": "export const BOUND_BY_THE_PANEL_TEXT = sentenceText('bound-by-the-panel');",
+        "holds": "export const BOUND_BY_THE_PANEL_TEXT = sentenceText('bound-by-the-panel');"
+      }
+    ]
+  },
+  "notDigested": {
+    "added": [],
+    "sentencesAt": {
+      "name": "PANE_SENTENCES",
+      "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+      "line": 101,
+      "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = [",
+      "holds": "export const PANE_SENTENCES: readonly PanelSentence[] = ["
+    },
+    "scopeAt": {
+      "name": "SCOPE",
+      "file": "extension/copy-check.js",
+      "line": 97,
+      "lineText": "const SCOPE = Object.freeze({",
+      "holds": "const SCOPE = Object.freeze({"
+    },
+    "statement": "nothing this pane renders is composed at render, so T003 added no decision to `NOT_DIGESTED`: all eleven of its registry entries are sentences whose text is the string the pane renders whole, and its ten interpolated literals are labels around a value the answer or a finding carries (`state:`, `compared:`, `finding:`, `field:`, `kind:`, `before:`, `after:`, `reason:`), which `SCOPE` (:97) reads past by kind. The single-token words the pane substitutes for a value the record wrote (`null` and `undefined`, :271, :272) are values of a line and not sentences, so they are named here rather than digested; the one `Error` the module throws (:177) is developer-facing and never rendered. The one decision of the composed-at-render shape at this head remains `panel-sanitizer.ts:180`'s pluraliser."
+  },
+  "corrections": [
+    {
+      "claim": "the contract's answer is four fields — `{ state, changes, compared, reason }` — and the surface is handed two page snapshots the record itself binds to one page",
+      "measured": "the four fields are the whole of the answer, and the pair is not bound by any of them: the record publishes no page identity (`identity.bindingField: null`, `claimants: 0`), so the binding is the panel's inspected tab and the caller supplies it (:106-:110). The join refuses a pair nobody bound (:221), and the pane states the absence of a page identity and the panel's own binding in every state (:119, :367, :379, :396). This is plan Correction 2 recorded as the surface's own words rather than as a comment in the plan.",
+      "citations": [
+        {
+          "file": "research/raw/m051-snapshots.json",
+          "line": 2536,
+          "lineText": "\"bindingField\": null,",
+          "holds": "\"bindingField\": null,"
+        },
+        {
+          "file": "extension/what-changed.js",
+          "line": 70,
+          "lineText": "const NO_PAGE_IDENTITY =",
+          "holds": "const NO_PAGE_IDENTITY ="
+        },
+        {
+          "file": "extension/what-changed.js",
+          "line": 221,
+          "lineText": "if (!bindingSupplied(binding)) return cannotTell(NO_BINDING_REASON);",
+          "holds": "if (!bindingSupplied(binding)) return cannotTell(NO_BINDING_REASON);"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+          "line": 119,
+          "lineText": "text: 'bound-by-the-panel: the record carries no page identity, so the two records this answer compared are one pair because the panel’s inspected tab binds them, and no field of either record says so',",
+          "holds": "text: 'bound-by-the-panel: the record carries no page identity"
+        }
+      ],
+      "consequence": "the record states the binding in its own block, in `states[].reads` for every state, and in the pane sentence it renders; a record that claimed a binding field would be recording a field T001 measured as absent. Rewriting the intent's SC1 wording is owed as a define-phase step and is not done by this record."
+    },
+    {
+      "claim": "a surface that declares its copy in a registry declares all of it there, so a digest authored from the registry explains everything the pane renders",
+      "measured": "true for this pane's sentences and false for its lines: all eleven registry entries are the pane's own prose (:104-:154), and the ten other literals the pane builds are labels of the answer's or a finding's fields (:303, :314, :317, :325, :326, :358, :366, :376, :378, :388). One of the eleven, `no-reason` (:154), is byte for byte the sentence `panel-components.ts:147`, `panel-copy-check.ts:128`, `panel-interaction-story.ts:150` and `panel-dead-click.ts:202` already declare, so the shipped digest's one row for that text explains it here as well.",
+      "citations": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+          "line": 154,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',",
+          "holds": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 147,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',",
+          "holds": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-what-changed.ts",
+          "line": 325,
+          "lineText": "if (hasBefore) lines.push(`before: ${renderedValue(finding['before'])}`);",
+          "holds": "if (hasBefore) lines.push(`before: ${renderedValue(finding['before'])}`);"
+        }
+      ],
+      "consequence": "the copy record carries the pane's eleven sentences and ten labels apart, and the digest holds ten new rows for the ten sentences the shared one does not already explain; none of the ten labels is digested, because a label is a prefix and not a string the pane renders whole."
+    }
+  ],
+  "notCaptured": [
+    "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture.",
+    "The record does not measure what the pane looks like. The lines each state writes are held by `panel-demo.spec.ts` over the shipped join and its sample fact, and this record names the states and the field each reads rather than reproducing the sentences' rendering.",
+    "The binding is recorded as the caller's and not as a contract change: `extension/what-changed.js` still answers the four fields (:174, :261) and reads no record field to establish that two records are one page. This record does not claim the join identifies a page, and it names the measurement that says no field does (`research/raw/m051-snapshots.json`).",
+    "The route table's total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
+    "The sample fact at `panel-demo.ts:579-:621` is fixture data the spec rebuilds from T001's measurement, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what the page recorded."
+  ],
+  "verdict": "measured: `/what-changed` is one lazy route — the `PANEL_SURFACES` entry at :111, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `what-changed` key of `panel-demo.ts`'s `LOADERS` (:60), and that key is the only path to `panel-what-changed.ts`. The surface renders the join's three states and adds none of its own: `changes` reads `state`, `changes`, `compared` and each finding's `field`, `kind`, `before` and `after`; `unchanged` reads `state` and `compared`; `cannot-tell` reads `state` and `reason`. Every state renders the pane's own sentence that the record carries no page identity and that the pair is bound by the panel's inspected tab (:119), because T001 measured that no field of the record binds two records to one page (`identity.bindingField: null`, `claimants: 0`) and the plan's Correction 2 rules the binding the panel's."
+}
