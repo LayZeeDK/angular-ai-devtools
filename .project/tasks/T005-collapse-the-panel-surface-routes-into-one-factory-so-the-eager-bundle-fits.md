@@ -2,12 +2,12 @@
 id: T005
 title: Collapse the panel surface routes into one factory so the eager bundle fits the baseline
 wave: 5
-status: pending
+status: in-progress
 deps:
   - T004
-agent: null
-base: null
-worktree: null
+agent: build_T005
+base: d0b8b61c4ddee8e1fd5ceb179ced21922d2984b9
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/app.routes.ts
@@ -22,6 +22,7 @@ files:
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
   - tests/held-out/fixture-explainers-unchanged.test.mjs
+  - research/raw/m044-gate-shapes.json
   - .project/review/BUNDLE-PROBE.md
   - extension/panel/index.html
 ---
@@ -98,6 +99,7 @@ None
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
   - tests/held-out/fixture-explainers-unchanged.test.mjs
+  - research/raw/m044-gate-shapes.json
   - .project/review/BUNDLE-PROBE.md
   - extension/panel/index.html
 
@@ -106,13 +108,14 @@ None
 1. `npx nx run angular-ai-devtools:build-extension` followed by `node --test scripts/panel-bundle-budget.test.mjs scripts/image-budget.test.mjs` passes, and the printed initial total is at or below 535.44 kB; paste both lines.
 2. `appRoutes` still exposes every surface route with its own `path` and `data.surface` in its previous order, asserted by a suite that reads the exported table rather than the source text, and the suite reddens when one surface is dropped from `PANEL_SURFACES`.
 3. `scripts/panel-bundle-budget.test.mjs` fails with a message naming a stale build when the output present in `extension/panel` is older than the newest source file the panel build reads, and the suite proves both directions: a doctored old `index.html` mtime reddens it, and the freshly built output does not. The absent-output skip stays.
-4. The two budget suites and `npm run check` pass at the head, and `extension/panel/index.html` is restored with `git checkout -- extension/panel/index.html` so the working tree carries no build artifact.
-5. `npx prettier --check` passes on every file this task edits, with the output pasted.
+4. `npm test` at the head is green with no recorded-artifact failure, which means `research/raw/m044-gate-shapes.json` is re-derived in the same landing: re-arm with `set "M044_CAPTURE=1"&& node --experimental-strip-types --test scripts/gate-integrity.test.mjs`, then prove a default run reads it back green.
+5. The two budget suites and `npm run check` pass at the head, and `extension/panel/index.html` is restored with `git checkout -- extension/panel/index.html` before the run that formats, so `format:check` sees the committed file rather than a build's unformatted output.
+6. `npx prettier --check` passes on every file this task edits, with the output pasted.
 
 ## Verify
 
 ```bash
-npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-bundle-budget.test.mjs scripts/image-budget.test.mjs && npm run check && npx prettier --check apps/angular-ai-devtools/src/app/app.routes.ts scripts/panel-bundle-budget.test.mjs && git checkout -- extension/panel/index.html
+npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-bundle-budget.test.mjs scripts/image-budget.test.mjs && git checkout -- extension/panel/index.html && npm run check && npx prettier --check apps/angular-ai-devtools/src/app/app.routes.ts scripts/panel-bundle-budget.test.mjs && node --experimental-strip-types --test scripts/gate-integrity.test.mjs
 ```
 
 ## Log
