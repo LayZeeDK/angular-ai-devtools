@@ -21,6 +21,7 @@ files:
   - scripts/gate-integrity.test.mjs
   - research/raw/m044-gate-shapes.json
   - .project/research/DOCS-AUDIT.md
+  - .prettierignore
   - extension/panel/index.html
 ---
 
