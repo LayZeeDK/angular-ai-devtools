@@ -1,0 +1,1 @@
+{"command": "npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm test && git checkout -- extension/panel/index.html && npx prettier --check apps/angular-ai-devtools/src/app/panel-what-changed.ts", "commit": "c344e793095dc5c363f4c301b0aee9378839a48b", "recorded_at": "2026-11-18T23:17:47+00:00", "result": "fail", "schema": "gsd-path/verify-ledger/v2"}
