@@ -128,6 +128,19 @@ import {
   STATE_TEXTS as STORY_STATE_TEXTS,
   interactionStoryPanel,
 } from './panel-interaction-story';
+import {
+  CANNOT_TELL as DEAD_CANNOT_TELL,
+  CLEAN as DEAD_CLEAN,
+  FINDINGS as DEAD_FINDINGS,
+  NO_CONSIDERED_TEXT,
+  NO_FINDINGS_LIST_TEXT,
+  NO_REASON_TEXT as DEAD_NO_REASON_TEXT,
+  NO_REFUSALS_TEXT,
+  NOT_FINAL_TEXT,
+  REFUSED_CHAINS_TEXT,
+  STATE_TEXTS as DEAD_STATE_TEXTS,
+  deadClickPanel,
+} from './panel-dead-click';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -1462,6 +1475,202 @@ function storyLists(
   };
 }
 
+/** The part of T001's M050 chains record this spec reads. */
+interface ChainsRecording {
+  chains: {
+    id: string;
+    stream: string;
+    entry: {
+      fields: { name: string }[];
+      nested: { parent: string; fields: { name: string }[] } | null;
+    };
+  }[];
+}
+
+/** One chain of that record. */
+type MeasuredChain = ChainsRecording['chains'][number];
+
+/** One finding of the dead-click join's answer, for the fields this spec reads. */
+interface DeadClickFinding {
+  chain: string;
+  event: Record<string, unknown>;
+  window: Record<string, unknown>;
+}
+
+/** The dead-click join's answer: the four contract fields. */
+interface DeadClickAnswer {
+  state: string;
+  findings: DeadClickFinding[];
+  considered: number;
+  reason?: string;
+}
+
+/** One chain the dead-click join refuses, as the module publishes it. */
+interface DeadClickRefusal {
+  chain: string;
+  state: string;
+  reason: string;
+}
+
+/** The page's own judgement namespace, as `extension/dead-click.js` publishes it. */
+interface DeadClickJoin {
+  deadClick(record: unknown): DeadClickAnswer;
+  FINDINGS: string;
+  CLEAN: string;
+  CANNOT_TELL: string;
+  ROUTER_EVENTS: string;
+  REASONS: readonly string[];
+  REFUSALS: readonly DeadClickRefusal[];
+}
+
+/** The M050 chains record and its text, inlined from disk the same way. */
+function readChainsRecording(): { recording: ChainsRecording; text: string } {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m050-chains.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m050-chains.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as ChainsRecording, text };
+}
+
+/**
+ * The join `extension/dead-click.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `dead-click` fact is held to the join's answer for a record this spec
+ * rebuilds from T001's measurement, and to the join's own `REFUSALS`, not to a copy of either
+ * written here. The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function deadClickJoin(): DeadClickJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/dead-click.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/dead-click.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (globalThis as unknown as { angularAiDeadClick?: DeadClickJoin })
+    .angularAiDeadClick;
+  if (join === undefined || typeof join.deadClick !== 'function') {
+    throw new Error('extension/dead-click.js published no deadClick');
+  }
+  return join;
+}
+
+/**
+ * The values each entry of the rebuilt record carries, keyed by the stream the record names. The
+ * arrival readings (10, 11, 20, 30, 40) are this spec's own spine, and the ids are what the
+ * judgement pairs on: navigation 1 ends, navigation 2 does not.
+ */
+const DEAD_CLICK_VALUES: Readonly<
+  Record<string, readonly Readonly<Record<string, unknown>>[]>
+> = {
+  router: [
+    {
+      type: 'NavigationStart',
+      at: 10,
+      id: 1,
+      url: '/kept',
+      matchedPaths: [],
+    },
+    {
+      type: 'NavigationEnd',
+      at: 11,
+      id: 1,
+      url: '/kept',
+      urlAfterRedirects: '/kept',
+      matchedPaths: [],
+    },
+    {
+      type: 'NavigationStart',
+      at: 20,
+      id: 2,
+      url: '/lost',
+      matchedPaths: [],
+    },
+  ],
+  work: [{ type: 2, pair: 'TemplateUpdate', end: false, at: 30 }],
+  boundary: [
+    { route: 'hook', error: { name: 'TypeError', message: 'boom' }, at: 40 },
+  ],
+};
+
+/**
+ * One entry built from the field list T001 measured for a stream: every key the record cites for
+ * that stream's builder, in the order it cites them, with the value the caller names where the
+ * record carries one and `null` where the builder writes a presence-tested field. A nested field's
+ * own keys come from the measured nested list and are `null`, the presence-tested shape the page
+ * agent writes.
+ */
+function deadClickEntry(
+  chain: MeasuredChain,
+  values: Readonly<Record<string, unknown>>,
+): Record<string, unknown> {
+  const entry: Record<string, unknown> = {};
+  for (const field of chain.entry.fields) {
+    const nested = chain.entry.nested;
+    if (nested !== null && nested.parent === field.name) {
+      const inner: Record<string, unknown> = {};
+      for (const child of nested.fields) inner[child.name] = null;
+      entry[field.name] = inner;
+      continue;
+    }
+    entry[field.name] = Object.hasOwn(values, field.name)
+      ? values[field.name]
+      : null;
+  }
+  return entry;
+}
+
+/** One measured chain, found by id; a record that does not carry it fails here. */
+function measuredChain(recording: ChainsRecording, id: string): MeasuredChain {
+  const chain = recording.chains.find((candidate) => candidate.id === id);
+  if (chain === undefined) {
+    throw new Error(`the M050 record carries no ${id} chain`);
+  }
+  return chain;
+}
+
+/** The entries one measured chain's values produce, in the order the values list them. */
+function deadClickEntries(
+  recording: ChainsRecording,
+  id: string,
+): Record<string, unknown>[] {
+  const chain = measuredChain(recording, id);
+  const values = DEAD_CLICK_VALUES[id] ?? [];
+  return values.map((entry) => deadClickEntry(chain, entry));
+}
+
+/**
+ * The record the page agent publishes, rebuilt from T001's measurement: every entry carries exactly
+ * the fields the record cites for its own builder, in that order, and nothing else. The three router
+ * arrivals are a start, its terminal and a second start, so the second start's id is the one no
+ * terminal in the window carries; the one work entry and the one boundary arrival are the streams
+ * the judgement counts and never reports.
+ */
+function deadClickRecord(recording: ChainsRecording) {
+  return {
+    routerEvents: deadClickEntries(recording, 'router'),
+    events: deadClickEntries(recording, 'work'),
+    boundary: { entries: deadClickEntries(recording, 'boundary') },
+  };
+}
+
 /** The demo rendered for one surface name, once its lazy surface has answered. */
 async function renderDemo(surface: string): Promise<PanelDemoComponent> {
   await TestBed.configureTestingModule({
@@ -2304,7 +2513,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — twenty-nine paths, the same ordered list
+    // The whole table, in order and to the count — thirty paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -2338,8 +2547,9 @@ describe('the panel demo', () => {
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
+      'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
     ]);
-    expect(appRoutes).toHaveLength(29);
+    expect(appRoutes).toHaveLength(30);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -3259,6 +3469,283 @@ describe('the panel demo', () => {
     // own. Every line is a labelled field of the answer or one of the pane's sentences.
     expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
     for (const label of ['cause: ', 'element: ', 'remedy: ', 'rule: ']) {
+      expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
+    }
+  });
+
+  /**
+   * The M050 half — SC1 and SC2 on the surface. The route is reached through its own entry, and the
+   * fact it renders is the shipped join's answer for a record rebuilt from T001's measurement, with
+   * the join's own `REFUSALS` handed beside it. `findings` prints each start with no terminal
+   * beside the window it was judged over — the list, its kind, its length and its `final: false` —
+   * and states that the list is not final, so no finding reads as settled; `clean` states the count
+   * compared and the same bound; and `cannot-tell` echoes the join's reason verbatim, naming the
+   * chain a refused reason concerns. The two chains the judgement refused are named as not judged
+   * in every state, because a reader who does not see them will read their silence as clean.
+   */
+  it('renders each start with no terminal beside its window, the count compared, and the refused chains as not judged', async () => {
+    const { recording, text: recordingText } = readChainsRecording();
+    const join = deadClickJoin();
+    const record = deadClickRecord(recording);
+    const answer = join.deadClick(record);
+
+    // The record this spec rebuilds carries exactly the fields T001 measured for each stream.
+    expect(Object.keys(record.routerEvents[0] ?? {})).toEqual(
+      measuredChain(recording, 'router').entry.fields.map(
+        (field) => field.name,
+      ),
+    );
+    expect(Object.keys(record.events[0] ?? {})).toEqual(
+      measuredChain(recording, 'work').entry.fields.map((field) => field.name),
+    );
+    const boundaryFields = measuredChain(
+      recording,
+      'boundary',
+    ).entry.fields.map((field) => field.name);
+    expect(Object.keys(record.boundary.entries[0] ?? {})).toEqual(
+      boundaryFields,
+    );
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'dead-click',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the dead-click surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the dead-click route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('dead-click');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'dead-click'),
+    ).toHaveLength(1);
+
+    // The judgement: one start (id 2) has no terminal in the window, and the two starts beside it
+    // are paired and never reported. `considered` counts every entry the three streams publish.
+    expect(answer.state).toBe(DEAD_FINDINGS);
+    expect(answer.considered).toBe(5);
+    expect(answer.findings).toHaveLength(1);
+    const finding = answer.findings[0];
+    if (finding === undefined) {
+      throw new Error('the rebuilt record must answer one finding');
+    }
+    expect(finding.chain).toBe('router');
+    expect(finding.event['id']).toBe(2);
+    expect(finding.window).toEqual({
+      chain: 'router',
+      field: join.ROUTER_EVENTS,
+      kind: 'published-list',
+      length: 3,
+      final: false,
+    });
+    // The finding quotes the start's own eleven recorded fields and adds none of its own.
+    expect(Object.keys(finding.event)).toEqual(
+      measuredChain(recording, 'router').entry.fields.map(
+        (field) => field.name,
+      ),
+    );
+
+    // The fact the pane is handed is the join's answer beside the join's own refusals — the two
+    // chains it refused, with the reasons the module publishes.
+    expect(FACTS['dead-click']).toEqual({
+      ...answer,
+      refusals: join.REFUSALS,
+    });
+    expect(join.REFUSALS.map((refusal) => refusal.chain)).toEqual([
+      'work',
+      'boundary',
+    ]);
+    expect(join.REFUSALS.map((refusal) => refusal.reason)).toEqual([
+      'work-chain-unjudgeable',
+      'boundary-chain-unjudgeable',
+    ]);
+
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(DEAD_FINDINGS);
+    const pane = deadClickPanel(FACTS['dead-click']);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+
+    // `findings`: its own word and sentence, the statement that the window is not final, the count
+    // compared, then the finding's own block.
+    expect(pane.lines[0]).toBe(`state: ${DEAD_FINDINGS}`);
+    expect(pane.lines[1]).toBe(DEAD_STATE_TEXTS[DEAD_FINDINGS]);
+    expect(pane.lines[2]).toBe(NOT_FINAL_TEXT);
+    expect(pane.lines[3]).toBe(`considered: ${answer.considered}`);
+    expect(pane.lines[4]).toBe('finding: 1');
+    expect(pane.lines[5]).toBe('chain: router');
+    const rendered = (value: unknown): string =>
+      typeof value === 'string'
+        ? value
+        : typeof value === 'number' || typeof value === 'boolean'
+          ? String(value)
+          : value === null
+            ? 'null'
+            : JSON.stringify(value);
+    let cursor = 6;
+    for (const [name, value] of Object.entries(finding.event)) {
+      expect(pane.lines[cursor]).toBe(`field ${name}: ${rendered(value)}`);
+      cursor += 1;
+    }
+    // The window the judgement used, printed as the answer states it — `final: false` included, so
+    // the list is never presented as complete.
+    expect(pane.lines.slice(cursor, cursor + 5)).toEqual([
+      'window chain: router',
+      `window: ${join.ROUTER_EVENTS}`,
+      'window kind: published-list',
+      'window length: 3',
+      'window final: false',
+    ]);
+    cursor += 5;
+
+    // The refused chains, named as not judged with their own reasons, in the join's own order.
+    expect(pane.lines[cursor]).toBe(REFUSED_CHAINS_TEXT);
+    expect(pane.lines.slice(cursor + 1)).toEqual([
+      'refused: work',
+      'refused reason: work-chain-unjudgeable',
+      'refused: boundary',
+      'refused reason: boundary-chain-unjudgeable',
+    ]);
+    for (const refusal of join.REFUSALS) {
+      expect(pane.lines).toContain(`refused: ${refusal.chain}`);
+      expect(pane.lines).toContain(`refused reason: ${refusal.reason}`);
+    }
+
+    // Every stream and every field the pane prints is one the committed measurement names.
+    for (const needle of [
+      'routerEvents',
+      'boundaryEntries',
+      'pendingWorkEvents',
+    ]) {
+      expect(recordingText).toContain(needle);
+    }
+
+    // SC2: the clean answer states how many were compared and the window it read, and names the
+    // refused chains too — "nothing is dangling" is never "nothing was compared" (E4).
+    const cleanRecord = {
+      routerEvents: deadClickEntries(recording, 'router').slice(0, 2),
+    };
+    const clean = join.deadClick(cleanRecord);
+    expect(clean.state).toBe(DEAD_CLEAN);
+    expect(clean.findings).toEqual([]);
+    expect(clean.considered).toBe(2);
+    const cleanPane = deadClickPanel({ ...clean, refusals: join.REFUSALS });
+    expect(cleanPane.state).toBe(DEAD_CLEAN);
+    expect(cleanPane.lines[1]).toBe(DEAD_STATE_TEXTS[DEAD_CLEAN]);
+    expect(cleanPane.lines).toContain(NOT_FINAL_TEXT);
+    expect(cleanPane.lines).toContain(`considered: ${clean.considered}`);
+    expect(cleanPane.lines).toContain('refused: work');
+    expect(cleanPane.lines).toContain('refused: boundary');
+    // The clean sentence names the window the judgement read.
+    expect(cleanPane.lines[1]).toContain(join.ROUTER_EVENTS);
+    expect(cleanPane.lines.some((line) => line.startsWith('reason: '))).toBe(
+      false,
+    );
+    expect(cleanPane.lines.some((line) => line.startsWith('finding: '))).toBe(
+      false,
+    );
+
+    // SC2/N2: the join's own refusals, each echoed verbatim, and the chain a refused reason
+    // concerns named beside it — read off the answer's own refusals, never a table here.
+    const unbounded = join.deadClick({});
+    expect(unbounded.state).toBe(DEAD_CANNOT_TELL);
+    expect(unbounded.reason).toBe('no-window-bound');
+    expect(unbounded.findings).toEqual([]);
+    for (const reason of join.REASONS) {
+      const cannotPane = deadClickPanel({
+        state: DEAD_CANNOT_TELL,
+        findings: [],
+        considered: 0,
+        reason,
+        refusals: join.REFUSALS,
+      });
+      expect(cannotPane.state).toBe(DEAD_CANNOT_TELL);
+      expect(cannotPane.lines).toContain(`reason: ${reason}`);
+      expect(cannotPane.lines).not.toContain(`state: ${DEAD_FINDINGS}`);
+      expect(
+        cannotPane.lines.some((line) => line.startsWith('finding: ')),
+      ).toBe(false);
+      const refused = join.REFUSALS.find((entry) => entry.reason === reason);
+      if (refused === undefined) {
+        expect(
+          cannotPane.lines.some((line) => line.startsWith('chain: ')),
+        ).toBe(false);
+      } else {
+        expect(cannotPane.lines).toContain(`chain: ${refused.chain}`);
+      }
+    }
+    // The unbounded refusal is never rendered as clean, quiet or ok, and the chain a window reason
+    // does not concern is not named for it.
+    const unboundedPane = deadClickPanel({
+      ...unbounded,
+      refusals: join.REFUSALS,
+    });
+    expect(unboundedPane.lines).toContain('reason: no-window-bound');
+    expect(unboundedPane.lines).not.toContain(`state: ${DEAD_CLEAN}`);
+    for (const word of ['clean', 'quiet', 'ok']) {
+      expect(unboundedPane.lines).not.toContain(word);
+    }
+    expect(unboundedPane.lines.some((line) => line.startsWith('chain: '))).toBe(
+      false,
+    );
+
+    // The three states never collapse: three words and three different sentences.
+    expect(
+      new Set([pane.state, cleanPane.state, unboundedPane.state]).size,
+    ).toBe(3);
+    expect(
+      new Set([pane.lines[1], cleanPane.lines[1], unboundedPane.lines[1]]).size,
+    ).toBe(3);
+
+    // An answer nobody gave is its own named absence; a state word outside the registry renders as
+    // the word alone; an answer reporting findings without a list states that absence; and an answer
+    // that states no refusals says so rather than looking judged everywhere.
+    expect(deadClickPanel(undefined).state).toBe('no-dead-click-answer');
+    expect(deadClickPanel(undefined).lines).toHaveLength(1);
+    expect(deadClickPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+    expect(
+      deadClickPanel({
+        state: DEAD_FINDINGS,
+        considered: 1,
+        refusals: join.REFUSALS,
+      }).lines,
+    ).toContain(NO_FINDINGS_LIST_TEXT);
+    expect(
+      deadClickPanel({ state: DEAD_CLEAN, considered: 1 }).lines,
+    ).toContain(NO_REFUSALS_TEXT);
+    expect(deadClickPanel({ state: DEAD_CLEAN }).lines).toContain(
+      NO_CONSIDERED_TEXT,
+    );
+    // A `cannot-tell` answer that names no reason says so rather than rendering a state it does not
+    // carry.
+    expect(deadClickPanel({ state: DEAD_CANNOT_TELL }).lines).toContain(
+      DEAD_NO_REASON_TEXT,
+    );
+
+    // Idempotency: the same fact renders the same lines in the same order, twice.
+    expect(deadClickPanel(FACTS['dead-click'])).toEqual(
+      deadClickPanel(FACTS['dead-click']),
+    );
+
+    // N4, N1: the pane adds no DOM and writes no cause, element, remedy, handler or rule identity
+    // of its own. Every line is a labelled field of the answer or one of the pane's sentences.
+    expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
+    for (const label of [
+      'cause: ',
+      'element: ',
+      'remedy: ',
+      'rule: ',
+      'handler: ',
+      'component: ',
+    ]) {
       expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
     }
   });

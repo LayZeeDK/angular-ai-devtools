@@ -719,6 +719,7 @@ describe('the chat route', () => {
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
+      'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
     ]);
     // T003's conversion stayed the only other lazy route: five explainers are still eager.
     expect(
@@ -750,6 +751,7 @@ describe('the chat route', () => {
       'components', // M047 SC1-2 surface
       'copy-check', // M048 SC1-2 surface
       'interaction-story', // M049 SC1-2 surface
+      'dead-click', // M050 SC1-2 surface
     ]);
     for (const path of [
       '',
@@ -801,6 +803,7 @@ describe('the chat route', () => {
       'components',
       'copy-check',
       'interaction-story',
+      'dead-click',
     ]) {
       const route = appRoutes.find((candidate) => candidate.path === surface);
       if (route?.loadComponent === undefined) {

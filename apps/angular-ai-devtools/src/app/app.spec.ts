@@ -32,7 +32,8 @@ describe('App', () => {
  * way. M045 appends `console` after `stability`, M046 appends `console-read` after that, M047
  * appends `components` after that and M048 appends `copy-check` after that, which is why the count
  * moved from twenty-four to twenty-eight. M049 appends `interaction-story` after that, which is why
- * the count moves from twenty-eight to twenty-nine.
+ * the count moves from twenty-eight to twenty-nine, and M050 appends `dead-click` after that, which
+ * is why it moves from twenty-nine to thirty.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -66,6 +67,7 @@ describe('the route table', () => {
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
+      'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -236,5 +238,19 @@ describe('the route table', () => {
     expect(interactionStory.data?.['surface']).toBe('interaction-story');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(interactionStory.data?.['surface']).not.toBe('copy-check');
+
+    const deadClick = appRoutes.find((route) => route.path === 'dead-click');
+    expect(deadClick?.component).toBeUndefined();
+    if (deadClick?.loadComponent === undefined) {
+      throw new Error('the dead-click surface must load lazily');
+    }
+    expect(await deadClick.loadComponent()).toBe(PanelDemoComponent);
+    expect(deadClick.data?.['surface']).toBe('dead-click');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(deadClick.data?.['surface']).not.toBe('interaction-story');
+    // One entry, so the route this task appends is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'dead-click'),
+    ).toHaveLength(1);
   });
 });

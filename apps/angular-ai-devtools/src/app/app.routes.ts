@@ -222,4 +222,17 @@ export const appRoutes: Route[] = [
     loadComponent: loadPanelDemo,
     data: { surface: 'interaction-story' },
   },
+  // The M050 SC1-SC2 surface: each start whose terminal is absent from the window it was judged
+  // over, quoting the fields the start recorded beside the window itself — its list, its kind, its
+  // length and the `final: false` that says no finding is settled — then the count compared when
+  // every start holds its terminal, then the reason word when the judgement cannot bound its
+  // window or pair a start; and, in every state, the two chains the judgement refused, named as
+  // not judged with their own reasons. It installs the shared loader above, so the demo module is
+  // imported once and the panel's initial bundle keeps the bytes it had. Lazy for the same reason
+  // as the surfaces above it — the panel's eager bundle is measured.
+  {
+    path: 'dead-click',
+    loadComponent: loadPanelDemo,
+    data: { surface: 'dead-click' },
+  },
 ];
