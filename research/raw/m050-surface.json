@@ -1,0 +1,853 @@
+{
+  "schema": "m050-surface/v1",
+  "milestone": "M050 dead-click",
+  "task": "T004",
+  "title": "Record the surface and run the project verify",
+  "question": "which route renders the dead-click surface, which LOADERS key serves it, which three states does the surface render, which field of the judgement's answer does each state read, and what is the fifth field the answer carries beside the four the contract names?",
+  "head": "173166b310de6167c7b20b47210609ecab50d33b",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: the files the `sources` block names were read line by line at the head above, and every citation below is that read. No browser was opened, no page was read and no build was run; the only commands executed against these files are the suite that re-reads this record and the join it loads in a bare `node:vm` context.",
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+    "join": "extension/dead-click.js"
+  },
+  "route": {
+    "name": "dead-click",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 234,
+      "lineText": "path: 'dead-click',",
+      "holds": "dead-click"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 235,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadPanelDemo"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 236,
+      "lineText": "data: { surface: 'dead-click' },",
+      "holds": "'dead-click'"
+    },
+    "table": {
+      "name": "appRoutes",
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 17,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "appRoutes"
+    },
+    "closure": [
+      {
+        "name": "loadPanelDemo",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "loadPanelDemo"
+      },
+      {
+        "name": "PanelDemoComponent",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "PanelDemoComponent"
+      }
+    ],
+    "statement": "one route, appended last to the `appRoutes` table (:17), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:236) as every demo-backed route does. The route carries no `component` key and no `children` key, so the surface is reached by the lazy component and not by a nested route. It is the last entry of the table at this head; the table's own total is not pinned here, because a later milestone appends to it on purpose and a recorded total would go stale without changing what this route says."
+  },
+  "loader": {
+    "map": {
+      "name": "LOADERS",
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "LOADERS"
+    },
+    "key": "dead-click",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 59,
+      "lineText": "'dead-click': () => import('./panel-dead-click') as never,",
+      "holds": "'./panel-dead-click'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 617,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 623,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 624,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 625,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 626,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 524,
+      "lineText": "'dead-click': {",
+      "holds": "'dead-click'"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 525,
+        "lineText": "state: 'findings',",
+        "holds": "state: 'findings'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 526,
+        "lineText": "findings: [",
+        "holds": "findings"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 551,
+        "lineText": "considered: 5,",
+        "holds": "considered: 5"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 552,
+        "lineText": "refusals: [",
+        "holds": "refusals"
+      }
+    ],
+    "sampleFactRefusals": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 554,
+        "lineText": "chain: 'work',",
+        "holds": "'work'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 556,
+        "lineText": "reason: 'work-chain-unjudgeable',",
+        "holds": "work-chain-unjudgeable"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 559,
+        "lineText": "chain: 'boundary',",
+        "holds": "'boundary'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 561,
+        "lineText": "reason: 'boundary-chain-unjudgeable',",
+        "holds": "boundary-chain-unjudgeable"
+      }
+    ],
+    "sampleFactComment": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 510,
+        "lineText": "// The join's own answer (`extension/dead-click.js`, T002) for a record this spec rebuilds from",
+        "holds": "dead-click.js"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 511,
+        "lineText": "// T001's measurement (`research/raw/m050-chains.json`): each entry carries exactly the fields the",
+        "holds": "m050-chains.json"
+      }
+    ],
+    "statement": "the `dead-click` key is the last key `LOADERS` carries (:59), and it is the only path to `panel-dead-click.ts`: the demo looks the key up by the name the route's `data.surface` states (:617), awaits the dynamic import (:623), calls the module's default export with the sample fact (:624), and sets the state (:625) and the lines (:626) the module answers. The fact it is handed (:524-:564) is the join's own answer for a record the spec rebuilds from T001's measurement (`research/raw/m050-chains.json`): one finding naming a start with id 2 and no terminal in the window, `considered: 5`, and the join's own `REFUSALS` under `refusals` (:552-:563) — the fifth field the answer carries beside the four the contract names. The comment above the fact (:510, :511) names both the join and the recording, so the fact is annotated with the reading it came from rather than with a count."
+  },
+  "answer": {
+    "shape": "{ state, findings, considered, reason } beside `refusals`",
+    "joinAt": {
+      "name": "deadClick",
+      "file": "extension/dead-click.js",
+      "line": 194,
+      "lineText": "function deadClick(record) {",
+      "holds": "deadClick"
+    },
+    "answerAt": {
+      "name": "answer",
+      "file": "extension/dead-click.js",
+      "line": 186,
+      "lineText": "function answer(state, findings, considered, reason) {",
+      "holds": "function answer(state, findings, considered, reason)"
+    },
+    "fields": [
+      {
+        "field": "state",
+        "builtAt": [
+          {
+            "file": "extension/dead-click.js",
+            "line": 187,
+            "lineText": "const value = { state: state, findings: findings, considered: considered };",
+            "holds": "state: state"
+          },
+          {
+            "file": "extension/dead-click.js",
+            "line": 236,
+            "lineText": "return answer(FINDINGS, findings, considered);",
+            "holds": "FINDINGS"
+          }
+        ],
+        "note": "one of the three words the join publishes (:58, :59, :60); the pane reads it first (:476) and renders a word it was not written for as that word alone (:486)"
+      },
+      {
+        "field": "findings",
+        "builtAt": [
+          {
+            "file": "extension/dead-click.js",
+            "line": 236,
+            "lineText": "return answer(FINDINGS, findings, considered);",
+            "holds": "findings"
+          }
+        ],
+        "note": "one `{ chain, event, window }` per start whose terminal no entry in the window carries, in the order the starts were recorded; `[]` on every other answer (:201, :203, :223, :235), so a refusal never offers a zero-finding list in the reason's place"
+      },
+      {
+        "field": "considered",
+        "builtAt": [
+          {
+            "file": "extension/dead-click.js",
+            "line": 199,
+            "lineText": "const considered = consideredOf(record);",
+            "holds": "consideredOf(record)"
+          },
+          {
+            "file": "extension/dead-click.js",
+            "line": 187,
+            "lineText": "const value = { state: state, findings: findings, considered: considered };",
+            "holds": "considered: considered"
+          }
+        ],
+        "note": "every entry the record publishes in the three measured streams — `routerEvents`, the work stream's `events` and `boundary.entries` — counted whether or not it belongs to a judged pair (:160-:168)"
+      },
+      {
+        "field": "reason",
+        "builtAt": [
+          {
+            "file": "extension/dead-click.js",
+            "line": 188,
+            "lineText": "if (state === CANNOT_TELL) value.reason = reason;",
+            "holds": "value.reason = reason"
+          },
+          {
+            "file": "extension/dead-click.js",
+            "line": 90,
+            "lineText": "const REASONS = Object.freeze([",
+            "holds": "REASONS"
+          }
+        ],
+        "note": "present only for `cannot-tell` and one of the five closed reasons declared at :90; the pane renders the word verbatim (:502) or its own `no-reason` sentence (:202) where the answer carries none"
+      },
+      {
+        "field": "refusals",
+        "builtAt": [
+          {
+            "file": "extension/dead-click.js",
+            "line": 100,
+            "lineText": "const REFUSALS = Object.freeze([",
+            "holds": "REFUSALS"
+          },
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+            "line": 552,
+            "lineText": "refusals: [",
+            "holds": "refusals"
+          }
+        ],
+        "note": "the fifth field, and the one the four-field contract does not name: the join does not put it in its answer — it exports `REFUSALS` (:100) and `panel-demo.ts` hands it over under `refusals` (:552-:563), because a panel surface may not import the join. The pane reads it in every state (:488) and renders one chain-and-reason pair per entry (:431-:443), or its own `no-refusals` sentence (:187) where the answer carries none, so a refused chain never reads as a judged clean one."
+      }
+    ],
+    "statement": "the pane is handed this answer and renders it; it pairs nothing, counts nothing, reads no record and reads no page. The state is the answer's own word (:476): `findings` renders one block per finding in the answer's own order (:528-:542) plus the count the answer states (:510), `clean` renders the count and the not-final statement (:516-:523), and `cannot-tell` renders the reason verbatim (:497-:507). The fifth field `refusals` is stated beside the four rather than inside the contract, and it is the field the join's `REFUSALS` travels in — the two chains the judgement refused, named with their own reasons."
+  },
+  "states": [
+    {
+      "id": "findings",
+      "word": "findings",
+      "declaredAt": {
+        "name": "FINDINGS",
+        "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+        "line": 84,
+        "lineText": "export const FINDINGS = 'findings';",
+        "holds": "FINDINGS"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+          "line": 112,
+          "lineText": "text: 'findings: the record carries at least one start whose terminal is absent from the window it was judged over, and each finding below quotes the fields the start recorded and names that window',",
+          "holds": "findings: the record carries at least one start whose terminal is absent"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/dead-click.js",
+          "line": 236,
+          "lineText": "return answer(FINDINGS, findings, considered);",
+          "holds": "FINDINGS"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 476,
+            "lineText": "const answerWord = nonEmptyString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "findings",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 528,
+            "lineText": "const findings = Array.isArray(answer['findings'])",
+            "holds": "answer['findings']"
+          }
+        },
+        {
+          "field": "findings[].chain",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 408,
+            "lineText": "const chain = nonEmptyString(finding['chain']);",
+            "holds": "finding['chain']"
+          }
+        },
+        {
+          "field": "findings[].event",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 411,
+            "lineText": "const event = isObject(finding['event']) ? finding['event'] : null;",
+            "holds": "finding['event']"
+          }
+        },
+        {
+          "field": "findings[].window",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 419,
+            "lineText": "lines.push(...windowLines(finding['window']));",
+            "holds": "finding['window']"
+          }
+        },
+        {
+          "field": "findings[].window.field",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 373,
+            "lineText": "const field = nonEmptyString(window['field']);",
+            "holds": "window['field']"
+          }
+        },
+        {
+          "field": "findings[].window.kind",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 375,
+            "lineText": "const kind = nonEmptyString(window['kind']);",
+            "holds": "window['kind']"
+          }
+        },
+        {
+          "field": "findings[].window.length",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 377,
+            "lineText": "const measured = statedCount(window['length']);",
+            "holds": "window['length']"
+          }
+        },
+        {
+          "field": "findings[].window.final",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 382,
+            "lineText": "'final' in window && window['final'] !== undefined",
+            "holds": "window['final']"
+          }
+        },
+        {
+          "field": "considered",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 510,
+            "lineText": "const considered = statedCount(answer['considered']);",
+            "holds": "answer['considered']"
+          }
+        },
+        {
+          "field": "refusals",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 488,
+            "lineText": "const refusals = Array.isArray(answer['refusals'])",
+            "holds": "answer['refusals']"
+          }
+        }
+      ],
+      "statement": "one block per finding, in the answer's own order: the chain the finding names, every field the start recorded under that field's own name, then the window the judgement used — the list, its chain, its kind, its length and its own `final` marker. A finding that names no chain, carries no recorded field or names no window states that absence in a sentence of the pane's own (:142, :147, :152) rather than borrowing a value from a neighbour; a list the answer does not carry renders `no-findings-list` (:137). The count the answer states is rendered beside them, and the refused chains follow in every state."
+    },
+    {
+      "id": "clean",
+      "word": "clean",
+      "declaredAt": {
+        "name": "CLEAN",
+        "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+        "line": 85,
+        "lineText": "export const CLEAN = 'clean';",
+        "holds": "CLEAN"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+          "line": 117,
+          "lineText": "text: 'clean: every start the published routerEvents list carries holds its terminal in that same list, the count below states how many events were considered, and that list is the window this judgement read',",
+          "holds": "clean: every start the published routerEvents list carries holds its terminal"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/dead-click.js",
+          "line": 235,
+          "lineText": "if (findings.length === 0) return answer(CLEAN, [], considered);",
+          "holds": "CLEAN"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 476,
+            "lineText": "const answerWord = nonEmptyString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "considered",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 510,
+            "lineText": "const considered = statedCount(answer['considered']);",
+            "holds": "answer['considered']"
+          }
+        },
+        {
+          "field": "refusals",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 488,
+            "lineText": "const refusals = Array.isArray(answer['refusals'])",
+            "holds": "answer['refusals']"
+          }
+        }
+      ],
+      "statement": "the state word, its sentence, the not-final statement and the count the answer states — never a claim that the page is finished, because the list the judgement read is cumulative and nothing marks it final. The count is the answer's own (:510); a count it does not state renders `no-considered` (:132) rather than a number the pane made up. The refused chains follow in this state as in every other."
+    },
+    {
+      "id": "cannot-tell",
+      "word": "cannot-tell",
+      "declaredAt": {
+        "name": "CANNOT_TELL",
+        "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+        "line": 86,
+        "lineText": "export const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+          "line": 122,
+          "lineText": "text: 'cannot-tell: the judgement could not name a finding in this record, so no event is reported as dangling and the reason below is the word it answered with',",
+          "holds": "cannot-tell: the judgement could not name a finding in this record"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/dead-click.js",
+          "line": 201,
+          "lineText": "return answer(CANNOT_TELL, [], considered, NO_WINDOW_BOUND);",
+          "holds": "NO_WINDOW_BOUND"
+        },
+        {
+          "file": "extension/dead-click.js",
+          "line": 203,
+          "lineText": "return answer(CANNOT_TELL, [], considered, NO_NAVIGATION_RECORDED);",
+          "holds": "NO_NAVIGATION_RECORDED"
+        },
+        {
+          "file": "extension/dead-click.js",
+          "line": 223,
+          "lineText": "return answer(CANNOT_TELL, [], considered, NO_START_RECORDED);",
+          "holds": "NO_START_RECORDED"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 476,
+            "lineText": "const answerWord = nonEmptyString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "reason",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 497,
+            "lineText": "const reason = nonEmptyString(answer['reason']);",
+            "holds": "answer['reason']"
+          }
+        },
+        {
+          "field": "chain",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 503,
+            "lineText": "const chain = refusingChainOf(refusals, reason);",
+            "holds": "refusingChainOf(refusals, reason)"
+          }
+        },
+        {
+          "field": "refusals",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+            "line": 488,
+            "lineText": "const refusals = Array.isArray(answer['refusals'])",
+            "holds": "answer['refusals']"
+          }
+        }
+      ],
+      "statement": "the answer's `reason`, echoed as the join's own word from its closed set, the chain it concerns where the answer's own refusals name one (:503), and nothing beside it: no cause, no element, no remedy and no rule identity. An answer that carries no reason renders `no-reason` (:202) rather than an invented one, and a zero-finding list is never offered in the reason's place."
+    }
+  ],
+  "stateWords": {
+    "join": {
+      "words": [
+        "findings",
+        "clean",
+        "cannot-tell"
+      ],
+      "at": {
+        "name": "FINDINGS",
+        "file": "extension/dead-click.js",
+        "line": 58,
+        "lineText": "const FINDINGS = 'findings';",
+        "holds": "FINDINGS"
+      },
+      "alsoAt": [
+        {
+          "name": "CLEAN",
+          "file": "extension/dead-click.js",
+          "line": 59,
+          "lineText": "const CLEAN = 'clean';",
+          "holds": "CLEAN"
+        },
+        {
+          "name": "CANNOT_TELL",
+          "file": "extension/dead-click.js",
+          "line": 60,
+          "lineText": "const CANNOT_TELL = 'cannot-tell';",
+          "holds": "CANNOT_TELL"
+        }
+      ],
+      "note": "the join publishes the three words as three constants rather than as one list, so a reader that wants the list reads all three lines; `copy-check.js` publishes its three in one frozen array, and this join does not."
+    },
+    "surface": {
+      "words": [
+        "findings",
+        "clean",
+        "cannot-tell"
+      ],
+      "at": {
+        "name": "STATES",
+        "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+        "line": 89,
+        "lineText": "export const STATES = [FINDINGS, CLEAN, CANNOT_TELL] as const;",
+        "holds": "STATES"
+      }
+    },
+    "statement": "the surface renders the join's three words and adds none of its own: `STATES` (:89) holds `FINDINGS` (:84), `CLEAN` (:85) and `CANNOT_TELL` (:86) in the order the pane states them, and a state word the pane was not written for is rendered as the word it was given (:486) rather than as a sentence it does not have. The lookup is an own-property one (`Object.hasOwn`, :479), so a word that collides with an `Object.prototype` key is a word and not a sentence."
+  },
+  "reasonSet": {
+    "closed": true,
+    "declaredAt": {
+      "name": "REASONS",
+      "file": "extension/dead-click.js",
+      "line": 90,
+      "lineText": "const REASONS = Object.freeze([",
+      "holds": "REASONS"
+    },
+    "members": [
+      {
+        "id": "no-window-bound",
+        "memberAt": {
+          "name": "NO_WINDOW_BOUND",
+          "file": "extension/dead-click.js",
+          "line": 85,
+          "lineText": "const NO_WINDOW_BOUND = 'no-window-bound';",
+          "holds": "NO_WINDOW_BOUND"
+        },
+        "producedBy": {
+          "file": "extension/dead-click.js",
+          "line": 201,
+          "lineText": "return answer(CANNOT_TELL, [], considered, NO_WINDOW_BOUND);",
+          "holds": "NO_WINDOW_BOUND"
+        },
+        "why": "the record does not carry a `routerEvents` list at all, so the judgement cannot bound the window it would judge over"
+      },
+      {
+        "id": "no-navigation-recorded",
+        "memberAt": {
+          "name": "NO_NAVIGATION_RECORDED",
+          "file": "extension/dead-click.js",
+          "line": 86,
+          "lineText": "const NO_NAVIGATION_RECORDED = 'no-navigation-recorded';",
+          "holds": "NO_NAVIGATION_RECORDED"
+        },
+        "producedBy": {
+          "file": "extension/dead-click.js",
+          "line": 203,
+          "lineText": "return answer(CANNOT_TELL, [], considered, NO_NAVIGATION_RECORDED);",
+          "holds": "NO_NAVIGATION_RECORDED"
+        },
+        "why": "the record carries a list and the list is empty, so the window is bounded and holds no navigation — the absence is named rather than rendered as a clean zero"
+      },
+      {
+        "id": "no-start-recorded",
+        "memberAt": {
+          "name": "NO_START_RECORDED",
+          "file": "extension/dead-click.js",
+          "line": 87,
+          "lineText": "const NO_START_RECORDED = 'no-start-recorded';",
+          "holds": "NO_START_RECORDED"
+        },
+        "producedBy": {
+          "file": "extension/dead-click.js",
+          "line": 223,
+          "lineText": "return answer(CANNOT_TELL, [], considered, NO_START_RECORDED);",
+          "holds": "NO_START_RECORDED"
+        },
+        "why": "the window opens no navigation the judgement can pair, so there is no dangling start to name and a clean answer would read as a page with nothing wrong in it"
+      },
+      {
+        "id": "work-chain-unjudgeable",
+        "memberAt": {
+          "name": "WORK_CHAIN_UNJUDGEABLE",
+          "file": "extension/dead-click.js",
+          "line": 88,
+          "lineText": "const WORK_CHAIN_UNJUDGEABLE = 'work-chain-unjudgeable';",
+          "holds": "WORK_CHAIN_UNJUDGEABLE"
+        },
+        "producedBy": {
+          "file": "extension/dead-click.js",
+          "line": 104,
+          "lineText": "reason: WORK_CHAIN_UNJUDGEABLE,",
+          "holds": "WORK_CHAIN_UNJUDGEABLE"
+        },
+        "why": "the work chain's `pair` and `end` name a family and a side and identify no particular start, so two open starts differ only in `at` and pairing them would be pairing by position (N3)"
+      },
+      {
+        "id": "boundary-chain-unjudgeable",
+        "memberAt": {
+          "name": "BOUNDARY_CHAIN_UNJUDGEABLE",
+          "file": "extension/dead-click.js",
+          "line": 89,
+          "lineText": "const BOUNDARY_CHAIN_UNJUDGEABLE = 'boundary-chain-unjudgeable';",
+          "holds": "BOUNDARY_CHAIN_UNJUDGEABLE"
+        },
+        "producedBy": {
+          "file": "extension/dead-click.js",
+          "line": 109,
+          "lineText": "reason: BOUNDARY_CHAIN_UNJUDGEABLE,",
+          "holds": "BOUNDARY_CHAIN_UNJUDGEABLE"
+        },
+        "why": "`boundaryReset` is a presence bit on the arrival that carries it rather than a later event, and the record keeps no reset at all, so there is no consequent that could be absent"
+      }
+    ],
+    "statement": "five reasons and no sixth (:90). Three are reachable from a record the judgement can read enough of to refuse (:201, :203, :223) and the fourth and fifth are the two chains it refuses to judge at all (:104, :109). `reason` is present only where the state is `cannot-tell` (:188), and the pane states that absence as `no-reason` (:202) beside the answer rather than as a reason of its own."
+  },
+  "refusals": {
+    "declaredAt": {
+      "name": "REFUSALS",
+      "file": "extension/dead-click.js",
+      "line": 100,
+      "lineText": "const REFUSALS = Object.freeze([",
+      "holds": "REFUSALS"
+    },
+    "members": [
+      {
+        "chain": "work",
+        "chainAt": {
+          "file": "extension/dead-click.js",
+          "line": 102,
+          "lineText": "chain: WORK,",
+          "holds": "WORK"
+        },
+        "reasonAt": {
+          "file": "extension/dead-click.js",
+          "line": 104,
+          "lineText": "reason: WORK_CHAIN_UNJUDGEABLE,",
+          "holds": "WORK_CHAIN_UNJUDGEABLE"
+        },
+        "handedAt": [
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+            "line": 554,
+            "lineText": "chain: 'work',",
+            "holds": "'work'"
+          },
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+            "line": 556,
+            "lineText": "reason: 'work-chain-unjudgeable',",
+            "holds": "work-chain-unjudgeable"
+          }
+        ]
+      },
+      {
+        "chain": "boundary",
+        "chainAt": {
+          "file": "extension/dead-click.js",
+          "line": 107,
+          "lineText": "chain: BOUNDARY,",
+          "holds": "BOUNDARY"
+        },
+        "reasonAt": {
+          "file": "extension/dead-click.js",
+          "line": 109,
+          "lineText": "reason: BOUNDARY_CHAIN_UNJUDGEABLE,",
+          "holds": "BOUNDARY_CHAIN_UNJUDGEABLE"
+        },
+        "handedAt": [
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+            "line": 559,
+            "lineText": "chain: 'boundary',",
+            "holds": "'boundary'"
+          },
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+            "line": 561,
+            "lineText": "reason: 'boundary-chain-unjudgeable',",
+            "holds": "boundary-chain-unjudgeable"
+          }
+        ]
+      }
+    ],
+    "statement": "two refusals and no third, in the join's own order: the work chain and the boundary chain, each `{ chain, state: 'cannot-tell', reason }` (:100-:111). The join cannot put them in its four contract fields — its single `reason` belongs to one answer — so they are exported as `REFUSALS` and the demo hands them over under `refusals` (:552-:563). The pane renders them in every state (:431-:443), so a chain the judgement refused is named as not judged and never reads as a chain it judged clean."
+  },
+  "notDigested": {
+    "added": [],
+    "sentencesAt": {
+      "name": "PANE_SENTENCES",
+      "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+      "line": 109,
+      "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = [",
+      "holds": "PANE_SENTENCES"
+    },
+    "scopeAt": {
+      "name": "SCOPE",
+      "file": "extension/copy-check.js",
+      "line": 97,
+      "lineText": "const SCOPE = Object.freeze({",
+      "holds": "SCOPE"
+    },
+    "statement": "nothing this pane renders is composed at render, so T004 added no decision to `NOT_DIGESTED`: all nineteen of its registry entries are sentences whose text is the string the pane renders whole, and its fifteen interpolated literals are labels around a value the answer or the record carries (`window chain:`, `window:`, `window kind:`, `window length:`, `window final:`, `finding:`, `chain:`, `field <name>:`, `refused:`, `refused reason:`, `state:`, `reason:`, `considered:`), which `SCOPE` (:97) reads past by kind. The single-token words the pane substitutes for an absent value — `null` and `undefined` in `renderedValue` (:353, :354) — are values of a line and not sentences, so they are named here rather than digested. The one decision of the composed-at-render shape at this head remains `panel-sanitizer.ts:180`'s pluraliser."
+  },
+  "corrections": [
+    {
+      "claim": "the contract's answer is four fields — `{ state, findings, considered, reason }` — and that is the whole of what the pane is handed",
+      "measured": "it is four contract fields plus a fifth, `refusals`, at this head. The join exports `REFUSALS` (:100) as a constant rather than answering it, and `panel-demo.ts` hands it over under `refusals` (:552-:563) because a panel surface has no runtime imports and so cannot read the join's export itself. The pane reads the fifth field in every state (:488) and states its absence rather than claiming every chain was judged (:187). This is the same shape `interaction-story` carries under `bounded`.",
+      "citations": [
+        {
+          "file": "extension/dead-click.js",
+          "line": 100,
+          "lineText": "const REFUSALS = Object.freeze([",
+          "holds": "REFUSALS"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+          "line": 552,
+          "lineText": "refusals: [",
+          "holds": "refusals"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+          "line": 488,
+          "lineText": "const refusals = Array.isArray(answer['refusals'])",
+          "holds": "answer['refusals']"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+          "line": 431,
+          "lineText": "function refusalLines(refusals: readonly unknown[] | null): readonly string[] {",
+          "holds": "refusalLines"
+        }
+      ],
+      "consequence": "the record states the fifth field in `answer.fields`, in every state's `reads` and in its own `refusals` block, so a reader of this record is not told the answer is four fields when the pane reads five. A pin that compared the answer's keys with the contract's four would be red against the shipped fact."
+    },
+    {
+      "claim": "a surface that declares its copy in a registry declares all of it there, so a digest authored from the registry explains everything the pane renders",
+      "measured": "true for this pane's sentences and false for its lines: all nineteen registry entries are the pane's own prose (:112-:202), and the fifteen other literals the pane builds are labels of the answer's, a finding's or a window's fields (:372, :374, :376, :379, :383, :399, :409, :416, :438, :439, :486, :502, :512, :518, :532). One of the nineteen, `no-reason` (:202), is byte for byte the sentence `panel-components.ts:147`, `panel-copy-check.ts:128` and `panel-interaction-story.ts:150` already declare, so the shipped digest's one row for that text explains it here as well.",
+      "citations": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+          "line": 202,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',",
+          "holds": "no-reason: the answer reported cannot-tell without a reason, so no reason is stated"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 147,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',",
+          "holds": "no-reason: the answer reported cannot-tell without a reason, so no reason is stated"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-dead-click.ts",
+          "line": 416,
+          "lineText": "lines.push(`field ${name}: ${renderedValue(event[name])}`);",
+          "holds": "field ${name}:"
+        }
+      ],
+      "consequence": "the copy record carries the pane's nineteen sentences and fifteen labels apart, and the digest holds eighteen new rows for the eighteen sentences the shared one does not already explain; none of the fifteen labels is digested, because a label is a prefix and not a string the pane renders whole."
+    }
+  ],
+  "notCaptured": [
+    "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture.",
+    "The record does not measure what the pane looks like. The lines each state writes are held by `panel-demo.spec.ts` over the shipped join and its sample fact, and this record names the states and the field each reads rather than reproducing the sentences' rendering.",
+    "The answer's fifth field is recorded as data and not as a contract change: `extension/dead-click.js` still answers the four fields (:186-:190, :236) and the refusals travel beside them. This record does not claim the join was changed, and it names the file that hands the refusals over (:552) because that is where the fifth field is created.",
+    "The route table's total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
+    "The sample fact at `panel-demo.ts:524-:564` is fixture data the spec rebuilds from T001's measurement, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what the page recorded."
+  ],
+  "verdict": "measured: `/dead-click` is one lazy route (:234) whose `data.surface` names the `dead-click` key of `panel-demo.ts`'s `LOADERS` (:59), and that key is the only path to `panel-dead-click.ts`. The surface renders the join's three states and adds none of its own: `findings` reads `findings` in the answer's own order with each finding's `chain`, `event` and `window` beside `considered`, `clean` reads `considered`, and `cannot-tell` reads `reason` and the chain the answer's own refusals name for it. The answer carries a fifth field the four-field contract does not name — `refusals`, the join's own `REFUSALS` handed over by the demo (:552-:563) — and the pane reads and renders it in every state rather than letting a refused chain read as a judged clean one."
+}

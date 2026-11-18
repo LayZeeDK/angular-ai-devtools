@@ -2255,21 +2255,30 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
 // source that would make the digest agree with the surface by construction.
 //
 // M049's T003 then shipped `panel-interaction-story.ts` as the twenty-first surface, so the same task
-// at this head re-measured the record over all twenty-one and authored twelve more digest rows from
-// that module's own `PANE_SENTENCES` — read out of the source, never out of a rendered pane. The
-// thirteenth sentence it declares, `no-reason`, is byte for byte the string two surfaces already
-// declare, so the digest needed no new row for it.
+// re-measured the record over all twenty-one and authored twelve more digest rows from that module's
+// own `PANE_SENTENCES` — read out of the source, never out of a rendered pane. The thirteenth sentence
+// it declares, `no-reason`, is byte for byte the string two surfaces already declare, so the digest
+// needed no new row for it.
+//
+// M050's T003 shipped `panel-dead-click.ts` as the twenty-second surface, so this task re-measured the
+// record over all twenty-two and authored eighteen more digest rows from that module's own
+// `PANE_SENTENCES` — read out of the source, never out of a rendered pane. Its nineteenth sentence,
+// `no-reason`, is byte for byte the string three surfaces already declare, so the digest needed no new
+// row for it.
 //
 // Two facts the pins below state rather than assume:
 //
-//   * the digest holds one row per distinct sentence text, so 133 rows explain 135 sentences: the
-//     `no-reason` sentence `panel-copy-check.ts:128` and `panel-interaction-story.ts:150` declare is
-//     byte for byte the one `panel-components.ts:147` declares, and the one row explains all three;
+//   * the digest holds one row per distinct sentence text, so 151 rows explain 154 sentences: the
+//     `no-reason` sentence `panel-copy-check.ts:128`, `panel-interaction-story.ts:150` and
+//     `panel-dead-click.ts:202` declare is byte for byte the one `panel-components.ts:147` declares,
+//     and the one row explains all four;
 //   * no sentence is written inline on the copy-check pane. Its seven inline entries are labels
 //     (`state:`, `string:`, `surface:`, `checked:`, `reason:`), the answer's own fields, so every one
 //     of them is a kind the join reads past and none of them is a row the digest could hold. The
 //     interaction-story pane is the same shape: its nine inline literals are labels of the
-//     narration's fields, and its whole prose is the thirteen registry entries.
+//     narration's fields, and its whole prose is the thirteen registry entries. The dead-click pane
+//     is the same shape again: its fifteen inline literals are labels of the answer's, a finding's
+//     and a window's fields, and its whole prose is the nineteen registry entries.
 
 test('T004 — the twentieth surface is measured, and the digest explains every sentence the record carries', () => {
   const api = loadCopy();
@@ -2277,7 +2286,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
 
   assert.equal(
     record.counts.surfaces,
-    21,
+    22,
     `the record measures every panel-*.ts surface the tree carries, and it measures ${record.counts.surfaces}`,
   );
   assert.equal(
@@ -2351,8 +2360,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   const all = recordSentenceRows();
   assert.equal(
     shippedDigest.entries.length,
-    133,
-    `the digest carries ${shippedDigest.entries.length} rows and the record carries 133 distinct sentence texts`,
+    151,
+    `the digest carries ${shippedDigest.entries.length} rows and the record carries 151 distinct sentence texts`,
   );
   assert.equal(
     shippedDigest.entries.length,
@@ -2361,11 +2370,11 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     all.length,
-    135,
-    `the record carries ${all.length} sentences: 101 declared in a map or a constant and 34 written inline`,
+    154,
+    `the record carries ${all.length} sentences: 120 declared in a map or a constant and 34 written inline`,
   );
 
-  // The one repeated sentence: three surfaces declare it, the digest holds one row for it, and the
+  // The one repeated sentence: four surfaces declare it, the digest holds one row for it, and the
   // row is filed under the surface that declared it first.
   const shared = recordSentenceText('copy-check', 'no-reason');
   assert.equal(
@@ -2377,6 +2386,11 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
     shared,
     recordSentenceText('interaction-story', 'no-reason'),
     'the twenty-first surface declares the same `no-reason` sentence too, byte for byte',
+  );
+  assert.equal(
+    shared,
+    recordSentenceText('dead-click', 'no-reason'),
+    'the twenty-second surface declares the same `no-reason` sentence too, byte for byte',
   );
   const sharedRows = shippedDigest.entries.filter(
     (/** @type {{text: string}} */ entry) => entry.text === shared,
@@ -2493,6 +2507,104 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
       `the digest's row ${entry.key} is "${entry.text}", which the record does not carry under that key`,
     );
 
+  // The twenty-second surface, measured the same way at this head: nineteen registry sentences in the
+  // order the registry states them, fifteen inline labels and no inline sentence, and its own row clean
+  // over nineteen compared strings. The eighteen digest rows filed under it are its own sentences — the
+  // nineteenth is the shared `no-reason`, explained by the row the components pane declared first.
+  const deadClick = surfaceOf('dead-click');
+  assert.equal(
+    deadClick.file,
+    `${APP}/panel-dead-click.ts`,
+    'the twenty-second surface is the dead-click pane',
+  );
+  assert.equal(
+    deadClick.declares,
+    'map',
+    'the pane declares its copy in a registry rather than inline',
+  );
+  assert.equal(
+    deadClick.declaration?.name,
+    'PANE_SENTENCES',
+    'and the registry is the one its declaration names',
+  );
+  const deadSentences = recordSentences(deadClick);
+  assert.deepEqual(
+    deadSentences.map((row) => row.key),
+    [
+      'state-findings',
+      'state-clean',
+      'state-cannot-tell',
+      'no-dead-click-answer',
+      'no-considered',
+      'no-findings-list',
+      'no-finding-chain',
+      'no-finding-event',
+      'no-finding-window',
+      'no-window-field',
+      'no-window-kind',
+      'no-window-length',
+      'no-window-final',
+      'not-final',
+      'refused-chains',
+      'no-refusals',
+      'no-refused-chain',
+      'no-refused-reason',
+      'no-reason',
+    ],
+    'the pane declares the three state sentences and the sixteen absences, in the order its registry states them',
+  );
+  assert.equal(
+    deadSentences.length,
+    19,
+    `the pane declares ${deadSentences.length} sentences and its registry carries nineteen`,
+  );
+  assert.equal(
+    deadClick.inline.length,
+    15,
+    `the pane builds ${deadClick.inline.length} distinct labels inline and the record carries fifteen`,
+  );
+  for (const line of deadClick.inline) {
+    assert.equal(
+      line.kind,
+      'label',
+      `the pane writes "${line.text}" inline and it is a label of the answer's or a finding's own field`,
+    );
+    assert.equal(
+      line.interpolated,
+      true,
+      `"${line.text}" is built from a value, so it is interpolated`,
+    );
+  }
+  assert.equal(
+    deadClick.inline.filter((line) => line.kind === 'sentence').length,
+    0,
+    'no sentence is written inline on this pane, which is why no inline entry of it is digested',
+  );
+  const deadRow = copyOf(
+    api.copyCheck(copyOf([deadClick]), copyOf(shippedDigest)),
+  );
+  assert.deepEqual(
+    deadRow,
+    { state: 'clean', unexplained: [], checked: 19 },
+    `the dead-click pane's own row answers ${JSON.stringify(deadRow)} rather than clean over nineteen compared sentences`,
+  );
+  const deadRows = shippedDigest.entries.filter(
+    (/** @type {{surface: string}} */ entry) => entry.surface === 'dead-click',
+  );
+  assert.equal(
+    deadRows.length,
+    18,
+    `the digest files ${deadRows.length} row(s) under the twenty-second surface: its eighteen new sentences, and none for the shared one`,
+  );
+  for (const entry of deadRows)
+    assert.ok(
+      deadSentences.some(
+        (/** @type {{key: string|null, text: string}} */ candidate) =>
+          candidate.key === entry.key && candidate.text === entry.text,
+      ),
+      `the digest's row ${entry.key} is "${entry.text}", which the record does not carry under that key`,
+    );
+
   // The whole record, at the counts this milestone re-measured.
   const whole = copyOf(
     api.copyCheck(copyOf(record.surfaces), copyOf(shippedDigest)),
@@ -2504,8 +2616,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     whole.checked,
-    135,
-    `every sentence the record declares is compared, the shared one at all three surfaces, and ${whole.checked} were`,
+    154,
+    `every sentence the record declares is compared, the shared one at all four surfaces, and ${whole.checked} were`,
   );
   assert.equal(
     whole.checked,
@@ -2519,7 +2631,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   console.log(
     `T004 surface: copy-check declares ${sentences.length} sentences and builds ${copyCheck.inline.length} labels; ` +
-      `the digest holds ${shippedDigest.entries.length} rows for ${whole.checked} sentences, two of them one text`,
+      `the digest holds ${shippedDigest.entries.length} rows for ${whole.checked} sentences, three of them one text`,
   );
 });
 
@@ -2786,6 +2898,149 @@ test('T004 — the interaction-story route record names the route, the loader ke
   );
   console.log(
     `T004 interaction-story record: ${citations} citations re-read, ${surfaceRecord.states.length} states, ` +
+      `loader key "${surfaceRecord.loader.key}", fields ${JSON.stringify([...new Set(read)])}`,
+  );
+});
+
+// `research/raw/m050-surface.json` is the same half for M050's route, and it is pinned the same way:
+// the route, the loader key, the three states and the field of the answer each reads — plus the fifth
+// field, `refusals`, which the four-field contract does not name. The join is evaluated in a bare
+// `node:vm` context so the three state words the record lists are compared with the join's own
+// exports rather than with three strings written here.
+const DEAD_SURFACE_RECORD = 'research/raw/m050-surface.json';
+const DEAD_JOIN = 'extension/dead-click.js';
+
+/** `extension/dead-click.js` as it sits on disk, evaluated with nothing in the context. */
+function loadDeadClick() {
+  const context = createContext({});
+  runInContext(readFileSync(join(ROOT, DEAD_JOIN), 'utf8'), context);
+  const api = context.angularAiDeadClick;
+  assert.ok(api, `${DEAD_JOIN} publishes angularAiDeadClick`);
+  assert.equal(
+    typeof api.deadClick,
+    'function',
+    `${DEAD_JOIN} exports deadClick`,
+  );
+  return api;
+}
+
+test('T004 — the dead-click route record names the route, the loader key, the three states, what each reads and the fifth field', () => {
+  const surfaceRecord = JSON.parse(
+    readFileSync(join(ROOT, DEAD_SURFACE_RECORD), 'utf8'),
+  );
+  assert.equal(
+    surfaceRecord.schema,
+    'm050-surface/v1',
+    'the dead-click route record declares its own schema',
+  );
+  assert.match(
+    String(surfaceRecord.head),
+    /^[0-9a-f]{40}$/,
+    'the dead-click route record names the one commit it was read at',
+  );
+
+  // The route and the loader key are the same name, and the key reaches this milestone's own module.
+  assert.equal(
+    surfaceRecord.route.name,
+    'dead-click',
+    `the route the record names is "${surfaceRecord.route.name}"`,
+  );
+  assert.equal(
+    surfaceRecord.loader.key,
+    surfaceRecord.route.name,
+    'the loader key is the name the route states in its data',
+  );
+  assert.match(
+    surfaceRecord.loader.module,
+    /^apps\/angular-ai-devtools\/src\/app\/panel-dead-click\.ts$/,
+    `the loader key reaches ${surfaceRecord.loader.module}`,
+  );
+
+  // The states the record names are the three the join publishes, in the join's order.
+  const api = loadDeadClick();
+  assert.deepEqual(
+    surfaceRecord.states.map(
+      (/** @type {{word: string}} */ state) => state.word,
+    ),
+    [copyOf(api.FINDINGS), copyOf(api.CLEAN), copyOf(api.CANNOT_TELL)],
+    'the states the route record names are the three the join publishes, in its order',
+  );
+  for (const state of surfaceRecord.states) {
+    assert.ok(
+      Array.isArray(state.reads) && state.reads.length > 0,
+      `${state.word} names the field of the answer it reads`,
+    );
+    for (const one of state.reads)
+      assert.equal(
+        typeof one.field,
+        'string',
+        `${state.word}’s read names a field of the answer`,
+      );
+    assert.ok(
+      state.sentenceAt.length > 0,
+      `${state.word} cites the sentence the pane renders for it`,
+    );
+  }
+  const read = surfaceRecord.states.flatMap(
+    (/** @type {{reads: {field: string}[]}} */ state) =>
+      state.reads.map((one) => one.field),
+  );
+  for (const field of ['state', 'findings', 'considered', 'reason', 'refusals'])
+    assert.ok(
+      read.includes(field),
+      `the record names "${field}" among the fields its states read`,
+    );
+
+  // The answer is four contract fields beside a fifth, and the record states the fifth rather than
+  // hiding it: `refusals` is the join's own `REFUSALS`, handed over by the demo because a panel
+  // surface may not import the join.
+  assert.deepEqual(
+    surfaceRecord.answer.fields.map(
+      (/** @type {{field: string}} */ one) => one.field,
+    ),
+    ['state', 'findings', 'considered', 'reason', 'refusals'],
+    'the record carries the four contract fields and the fifth field beside them',
+  );
+  assert.deepEqual(
+    copyOf(api.REASONS),
+    surfaceRecord.reasonSet.members.map(
+      (/** @type {{id: string}} */ member) => member.id,
+    ),
+    'the reasons the record names are the join’s closed set, in its order',
+  );
+  assert.deepEqual(
+    copyOf(api.REFUSALS).map(
+      (/** @type {{chain: string}} */ refusal) => refusal.chain,
+    ),
+    surfaceRecord.refusals.members.map(
+      (/** @type {{chain: string}} */ member) => member.chain,
+    ),
+    'the refused chains the record names are the join’s own, in its order',
+  );
+
+  // Every citation, re-read from the file it names.
+  let citations = 0;
+  for (const [where, citation] of citationsIn(surfaceRecord, '')) {
+    const line = citedLine(citation, `${DEAD_SURFACE_RECORD}:${where}`);
+    assert.equal(
+      line,
+      citation.lineText.trim(),
+      `${DEAD_SURFACE_RECORD}:${where} quotes the line as "${citation.lineText.trim()}" and the file reads "${line}"`,
+    );
+    for (const key of ['holds', 'name'])
+      if (typeof citation[key] === 'string')
+        assert.ok(
+          line.includes(citation[key]),
+          `${DEAD_SURFACE_RECORD}:${where} says the line holds "${citation[key]}" and the line reads "${line}"`,
+        );
+    citations += 1;
+  }
+  assert.ok(
+    citations >= 40,
+    `the dead-click route record cites ${citations} line(s), and every name in it carries one`,
+  );
+  console.log(
+    `T004 dead-click record: ${citations} citations re-read, ${surfaceRecord.states.length} states, ` +
       `loader key "${surfaceRecord.loader.key}", fields ${JSON.stringify([...new Set(read)])}`,
   );
 });

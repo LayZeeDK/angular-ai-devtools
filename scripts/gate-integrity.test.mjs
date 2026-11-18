@@ -5645,4 +5645,6 @@ Object.assign(SUITE_DIFF_REASONS, {
     'wholly added at this head: M048 T002 pins the join `extension/copy-check.js` — the record-level clean answer with its compared count, each unexplained string with the surface that renders it, and the two cannot-tell reasons in the contract order — over T001’s measured surfaces and the shipped digest, with a copy-less surface kept in its own row rather than deciding the record, a reading the measured commit carries no file to edit',
   'scripts/interaction-story.test.mjs':
     'wholly added at this head: M049 T001 measures the three arrival-ordered streams in `research/raw/m049-streams.json` and T002 pins the narration `extension/interaction-story.js` over the interleaved order, the one-empty and all-empty refusals, the equal-`at` instant and the unreadable record, a reading the measured commit carries no file to edit',
+  'scripts/dead-click.test.mjs':
+    'wholly added at this head: M050 T001 measures the three consequence chains in `research/raw/m050-chains.json` and T002 pins the judgement `extension/dead-click.js` over the router chain, the two refused chains, the unbounded and empty records and the four mutants, a reading the measured commit carries no file to edit',
 });

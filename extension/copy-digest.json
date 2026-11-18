@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m049+t004",
+  "version": "m050+t004",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -667,6 +667,96 @@
       "surface": "interaction-story",
       "key": "no-bounded-statement",
       "text": "no-bounded-statement: the answer carried no statement of what the record kept, so this surface claims no complete history"
+    },
+    {
+      "surface": "dead-click",
+      "key": "state-findings",
+      "text": "findings: the record carries at least one start whose terminal is absent from the window it was judged over, and each finding below quotes the fields the start recorded and names that window"
+    },
+    {
+      "surface": "dead-click",
+      "key": "state-clean",
+      "text": "clean: every start the published routerEvents list carries holds its terminal in that same list, the count below states how many events were considered, and that list is the window this judgement read"
+    },
+    {
+      "surface": "dead-click",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the judgement could not name a finding in this record, so no event is reported as dangling and the reason below is the word it answered with"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-dead-click-answer",
+      "text": "no-dead-click-answer: no dead-click answer was handed over, so no state, no finding, no count and no reason are reported"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-considered",
+      "text": "no-considered: the answer states no count of the events it considered, so no count is rendered"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-findings-list",
+      "text": "no-findings-list: the answer reported findings without a list of them, so no finding is rendered"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-finding-chain",
+      "text": "no-finding-chain: a finding arrived naming no chain, so no chain is rendered for it"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-finding-event",
+      "text": "no-finding-event: a finding arrived carrying none of the fields the start recorded, so no field is rendered for it"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-finding-window",
+      "text": "no-finding-window: a finding arrived naming no window, so no window is rendered for it"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-window-field",
+      "text": "no-window-field: the window names no list, so no list is rendered as the window it bounds"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-window-kind",
+      "text": "no-window-kind: the window names no kind, so no bound is rendered as the kind of window it is"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-window-length",
+      "text": "no-window-length: the window states no length, so no length is rendered for it"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-window-final",
+      "text": "no-window-final: the window states no final marker, so this surface claims nothing about the window being complete"
+    },
+    {
+      "surface": "dead-click",
+      "key": "not-final",
+      "text": "not-final: the window this judgement read is a list the record publishes, and nothing in the record marks that list final, so a later record may carry a terminal this one does not and no finding is presented here as settled"
+    },
+    {
+      "surface": "dead-click",
+      "key": "refused-chains",
+      "text": "refused-chains: a chain named refused below was not judged at all, and the reason beside it is the word the judgement answered with, so its silence is a refusal with a reason and never a clean result"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-refusals",
+      "text": "no-refusals: the answer carried no statement of a refused chain, so no chain is named here as not judged and none is named as judged either"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-refused-chain",
+      "text": "no-refused-chain: a refused entry arrived naming no chain, so no chain is rendered for it"
+    },
+    {
+      "surface": "dead-click",
+      "key": "no-refused-reason",
+      "text": "no-refused-reason: a refused entry arrived naming no reason, so no reason is rendered for it"
     }
   ]
 }
