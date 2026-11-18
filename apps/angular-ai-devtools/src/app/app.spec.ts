@@ -33,7 +33,8 @@ describe('App', () => {
  * appends `components` after that and M048 appends `copy-check` after that, which is why the count
  * moved from twenty-four to twenty-eight. M049 appends `interaction-story` after that, which is why
  * the count moves from twenty-eight to twenty-nine, and M050 appends `dead-click` after that, which
- * is why it moves from twenty-nine to thirty.
+ * is why it moves from twenty-nine to thirty. M051 appends `what-changed` after that, which is why it
+ * moves from thirty to thirty-one.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -68,6 +69,7 @@ describe('the route table', () => {
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
+      'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -251,6 +253,22 @@ describe('the route table', () => {
     // One entry, so the route this task appends is the only one that answers at that path.
     expect(
       appRoutes.filter((route) => route.path === 'dead-click'),
+    ).toHaveLength(1);
+
+    const whatChanged = appRoutes.find(
+      (route) => route.path === 'what-changed',
+    );
+    expect(whatChanged?.component).toBeUndefined();
+    if (whatChanged?.loadComponent === undefined) {
+      throw new Error('the what-changed surface must load lazily');
+    }
+    expect(await whatChanged.loadComponent()).toBe(PanelDemoComponent);
+    expect(whatChanged.data?.['surface']).toBe('what-changed');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(whatChanged.data?.['surface']).not.toBe('dead-click');
+    // One entry, so the route this task appends is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'what-changed'),
     ).toHaveLength(1);
   });
 });

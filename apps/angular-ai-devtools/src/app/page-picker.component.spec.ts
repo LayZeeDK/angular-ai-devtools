@@ -413,8 +413,9 @@ describe('PagePickerComponent', () => {
     // The picker's own reading of the table is the list of lazy paths. It is re-cut whenever a
     // surface is appended — M039 adds `render-phase` after this one, M040 adds `performance`, M045
     // adds `console` last, M046 adds `console-read` after that, M047 adds `components` after that,
-    // M048 adds `copy-check` after that and M049 adds `interaction-story` after that, and M050 adds
-    // `dead-click` after that — so a route that quietly stopped being lazy reddens
+    // M048 adds `copy-check` after that and M049 adds `interaction-story` after that, M050 adds
+    // `dead-click` after that and M051 adds `what-changed` after that — so a route that quietly
+    // stopped being lazy reddens
     // here as well as in the app suite rather than going unread. The list of lazy paths is one
     // reading of the table and it is not the count: the whole table is pinned below, so an eager
     // surface appended last cannot slip past this suite either (M045 T007, M046 T004).
@@ -433,6 +434,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('copy-check');
     expect(lazy).toContain('interaction-story');
     expect(lazy).toContain('dead-click');
+    expect(lazy).toContain('what-changed');
     expect(lazy).toEqual([
       'interop',
       'chat',
@@ -459,9 +461,10 @@ describe('PagePickerComponent', () => {
       'copy-check',
       'interaction-story',
       'dead-click',
+      'what-changed',
     ]);
 
-    // The whole table, in order and to the count — thirty paths, exactly the ordered list
+    // The whole table, in order and to the count — thirty-one paths, exactly the ordered list
     // `app.spec.ts` and `chat-entry.component.spec.ts` pin. The lazy list above is one reading of
     // the table; without this one an eager route appended to the end would leave this suite green,
     // which is what M045 T007 repairs here.
@@ -496,8 +499,9 @@ describe('PagePickerComponent', () => {
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
+      'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(30);
+    expect(appRoutes).toHaveLength(31);
   });
 });
 
