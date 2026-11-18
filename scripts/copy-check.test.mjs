@@ -12,14 +12,16 @@
 // from it. A record that claims a location holds a sentence the cited line does not contain is the
 // failure this suite exists for (INTENT.md SC1, SC2; T001 AC2).
 //
-// It does not test T002's join. No copy digest and no join exist at this head — this record is the
-// measurement they will be authored against — so the last test here holds the record's own
-// statement of that boundary and nothing about a file T002 will add.
+// T001's half is the measurement above its own section marker. T002's half is below that marker: the
+// digest (`extension/copy-digest.json`), the join that explains the declared sentences against it
+// (`extension/copy-check.js`), and the four mutants that prove the pins can fail. Nothing above the
+// marker reads either file, so T001's ten tests stay the record's own.
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { createContext, runInContext } from 'node:vm';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const RECORD = 'research/raw/m048-surface-copy.json';
@@ -967,4 +969,1249 @@ test('the record names the task that authors the digest, and measures no join it
   console.log(
     'T001 boundary: the copy is measured and the digest is T002’s, not this record’s',
   );
+});
+
+// ------------------------------------------------------------------------------------------------
+// T002 — the copy digest, and the join that explains the declared sentences against it.
+//
+// T001 measured 19 surfaces, 79 sentences declared in a map or a module constant and 34 written
+// inline where no map can reach them. `extension/copy-digest.json` is authored from that record and
+// nothing else, and `extension/copy-check.js` is the pure join that reads it. This section holds the
+// three together, and each of its claims is a pin rather than a paragraph:
+//
+// 1. The digest is the record's sentences. Every row names a sentence the record carries, under the
+//    surface and the key the record gives it; the digest carries no row for a string no surface
+//    renders, and no row is a copy of the record's citations (E1, N1).
+// 2. The join explains exactly those strings and nothing else. A sentence one word from a digest row,
+//    or the record's U+2019 apostrophe spelled with an ASCII one, is reported rather than explained:
+//    the comparison is `===` on the digest's own text (E2, N1).
+// 3. The record’s answer is decided in the contract’s order: a missing digest is `cannot-tell` with
+//    `no-digest`; zero strings compared is `cannot-tell` with `surface-declares-nothing`; one string
+//    the digest does not explain is `unexplained`; otherwise `clean`. A surface that renders no copy
+//    is `cannot-tell` in its own row and does not decide the record, so a page whose read copy is
+//    explained reads `clean` while the absence stays visible in the row that carries it (E3, E4, N2).
+//    E4 is asserted here and nowhere else, and the case it is written about is asserted beside it, so
+//    "nothing to compare" cannot pass for "nothing wrong".
+// 4. The same record and digest answer identical rows in identical order, and the join writes
+//    neither input (E6).
+//
+// The module is evaluated in a bare `node:vm` context, the way `console-join.test.mjs` loads its own:
+// it is a classic extension script publishing `globalThis.angularAiCopyCheck`, so it holds no imports
+// and can be read from disk as the bytes that ship. Each of the four defects T002 names is a mutation
+// of those bytes applied in memory, so the checkout is never written by this file and the mutation
+// cannot drift from the file it mutates.
+
+/** The two declared kinds T001 counts as a sentence, and the one inline kind that is one. */
+const SENTENCE_KINDS = ['sentence-in-registry', 'sentence-from-constant'];
+const INLINE_SENTENCE_KIND = 'sentence';
+
+const COPY_SOURCE = readFileSync(join(ROOT, 'extension/copy-check.js'), 'utf8');
+const DIGEST_PATH = 'extension/copy-digest.json';
+const DIGEST_TEXT = readFileSync(join(ROOT, DIGEST_PATH), 'utf8');
+const shippedDigest = JSON.parse(DIGEST_TEXT);
+const RECORD_BYTES = readFileSync(join(ROOT, RECORD)).length;
+
+/**
+ * The sentences one surface declares, recomputed from T001's record rather than asked of the module:
+ * a module that read the wrong kinds must not also rewrite the expectation it is held to.
+ * @param {Surface} surface
+ * @returns {{key: string|null, text: string}[]}
+ */
+function recordSentences(surface) {
+  /** @type {{key: string|null, text: string}[]} */
+  const rows = [];
+  for (const sentence of surface.sentences)
+    if (SENTENCE_KINDS.includes(sentence.kind))
+      rows.push({ key: sentence.key, text: sentence.text });
+  for (const line of surface.inline)
+    if (line.kind === INLINE_SENTENCE_KIND)
+      rows.push({ key: null, text: line.text });
+  return rows;
+}
+
+/**
+ * Every sentence the record carries, in the record's own order, with the surface that declares it.
+ * @returns {{surface: string, key: string|null, text: string}[]}
+ */
+function recordSentenceRows() {
+  return record.surfaces.flatMap((/** @type {Surface} */ surface) =>
+    recordSentences(surface).map((row) => ({ ...row, surface: surface.id })),
+  );
+}
+
+/**
+ * One declared sentence's text, read from the record by the key it is declared under — with the
+ * read asserted, so a probe built on it cannot quietly become a probe of the empty string.
+ * @param {string} id
+ * @param {string} key
+ * @returns {string}
+ */
+function recordSentenceText(id, key) {
+  const found = surfaceOf(id).sentences.find(
+    (/** @type {Sentence} */ sentence) =>
+      sentence.key === key && SENTENCE_KINDS.includes(sentence.kind),
+  );
+  assert.ok(found !== undefined, `the record declares ${id}/${key}`);
+  return found.text;
+}
+
+/** A vm-realm value as a plain value, so a deepEqual compares data and not two realms' prototypes. */
+/** @param {any} value */
+function copyOf(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+/**
+ * The module as it sits on disk, evaluated in a bare context: no DOM, no clock, no filesystem.
+ * @param {string} [source]
+ */
+function loadCopy(source = COPY_SOURCE) {
+  const context = createContext({});
+  runInContext(source, context);
+  const api = context.angularAiCopyCheck;
+  assert.ok(api, 'extension/copy-check.js publishes angularAiCopyCheck');
+  for (const name of ['copyCheck', 'explainedTexts'])
+    assert.equal(
+      typeof api[name],
+      'function',
+      `extension/copy-check.js exports ${name}`,
+    );
+  return api;
+}
+
+/** The shipped digest with the rows declared under these keys removed — a stale digest. */
+/** @param {string[]} keys */
+function digestWithout(keys) {
+  const drop = new Set(keys);
+  return {
+    ...shippedDigest,
+    entries: shippedDigest.entries.filter(
+      (/** @type {{key: string|null}} */ entry) => !drop.has(entry.key),
+    ),
+  };
+}
+
+test('T002 — the digest is the record’s sentences, under the surface and key each is declared under', () => {
+  assert.equal(
+    shippedDigest.schema,
+    'copy-digest/v1',
+    'the digest declares its own schema',
+  );
+  assert.equal(
+    typeof shippedDigest.version,
+    'string',
+    'the digest declares the version it was authored at',
+  );
+  assert.equal(
+    shippedDigest.source,
+    RECORD,
+    'the digest names the record it was authored from',
+  );
+  assert.deepEqual(
+    Object.keys(shippedDigest).sort(),
+    ['entries', 'schema', 'source', 'version'],
+    'the digest is a digest and not the record: no citations, no lineText, no notes',
+  );
+
+  const entries = shippedDigest.entries;
+  assert.ok(Array.isArray(entries), 'the digest carries an entries list');
+  assert.equal(
+    entries.length,
+    record.counts.declaredSentences + record.counts.inlineSentences,
+    'the digest carries one row per sentence the record declares, declared and inline, and none besides',
+  );
+
+  // Every row is a sentence the record carries, under the surface and the key the record gives it.
+  // One `find` over all three fields, so a row attributed to the wrong surface, filed under a key no
+  // surface declares, or invented outright is one failure with the row's own text in it (E1, N1).
+  const declared = recordSentenceRows();
+  for (const [index, entry] of entries.entries()) {
+    const where = `entries[${index}]`;
+    assert.deepEqual(
+      Object.keys(entry).sort(),
+      ['key', 'surface', 'text'],
+      `${where} carries the surface that renders it, the key it came from, and its text`,
+    );
+    assert.ok(
+      typeof entry.text === 'string' && entry.text.trim().length > 0,
+      `${where}.text is a sentence`,
+    );
+    assert.equal(
+      entry.text,
+      entry.text.trim(),
+      `${where}.text is the sentence as it is written, with no padding added`,
+    );
+    const row = declared.find(
+      (candidate) =>
+        candidate.surface === entry.surface &&
+        candidate.key === entry.key &&
+        candidate.text === entry.text,
+    );
+    assert.ok(
+      row !== undefined,
+      `${where} names "${entry.text}" under ${entry.surface}/${entry.key}, and the record carries no such sentence`,
+    );
+  }
+
+  const texts = entries.map(
+    (/** @type {{text: string}} */ entry) => entry.text,
+  );
+  assert.equal(
+    new Set(texts).size,
+    texts.length,
+    'no sentence is digested twice, so no row is a second explanation of one string',
+  );
+  assert.equal(
+    new Set(
+      entries
+        .filter((/** @type {{key: string|null}} */ entry) => entry.key !== null)
+        .map(
+          (/** @type {{surface: string, key: string|null}} */ entry) =>
+            `${entry.surface}\u0000${entry.key}`,
+        ),
+    ).size,
+    entries.filter(
+      (/** @type {{key: string|null}} */ entry) => entry.key !== null,
+    ).length,
+    'each declared key is one row',
+  );
+  assert.equal(
+    entries.filter(
+      (/** @type {{key: string|null}} */ entry) => entry.key === null,
+    ).length,
+    record.counts.inlineSentences,
+    'a sentence written inline is declared under no key, so its row carries null and there is one per inline sentence the record measured',
+  );
+
+  // A digest, not the corpus copied wholesale: it is smaller than the record it was authored from,
+  // and it is a digest of sentences rather than of every literal the record cites.
+  const digestBytes = Buffer.byteLength(DIGEST_TEXT);
+  assert.ok(
+    digestBytes < RECORD_BYTES,
+    `the digest (${digestBytes} bytes) is authored from the record (${RECORD_BYTES} bytes) and is not a copy of it`,
+  );
+  assert.ok(
+    texts.length >= 100,
+    `the digest carries ${texts.length} sentences, which is the copy this milestone measured`,
+  );
+  console.log(
+    `T002 digest: ${texts.length} sentences, ${digestBytes} bytes against the record's ${RECORD_BYTES}`,
+  );
+});
+
+test('T002 — the scope reads the sentences and reads past the labels and value words by count', () => {
+  const api = loadCopy();
+  const scope = copyOf(api.SCOPE);
+  assert.deepEqual(
+    scope.declared.read,
+    SENTENCE_KINDS,
+    'the declared kinds the join reads are the kinds T001 counts as sentences',
+  );
+  assert.deepEqual(
+    scope.inline.read,
+    [INLINE_SENTENCE_KIND],
+    'the one inline kind the join reads is the one T001 counts as a sentence',
+  );
+
+  /** @param {(surface: Surface) => number} rule */
+  const total = (rule) =>
+    record.surfaces.reduce(
+      (/** @type {number} */ sum, /** @type {Surface} */ surface) =>
+        sum + rule(surface),
+      0,
+    );
+
+  // Nothing the record carries is unaccounted for: every literal kind is either read or read past by
+  // name, and the two halves add up to the counts T001 states. A kind added to the record without a
+  // line here would be a literal nobody reads, not a silent miss.
+  const declaredRead = total(
+    (surface) =>
+      surface.sentences.filter((sentence) =>
+        scope.declared.read.includes(sentence.kind),
+      ).length,
+  );
+  const declaredPassedOver = total(
+    (surface) =>
+      surface.sentences.filter((sentence) =>
+        scope.declared.passedOver.includes(sentence.kind),
+      ).length,
+  );
+  const inlineRead = total(
+    (surface) =>
+      surface.inline.filter((entry) => scope.inline.read.includes(entry.kind))
+        .length,
+  );
+  const inlinePassedOver = total(
+    (surface) =>
+      surface.inline.filter((entry) =>
+        scope.inline.passedOver.includes(entry.kind),
+      ).length,
+  );
+
+  assert.equal(
+    declaredRead,
+    record.counts.declaredSentences,
+    'the declared sentences the join reads are the count the record states',
+  );
+  assert.equal(
+    inlineRead,
+    record.counts.inlineSentences,
+    'the inline sentences the join reads are the count the record states',
+  );
+  assert.equal(
+    declaredPassedOver,
+    record.counts.declaredLabels + record.counts.declaredWordsAndFragments,
+    'the declared labels, words and fragments the join reads past are the count the record states',
+  );
+  assert.equal(
+    inlinePassedOver,
+    record.counts.inlineLabels + record.counts.inlineWords,
+    'the inline labels and words the join reads past are the count the record states',
+  );
+  assert.equal(
+    declaredRead + declaredPassedOver,
+    total((surface) => surface.sentences.length),
+    'every declared literal the record carries is either read or read past: none is unaccounted for',
+  );
+  assert.equal(
+    inlineRead + inlinePassedOver,
+    total((surface) => surface.inline.length),
+    'every inline literal the record carries is either read or read past: none is unaccounted for',
+  );
+  console.log(
+    `T002 scope: ${declaredRead} declared + ${inlineRead} inline sentences read, ` +
+      `${declaredPassedOver + inlinePassedOver} labels and value words read past`,
+  );
+});
+
+test('T002 — the pluralised word the pane never renders whole is a recorded decision, not a digest row', () => {
+  const api = loadCopy();
+  const decisions = copyOf(api.NOT_DIGESTED);
+  const reasons = copyOf(api.NOT_DIGESTED_REASONS);
+  assert.ok(
+    decisions.length >= 1,
+    'the decision not to digest a string the pane never renders whole is carried as data',
+  );
+  for (const decision of decisions) {
+    assert.ok(
+      reasons.includes(decision.reason),
+      `"${decision.reason}" is one of the reasons a string is deliberately not digested`,
+    );
+
+    // The decision is about a string the record really carries, so it is read off T001's measurement
+    // and not invented to excuse a hole in the digest.
+    const surface = surfaceOf(decision.surface);
+    const carried = [...surface.sentences, ...surface.inline].some(
+      (/** @type {{text: string}} */ entry) => entry.text === decision.text,
+    );
+    assert.ok(
+      carried,
+      `the record carries "${decision.text}" in ${decision.surface}, and the decision names it`,
+    );
+    assert.ok(
+      !shippedDigest.entries.some(
+        (/** @type {{text: string}} */ entry) => entry.text === decision.text,
+      ),
+      `the digest holds no row for "${decision.text}", which no surface renders as a whole string`,
+    );
+
+    // And the join does not manufacture an unexplained row for it either: the decision is a scope,
+    // not a defect the pane is asked to report on itself.
+    const answer = copyOf(
+      api.copyCheck(copyOf([surface]), copyOf(shippedDigest)),
+    );
+    assert.deepEqual(
+      answer.unexplained.filter(
+        (/** @type {{string: string}} */ row) => row.string === decision.text,
+      ),
+      [],
+      'the join reports no row for a string the pane never renders whole',
+    );
+    console.log(
+      `T002 not digested: ${decision.surface} "${decision.text}" (${decision.reason})`,
+    );
+  }
+
+  // The record's own note says why, so the decision rests on T001's measurement of `counted()` and
+  // not on this suite's reading of the source.
+  assert.ok(
+    surfaceOf('sanitizer').notes.some((/** @type {string} */ note) =>
+      /pluralis/i.test(note),
+    ),
+    'the record states that panel-sanitizer.ts:180 is a pluraliser',
+  );
+});
+
+test('T002 — every sentence a surface declares is explained, and the surface that renders no copy is cannot-tell', () => {
+  const api = loadCopy();
+  const lines = [];
+  let copyBearing = 0;
+  for (const surface of record.surfaces) {
+    const sentences = recordSentences(surface);
+    const answer = copyOf(
+      api.copyCheck(copyOf([surface]), copyOf(shippedDigest)),
+    );
+    if (sentences.length === 0) {
+      assert.equal(
+        answer.state,
+        'cannot-tell',
+        `${surface.id} renders no copy and is an input like any other, and its answer is "${answer.state}" rather than a clean one with nothing in it`,
+      );
+      assert.equal(
+        answer.reason,
+        'surface-declares-nothing',
+        `${surface.id} renders no copy, and the reason is "${answer.reason}"`,
+      );
+      assert.equal(
+        answer.checked,
+        0,
+        `${surface.id} declares no sentence, so nothing was compared`,
+      );
+      assert.deepEqual(
+        answer.unexplained,
+        [],
+        'an absence is not a list of unexplained strings',
+      );
+      lines.push(`${surface.id}: cannot-tell (surface-declares-nothing)`);
+      continue;
+    }
+    copyBearing += 1;
+    const first = answer.unexplained[0];
+    assert.equal(
+      answer.state,
+      'clean',
+      `${surface.id}: every sentence it declares is in the digest, and the answer is "${answer.state}"` +
+        (first === undefined
+          ? ''
+          : ` naming "${first.string}" as one the digest does not carry`),
+    );
+    assert.equal(
+      answer.checked,
+      sentences.length,
+      `${surface.id} declares ${sentences.length} sentences and ${answer.checked} were compared`,
+    );
+    lines.push(`${surface.id}: clean, ${answer.checked} sentences`);
+  }
+  assert.equal(
+    copyBearing,
+    record.surfaces.length - record.absences.length,
+    'every surface but the record’s one absence declares copy this join can check',
+  );
+  assert.ok(
+    copyBearing >= 2,
+    `the sweep read ${copyBearing} copy-bearing surfaces`,
+  );
+  console.log(`T002 per surface: ${lines.join(' | ')}`);
+});
+
+test('T002 — the record as measured is clean, and the surface that renders no copy is its own row', () => {
+  const api = loadCopy();
+  const answer = copyOf(
+    api.copyCheck(copyOf(record.surfaces), copyOf(shippedDigest)),
+  );
+  assert.equal(
+    answer.state,
+    'clean',
+    `the whole record answers "${answer.state}": every sentence the record declares is in the digest, and panel-context.ts renders no copy in its row rather than deciding the record`,
+  );
+  assert.equal(answer.reason, undefined, 'a clean answer states no reason');
+  assert.equal(
+    answer.checked,
+    record.counts.declaredSentences + record.counts.inlineSentences,
+    'every sentence the record declares was compared',
+  );
+  assert.deepEqual(
+    answer.unexplained,
+    [],
+    `the shipped digest explains all ${answer.checked} sentences`,
+  );
+
+  // The absence is still visible, in the row that carries it: the record reads clean and the surface
+  // that renders no copy still answers cannot-tell on its own, so neither answer hides the other.
+  const row = copyOf(
+    api.copyCheck([copyOf(surfaceOf('context'))], copyOf(shippedDigest)),
+  );
+  assert.equal(
+    row.state,
+    'cannot-tell',
+    `context renders no copy and its own row answers "${row.state}"`,
+  );
+  assert.equal(
+    row.reason,
+    'surface-declares-nothing',
+    `context’s row states the reason "${row.reason}"`,
+  );
+  assert.equal(
+    row.checked,
+    0,
+    'context declares no sentence, so nothing was compared',
+  );
+  console.log(
+    `T002 record: clean, ${answer.checked} sentences compared, ${answer.unexplained.length} unexplained; ` +
+      'context row: cannot-tell (surface-declares-nothing)',
+  );
+});
+
+// The contract states the order the record's own answer is decided in. Each of the four cases is
+// pinned below on the record that carries a surface declaring no copy, so the pins cannot pass by
+// leaving that surface out — and each pin states the case that loses, not only the one that wins.
+
+test('T002 / precedence 1 — a missing digest is cannot-tell with "no-digest", before anything else', () => {
+  const api = loadCopy();
+
+  // The record carries panel-context.ts, the surface that renders no copy: it did decide the record
+  // under the old order. It does not decide this one — the digest is the first absence, and the
+  // record with no digest and a surface with nothing to declare together answer "no-digest".
+  for (const digest of [undefined, null, {}, { entries: [] }]) {
+    const answer = copyOf(
+      api.copyCheck(
+        copyOf(record.surfaces),
+        digest === undefined ? undefined : copyOf(digest),
+      ),
+    );
+    assert.equal(
+      answer.state,
+      'cannot-tell',
+      `a record with no digest is cannot-tell, and this answered "${answer.state}"`,
+    );
+    assert.equal(
+      answer.reason,
+      'no-digest',
+      `the first absence is the digest, so the reason is "no-digest"; this said "${answer.reason}"`,
+    );
+    assert.equal(
+      answer.checked,
+      0,
+      'nothing was compared against a digest that is not there, so checked is 0',
+    );
+    assert.deepEqual(
+      answer.unexplained,
+      [],
+      'nothing was compared, so no string is reported',
+    );
+  }
+  console.log(
+    'T002 precedence: no digest → cannot-tell (no-digest), checked 0',
+  );
+});
+
+test('T002 / precedence 2 — zero strings compared is cannot-tell with "surface-declares-nothing"', () => {
+  const api = loadCopy();
+
+  // Zero strings compared is the same answer whether the record carried the one surface that
+  // renders nothing or no surface at all: the state is decided by the comparison, not by counting
+  // surfaces, and a record with nothing to compare is never clean.
+  const zero = [
+    ['the only surface renders no copy', [copyOf(surfaceOf('context'))]],
+    ['the record carries no surface', []],
+    ['no surface list was handed over', undefined],
+  ];
+  for (const [what, surfaces] of zero) {
+    const answer = copyOf(api.copyCheck(surfaces, copyOf(shippedDigest)));
+    assert.equal(
+      answer.state,
+      'cannot-tell',
+      `a record with zero strings (${what}) is cannot-tell, and this answered "${answer.state}"`,
+    );
+    assert.equal(
+      answer.reason,
+      'surface-declares-nothing',
+      `zero strings compared states "surface-declares-nothing" (${what}); this said "${answer.reason}"`,
+    );
+    assert.equal(
+      answer.checked,
+      0,
+      `nothing was compared (${what}), so checked is 0`,
+    );
+    assert.deepEqual(
+      answer.unexplained,
+      [],
+      'zero comparisons is not a list of unexplained strings',
+    );
+  }
+  console.log(
+    'T002 precedence: zero strings → cannot-tell (surface-declares-nothing), checked 0',
+  );
+});
+
+test('T002 / precedence 3 — one unexplained string is "unexplained" even when a surface renders no copy', () => {
+  const api = loadCopy();
+  const dropped = recordSentenceText('components', 'state-listed');
+  const answer = copyOf(
+    api.copyCheck(
+      copyOf(record.surfaces),
+      copyOf(digestWithout(['state-listed'])),
+    ),
+  );
+  assert.equal(
+    answer.state,
+    'unexplained',
+    `a record carrying panel-context.ts and one string the digest does not explain is "unexplained", and this answered "${answer.state}"`,
+  );
+  assert.equal(
+    answer.reason,
+    undefined,
+    'an unexplained answer states no reason: it names the strings instead',
+  );
+  assert.deepEqual(
+    answer.unexplained,
+    [{ string: dropped, surface: 'components' }],
+    'the one string the digest does not explain is named with the surface that renders it',
+  );
+  assert.equal(
+    answer.checked,
+    record.counts.declaredSentences + record.counts.inlineSentences,
+    'every sentence the record declares was compared, so the unexplained one is found rather than inferred',
+  );
+  console.log(
+    `T002 precedence: one unexplained string → unexplained, naming "${dropped.slice(0, 24)}…" (components)`,
+  );
+});
+
+test('T002 / precedence 4 — a fully explained record with an absent surface is clean, and its absent row is cannot-tell', () => {
+  const api = loadCopy();
+
+  // Every sentence is explained and one surface renders no copy: the record is clean, and the
+  // absence is still visible in the row that carries it.
+  const answer = copyOf(
+    api.copyCheck(copyOf(record.surfaces), copyOf(shippedDigest)),
+  );
+  assert.equal(
+    answer.state,
+    'clean',
+    `a fully explained record is clean whatever its rows declare nothing, and this answered "${answer.state}"`,
+  );
+  assert.equal(
+    answer.checked,
+    record.counts.declaredSentences + record.counts.inlineSentences,
+    'every sentence the record declares was compared',
+  );
+  assert.deepEqual(
+    answer.unexplained,
+    [],
+    'no string is reported when the digest explains them all',
+  );
+
+  // The rows are each surface's own answer, in record order, and the record's answer is that order
+  // over them: checked is what they compared, unexplained is what they reported, and the one row
+  // that declares nothing is still cannot-tell.
+  const rows = record.surfaces.map((/** @type {Surface} */ surface) =>
+    copyOf(api.copyCheck([copyOf(surface)], copyOf(shippedDigest))),
+  );
+  assert.equal(
+    answer.checked,
+    rows.reduce((sum, row) => sum + row.checked, 0),
+    'the record compared exactly what its rows compared',
+  );
+  assert.deepEqual(
+    answer.unexplained,
+    rows.flatMap(
+      (/** @type {{unexplained: {string: string, surface: string}[]}} */ row) =>
+        row.unexplained,
+    ),
+    'the record reports exactly what its rows reported, in record order',
+  );
+  for (const [index, surface] of record.surfaces.entries()) {
+    const row = rows[index];
+    if (surface.declares !== 'nothing') {
+      assert.equal(
+        row.state,
+        'clean',
+        `${surface.id} declares copy the digest explains, and its row answers "${row.state}"`,
+      );
+      continue;
+    }
+    assert.equal(
+      row.state,
+      'cannot-tell',
+      `${surface.id} renders no copy and its row answers "${row.state}", not the record's clean`,
+    );
+    assert.equal(
+      row.reason,
+      'surface-declares-nothing',
+      `${surface.id}’s row states the reason "${row.reason}"`,
+    );
+    assert.equal(
+      row.checked,
+      0,
+      `${surface.id} declares no sentence, so its row compared nothing`,
+    );
+  }
+  console.log(
+    `T002 precedence: fully explained record → clean (${answer.checked} compared), ` +
+      `context row → cannot-tell (surface-declares-nothing)`,
+  );
+});
+
+test('T002 — the states and the reasons are closed lists the module publishes', () => {
+  const api = loadCopy();
+  assert.deepEqual(
+    copyOf(api.STATES),
+    ['clean', 'unexplained', 'cannot-tell'],
+    'the three states the contract names, in the order the contract lists them',
+  );
+  const reasons = copyOf(api.REASONS);
+  assert.ok(
+    reasons.length >= 1,
+    'the module publishes the reasons it can state',
+  );
+  assert.equal(
+    new Set(reasons).size,
+    reasons.length,
+    'no reason is listed twice',
+  );
+  for (const reason of reasons)
+    assert.match(
+      reason,
+      /^[a-z]+(-[a-z]+)*$/,
+      `"${reason}" is a word a surface renders and not a sentence it would have to explain`,
+    );
+  assert.ok(
+    Object.isFrozen(api.REASONS) && Object.isFrozen(api.STATES),
+    'the lists are frozen: a caller cannot add a word the surface has no sentence for',
+  );
+
+  // Every cannot-tell the join can answer states one of those words, and a reason is present exactly
+  // where the state is cannot-tell: never on a clean answer, never on an unexplained one.
+  const inputs = [
+    [undefined, shippedDigest],
+    [copyOf([surfaceOf('context')]), shippedDigest],
+    [copyOf([surfaceOf('components')]), undefined],
+    [copyOf([surfaceOf('components')]), {}],
+    [copyOf(record.surfaces), shippedDigest],
+    [copyOf([surfaceOf('components')]), copyOf(shippedDigest)],
+    [copyOf([surfaceOf('components')]), digestWithout(['state-listed'])],
+  ];
+  for (const [surfaces, digest] of inputs) {
+    const answer = copyOf(
+      api.copyCheck(
+        surfaces === undefined ? undefined : copyOf(surfaces),
+        digest === undefined ? undefined : copyOf(digest),
+      ),
+    );
+    assert.ok(
+      copyOf(api.STATES).includes(answer.state),
+      `"${answer.state}" is one of the states the module publishes`,
+    );
+    if (answer.state === 'cannot-tell')
+      assert.ok(
+        reasons.includes(answer.reason),
+        `a cannot-tell answer states a published reason, and this one stated "${answer.reason}"`,
+      );
+    else
+      assert.equal(
+        answer.reason,
+        undefined,
+        'a reason is present only where the state is cannot-tell',
+      );
+  }
+});
+
+test('T002 / E4 — a surface with strings and no digest is cannot-tell, and the same surface beside a stale digest is reported', () => {
+  const api = loadCopy();
+  const components = copyOf(surfaceOf('components'));
+
+  // (a) Nothing to compare. A missing digest, an object carrying no entries list and an entry-less
+  // digest are one answer: nobody compared the strings, so the answer is cannot-tell and not clean.
+  const absent = [
+    undefined,
+    null,
+    {},
+    { entries: [] },
+    { entries: [{ surface: 'components' }] },
+  ];
+  for (const digest of absent) {
+    const answer = copyOf(
+      api.copyCheck(
+        copyOf([components]),
+        digest === undefined ? undefined : copyOf(digest),
+      ),
+    );
+    assert.equal(
+      answer.state,
+      'cannot-tell',
+      `a surface with strings and no digest reports cannot-tell with the reason "no-digest", because nobody compared the strings; this reported "${answer.state}"`,
+    );
+    assert.equal(
+      answer.reason,
+      'no-digest',
+      `the digest ${JSON.stringify(digest)} holds nothing to compare, and the reason this reported was "${answer.reason}"`,
+    );
+    assert.equal(
+      answer.checked,
+      0,
+      'nothing was compared, so nothing is counted as compared',
+    );
+    assert.deepEqual(
+      answer.unexplained,
+      [],
+      'the absence of a comparison reports no string: it is the reason that says so',
+    );
+  }
+
+  // (b) The same surface and the same strings beside a digest that lacks one of them: reported, with
+  // the surface that renders it. Asserted here, beside (a), so "nothing to compare" cannot pass for
+  // "nothing wrong" (held-out E4).
+  const [first] = recordSentences(surfaceOf('components'));
+  assert.ok(first !== undefined, 'the components pane declares a sentence');
+  const answer = copyOf(
+    api.copyCheck(
+      copyOf([components]),
+      copyOf(digestWithout([/** @type {string} */ (first.key)])),
+    ),
+  );
+  assert.equal(
+    answer.state,
+    'unexplained',
+    `the same surface beside a digest that lacks "${first.text}" is reported and not clean, and this answered "${answer.state}"`,
+  );
+  assert.equal(
+    answer.reason,
+    undefined,
+    'an unexplained answer states no reason: it names the strings instead',
+  );
+  assert.deepEqual(
+    answer.unexplained,
+    [{ string: first.text, surface: 'components' }],
+    'the reported string is the digest’s missing sentence, with the surface that renders it',
+  );
+  assert.equal(
+    answer.checked,
+    recordSentences(surfaceOf('components')).length,
+    'every sentence of the surface was compared, not only the reported one',
+  );
+});
+
+test('T002 — a match is the digest’s own text: a near-miss sentence and a respelled apostrophe are reported', () => {
+  const api = loadCopy();
+
+  // One word edited in a declared sentence: the copy drifted and the digest did not. A similarity
+  // rule would explain it; the digest's own text does not contain it.
+  const original = recordSentenceText('components', 'state-filtered');
+  const nearMiss = original.replace('rows matched', 'rows match');
+  assert.notEqual(
+    nearMiss,
+    original,
+    'the near-miss probe differs from the sentence the digest carries',
+  );
+  const drifted = copyOf(surfaceOf('components'));
+  drifted.sentences = drifted.sentences.map(
+    (/** @type {Sentence} */ sentence) =>
+      sentence.key === 'state-filtered'
+        ? { ...sentence, text: nearMiss }
+        : sentence,
+  );
+  const reported = copyOf(
+    api.copyCheck(copyOf([drifted]), copyOf(shippedDigest)),
+  );
+  assert.equal(
+    reported.state,
+    'unexplained',
+    `a sentence is explained by the digest's own text and never by similarity, and this near-miss was explained: "${nearMiss}" (components)`,
+  );
+  assert.deepEqual(
+    reported.unexplained,
+    [{ string: nearMiss, surface: 'components' }],
+    `the near-miss "${nearMiss}" is the one string the digest does not carry, and the answer names it`,
+  );
+
+  // The record's own warning about normalisation: the stability pane spells `page’s` with U+2019, so
+  // a digest that carried an ASCII apostrophe would hold a different string than the pane renders.
+  const typographic = recordSentenceText('stability', 'unstable');
+  const ascii = typographic.replace(/\u2019/g, "'");
+  assert.notEqual(
+    ascii,
+    typographic,
+    'the probe sentence really carries the typographic apostrophe',
+  );
+  const respelled = {
+    ...shippedDigest,
+    entries: shippedDigest.entries.map(
+      (
+        /** @type {{surface: string, key: string|null, text: string}} */ entry,
+      ) =>
+        entry.surface === 'stability' && entry.key === 'unstable'
+          ? { ...entry, text: ascii }
+          : entry,
+    ),
+  };
+  const apostrophe = copyOf(
+    api.copyCheck(copyOf([surfaceOf('stability')]), copyOf(respelled)),
+  );
+  assert.equal(
+    apostrophe.state,
+    'unexplained',
+    `a digest entry respelled with an ASCII apostrophe explains nothing, and this answered "${apostrophe.state}" for "${typographic}" (stability)`,
+  );
+  assert.deepEqual(
+    apostrophe.unexplained,
+    [{ string: typographic, surface: 'stability' }],
+    'the sentence the pane renders is reported, and the digest’s respelling is not accepted in its place',
+  );
+  console.log(
+    `T002 exact text: "${nearMiss}" and "${ascii}" are reported rather than explained`,
+  );
+});
+
+test('T002 / E6 — the same record and digest answer identical rows in identical order, and the join writes neither', () => {
+  const api = loadCopy();
+  const records = copyOf(record.surfaces);
+  const stale = digestWithout(['no-reason', 'cannot-tell', 'state-empty']);
+  const digest = copyOf(stale);
+  const before = JSON.stringify([records, digest]);
+
+  const first = copyOf(api.copyCheck(copyOf(records), copyOf(digest)));
+  const second = copyOf(api.copyCheck(copyOf(records), copyOf(digest)));
+
+  assert.equal(
+    JSON.stringify(second),
+    JSON.stringify(first),
+    'the same inputs twice answer the same rows in the same order',
+  );
+  assert.deepEqual(second, first, 'the second answer is the first answer');
+  assert.equal(
+    JSON.stringify([records, digest]),
+    before,
+    'the join reads its inputs and writes neither of them',
+  );
+
+  // The order is the record's: surface order, then the order each surface declares its sentences in.
+  const explained = new Set(
+    digest.entries.map((/** @type {{text: string}} */ entry) => entry.text),
+  );
+  const expected = recordSentenceRows()
+    .filter((row) => !explained.has(row.text))
+    .map((row) => ({ string: row.text, surface: row.surface }));
+  assert.deepEqual(
+    first.unexplained,
+    expected,
+    'the rows are the record’s order, surface by surface and sentence by sentence',
+  );
+  assert.ok(
+    first.unexplained.length > 1,
+    `the stale digest leaves ${first.unexplained.length} strings to report, so the order is not tested by one row`,
+  );
+  assert.equal(
+    first.state,
+    'unexplained',
+    `the stale digest leaves ${first.unexplained.length} strings unexplained, so the record is unexplained and the rows name them`,
+  );
+  console.log(
+    `T002 idempotency: ${first.unexplained.length} rows, twice, identical and in record order`,
+  );
+});
+
+test('T002 — the join is one implementation, reads no page, and reads no file', () => {
+  assert.doesNotMatch(
+    COPY_SOURCE,
+    /\bdocument\b|\bchrome\b|\binnerText\b|\btextContent\b/,
+    'the join reads neither a page nor the extension API: its inputs are the record and the digest',
+  );
+  assert.doesNotMatch(
+    COPY_SOURCE,
+    /\breadFileSync\b|\brequire\(|\bimport\s/,
+    'the join takes both sides as arguments and reads no file of its own',
+  );
+  const extension = new URL('../extension/', import.meta.url);
+  const implementers = readdirSync(extension)
+    .filter((name) => name.endsWith('.js') && name !== 'copy-check.js')
+    .filter((name) =>
+      readFileSync(
+        new URL(`../extension/${name}`, import.meta.url),
+        'utf8',
+      ).includes('copyCheck'),
+    );
+  assert.deepEqual(implementers, [], 'no other file implements copyCheck');
+  const digestReaders = readdirSync(extension)
+    .filter((name) => name.endsWith('.js') && name !== 'copy-check.js')
+    .filter((name) =>
+      readFileSync(
+        new URL(`../extension/${name}`, import.meta.url),
+        'utf8',
+      ).includes('copy-digest.json'),
+    );
+  assert.deepEqual(
+    digestReaders,
+    [],
+    'the digest is read by the join’s caller and not by a second reader of it',
+  );
+});
+
+// Each mutation is one edit of the shipped source, applied in memory by this file. `defect` is the
+// word the failing pin must be shown to name, `names` the string in its failure text: a mutant that
+// reddens with a stack and no sentence would prove nothing about the copy.
+const COPY_MUTATIONS = [
+  {
+    id: 'digest-entry-dropped',
+    // A string the surface renders becomes unexplained, and the pin says which string.
+    defect: 'unexplained',
+    names: 'listed: the record names these components',
+    anchor: '    const explained = new Set(explainedTexts(digest));',
+    replacement:
+      "    const explained = new Set(\n      explainedTexts(digest).filter((text) => !text.startsWith('listed:')),\n    );",
+  },
+  {
+    id: 'similarity-match',
+    // The comparison, replaced by a prefix rule: a near-miss sentence is wrongly explained. The
+    // precedence moved this comparison into `surfaceRow`, one level less deeply nested than it was,
+    // so the anchor names it there.
+    defect: 'similarity',
+    names: 'how many rows match',
+    anchor: '      if (!explained.has(text))',
+    replacement:
+      '        const near = [...explained].some(\n          (candidate) => candidate.slice(0, 24) === text.slice(0, 24),\n        );\n        if (!near)',
+  },
+  {
+    id: 'invented-row',
+    // N1 built into the module: the digest-reading step answers with a row the digest does not carry.
+    defect: 'invented',
+    names: 'cannot tell: no panel copy can be named',
+    anchor: '      const entry = entries[i];',
+    replacement:
+      "      const entry =\n        i === 0\n          ? { text: 'cannot tell: no panel copy can be named' }\n          : entries[i];",
+  },
+  {
+    id: 'missing-digest-reported-clean',
+    // E4 built backwards: nothing to compare is answered as nothing wrong.
+    defect: 'cannot-tell',
+    names: 'no-digest',
+    anchor:
+      '    if (explained.size === 0) {\n      return {\n        state: CANNOT_TELL,\n        unexplained: [],\n        checked: 0,\n        reason: NO_DIGEST,\n      };\n    }',
+    replacement:
+      '    if (explained.size === 0) {\n      return { state: CLEAN, unexplained: [], checked: 0 };\n    }',
+  },
+];
+
+/** One mutation, written into the source on disk's bytes — and asserted to have changed them. */
+/** @param {{anchor: string, replacement: string}} mutation */
+function mutatedCopy(mutation) {
+  const mutated = COPY_SOURCE.replace(mutation.anchor, mutation.replacement);
+  assert.notEqual(
+    mutated,
+    COPY_SOURCE,
+    `mutation ${mutation.anchor} must change the source it is applied to`,
+  );
+  return mutated;
+}
+
+/** The pin the digest-explanations of the whole record are held to: every sentence explained. */
+/** @param {any} api */
+function pinCleanOnTheRecord(api) {
+  const surfaces = record.surfaces.filter(
+    (/** @type {Surface} */ surface) => surface.declares !== 'nothing',
+  );
+  const answer = copyOf(api.copyCheck(copyOf(surfaces), copyOf(shippedDigest)));
+  const first = answer.unexplained[0];
+  assert.equal(
+    answer.state,
+    'clean',
+    `every sentence the copy-bearing surfaces declare is in the digest, and the answer is "${answer.state}"` +
+      (first === undefined
+        ? ''
+        : ` naming "${first.string}" (${first.surface}) as unexplained`),
+  );
+  assert.deepEqual(
+    answer.unexplained,
+    [],
+    'no string is reported when the digest explains them all',
+  );
+  assert.equal(
+    answer.checked,
+    record.counts.declaredSentences + record.counts.inlineSentences,
+    'every sentence the record declares was compared',
+  );
+}
+
+/** The pin the exact-text rule is held to: a near-miss and a respelling are reported. */
+/** @param {any} api */
+function pinExactText(api) {
+  const original = recordSentenceText('components', 'state-filtered');
+  const nearMiss = original.replace('rows matched', 'rows match');
+  const drifted = copyOf(surfaceOf('components'));
+  drifted.sentences = drifted.sentences.map(
+    (/** @type {Sentence} */ sentence) =>
+      sentence.key === 'state-filtered'
+        ? { ...sentence, text: nearMiss }
+        : sentence,
+  );
+  const answer = copyOf(
+    api.copyCheck(copyOf([drifted]), copyOf(shippedDigest)),
+  );
+  assert.equal(
+    answer.state,
+    'unexplained',
+    `a sentence is explained by the digest's own text and never by similarity, and this near-miss was explained: "${nearMiss}" (components)`,
+  );
+  assert.deepEqual(
+    answer.unexplained,
+    [{ string: nearMiss, surface: 'components' }],
+    `the near-miss "${nearMiss}" is the one string the digest does not carry`,
+  );
+
+  const typographic = recordSentenceText('stability', 'unstable');
+  const ascii = typographic.replace(/\u2019/g, "'");
+  const respelled = {
+    ...shippedDigest,
+    entries: shippedDigest.entries.map(
+      (
+        /** @type {{surface: string, key: string|null, text: string}} */ entry,
+      ) =>
+        entry.surface === 'stability' && entry.key === 'unstable'
+          ? { ...entry, text: ascii }
+          : entry,
+    ),
+  };
+  const apostrophe = copyOf(
+    api.copyCheck(copyOf([surfaceOf('stability')]), copyOf(respelled)),
+  );
+  assert.equal(
+    apostrophe.state,
+    'unexplained',
+    `a digest entry respelled with an ASCII apostrophe explains nothing, and this answered "${apostrophe.state}" for "${typographic}" (stability)`,
+  );
+  assert.deepEqual(
+    apostrophe.unexplained,
+    [{ string: typographic, surface: 'stability' }],
+    'the sentence the pane renders is reported, and the digest’s respelling is not accepted in its place',
+  );
+}
+
+/** The pin the digest-reading step is held to: it explains the digest's own texts and no others. */
+/** @param {any} api */
+function pinNoInventedRow(api) {
+  const explained = copyOf(api.explainedTexts(copyOf(shippedDigest)));
+  const declared = new Set(recordSentenceRows().map((row) => row.text));
+  const invented = explained.filter((text) => !declared.has(text));
+  assert.deepEqual(
+    invented,
+    [],
+    `an invented row is not an explanation, and this module explains ` +
+      (invented.length > 0
+        ? `"${invented[0]}", which no surface in the record renders`
+        : 'nothing it was not given'),
+  );
+  assert.deepEqual(
+    explained,
+    shippedDigest.entries.map(
+      (/** @type {{text: string}} */ entry) => entry.text,
+    ),
+    'the module explains the digest’s own texts, in the digest’s order, and adds none of its own',
+  );
+  // The digest as shipped is held to the same rule: a row the record does not carry is invented
+  // whatever wrote it.
+  const unrendered = shippedDigest.entries
+    .map(
+      (
+        /** @type {{surface: string, key: string|null, text: string}} */ entry,
+      ) => entry,
+    )
+    .filter(
+      (entry) =>
+        !recordSentenceRows().some(
+          (row) =>
+            row.surface === entry.surface &&
+            row.key === entry.key &&
+            row.text === entry.text,
+        ),
+    );
+  assert.deepEqual(
+    unrendered,
+    [],
+    `the digest carries a row no surface renders: ${JSON.stringify(unrendered[0] ?? null)}`,
+  );
+}
+
+/** The pin E4 is written about: no digest is cannot-tell, never clean. */
+/** @param {any} api */
+function pinNoDigestIsCannotTell(api) {
+  const components = copyOf(surfaceOf('components'));
+  for (const digest of [undefined, null, {}, { entries: [] }]) {
+    const answer = copyOf(
+      api.copyCheck(
+        copyOf([components]),
+        digest === undefined ? undefined : copyOf(digest),
+      ),
+    );
+    assert.equal(
+      answer.state,
+      'cannot-tell',
+      `a surface with strings and no digest reports cannot-tell with the reason "no-digest", because nobody compared the strings; this reported "${answer.state}"`,
+    );
+    assert.equal(
+      answer.reason,
+      'no-digest',
+      `nothing to compare states the reason "no-digest", and this reported "${answer.reason}"`,
+    );
+    assert.equal(
+      answer.checked,
+      0,
+      'nothing was compared, so nothing is counted as compared',
+    );
+    assert.deepEqual(
+      answer.unexplained,
+      [],
+      'the absence of a comparison reports no string',
+    );
+  }
+}
+
+/** The pin each mutation is held to, by the mutation it exists for. */
+const COPY_PINS = {
+  'digest-entry-dropped': pinCleanOnTheRecord,
+  'similarity-match': pinExactText,
+  'invented-row': pinNoInventedRow,
+  'missing-digest-reported-clean': pinNoDigestIsCannotTell,
+};
+
+test('T002 mutants — every anchor is one place in the shipped module and really changes it', () => {
+  assert.ok(
+    COPY_MUTATIONS.length === 4,
+    'the four defects T002 names are armed',
+  );
+  for (const mutation of COPY_MUTATIONS) {
+    assert.equal(
+      COPY_SOURCE.split(mutation.anchor).length - 1,
+      1,
+      `mutation ${mutation.id} anchors on exactly one place in extension/copy-check.js`,
+    );
+    mutatedCopy(mutation);
+    assert.equal(
+      typeof COPY_PINS[mutation.id],
+      'function',
+      `mutation ${mutation.id} has a pin`,
+    );
+  }
+});
+
+test('T002 mutants — each defect reddens its pin, and the failure names the defect by string', () => {
+  const lines = [];
+  for (const mutation of COPY_MUTATIONS) {
+    const pin = COPY_PINS[mutation.id];
+
+    // The pin is green on the module as it sits on disk first, so a failure below is the mutation's
+    // and not a pin that was already red — and a pin that never loaded the module would fail here.
+    pin(loadCopy());
+
+    let failure = null;
+    try {
+      pin(loadCopy(mutatedCopy(mutation)));
+    } catch (error) {
+      failure = /** @type {Error} */ (error);
+    }
+    assert.ok(
+      failure !== null,
+      `mutation ${mutation.id} must redden the pin that names it, and it reddened nothing`,
+    );
+    assert.match(
+      failure.message,
+      new RegExp(mutation.defect),
+      `mutation ${mutation.id} must redden a pin naming "${mutation.defect}", and it said: ${failure.message.split('\n')[0]}`,
+    );
+    assert.ok(
+      failure.message.includes(mutation.names),
+      `mutation ${mutation.id} must redden naming "${mutation.names}", and it said: ${failure.message.split('\n')[0]}`,
+    );
+    lines.push(`${mutation.id}: ${failure.message.split('\n')[0]}`);
+  }
+  console.log(`T002 mutants: ${lines.join(' || ')}`);
 });
