@@ -60,7 +60,7 @@
 // The digest is a digest of sentences and not of every literal the record carries. `SCOPE` below is
 // the boundary as data: the sentence kinds are read, and the record's label prefixes and value words
 // are read past. T001 counts those separately — `declaredLabels` (3), `declaredWordsAndFragments`
-// (8), `inlineLabels` (118), `inlineWords` (7) — and they are the prefix a line is built from and the
+// (8), `inlineLabels` (127), `inlineWords` (7) — and they are the prefix a line is built from and the
 // word substituted into it (`state: `, `recorded`, `no readable count`), never a string a surface
 // renders whole. Digesting them would hold strings the pane never renders, which is the defect the
 // sanitizer's pluraliser is recorded against in `NOT_DIGESTED`. So this join explains the sentences,
