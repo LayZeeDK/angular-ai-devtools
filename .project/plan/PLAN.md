@@ -13,7 +13,7 @@ Project verify: `npm run check && npm test`
 
 | Criterion | Wave | Task |
 |-----------|------|------|
-| SC1 | 1, 2, 3 | T001, T002, T003 |
+| SC1 | 1, 2, 3, 5 | T001, T002, T003, T005 |
 | SC2 | 2, 3 | T002, T003 |
 | SC3 | 1, 2 | T001, T002 |
 
@@ -29,6 +29,7 @@ Project verify: `npm run check && npm test`
 | SC1 | T003 | AC1 |
 | SC2 | T003 | AC1 |
 | SC1 | T004 | AC1 |
+| SC1 | T005 | AC1 |
 
 ## Prohibitions
 
