@@ -31,8 +31,8 @@ field reported as a change, an unbound pair compared as one page, and an invente
 
 ## Interface contract
 
-`whatChanged(before, after, binding) -> { state, changes, compared, reason }` where `state` is one of
-`changes`, `unchanged`, `cannot-tell`.
+None — `whatChanged(before, after, binding) -> { state, changes, compared, reason }` with `state` one of
+`changes`, `unchanged`, `cannot-tell` is this module's whole surface, and no other task shares it.
 
 ## Files
 
