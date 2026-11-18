@@ -115,8 +115,14 @@ None
 ## Verify
 
 ```bash
-npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-bundle-budget.test.mjs scripts/image-budget.test.mjs && git checkout -- extension/panel/index.html && npm run check && npx prettier --check apps/angular-ai-devtools/src/app/app.routes.ts scripts/panel-bundle-budget.test.mjs && node --experimental-strip-types --test scripts/gate-integrity.test.mjs
+npx nx run angular-ai-devtools:build-extension --skip-nx-cache && node --test scripts/panel-bundle-budget.test.mjs scripts/image-budget.test.mjs && git checkout -- extension/panel/index.html && npm run check && npx prettier --check apps/angular-ai-devtools/src/app/app.routes.ts scripts/panel-bundle-budget.test.mjs && node --experimental-strip-types --test scripts/gate-integrity.test.mjs && git checkout -- .project/review/VERIFICATION.json
 ```
+
+The build leg passes `--skip-nx-cache` because the freshness assertion reads the output's mtime: a
+target replayed from the Nx cache restores its recorded output without refreshing that timestamp, so a
+cached build reads as stale and the assertion refuses it — correctly, and the measurement it would have
+compared is a build of an older tree. `.project/review/VERIFICATION.json` is restored as the last leg
+because `npm run check`'s `gate:verification` stage stamps it; the ship gate regenerates it.
 
 ## Log
 
