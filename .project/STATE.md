@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: copy-to-agent
+milestone: component-search
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M046
-archive: .project/archive/046-copy-to-agent
+branch: gsd-path/M047
+archive: .project/archive/047-component-search
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1018,3 +1018,12 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-16 — build — build started
 - 2026-11-17 — ship — build done; final review pending
 - 2026-11-17 — shipped — archive preflight passed; shipment recorded
+- 2026-11-17 — inspect — router bound next milestone
+- 2026-11-17 — inspect — inspection measured and closed
+- 2026-11-17 — define — define opened for component-search
+- 2026-11-17 — define — milestone intent approved
+- 2026-11-17 — plan — planning started
+- 2026-11-17 — plan — plan approved
+- 2026-11-17 — build — build started
+- 2026-11-18 — ship — build done; final review pending
+- 2026-11-18 — shipped — archive preflight passed; shipment recorded

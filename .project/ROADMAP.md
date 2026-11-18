@@ -1681,8 +1681,8 @@ Goal: The panel answers which components the inspected page rendered, and finds 
 Depends on: [M020]
 Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/047-component-search
 Integrated: null
 
 Scope: in

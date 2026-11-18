@@ -58,6 +58,7 @@
 - Stage files by name (never blanket `git add`); commit with `git commit -F <file>` and no AI attribution. Confidence: 0.85
 - Permits rewriting Git history (rebase/amend) when needed to make it GSD Path-compliant, as long as the rewritten result remains compliant. Confidence: 0.85
 - Sync all branches and commits to the local remote as a backup. Confidence: 0.85
+- After each milestone's integration merge advances `main`, push `main` to `origin` as part of the ship sequence so `origin/main` matches local `main`, and state that the push was done. Confidence: 0.85
 - Gitignore `.playwright-cli/` and scrub any `.playwright-cli/` files from Git history. Confidence: 0.8
 - Use `/thermos` to review code, scripts, tests, docs, and other artifacts when asked. Confidence: 0.7
 - Keep `spikes/` and `research/` in the repository; do not archive them, because control/verify skills and proofs depend on spike fixtures and docs/skills cite research as evidence. Confidence: 0.9

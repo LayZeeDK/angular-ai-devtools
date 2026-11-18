@@ -33,6 +33,7 @@ const surfaces = [
   'error-boundary',
   'stability',
   'console-read',
+  'components',
 ];
 
 function routeBlock(source, surface) {
@@ -362,6 +363,26 @@ test('E1: a panel route installs a component through the one shared loader, neve
       String(err.message).includes('route console-read must exist'),
     'a table without the console-read route must fail naming the missing surface',
   );
+
+  // Mutant: the M047 surface's route entry removed from the table entirely. It is the route this
+  // task appends last, so the per-surface half must name it rather than pass on the older surfaces
+  // alone.
+  const withoutComponents = source.replace(
+    "  {\n    path: 'components',\n    loadComponent: loadPanelDemo,\n    data: { surface: 'components' },\n  },\n",
+    '',
+  );
+  assert.notEqual(
+    withoutComponents,
+    source,
+    'the removed-components-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutComponents),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route components must exist'),
+    'a table without the components route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -380,6 +401,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'error-boundary': ['panel-error-boundary', 'errorBoundaryPanel'],
     stability: ['panel-stability', 'stabilityPanel'],
     'console-read': ['panel-copy-to-agent', 'consoleReadPanel'],
+    components: ['panel-components', 'componentsPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -420,6 +442,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'errorBoundaryPanel(',
     'stabilityPanel(',
     'consoleReadPanel(',
+    'componentsPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -696,5 +719,29 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: console-read'),
     'removing the console-read loader must fail naming the missing surface console-read',
+  );
+
+  // Mutant: remove the components key from LOADERS. The M047 route is the one this task adds, so the
+  // check must name it when its loader is gone rather than pass on the surfaces before it. It is a
+  // bare identifier key whose import is the only reference to `panel-components.ts`, so a route that
+  // dropped it would leave the search surface unreachable while every earlier surface still loaded.
+  const withoutComponents = demoSource.replace(
+    "  components: () => import('./panel-components') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutComponents,
+    demoSource,
+    'the components mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutComponents),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: components'),
+    'removing the components loader must fail naming the missing surface components',
   );
 });

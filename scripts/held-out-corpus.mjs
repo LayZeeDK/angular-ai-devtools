@@ -42,8 +42,14 @@ const ROOT_ENV_KEYS = [
  */
 const DEPTH_ENV = 'HELD_OUT_CORPUS_DEPTH';
 
-/** One suite gets the same budget the corpus' own npm invocations allow each other. */
-const SUITE_TIMEOUT_MS = 30 * 60 * 1000;
+/**
+ * One suite's budget. `e4-idempotent-checks` runs `npm run check` and `npm test` twice by design, so
+ * its floor is twice a full run of this repository, not one. Measured on M047 T004: 30 minutes
+ * refused it as `did not finish within 1800s` with all 84 other tests green, and the same suite has
+ * been over twenty minutes on its own. The ceiling is a bound on a slow machine, not on what the
+ * suite asserts.
+ */
+const SUITE_TIMEOUT_MS = 90 * 60 * 1000;
 const MAX_BUFFER = 256 * 1024 * 1024;
 /** How much of a failing suite's own output to echo. */
 const MAX_FAILURE_LINES = 200;
