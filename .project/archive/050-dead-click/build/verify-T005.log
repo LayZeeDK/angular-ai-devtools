@@ -1,0 +1,374 @@
+[7m[1m[36m NX [39m[22m[27m  [36mRunning target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on:[39m
+
+[2m[36m[39m[22m
+
+[2m> [22m[2mnx run[22m angular-ai-devtools:generate-error-digest
+
+[2m> [22mnode scripts/generate-error-digest.mjs
+
+wrote [33m64[39m entries to extension/error-digest.json
+
+[2m> [22m[2mnx run[22m angular-ai-devtools:build-extension
+
+[33m❯[39m Building...
+[32m✔[39m Building...
+[37m[1mInitial chunk files[22m[2m | [22m[1mNames[22m                  [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-B8BF8DsE.js[37m  [2m | [22m[2m-[22m                      [2m | [22m[36m326.56 kB[37m[2m | [22m               [36m93.44 kB[37m
+[32mmain.js[37m            [2m | [22m[2mmain[22m                   [2m | [22m[36m100.43 kB[37m[2m | [22m               [36m26.31 kB[37m
+[32mchunk-FCeS4p_v.js[37m  [2m | [22m[2m-[22m                      [2m | [22m [36m88.10 kB[37m[2m | [22m               [36m22.46 kB[37m
+[32mchunk-C9RC8o4w.js[37m  [2m | [22m[2m-[22m                      [2m | [22m  [36m8.95 kB[37m[2m | [22m                [36m3.01 kB[37m
+[32mchunk-CWnn2n5L.js[37m  [2m | [22m[2m-[22m                      [2m | [22m  [36m4.71 kB[37m[2m | [22m                [36m1.63 kB[37m
+[32mchunk-Di8Zy6Ss.js[37m  [2m | [22m[2m-[22m                      [2m | [22m  [36m2.60 kB[37m[2m | [22m              [36m936 bytes[37m
+[32mstyles.css[37m         [2m | [22m[2mstyles[22m                 [2m | [22m  [36m1.96 kB[37m[2m | [22m              [36m542 bytes[37m
+[32mchunk-BnQXArNS.js[37m  [2m | [22m[2m-[22m                      [2m | [22m[36m645 bytes[37m[2m | [22m              [36m645 bytes[37m
+[32mchunk-DJVAsKa_.js[37m  [2m | [22m[2m-[22m                      [2m | [22m[36m464 bytes[37m[2m | [22m              [36m464 bytes[37m
+[1m [22m                  [2m | [22m[1mInitial total[22m          [2m | [22m[1m[93m534.42 kB[37m[22m[2m | [22m              [1m149.46 kB[22m
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                  [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-470y0cjA.js[37m  [2m | [22m[2mcore[22m                   [2m | [22m [36m17.92 kB[37m[2m | [22m                [36m5.47 kB[37m
+[32mchunk-CPU-IOs9.js[37m  [2m | [22m[2mch[39m
+[37mat-entry-component[22m   [2m | [22m [36m16.42 kB[37m[2m | [22m                [36m4.80 kB[37m
+[32mchunk-DPHO7xUs.js[37m  [2m | [22m[2mpanel-demo[22m             [2m | [22m  [36m9.66 kB[37m[2m | [22m                [36m3.36 kB[37m
+[32mchunk-BqGCQDFf.js[37m  [2m | [22m[2mpage-picker-component[22m  [2m | [22m  [36m7.17 kB[37m[2m | [22m                [36m2.12 kB[37m
+[32mchunk-Ia5h4MhU.js[37m  [2m | [22m[2mpanel-dead-click[22m       [2m | [22m  [36m6.73 kB[37m[2m | [22m                [36m2.00 kB[37m
+[32mchunk-Dhp1AO-R.js[37m  [2m | [22m[2minterop-component[22m      [2m | [22m  [36m6.46 kB[37m[2m | [22m                [36m2.34 kB[37m
+[32mchunk-BBCO5qwI2.js[37m [2m | [22m[2mpanel-error-boundary[22m   [2m | [22m  [36m5.60 kB[37m[2m | [22m                [36m1.73 kB[37m
+[32mchunk-DdLcS6n3.js[37m  [2m | [22m[2mpanel-stability[22m        [2m | [22m  [36m4.72 kB[37m[2m | [22m                [36m1.67 kB[37m
+[32mchunk-80XCxlnE.js[37m  [2m | [22m[2mpanel-console[22m          [2m | [22m  [36m4.70 kB[37m[2m | [22m                [36m1.50 kB[37m
+[32mchunk-CeMoq-ym.js[37m  [2m | [22m[2mpanel-interaction-story[22m[2m | [22m  [36m4.68 kB[37m[2m | [22m                [36m1.51 kB[37m
+[32mchunk-CkSEIBfj.js[37m  [2m | [22m[2mimage-budget[22m           [2m | [22m  [36m4.45 kB[37m[2m | [22m                [36m1.41 kB[37m
+[32mchunk-CPQCLItH.js[37m  [2m | [22m[2mpanel-navigation[22m       [2m | [22m  [36m3.90 kB[37m[2m | [22m                [36m1.19 kB[37m
+[32mchunk-ovpihjZf.js[37m  [2m | [22m[2mpanel-sanitizer[22m        [2m | [22m  [36m3.60 kB[37m[2m | [22m                [36m1.28 kB[37m
+[32mchunk-W6eh3JBG.js[37m  [2m | [22m[2mpanel-copy-check[22m       [2m | [22m  [36m3.23 kB[37m[2m | [22m                [36m1.07 kB[37m
+[32mworker-TRUTFZJK.js[37m [2m | [22m[2mworker-read-worker[22m     [2m | [22m  [36m3.17 [39m[37mkB[39m[2m | [22m                [36m1.20 kB[37m
+[2m...and 16 more lazy chunks files. Use "--verbose" to show all the files.[22m
+Application bundle generation complete. [2.349 seconds] - 2026-11-18T10:37:23.667Z
+[39m
+[37mOutput location: D:\projects\sandbox\angular-ai-devtools\extension\panel
+[39m
+
+[2m[32m[39m[22m
+
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on[39m
+
+
+  Run duration:      3.5s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.5s (2 tasks)
+  Recoverable time:  <1ms
+panel-bundle-budget: build-extension initial budget {"maximumWarning":"520kb","maximumError":"1mb"} into extension/panel
+panel-bundle-budget: recorded pre-milestone baseline is 535.44 kB
+panel-bundle-budget: synthetic output measured 3.11 kB from 4 eager files, ignoring the icon and the lazy chunk
+panel-bundle-budget: extension/panel/index.html is current — written at 2026-11-18T10:37:23.689Z, after apps/angular-ai-devtools/src/app/app.routes.ts, the newest source the build reads (2026-11-18T10:21:20.196Z)
+panel-bundle-budget: measured initial total 534.42 kB (534416 B over 9 eager files) against the 535.44 kB baseline
+panel-bundle-budget: freshness reddens an index.html older than apps/angular-ai-devtools/src/app/app.routes.ts and passes a current one
+image-budget: measured initial total 534.42 kB (534416 B over 9 eager files) against 535.44 kB baseline; margin 1.02 kB
+image-budget: eager files: chunk-B8BF8DsE.js 326561 B, chunk-BnQXArNS.js 645 B, chunk-C9RC8o4w.js 8948 B, chunk-CWnn2n5L.js 4706 B, chunk-DJVAsKa_.js 464 B, chunk-Di8Zy6Ss.js 2600 B, chunk-FCeS4p_v.js 88104 B, main.js 100433 B, styles.css 1955 B
+✔ build-extension keeps the initial budget at 520kb warning and 1mb error (4.5192ms)
+✔ the pre-milestone baseline is recorded as a named constant of 535.44 kB (0.4618ms)
+✔ the initial total counts every eagerly loaded file and excludes the lazy ones (8.1051ms)
+✔ the measured initial total does not exceed the 535.44 kB baseline (6.2224ms)
+✔ a present build older than the newest source file it must carry is refused as stale (9.6563ms)
+✔ empty state when no finding is recorded (0.3942ms)
+✔ loading state shows the fact list being assembled (0.1455ms)
+✔ unknown code renders the unknown state, naming the code (0.2022ms)
+✔ held-out E5: an unknown code renders unknown rather than invented text (0.1197ms)
+✔ success renders finding, code, binding and fix from the digest entry (0.2699ms)
+✔ success fix comes from the digest entry, not invented (mutant) (0.1225ms)
+✔ alias export works (0.0684ms)
+✔ unknown when digest lacks the code even with a finding (0.0823ms)
+✔ image-budget: the initial total stays inside the 535.44 kB baseline (0.6814ms)
+✔ image-budget: the budget assertion reddens when the total exceeds the baseline (0.1659ms)
+panel-bundle-budget: build-extension initial budget {"maximumWarning":"520kb","maximumError":"1mb"} into extension/panel
+panel-bundle-budget: recorded pre-milestone baseline is 535.44 kB
+panel-bundle-budget: synthetic output measured 3.11 kB from 4 eager files, ignoring the icon and the lazy chunk
+panel-bundle-budget: extension/panel/index.html is current — written at 2026-11-18T10:37:23.689Z, after apps/angular-ai-devtools/src/app/app.routes.ts, the newest source the build reads (2026-11-18T10:21:20.196Z)
+panel-bundle-budget: measured initial total 534.42 kB (534416 B over 9 eager files) against the 535.44 kB baseline
+panel-bundle-budget: freshness reddens an index.html older than apps/angular-ai-devtools/src/app/app.routes.ts and passes a current one
+✔ build-extension keeps the initial budget at 520kb warning and 1mb error (4.1706ms)
+✔ the pre-milestone baseline is recorded as a named constant of 535.44 kB (0.4625ms)
+✔ the initial total counts every eagerly loaded file and excludes the lazy ones (8.5936ms)
+✔ the measured initial total does not exceed the 535.44 kB baseline (5.838ms)
+✔ a present build older than the newest source file it must carry is refused as stale (8.7362ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 300.4264
+skill-lint: 18 SKILL.md files, no findings
+skills-registered: 18 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+  .project\review\VERIFICATION.json
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M050; stages archive-paths
+gate-integrity: archive-paths clean - examined 16 live path reference(s) of 183 reference(s) in 150 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M050; stages fix-record
+gate-integrity: fix-record clean - examined 49 claim(s) in 5 task log(s) of .project/tasks (logs of M050) against 41 changed path(s) of e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352 (rule ship: M049's ship commit, e6355ac6 (ship: M049 — interaction-story); the head is this tree's HEAD, 455e8dc3 (plan(M050): T005's Verify skips the build cache and restores the gate stamp); claims: declared)
+gate-integrity: fix-record pins - 13 declared path(s) byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as changes
+gate-integrity: pin scripts/component-search.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:125 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:129 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin scripts/component-search.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin tests/held-out/fixture-explainers-unchanged.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin scripts/gate-stability-record.test.mjs at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:92 (T004) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:92 (T004) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin scripts/panel-bundle-budget.test.mjs at .project/tasks/T005-collapse-the-panel-surface-routes-into-one-factory-so-the-eager-bundle-fits.md:130 (T005) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin scripts/after-render-fixture.test.mjs at .project/tasks/T005-collapse-the-panel-surface-routes-into-one-factory-so-the-eager-bundle-fits.md:130 (T005) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin scripts/component-search.test.mjs at .project/tasks/T005-collapse-the-panel-surface-routes-into-one-factory-so-the-eager-bundle-fits.md:130 (T005) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T005-collapse-the-panel-surface-routes-into-one-factory-so-the-eager-bundle-fits.md:130 (T005) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin tests/held-out/fixture-explainers-unchanged.test.mjs at .project/tasks/T005-collapse-the-panel-surface-routes-into-one-factory-so-the-eager-bundle-fits.md:130 (T005) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: pin extension/panel/index.html at .project/tasks/T005-collapse-the-panel-surface-routes-into-one-factory-so-the-eager-bundle-fits.md:130 (T005) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352, recorded and not judged as a change
+gate-integrity: mention extension/interaction-story.js at .project/tasks/T001-measure-the-three-consequence-chains-and-what-bounds-the-window.md:88 (T001) - recorded and not judged
+gate-integrity: mention extension/agent-main.js at .project/tasks/T001-measure-the-three-consequence-chains-and-what-bounds-the-window.md:89 (T001) - recorded and not judged
+gate-integrity: mention panel-copy-check.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:89 (T003) - recorded and not judged
+gate-integrity: mention panel-interaction-story.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:89 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:100 (T003) - recorded and not judged
+gate-integrity: mention extension/dead-click.js at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:105 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:107 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m050-chains.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:108 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:111 (T003) - recorded and not judged
+gate-integrity: mention app.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:120 (T003) - recorded and not judged
+gate-integrity: mention chat-entry.component.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:121 (T003) - recorded and not judged
+gate-integrity: mention page-picker.component.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:122 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:124 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m047-names-and-absences.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:127 (T003) - recorded and not judged
+gate-integrity: mention panel-components.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:132 (T003) - recorded and not judged
+gate-integrity: mention panel-copy-check.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:132 (T003) - recorded and not judged
+gate-integrity: mention panel-interaction-story.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:133 (T003) - recorded and not judged
+gate-integrity: mention extension/copy-digest.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:134 (T003) - recorded and not judged
+gate-integrity: mention panel-dead-click.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:136 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m044-gate-shapes.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:144 (T003) - recorded and not judged
+gate-integrity: mention extension/copy-digest.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:154 (T003) - recorded and not judged
+gate-integrity: mention panel-dead-click.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:156 (T003) - recorded and not judged
+gate-integrity: mention panel-dead-click.ts at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:83 (T004) - recorded and not judged
+gate-integrity: mention panel-demo.ts at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:83 (T004) - recorded and not judged
+gate-integrity: mention panel-dead-click.ts at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:84 (T004) - recorded and not judged
+gate-integrity: mention panel-dead-click.ts at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:85 (T004) - recorded and not judged
+gate-integrity: mention extension/dead-click.js at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:85 (T004) - recorded and not judged
+gate-integrity: mention research/raw/m048-surface.json at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:85 (T004) - recorded and not judged
+gate-integrity: mention research/raw/m049-surface.json at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:85 (T004) - recorded and not judged
+gate-integrity: mention panel-demo.ts at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:85 (T004) - recorded and not judged
+gate-integrity: mention m049-surface.json at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:86 (T004) - recorded and not judged
+gate-integrity: mention panel-demo.ts at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:86 (T004) - recorded and not judged
+gate-integrity: mention scripts/dead-click.test.mjs at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:87 (T004) - recorded and not judged
+gate-integrity: mention research/raw/m050-chains.json at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:87 (T004) - recorded and not judged
+gate-integrity: mention scripts/dead-click.test.mjs at .project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md:88 (T004) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 35 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+Checking formatting...
+All matched files use Prettier code style!
+✔ E6: a default run is a read: the recording hashes the same before and after (355.7819ms)
+ℹ research/raw/m044-gate-shapes.json at load: 120902 bytes, sha256 cfe1834270229232c5deb957a74cd85bc7e4b68994a6b4a4710608e9e971da53
+ℹ research/raw/m044-gate-shapes.json after the run: sha256 cfe1834270229232c5deb957a74cd85bc7e4b68994a6b4a4710608e9e971da53
+ℹ an armed run would write: research/raw/m044-gate-shapes.json - set "M044_CAPTURE=1"&& node --experimental-strip-types --test "scripts/gate-integrity.test.mjs"
+✔ the recording is the canonical serialisation of its own record (1.0805ms)
+✔ the recording still re-derives from the tree, the range and the stream this head carries (1894.7692ms)
+ℹ archiveReferences: 183 reference(s) in 150 suite(s) of 293 listed file(s); {"archived-by-the-move":16,"deliberate-archive-read":28,"undecided":139}
+ℹ fixRecord: 6 claim(s) in 7 task log(s) over 63 changed path(s); nx.json in range: false; tree cache at d94502d1: true
+ℹ skippedNavigations: 1 NavigationSkipped entry(ies) among 69 event(s) in 8 frame(s); {"skippedByType":1,"skippedByClass":1,"withAStartInTheRecording":1,"withAStartInItsOwnFrame":0}
+✔ every .project reference is enumerated and classified, and each class names the path it resolves (0.7428ms)
+✔ the M035 nx.json claim is absent from its range, and the tree fact is a separate field (1.1789ms)
+✔ a rename is recorded as the pair it produces, and the M035 range carries none (0.1795ms)
+✔ every NavigationSkipped entry is recorded with its id, its url and its start reading (0.8132ms)
+✔ a measurement that examined nothing is a failure, and every section states its command (1.8604ms)
+✔ a planted misclassification reddens the archive-reference pin and names the file (3.5395ms)
+ℹ mutant failure: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   'scripts/error-boundary-capture.test.mjs:46 .project/archive/042-error-boundary/intent/INTENT.md is recorded archived-by-the-move (segment) and the tree derives deliberate-archive-read (segment)',
++   'scripts/error-boundary-capture.test.mjs:46 reason: planted: an archive read called a live reference -> resolves to .project/archive/042-error-boundary/intent/INTENT.md, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose'
++ ]
+- []
+
+✔ the arming gate guards the one write, and the suite spawns nothing but read-only git (1.2689ms)
+✔ AC1: the live paths this tree carries are all namings, and the four reads T002 measured open none (325.9469ms)
+ℹ archivePaths: 16 live reference(s) of 183 in 150 suite(s); findings: none; repaired: scripts/autonomy-gaps.test.mjs, scripts/docs-audit-disposition.test.mjs, scripts/retired-suites.test.mjs, scripts/navigation-capture.test.mjs (asks the shared resolver)
+✔ AC1: every class the record decided is the class the check derives, and no row diverges (1.3532ms)
+✔ AC1: a live read is a finding, a live naming is clean with its use, and an archived read is clean (13.9611ms)
+✔ AC3: the archive-path check reports examined 0 as a finding, for a move that deletes nothing and for a call with no input (0.8605ms)
+✔ AC2: M035 own range carries no nx.json, and the claim is a finding naming the task and the file (754.5643ms)
+ℹ fixRecord: 6 claim(s) from 7 task log(s) over 63 changed path(s); 1 absent: T005 research/raw/stale-view-counter.json
+✔ AC2: a claim naming the new name of a rename is not reported absent, because a rename carries both names (92.7663ms)
+✔ AC3: the fix-record check reports examined 0 as a finding, for an empty range and an empty task list (210.3812ms)
+✔ AC4: removing the use distinction reddens the archive-path check, naming the file and the path (24.8583ms)
+ℹ mutant failure: the live path .project/research/DOCS-AUDIT.md that scripts/docs-audit-disposition.test.mjs:57 reads with readFileSync must be a finding; the mutant reported it clean because a naming and a read are no longer told apart
+✔ AC4: treating a rename as absent reddens the fix-record check, naming the task and the file (147.9338ms)
+ℹ mutant failure: the claim names the new name of the rename .project/archive/043-stability-explainer/intent/INTENT.md, which the range carries
++ actual - expected
+
++ [
++   {
++     claim: '- the archive move put it at `.project/archive/043-stability-explainer/intent/INTENT.md`',
++     class: 'claim-absent-from-the-range',
++     file: '.project/archive/043-stability-explainer/intent/INTENT.md',
++     line: 6,
++     path: '.project/archive/043-stability-explainer/intent/INTENT.md',
++     reason: 'T903 claims .project/archive/043-stability-explainer/intent/INTENT.md at fixture/T903.md:6, and git diff --name-status -M d94502d1^..d94502d1 carries no such path (25 changed path(s), 9 rename row(s))',
++     site: 'log',
++     statusesInTheRange: [
++       {
++         paths: [
++           '.project/intent/INTENT.md',
++           '.project/archive/043-stability-explainer/intent/INTENT.md'
++         ],
++         status: 'R100'
++       }
++     ],
++     task: 'T903',
++     taskFile: 'fixture/T903.md',
++     use: 'claimed',
++     useLine: 6,
++     usedBy: 'git diff --name-status -M d94502d1^..d94502d1',
++     verdict: 'finding'
++   }
++ ]
+- []
+
+✔ AC6: this tree is clean with a non-zero examined count, and one reverted repair reddens it naming the file (12.1207ms)
+ℹ AC6 mutant: scripts/docs-audit-disposition.test.mjs:57 .project/research/DOCS-AUDIT.md read by readFileSync at line 58 - resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives, and this suite reads it with readFileSync at line 58, so that call throws the moment the path is gone
+✔ AC2: a red check reaches the gate as a refusal, and this milestone’s own tree passes it (1352.2892ms)
+ℹ AC2: clean exit 0 on this tree (16 live reference(s), 4 claim(s) over d94502d174aff31b0b1ebbab200d5e47939dec39..455e8dc3473f87b818123934206b35c8cb1f4352); refused exit 1 on the fixture with gate-integrity: refusal scripts/docs-audit-disposition.test.mjs:57 names .project/research/DOCS-AUDIT.md (archived-by-the-move) - resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives, and this suite reads it with readFileSync at line 58, so that call throws the moment the path is gone
+✔ AC7: a log token is a claim only where its task declares it, and claims: log still reports nx.json (1664.3387ms)
+ℹ AC7: declared 4 claim(s) and 7 mention(s), 0 absent; log 11 claim(s), 3 absent (nx.json among them)
+✔ AC7: a declared suite or recording the range did not change is a pin, and an undeclared one is never promoted (432.4164ms)
+ℹ AC7 pin: declared 0 claim(s) and 1 pin(s), 0 absent; log 1 claim(s), 1 absent; undeclared 1 mention(s), 0 pin(s)
+✔ AC7: a declared path the range changed is a claim, not a pin (157.6167ms)
+ℹ AC7 claim: research/raw/m044-gate-shapes.json is in M044's range, recorded as true, with 0 pin(s)
+✔ T004 AC1: each check is driven on its measured instance and a clean control, with what it printed and its exit status (0.6451ms)
+ℹ archive-paths: instance exit 1 with 1 refusal(s), control exit 0 with 0
+ℹ fix-record: instance exit 1 with 1 refusal(s), control exit 0 with 0
+✔ T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails (0.7241ms)
+ℹ mutant failure: Got unwanted exception.
+Actual message: "scripts/planted.test.mjs records 1 dropped assertion line(s): SC6 permits the navigation pin to be replaced and no assertion to be deleted"
+ℹ suiteDiff: 180 suite(s) compared with d94502d1, 26 differ (15 edited, 11 added), 62 assertion line(s) removed of which 62 were re-cut and 0 dropped
+ℹ M apps/angular-ai-devtools/src/app/app.spec.ts: +79/-1, assertions +25/-0 (0 re-cut, 0 dropped) - the ordered route-table pin gained the `console` surface M045 T003 appends last, and the lazy-component / route-data / own-name block for it; every earlier path is unchanged and no assertion line was removed; M047 T003 appends `components` to the same pin with its own lazy-component / route-data / own-name block, and no assertion line was removed; M048 T003 appends `copy-check` to the same pin with its own lazy-component / route-data / own-name block, and no assertion line was removed; M049 T003 appends `interaction-story` to the same pin with its own lazy-component / route-data / own-name block, and no assertion line was removed
+ℹ M apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts: +18/-0, assertions +0/-0 (0 re-cut, 0 dropped) - the chat suite’s two ordered route-table pins gained the `console` surface M045 T003 appends last — in the full path list and in the lazy list — and the per-surface loop names it; no earlier path was reordered and no assertion line was removed; M047 T003 appends `components` to both ordered lists and to that loop, and no earlier path was reordered; M048 T003 appends `copy-check` to both ordered lists and to that loop, and no earlier path was reordered; M049 T003 appends `interaction-story` to both ordered lists and to that loop, and no earlier path was reordered
+ℹ M apps/angular-ai-devtools/src/app/page-picker.component.spec.ts: +57/-3, assertions +8/-0 (0 re-cut, 0 dropped) - the picker suite’s lazy-path list gained the `console` surface M045 T003 appends last, so a route appended without registering still reddens here; the comment above it says so, and no assertion line was removed; M047 T003 appends `components` to both lists and moves the pinned count to twenty-seven, and no assertion line was removed; M048 T003 appends `copy-check` to both lists and moves the pinned count to twenty-eight, and no assertion line was removed; M049 T003 appends `interaction-story` to both lists and moves the pinned count to twenty-nine, and no assertion line was removed
+ℹ M apps/angular-ai-devtools/src/app/panel-demo.spec.ts: +2198/-178, assertions +317/-30 (30 re-cut, 0 dropped) - the demo suite gained the M045 T003 console pin: its route, its sample fact held to the shipped digest and to the join, and its rendered lines held to E7 — no cause, no element, no remedy, no count and no empty list; the earlier surfaces’ pins are unchanged and no assertion line was removed; M047 T003 adds the components pin — its route, its sample fact held to the shipped component-search join, and the four states with a stated count, a stated absence for a missing count, the filtered count and the cannot-tell reason — and the table pin gains `components`; M048 T003 adds the copy-check pin — its route, its sample fact held to the shipped copy-check join over T001’s recorded surfaces and the digest, and the three states with the clean count, each unexplained string named with its surface verbatim, and the cannot-tell reason never rendered as clean — and the table pin gains `copy-check`; M049 T003 adds the interaction-story pin — its route, its sample fact held to the shipped interaction-story join over a record rebuilt from T001’s measured field lists, the steps in `at` order with their recorded fields, the empty stream named beside the story, and the cannot-tell reasons — and the table pin gains `interaction-story`
+ℹ M scripts/autonomy-gaps.test.mjs: +36/-1, assertions +1/-0 (0 re-cut, 0 dropped) - the live audit path is resolved at read time instead of opened by name, so the suite reads whichever copy the checkout carries; no assertion line was removed
+ℹ A scripts/component-search.test.mjs: +1100/-0, assertions +122/-0 (0 re-cut, 0 dropped) - wholly added at this head: M047 T001 measured the names the page agent yields and the absences it states, and T002 pinned the filter over them, so the suite holds `research/raw/m047-names-and-absences.json` to the tree line by line and `extension/component-search.js` to that record — sixteen tests appended, no assertion line removed and no earlier suite touched, a reading the measured commit carries no file to edit
+ℹ A scripts/console-join.test.mjs: +1539/-0, assertions +182/-0 (0 re-cut, 0 dropped) - wholly added at this head: M045 T002 pins the join of a captured diagnostic to the shipped digest by the code it carries — one finding per diagnostic in capture order, a code the digest lacks named rather than counted, a message with no code saying so, and an empty capture kept distinct from no diagnostics — with five mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit
+ℹ A scripts/console-panel-record.test.mjs: +3493/-0, assertions +224/-0 (0 re-cut, 0 dropped) - wholly added at this head: M045 T004 pins the console pane’s behaviour as one recorded reading of it — every case’s join `state`, each finding’s `text` with its `code`/`title`/`reason` exactly where the contract places them, and the pane’s own rendered lines — by re-deriving all of it from the join, the shipped digest and the pane, with a code the digest lacks named rather than counted, captured-nothing stated rather than rendered as an empty list, the two absences kept as two statements, and the one write behind `M045_CAPTURE=1` so a default run reads the same bytes; two mutants each redden the pin that names its defect, a reading the measured commit carries no file to edit
+ℹ A scripts/console-panel-render.test.mjs: +3442/-0, assertions +227/-0 (0 re-cut, 0 dropped) - wholly added at this head: M045 T003 pins the console pane’s rendering of the join’s `{ state, findings[] }` — captured-nothing as a statement, an unmatched code named rather than counted, and no cause, element, remedy or unattributed wording — with six mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit
+ℹ A scripts/copy-check.test.mjs: +3046/-0, assertions +337/-0 (0 re-cut, 0 dropped) - wholly added at this head: M048 T002 pins the join `extension/copy-check.js` — the record-level clean answer with its compared count, each unexplained string with the surface that renders it, and the two cannot-tell reasons in the contract order — over T001’s measured surfaces and the shipped digest, with a copy-less surface kept in its own row rather than deciding the record, a reading the measured commit carries no file to edit
+ℹ A scripts/copy-to-agent.test.mjs: +880/-0, assertions +86/-0 (0 re-cut, 0 dropped) - a suite this milestone added rather than changed: it pins the measurement record `research/raw/m046-pane-and-copy.json`, its five assertions are all additions and none was removed, and every cited path and line is read from that record rather than spelled here
+ℹ A scripts/dead-click.test.mjs: +2055/-0, assertions +211/-0 (0 re-cut, 0 dropped) - wholly added at this head: M050 T001 measures the three consequence chains in `research/raw/m050-chains.json` and T002 pins the judgement `extension/dead-click.js` over the router chain, the two refused chains, the unbounded and empty records and the four mutants, a reading the measured commit carries no file to edit
+ℹ M scripts/doc-fix-alignment.test.mjs: +39/-50, assertions +10/-10 (10 re-cut, 0 dropped) - the two-tree loop over `.commandcode` and `.claude` became one read of the maintained tree, because the owner deleted the mirror; the four assertions it carried still run, once, and the only deleted lines are the loop scaffolding and the second root
+ℹ M scripts/docs-audit-disposition.test.mjs: +43/-4, assertions +1/-0 (0 re-cut, 0 dropped) - the live audit path is resolved at read time instead of bound once at load, so the suite reads whichever copy the checkout carries; no assertion line was removed
+ℹ M scripts/docs-correction.test.mjs: +112/-127, assertions +18/-17 (17 re-cut, 0 dropped) - same reason: the cross-tree loop became a single read, the three assertions that existed only to prove the two trees agreed were replaced by equivalents on the maintained file alone, and the re-attribution pin now asserts checks/state.mjs:321, the line that carries the 600 s timeout, instead of :253 - the Chromium build-and-revision shape, the maintain rationale standing as its own paragraph, and the reference citing the `.commandcode` path
+ℹ A scripts/gate-integrity-default-tasks.test.mjs: +636/-0, assertions +41/-0 (0 re-cut, 0 dropped) - wholly added at this head: M056 T002 measured the fix-record stage’s default task directory on fixture trees, a reading the measured commit carries no file to edit
+ℹ A scripts/gate-integrity.test.mjs: +5652/-0, assertions +346/-0 (0 re-cut, 0 dropped) - added at this head: T001 measured the three shapes, T002 the two checks, T003 the wiring and T004 these recordings, so the measured commit carries no such file to edit
+ℹ A scripts/gate-stability-record.test.mjs: +1084/-0, assertions +34/-0 (0 re-cut, 0 dropped) - wholly added at this head: M056 T001 spawned the three refusing commands and published what each printed, a reading the measured commit carries no file to edit
+ℹ A scripts/interaction-story.test.mjs: +2079/-0, assertions +226/-0 (0 re-cut, 0 dropped) - wholly added at this head: M049 T001 measures the three arrival-ordered streams in `research/raw/m049-streams.json` and T002 pins the narration `extension/interaction-story.js` over the interleaved order, the one-empty and all-empty refusals, the equal-`at` instant and the unreadable record, a reading the measured commit carries no file to edit
+ℹ M scripts/navigation-blocking.test.mjs: +1398/-4, assertions +71/-0 (0 re-cut, 0 dropped) - the navigation pin named in SC6: the answer key set gained `skipped`, the E3 message counts five fields, and the E7/E8 pins for an ended id were added — the one edited assertion SC6 permits
+ℹ M scripts/navigation-capture.test.mjs: +23/-7, assertions +2/-1 (1 re-cut, 0 dropped) - the live intent path is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite decides nothing about the archive move itself; one assertion line was re-cut to the resolver’s answer with its call and its subject unchanged, and none was dropped
+ℹ M scripts/panel-bundle-budget.test.mjs: +177/-2, assertions +5/-0 (0 re-cut, 0 dropped) - the suite gained the freshness rule M050 T005 added: a present extension/panel build older than the newest source file the panel build reads is refused by name, with the rebuild command in the message, instead of being compared as current — proven in both directions by doctoring the build index.html mtime and restoring it; the baseline constant, the synthetic measurement and the real comparison are untouched and the five added assertion lines are all additions, none removed
+ℹ M scripts/panel-routes.test.mjs: +373/-89, assertions +41/-4 (4 re-cut, 0 dropped) - the surface list gained `console-read`, so E1 checks that route and E2 exports it; E4 gained a mutant that drops its LOADERS key and E1 gained one that deletes its route entry, and no existing assertion was removed; M047 T003 appends `components` to the same list and adds its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M048 T003 appends `copy-check` to the same list with its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M049 T003 appends `interaction-story` to the same list with its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M050 T005 replaced the twenty-one per-surface route literals with the PANEL_SURFACES list and one literal mapped over it, so E1 now reads the list, the single literal and the absence of any spelled-out surface route, its per-surface mutants drop a name from that list, the own-closure and second-definition mutants and every E2/E3/E4 assertion are carried unchanged, `console` joins the per-surface list it was missing from, and no assertion line was removed
+ℹ M scripts/panel-typecheck-scope.test.mjs: +68/-27, assertions +3/-0 (0 re-cut, 0 dropped) - the check-chain pin was re-cut from six stages to twelve when T003 wired the two gate stages in, with the red half widened to a dropped, swapped or extra stage of each; strengthened rather than weakened
+ℹ M scripts/performance-capture.test.mjs: +7/-2, assertions +0/-0 (0 re-cut, 0 dropped) - the live intent is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite reads whichever intent was most recently current when none is live between milestones; two assertion lines added and none dropped
+ℹ M scripts/retired-suites.test.mjs: +14/-8, assertions +0/-0 (0 re-cut, 0 dropped) - the live record path became a candidate the resolver tests before opening, so nothing opens the name the archive move deletes; no assertion line was removed
+✔ T004 AC3: the tree the project verify runs is counted, so a removed test is a smaller number (0.143ms)
+ℹ wholeTree: 180 suite(s) of 460 listed file(s) {"scripts":105,"extension":11,"apps":34,"src":2,"skills":28,"total":180}, 2264 test declaration(s) in 303 group(s)
+✔ T004: the three new sections are what this head derives, so a default run is a read (1.1359ms)
+ℹ sections re-measured by an armed run: archiveReferences.command, archiveReferences.counts, archiveReferences.examined, archiveReferences.filesExamined, archiveReferences.movedSubtrees, archiveReferences.movedSubtreesDerivedFrom, archiveReferences.reading, archiveReferences.references, archiveReferences.sites, archiveReferences.suiteSelection, archiveReferences.suitesExamined, drivenChecks.command, drivenChecks.examined, drivenChecks.fixtures, drivenChecks.reading, drivenChecks.runs, fixRecord.claim, fixRecord.claims, fixRecord.claimsExamined, fixRecord.command, fixRecord.examined, fixRecord.findings, fixRecord.range, fixRecord.reading, fixRecord.rename, fixRecord.tasksExamined, fixRecord.tree, skippedNavigations.command, skippedNavigations.counts, skippedNavigations.entries, skippedNavigations.eventTypesFrom, skippedNavigations.examined, skippedNavigations.frames, skippedNavigations.framesExamined, skippedNavigations.reading, skippedNavigations.skippedType, skippedNavigations.startType, suiteDiff.baseline, suiteDiff.command, suiteDiff.counts, suiteDiff.differing, suiteDiff.examined, suiteDiff.filesListed, suiteDiff.reading, wholeTree.command, wholeTree.declarations, wholeTree.examined, wholeTree.filesListed, wholeTree.reading, wholeTree.rule, wholeTree.run, wholeTree.suites
+✔ T003 E5, E7: a milestone whose numerically previous id is unshipped derives a range, and the base it used is printed (843.4677ms)
+ℹ E7: M056 derives e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352 by rule newest-ship - git log names no ship commit for M055, so the base is the newest it carries, e6355ac6 (ship: M049 — interaction-story); the head is this tree's HEAD, 455e8dc3 (plan(M050): T005's Verify skips the build cache and restores the gate stamp)
+ℹ E5: M049 derives 5c9ba40af3966142a9cfee3afdb19eb03a9f0659..455e8dc3473f87b818123934206b35c8cb1f4352 by rule ship
+ℹ printed: gate-integrity: fix-record clean - examined 2 claim(s) in 7 task log(s) of .project/archive/056-gate-phase-stability/tasks (logs of M056) against 41 changed path(s) of e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352 (rule newest-ship: git log names no ship commit for M055, so the base is the newest it carries, e6355ac6 (ship: M049 — interaction-story); the head is this tree's HEAD, 455e8dc3 (plan(M050): T005's Verify skips the build cache and restores the gate stamp); claims: declared)
+✔ T003 E8: restoring the numeric-predecessor rule refuses this milestone, and the refusal names M055 (294.8038ms)
+ℹ E8 mutant failure: the numeric-predecessor rule cannot answer: git log names no ship commit for M055, so the range this milestone owns cannot be derived
+ℹ E8: the repair answers e6355ac6e95e3d9bfa52c2f14a93391399684eb7..455e8dc3473f87b818123934206b35c8cb1f4352; the restored rule answers "" and refuses
+✔ T006: a declared suite-shaped path no commit and no tree carries is refused, not pinned (455.0276ms)
+ℹ T006 pin: scripts/absent-probe-suite.test.mjs is a claim absent from 99054909bd019afd578172200a07b64194e6489e..eb24d1e2deca1deed7992e46a965bb314864b6a1; under fix-record-pin-by-spelling it is 1 pin and 0 finding
+✔ T006: a declared recording-shaped path no commit and no tree carries is refused, not pinned (397.2607ms)
+ℹ T006 pin: research/raw/m999-absent-recording.json is a claim absent from 99054909bd019afd578172200a07b64194e6489e..eb24d1e2deca1deed7992e46a965bb314864b6a1; under fix-record-pin-by-spelling it is 1 pin and 0 finding
+✔ T006: a path named with a leading dot-slash and one named bare produce the same verdict (399.9311ms)
+ℹ T006 token: research/raw/m044-gate-shapes.json reads {"ok":true,"claimsExamined":1,"pinsExamined":0,"inTheRange":[true],"findings":[]} bare and {"ok":true,"claimsExamined":1,"pinsExamined":0,"inTheRange":[true],"findings":[]} with a leading ./; under fix-record-token-unnormalised the dot-slash form reads {"ok":false,"claimsExamined":1,"pinsExamined":0,"inTheRange":[false],"findings":["research/raw/m044-gate-shapes.json claim-absent-from-the-range"]}
+✔ T006: a three-dot range is refused with its form named, not read as a two-dot range (158.7162ms)
+ℹ T006 range: d94502d174aff31b0b1ebbab200d5e47939dec39...53f93bb555ef1805934442b90976dcc807b1bda1 is refused - the range "d94502d174aff31b0b1ebbab200d5e47939dec39...53f93bb555ef1805934442b90976dcc807b1bda1" is a three-dot range (`base...head`), and the pin reading compares a path's blob at exactly two commits, so this check refuses rather than splitting it into a base and a head that no commit carries
+✔ T006: --tasks given one markdown file reads it, and a directory still reads every task file (278.4038ms)
+ℹ T006 tasks: one file read 1 task (0), the directory read 2 (0)
+✔ T011: a declared tail whose spelling exists nowhere is reported, not pinned (707.1247ms)
+ℹ T011 tail: src/app/panel-console.ts is 1 mention naming it and, in claims: log, a finding naming the spelling and 99054909bd019afd578172200a07b64194e6489e..eb24d1e2deca1deed7992e46a965bb314864b6a1; under fix-record-resolve-any-tail it is 1 pin of apps/angular-ai-devtools/src/app/panel-console.ts
+✔ T011: a basename that names a file this tree carries still resolves to its declaration (332.5375ms)
+ℹ T011 basename: tsconfig.json resolves to extension/tsconfig.json as 1 pin, 0 mention; under fix-record-tail-resolution-off it is 0 pin and a mention of tsconfig.json
+✔ T011: two declarations that share a tail are reported, never separated by front-matter order (322.9675ms)
+ℹ T011 ambiguity: nx.json tails apps/one/nx.json and apps/two/nx.json, so the run reports both and judges the token as itself; under fix-record-first-tail-wins it judges apps/one/nx.json and never names apps/two/nx.json
+✔ T011: --tasks given a directory named with the markdown suffix is read, not thrown as EISDIR (337.8891ms)
+ℹ T011 tasks directory: C:\Users\LARSGY~1\AppData\Local\Temp\m044-tasks-directory-XfNKQY\tasks.md read 2 task file(s) and the gate named it on exit 0; under tasks-read-directory-as-file the same argument throws EISDIR
+✔ T011: the corpus reading counts are pinned, so no branch can move them silently (2718.5147ms)
+ℹ T011 counts: the corpus at 516b24506336cbcb8937090f94ad13156ff6f346 reads 83 claim(s), 1 pin(s) and 93 mention(s) over b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..516b24506336cbcb8937090f94ad13156ff6f346; under fix-record-resolve-any-tail it reads 91, 2 and 84
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14945.1137
+npm notice run npx
+npm notice run nx run angular-ai-devtools:build-extension --skip-nx-cache
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 520.00 kB was not met by 14.42 kB with a total of 534.42 kB.[0m
+[39m[22m
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .
+npm notice run npx
+npm notice run prettier --check apps/angular-ai-devtools/src/app/app.routes.ts scripts/panel-bundle-budget.test.mjs
