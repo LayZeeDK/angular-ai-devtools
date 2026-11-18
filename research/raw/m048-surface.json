@@ -1,0 +1,544 @@
+{
+  "schema": "m048-surface/v1",
+  "milestone": "M048 ui-copy-check",
+  "task": "T004",
+  "title": "Record the surface and run the project verify",
+  "question": "which route renders the copy-check surface, which LOADERS key serves it, which three states does the surface render, and which field of the join’s answer does each state read?",
+  "head": "b428f0680dc7679a84944d36c4174b14e98767ca",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: the files the `sources` block names were read line by line at the head above, and every citation below is that read. No browser was opened, no page was read and no build was run; the only command executed against these files is the suite that re-reads this record.",
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+    "join": "extension/copy-check.js",
+    "digest": "extension/copy-digest.json"
+  },
+  "route": {
+    "name": "copy-check",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 209,
+      "lineText": "path: 'copy-check',",
+      "holds": "copy-check"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 210,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadPanelDemo"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 211,
+      "lineText": "data: { surface: 'copy-check' },",
+      "holds": "'copy-check'"
+    },
+    "table": {
+      "name": "appRoutes",
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 17,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "appRoutes"
+    },
+    "closure": [
+      {
+        "name": "loadPanelDemo",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "loadPanelDemo"
+      },
+      {
+        "name": "PanelDemoComponent",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "PanelDemoComponent"
+      }
+    ],
+    "statement": "one route, appended last to the `appRoutes` table (:17), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:211) as every demo-backed route does. The route carries no `component` key and no `children` key: the panel’s route table is a flat list of lazy entries, so the surface is reached by the lazy component and not by a nested route."
+  },
+  "loader": {
+    "map": {
+      "name": "LOADERS",
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "LOADERS"
+    },
+    "key": "copy-check",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 57,
+      "lineText": "'copy-check': () => import('./panel-copy-check') as never,",
+      "holds": "'./panel-copy-check'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 498,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 504,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 505,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 506,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 507,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 445,
+      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 122 },",
+      "holds": "checked: 122"
+    },
+    "sampleFactComment": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 437,
+        "lineText": "// The join's own answer (`extension/copy-check.js`, T002) for T001's measurement",
+        "holds": "copy-check.js"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 439,
+        "lineText": "// (`extension/copy-digest.json`): all 113 compared strings are explained, so the record reads",
+        "holds": "113"
+      }
+    ],
+    "statement": "the `copy-check` key is the last key `LOADERS` carries (:57), and it is the only path to `panel-copy-check.ts`: the demo looks the key up by the name the route’s `data.surface` states (:498), awaits the dynamic import (:504), calls the module’s default export with the sample fact (:505), and sets the state (:506) and the lines (:507) the module answers. The fact it is handed (:445) is `{ state: 'clean', unexplained: [], checked: 113 }` — the join’s answer over the nineteen-surface record T003 rendered — so this route’s fact is the one value here that does not agree with the record T004 re-measured, whose 122 sentences answer `checked: 122`. The comment above it (:439) repeats the 113. Neither line is in T004’s declared paths, so the record names the divergence instead of repairing it."
+  },
+  "answer": {
+    "shape": "{ state, unexplained, checked, reason }",
+    "joinAt": {
+      "name": "copyCheck",
+      "file": "extension/copy-check.js",
+      "line": 218,
+      "lineText": "function copyCheck(surfaces, digest) {",
+      "holds": "copyCheck"
+    },
+    "rowAt": {
+      "name": "surfaceRow",
+      "file": "extension/copy-check.js",
+      "line": 190,
+      "lineText": "function surfaceRow(surface, explained) {",
+      "holds": "surfaceRow"
+    },
+    "fields": [
+      {
+        "field": "state",
+        "builtAt": [
+          {
+            "file": "extension/copy-check.js",
+            "line": 265,
+            "lineText": "state: unexplained.length > 0 ? UNEXPLAINED : CLEAN,",
+            "holds": "state"
+          }
+        ],
+        "note": "one of the three words the join publishes (:77); the pane reads it first (:279) and never renders an absence as `clean`"
+      },
+      {
+        "field": "unexplained",
+        "builtAt": [
+          {
+            "file": "extension/copy-check.js",
+            "line": 205,
+            "lineText": "if (!explained.has(text)) unexplained.push({ string: text, surface: id });",
+            "holds": "unexplained.push"
+          }
+        ],
+        "note": "one `{ string, surface }` per sentence the digest does not explain, in the order the surfaces and their sentences were handed over; empty where nothing was compared"
+      },
+      {
+        "field": "checked",
+        "builtAt": [
+          {
+            "file": "extension/copy-check.js",
+            "line": 210,
+            "lineText": "checked: texts.length,",
+            "holds": "checked"
+          },
+          {
+            "file": "extension/copy-check.js",
+            "line": 246,
+            "lineText": "checked += row.checked;",
+            "holds": "checked += row.checked"
+          }
+        ],
+        "note": "the sentences the join compared, read off its own rows (:190) rather than counted a second way"
+      },
+      {
+        "field": "reason",
+        "builtAt": [
+          {
+            "file": "extension/copy-check.js",
+            "line": 229,
+            "lineText": "reason: NO_DIGEST,",
+            "holds": "reason"
+          },
+          {
+            "file": "extension/copy-check.js",
+            "line": 258,
+            "lineText": "reason: SURFACE_DECLARES_NOTHING,",
+            "holds": "reason"
+          }
+        ],
+        "note": "present only where the state is `cannot-tell`, and one of the two words at :86"
+      }
+    ],
+    "statement": "the pane is handed this answer and renders it; it compares nothing, reads no digest and reads no record. The join decides the answer from its rows (:190) in the contract’s order — a missing digest first (:224), zero strings compared second (:253) — so \"nothing to compare\" never comes back as \"nothing wrong\"."
+  },
+  "states": [
+    {
+      "id": "clean",
+      "word": "clean",
+      "declaredAt": {
+        "name": "CLEAN",
+        "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+        "line": 59,
+        "lineText": "export const CLEAN = 'clean';",
+        "holds": "CLEAN"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 88,
+          "lineText": "text: 'clean: every string the surfaces declare is explained by the digest, and the count below is how many were compared',",
+          "holds": "clean: every string the surfaces declare is explained by the digest, and the count below is how many were compared"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/copy-check.js",
+          "line": 265,
+          "lineText": "state: unexplained.length > 0 ? UNEXPLAINED : CLEAN,",
+          "holds": "CLEAN"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 279,
+            "lineText": "const answerWord = nonEmptyString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "checked",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 302,
+            "lineText": "const checked = statedCount(answer['checked']);",
+            "holds": "answer['checked']"
+          }
+        },
+        {
+          "field": "checked",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 303,
+            "lineText": "const count = checked === null ? NO_CHECKED_TEXT : `checked: ${checked}`;",
+            "holds": "checked: ${checked}"
+          }
+        }
+      ],
+      "statement": "every string the surfaces declare is explained, so the pane renders the state word, its sentence and the count the answer states — `checked: 122` over the re-measured record. A count the answer does not state renders `no-checked` (:108) rather than a number the pane made up."
+    },
+    {
+      "id": "unexplained",
+      "word": "unexplained",
+      "declaredAt": {
+        "name": "UNEXPLAINED",
+        "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+        "line": 60,
+        "lineText": "export const UNEXPLAINED = 'unexplained';",
+        "holds": "UNEXPLAINED"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 93,
+          "lineText": "text: 'unexplained: the digest does not explain the strings below, and each is named with the surface that renders it',",
+          "holds": "unexplained: the digest does not explain the strings below, and each is named with the surface that renders it"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/copy-check.js",
+          "line": 265,
+          "lineText": "state: unexplained.length > 0 ? UNEXPLAINED : CLEAN,",
+          "holds": "UNEXPLAINED"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 279,
+            "lineText": "const answerWord = nonEmptyString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "unexplained",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 310,
+            "lineText": "const entries = Array.isArray(answer['unexplained'])",
+            "holds": "answer['unexplained']"
+          }
+        },
+        {
+          "field": "unexplained[].string",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 253,
+            "lineText": "const string = entry['string'];",
+            "holds": "entry['string']"
+          }
+        },
+        {
+          "field": "unexplained[].string",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 259,
+            "lineText": "? `string: ${string}`",
+            "holds": "string: ${string}"
+          }
+        },
+        {
+          "field": "unexplained[].surface",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 254,
+            "lineText": "const surfaceId = entry['surface'];",
+            "holds": "entry['surface']"
+          }
+        },
+        {
+          "field": "unexplained[].surface",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 264,
+            "lineText": "? `surface: ${surfaceId}`",
+            "holds": "surface: ${surfaceId}"
+          }
+        },
+        {
+          "field": "checked",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 303,
+            "lineText": "const count = checked === null ? NO_CHECKED_TEXT : `checked: ${checked}`;",
+            "holds": "checked: ${checked}"
+          }
+        }
+      ],
+      "statement": "one line pair per entry the answer carries, in the answer’s own order: the string verbatim under `string:` and the id of the surface that renders it under `surface:`. Nothing is trimmed, folded or paraphrased, because a normalisation here would explain a string the digest does not. A list the answer does not carry renders `no-unexplained-list` (:113), an entry with no string renders `no-unexplained-string` (:118), and an entry with no surface renders `no-unexplained-surface` (:123)."
+    },
+    {
+      "id": "cannot-tell",
+      "word": "cannot-tell",
+      "declaredAt": {
+        "name": "CANNOT_TELL",
+        "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+        "line": 61,
+        "lineText": "export const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 98,
+          "lineText": "text: 'cannot-tell: the copy could not be checked, so no string is reported as explained and the reason below states why',",
+          "holds": "cannot-tell: the copy could not be checked, so no string is reported as explained and the reason below states why"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/copy-check.js",
+          "line": 258,
+          "lineText": "reason: SURFACE_DECLARES_NOTHING,",
+          "holds": "SURFACE_DECLARES_NOTHING"
+        },
+        {
+          "file": "extension/copy-check.js",
+          "line": 229,
+          "lineText": "reason: NO_DIGEST,",
+          "holds": "NO_DIGEST"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 279,
+            "lineText": "const answerWord = nonEmptyString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "reason",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 294,
+            "lineText": "const reason = nonEmptyString(answer['reason']);",
+            "holds": "answer['reason']"
+          }
+        },
+        {
+          "field": "reason",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+            "line": 298,
+            "lineText": "reason === null ? NO_REASON_TEXT : `reason: ${reason}`,",
+            "holds": "reason: ${reason}"
+          }
+        }
+      ],
+      "statement": "the answer’s `reason`, echoed as the join’s own word from its closed set, and nothing beside it: no cause, no element, no remedy and no rule identity. An answer that carries no reason renders `no-reason` (:128) rather than an invented one, and a zero-length comparison is never offered in the reason’s place."
+    }
+  ],
+  "stateWords": {
+    "join": {
+      "words": [
+        "clean",
+        "unexplained",
+        "cannot-tell"
+      ],
+      "at": {
+        "name": "STATES",
+        "file": "extension/copy-check.js",
+        "line": 77,
+        "lineText": "const STATES = Object.freeze([CLEAN, UNEXPLAINED, CANNOT_TELL]);",
+        "holds": "STATES"
+      }
+    },
+    "surface": {
+      "words": [
+        "clean",
+        "unexplained",
+        "cannot-tell"
+      ],
+      "at": {
+        "name": "STATES",
+        "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+        "line": 64,
+        "lineText": "export const STATES = [CLEAN, UNEXPLAINED, CANNOT_TELL] as const;",
+        "holds": "STATES"
+      }
+    },
+    "statement": "the surface renders the join’s three words and adds none of its own, which is the one place this pane differs from the components pane: `panel-components.ts` adds `filtered` to the join’s three, and this one has nothing to add because the join’s answer is the whole of what it renders."
+  },
+  "reasonSet": {
+    "closed": true,
+    "declaredAt": {
+      "name": "REASONS",
+      "file": "extension/copy-check.js",
+      "line": 86,
+      "lineText": "const REASONS = Object.freeze([NO_DIGEST, SURFACE_DECLARES_NOTHING]);",
+      "holds": "REASONS"
+    },
+    "enforcedAt": [
+      {
+        "file": "extension/copy-check.js",
+        "line": 224,
+        "lineText": "if (explained.size === 0) {",
+        "holds": "explained.size === 0"
+      },
+      {
+        "file": "extension/copy-check.js",
+        "line": 253,
+        "lineText": "if (checked === 0) {",
+        "holds": "checked === 0"
+      }
+    ],
+    "members": [
+      {
+        "id": "no-digest",
+        "memberAt": {
+          "name": "NO_DIGEST",
+          "file": "extension/copy-check.js",
+          "line": 79,
+          "lineText": "const NO_DIGEST = 'no-digest';",
+          "holds": "NO_DIGEST"
+        },
+        "producedBy": {
+          "file": "extension/copy-check.js",
+          "line": 229,
+          "lineText": "reason: NO_DIGEST,",
+          "holds": "NO_DIGEST"
+        },
+        "why": "the digest is not an object carrying an entries list, or holds no entry with a string text: nobody compared anything, so nothing is counted as compared"
+      },
+      {
+        "id": "surface-declares-nothing",
+        "memberAt": {
+          "name": "SURFACE_DECLARES_NOTHING",
+          "file": "extension/copy-check.js",
+          "line": 80,
+          "lineText": "const SURFACE_DECLARES_NOTHING = 'surface-declares-nothing';",
+          "holds": "SURFACE_DECLARES_NOTHING"
+        },
+        "producedBy": {
+          "file": "extension/copy-check.js",
+          "line": 258,
+          "lineText": "reason: SURFACE_DECLARES_NOTHING,",
+          "holds": "SURFACE_DECLARES_NOTHING"
+        },
+        "why": "every surface the record carries declares no sentence, so the join compared zero strings — `panel-context.ts` alone is this case in the shipped record, and its own row states it"
+      }
+    ],
+    "statement": "two reasons and no third. Both are reachable from the shipped record — the record carries one surface that declares nothing, and a digest-less caller is a case the suite drives — so no word the pane has a sentence for is a word the join never answers."
+  },
+  "notDigested": {
+    "added": [],
+    "scopeAt": {
+      "name": "NOT_DIGESTED",
+      "file": "extension/copy-check.js",
+      "line": 120,
+      "lineText": "const NOT_DIGESTED = Object.freeze([",
+      "holds": "NOT_DIGESTED"
+    },
+    "pluraliserAt": {
+      "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+      "line": 180,
+      "lineText": "return `${count} ${noun}${count === 1 ? '' : 's'}`;",
+      "holds": "${count === 1"
+    },
+    "statement": "nothing this pane renders is composed at render, so T004 added no decision to `NOT_DIGESTED`: all nine of its sentences are registry entries whose text is the string the pane renders whole, and its seven interpolated literals are labels around a field the answer carries, which the join’s `SCOPE` reads past by kind. The one decision of that shape at this head remains `panel-sanitizer.ts:180`’s pluraliser, which builds `${count} ${noun}${count === 1 ? '' : 's'}` and so never renders the template as a whole."
+  },
+  "notCaptured": [
+    "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture.",
+    "The sample fact at `panel-demo.ts:445` carries `checked: 113`, the count the join answered over the nineteen-surface record T003 rendered, and the comment above it (:439) repeats that number. The record T004 re-measured carries 122 sentences, so the fact, the comment and the `panel-demo.spec.ts` pins that hold them (`checked: 113`, `counts.surfaces: 19`) are stale at this head and red. Neither file is in T004’s declared paths, so this record states the divergence rather than repairing it.",
+    "The record does not measure what the pane looks like: the lines each state writes are enumerated in `panel-copy-check.ts`’s `PANE_SENTENCES` and held by `panel-demo.spec.ts`, and this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
+    "The counts in the sample fact are fixture data, not measurements: the 113 is the join’s answer for a record and a digest that no longer match it, and repairing the fact is a change to `panel-demo.ts` and its spec, not a measurement this record could take.",
+    "The route table’s total is not pinned here. A sibling task in a later milestone adds a route on purpose, and a total recorded in this file would go stale without changing what the record says about `copy-check`."
+  ],
+  "verdict": "measured: `/copy-check` is one lazy route (:209) whose `data.surface` names the `copy-check` key of `panel-demo.ts`’s `LOADERS` (:57), and that key is the only path to `panel-copy-check.ts`. The surface renders the join’s three states and adds none of its own: `clean` reads `checked`, `unexplained` reads `unexplained[].string` and `unexplained[].surface` beside `checked`, and `cannot-tell` reads `reason`, which is always one of the two closed reasons — an answer carrying none renders `no-reason` rather than an invented word. The sample fact the demo hands the pane still says `checked: 113`, the pre-re-measurement count, which is the one value on this route that does not agree with the record T004 measured."
+}

@@ -1,0 +1,2862 @@
+{
+  "schema": "m048-surface-copy/v1",
+  "milestone": "M048 ui-copy-check",
+  "task": "T004",
+  "title": "Measure the copy each panel surface declares and where it declares none",
+  "question": "which sentences does each panel surface declare for itself, at which path:line, which does it render from a literal nobody keeps in a map, and which surface declares none at all?",
+  "head": "b428f0680dc7679a84944d36c4174b14e98767ca",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: all twenty apps/angular-ai-devtools/src/app/panel-*.ts surfaces (the two *.spec.ts files are named in `excluded`) were read line by line at the head above, every non-comment line carrying a string literal was extracted with a throwaway script that prints `file:line|trimmed line` (kept in the session scratchpad and not checked in), and every citation below was re-read from the file when this record was re-measured. No browser was opened, no page was read, no build and no test of the app was run; the only commands executed against these files were that extraction and the verify suite named in `verify`, which re-reads all of them. T001 wrote this record over the nineteen surfaces that existed at cfdff389; T004 re-read every line over the twentieth, panel-copy-check.ts, and repaired the three citations in panel-demo.ts that the T003 commit moved.",
+  "lineTextConvention": "every `lineText` is the cited line with its leading and trailing whitespace trimmed and nothing else removed, so a line that is a bare string literal carries its quotes and its trailing comma. `line` is 1-indexed. The suite re-reads each cited line and requires it to equal `lineText` exactly and to contain the sentence the record quotes.",
+  "scope": [
+    "Recorded per surface: (a) every sentence it declares in a map or a module constant, with the key it is declared under; (b) every sentence — fixed or interpolated — written inside a function body or a component template instead of being declared; (c) the label prefix of every line the surface builds from a label and a value, because that prefix is copy the surface writes; (d) the multi-word prose fragment a surface substitutes for a value it does not have.",
+    "Not enumerated as entries: single-token value words a surface derives into a line (`true`/`false` in panel-navigation.ts:186, `disabled`/`unknown` in panel-fields.ts:232 and :235, `valid`/`invalid` in panel-fields.ts:142). They are named in the surface’s own `notes`, and they are values of a line rather than sentences.",
+    "Not recorded at all: the `Error` messages `sentenceText` throws for an id the registry does not carry (panel-components.ts:170, panel-console.ts:268, panel-copy-to-agent.ts:159, panel-copy-check.ts:151). They are developer-facing throws and are never rendered to a reader."
+  ],
+  "counts": {
+    "surfaces": 20,
+    "surfacesWithMap": 7,
+    "surfacesWithConstantsOnly": 11,
+    "surfacesWithInlineOnly": 1,
+    "surfacesWithNothing": 1,
+    "declaredSentences": 88,
+    "declaredLabels": 3,
+    "declaredWordsAndFragments": 8,
+    "inlineSentences": 34,
+    "inlineLabels": 118,
+    "inlineWords": 7,
+    "citations": 322
+  },
+  "surfaces": [
+    {
+      "id": "components",
+      "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+      "renderer": "componentsPanel",
+      "declares": "map",
+      "declaration": {
+        "kind": "array-registry",
+        "name": "PANE_SENTENCES",
+        "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+        "line": 104,
+        "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = ["
+      },
+      "sentences": [
+        {
+          "key": "state-listed",
+          "text": "listed: the record names these components, and every row below is one the record carries",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 107,
+          "lineText": "text: 'listed: the record names these components, and every row below is one the record carries',"
+        },
+        {
+          "key": "state-filtered",
+          "text": "filtered: the typed text kept the rows below, and the count states how many rows matched",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 112,
+          "lineText": "text: 'filtered: the typed text kept the rows below, and the count states how many rows matched',"
+        },
+        {
+          "key": "state-empty",
+          "text": "empty: the record states the page rendered no components, so this is an empty list and not a source that could not be read",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 117,
+          "lineText": "text: 'empty: the record states the page rendered no components, so this is an empty list and not a source that could not be read',"
+        },
+        {
+          "key": "state-cannot-tell",
+          "text": "cannot-tell: the source could not be read, so no list is rendered and the reason below states why",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 122,
+          "lineText": "text: 'cannot-tell: the source could not be read, so no list is rendered and the reason below states why',"
+        },
+        {
+          "key": "no-search-answer",
+          "text": "no-search-answer: no component-search answer was handed over, so no state, no row and no reason are reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 127,
+          "lineText": "text: 'no-search-answer: no component-search answer was handed over, so no state, no row and no reason are reported',"
+        },
+        {
+          "key": "no-name",
+          "text": "no-name: a row arrived with no name the record states, so no component name is rendered for it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 132,
+          "lineText": "text: 'no-name: a row arrived with no name the record states, so no component name is rendered for it',"
+        },
+        {
+          "key": "no-instance-count",
+          "text": "no-instance-count: the record states no instance count for this component, so no count is rendered",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 137,
+          "lineText": "text: 'no-instance-count: the record states no instance count for this component, so no count is rendered',"
+        },
+        {
+          "key": "no-rows",
+          "text": "no-rows: the answer carried no row list, so no row is rendered and no count is stated",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 142,
+          "lineText": "text: 'no-rows: the answer carried no row list, so no row is rendered and no count is stated',"
+        },
+        {
+          "key": "no-reason",
+          "text": "no-reason: the answer reported cannot-tell without a reason, so no reason is stated",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 147,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',"
+        }
+      ],
+      "inline": [
+        {
+          "text": "component: ${name}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 273,
+          "lineText": "lines.push(`component: ${name}`);"
+        },
+        {
+          "text": "instances: ${count}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 275,
+          "lineText": "lines.push(count === null ? NO_INSTANCE_COUNT_TEXT : `instances: ${count}`);"
+        },
+        {
+          "text": "state: ${state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 308,
+          "lineText": "if (sentence === undefined) return surface(state, [`state: ${state}`]);"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 318,
+          "lineText": "reason === null ? NO_REASON_TEXT : `reason: ${reason}`,"
+        },
+        {
+          "text": "rows: ${rows.length}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 329,
+          "lineText": "lines.push(`rows: ${rows.length}`);"
+        },
+        {
+          "text": "matched: ${statedCount(answer['matched']) ?? rows.length}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 333,
+          "lineText": "lines.push(`matched: ${statedCount(answer['matched']) ?? rows.length}`);"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "console",
+      "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+      "renderer": "consolePanel",
+      "declares": "map",
+      "declaration": {
+        "kind": "array-registry",
+        "name": "PANE_SENTENCES",
+        "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+        "line": 176,
+        "lineText": "export const PANE_SENTENCES: readonly PaneSentence[] = ["
+      },
+      "sentences": [
+        {
+          "key": "state-joined",
+          "text": "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 179,
+          "lineText": "text: \"joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order\","
+        },
+        {
+          "key": "state-captured-nothing",
+          "text": "captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 185,
+          "lineText": "text: 'captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent',"
+        },
+        {
+          "key": "state-no-diagnostics",
+          "text": "no-diagnostics: no capture was handed to the join at all, so no capture was read",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 191,
+          "lineText": "text: 'no-diagnostics: no capture was handed to the join at all, so no capture was read',"
+        },
+        {
+          "key": "no-console-answer",
+          "text": "no-console-answer: no console join answer was handed over, so no state and no finding are reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 197,
+          "lineText": "text: 'no-console-answer: no console join answer was handed over, so no state and no finding are reported',"
+        },
+        {
+          "key": "no-finding",
+          "text": "no-finding: the answer reported joined and carried no finding, so no finding is rendered",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 203,
+          "lineText": "text: 'no-finding: the answer reported joined and carried no finding, so no finding is rendered',"
+        },
+        {
+          "key": "no-code",
+          "text": "no-code: the captured message carried no code, so this finding carries no code and no title",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 209,
+          "lineText": "text: 'no-code: the captured message carried no code, so this finding carries no code and no title',"
+        },
+        {
+          "key": "no-title",
+          "text": "no-title: the digest carries the code this message carried and states no title for it, so no title is rendered",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 215,
+          "lineText": "text: 'no-title: the digest carries the code this message carried and states no title for it, so no title is rendered',"
+        },
+        {
+          "key": "unreadable-finding",
+          "text": "unreadable-finding: the answer carried a list entry that is not a finding, so it is named here and nothing is filled in for it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 221,
+          "lineText": "text: 'unreadable-finding: the answer carried a list entry that is not a finding, so it is named here and nothing is filled in for it',"
+        },
+        {
+          "key": "no-digest-entry",
+          "text": "no-digest-entry: the digest carries no entry for {code}, so this finding is named by the code it carried and no title is rendered",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 227,
+          "lineText": "text: 'no-digest-entry: the digest carries no entry for {code}, so this finding is named by the code it carried and no title is rendered',"
+        },
+        {
+          "key": "case-difference",
+          "text": "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 233,
+          "lineText": "text: \"case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title\","
+        },
+        {
+          "key": "case-difference-no-title",
+          "text": "case-difference-no-title: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and no title is stated for it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 239,
+          "lineText": "text: \"case-difference-no-title: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and no title is stated for it\","
+        }
+      ],
+      "inline": [
+        {
+          "text": "code: ${code}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 430,
+          "lineText": "else lines.push(`code: ${code}`);"
+        },
+        {
+          "text": "title: ${title}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 432,
+          "lineText": "if (title !== null) lines.push(`title: ${title}`);"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 451,
+          "lineText": "lines.push(`reason: ${reason}`);"
+        },
+        {
+          "text": "text: ${text}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 453,
+          "lineText": "lines.push(`text: ${text}`);"
+        },
+        {
+          "text": "state: ${state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-console.ts",
+          "line": 467,
+          "lineText": "const lines: string[] = [`state: ${state}`];"
+        }
+      ],
+      "notes": [
+        "Three of the eleven sentences state a hole as `{code}`, `{carriedCode}` or `{digestCode}` and are rendered by `sentenceText(id, values)` filling it in (panel-console.ts:276). A digest that held the filled text would hold one entry per code, which is why the record keeps the slot in the sentence."
+      ]
+    },
+    {
+      "id": "console-read",
+      "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+      "renderer": "consoleReadPanel",
+      "declares": "map",
+      "declaration": {
+        "kind": "array-registry",
+        "name": "PANE_SENTENCES",
+        "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+        "line": 103,
+        "lineText": "export const PANE_SENTENCES: readonly PaneSentence[] = ["
+      },
+      "sentences": [
+        {
+          "key": "state-handed-over",
+          "text": "handed-over: the text the pane drew is the text handed over, and the answer's control sentence names what will be sent before anything is sent",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 106,
+          "lineText": "text: \"handed-over: the text the pane drew is the text handed over, and the answer's control sentence names what will be sent before anything is sent\","
+        },
+        {
+          "key": "state-absence-carried",
+          "text": "absence-carried: the absence this text names is carried in it as the pane stated it, and no part of it is filled in, inferred or repaired here",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 111,
+          "lineText": "text: 'absence-carried: the absence this text names is carried in it as the pane stated it, and no part of it is filled in, inferred or repaired here',"
+        },
+        {
+          "key": "state-cannot-tell",
+          "text": "cannot-tell: the finding could not be expressed as a question, so nothing was handed over and no cause, element, remedy or rule identity is stated",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 116,
+          "lineText": "text: 'cannot-tell: the finding could not be expressed as a question, so nothing was handed over and no cause, element, remedy or rule identity is stated',"
+        },
+        {
+          "key": "no-hand-off-answer",
+          "text": "no-hand-off-answer: no hand-off answer was handed over, so no state, no text and no reason are reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 121,
+          "lineText": "text: 'no-hand-off-answer: no hand-off answer was handed over, so no state, no text and no reason are reported',"
+        },
+        {
+          "key": "no-control",
+          "text": "no-control: the answer carried no control description, so what would be sent is not stated",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 126,
+          "lineText": "text: 'no-control: the answer carried no control description, so what would be sent is not stated',"
+        },
+        {
+          "key": "no-body",
+          "text": "no-body: the answer carried no body, so no text is handed over",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 131,
+          "lineText": "text: 'no-body: the answer carried no body, so no text is handed over',"
+        },
+        {
+          "key": "no-reason",
+          "text": "no-reason: the answer reported cannot-tell without naming a reason, so no reason is stated",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 136,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without naming a reason, so no reason is stated',"
+        }
+      ],
+      "inline": [
+        {
+          "text": "state: ${state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 255,
+          "lineText": "const lines: string[] = [`state: ${state}`, sentence];"
+        },
+        {
+          "text": "control: ${control}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 258,
+          "lineText": "lines.push(control === null ? NO_CONTROL_TEXT : `control: ${control}`);"
+        },
+        {
+          "text": "body: ${body}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 262,
+          "lineText": "typeof body === 'string' && body !== '' ? `body: ${body}` : NO_BODY_TEXT,"
+        },
+        {
+          "text": "absence: ${absence}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 266,
+          "lineText": "if (absence !== null) lines.push(`absence: ${absence}`);"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-to-agent.ts",
+          "line": 296,
+          "lineText": "reason === null ? NO_REASON_TEXT : `reason: ${reason}`,"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "stability",
+      "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+      "renderer": "stabilityPanel",
+      "declares": "map",
+      "declaration": {
+        "kind": "object-map",
+        "name": "ABSENCE_TEXTS",
+        "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+        "line": 94,
+        "lineText": "export const ABSENCE_TEXTS: Readonly<Record<AbsenceName, string>> = {"
+      },
+      "sentences": [
+        {
+          "key": "no-stability-observable",
+          "text": "no-stability-observable: the page published no isStable stream this reader could reach, so no state and no reading are reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 96,
+          "lineText": "'no-stability-observable: the page published no isStable stream this reader could reach, so no state and no reading are reported',"
+        },
+        {
+          "key": "no-cause-reported",
+          "text": "no-cause-reported: isStable is a boolean stream and carries no reason, so no cause is reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 98,
+          "lineText": "'no-cause-reported: isStable is a boolean stream and carries no reason, so no cause is reported',"
+        },
+        {
+          "key": "no-outstanding-inventory",
+          "text": "no-outstanding-inventory: the pending-task set holds bare task ids with no owner, no kind and no count, so no outstanding item is listed",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 100,
+          "lineText": "'no-outstanding-inventory: the pending-task set holds bare task ids with no owner, no kind and no count, so no outstanding item is listed',"
+        },
+        {
+          "key": "no-settle-order",
+          "text": "no-settle-order: the pending-task set records no per-item order and no per-item settle time, so no first item to settle is reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 102,
+          "lineText": "'no-settle-order: the pending-task set records no per-item order and no per-item settle time, so no first item to settle is reported',"
+        },
+        {
+          "key": "unstable",
+          "text": "unstable: the page’s isStable emitted false",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 107,
+          "lineText": "unstable: 'unstable: the page’s isStable emitted false',"
+        },
+        {
+          "key": "stable",
+          "text": "stable: the page’s isStable emitted true",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 108,
+          "lineText": "stable: 'stable: the page’s isStable emitted true',"
+        },
+        {
+          "key": "cannot-tell",
+          "text": "cannot-tell: no isStable emission was reachable, so no state is claimed",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 110,
+          "lineText": "'cannot-tell: no isStable emission was reachable, so no state is claimed',"
+        },
+        {
+          "key": "idle",
+          "text": "idle: no isStable emission has been read yet, which is no verdict either way",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 111,
+          "lineText": "idle: 'idle: no isStable emission has been read yet, which is no verdict either way',"
+        },
+        {
+          "key": "NO_SETTLE_TEXT",
+          "text": "no-settle-observed: the record carries no settle reading, so no time and no duration are reported",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 116,
+          "lineText": "'no-settle-observed: the record carries no settle reading, so no time and no duration are reported';"
+        },
+        {
+          "key": "NO_PAIRED_WORK_TEXT",
+          "text": "repeated work: the frame recorded no paired work",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 120,
+          "lineText": "'repeated work: the frame recorded no paired work';"
+        },
+        {
+          "key": "NO_EMISSION_TIME",
+          "text": "no reading time",
+          "kind": "fragment-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 123,
+          "lineText": "export const NO_EMISSION_TIME = 'no reading time';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "emission: isStable ${value} (the answer carries ${NO_EMISSION_TIME} for it)",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 232,
+          "lineText": "? `emission: isStable ${value} (the answer carries ${NO_EMISSION_TIME} for it)`"
+        },
+        {
+          "text": "emission: isStable ${value} at ${at} ms",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 233,
+          "lineText": ": `emission: isStable ${value} at ${at} ms`,"
+        },
+        {
+          "text": "settle: settled at ${at} ms (the answer carries no attach interval, so none is printed)",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 276,
+          "lineText": "? `settle: settled at ${at} ms (the answer carries no attach interval, so none is printed)`"
+        },
+        {
+          "text": "settle: settled at ${at} ms, ${since} ms after attach",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 277,
+          "lineText": ": `settle: settled at ${at} ms, ${since} ms after attach`;"
+        },
+        {
+          "text": "${pair} ${subject}: ${count} ${word}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 302,
+          "lineText": "lines.push(`${pair} ${subject}: ${count} ${word}`);"
+        },
+        {
+          "text": "no component",
+          "kind": "word",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 299,
+          "lineText": "const subject = name === null ? 'no component' : name;"
+        },
+        {
+          "text": "no readable count",
+          "kind": "word",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 300,
+          "lineText": "const count = passes === null ? 'no readable count' : String(passes);"
+        },
+        {
+          "text": "pass",
+          "kind": "word",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 301,
+          "lineText": "const word = passes === 1 ? 'pass' : 'passes';"
+        },
+        {
+          "text": "state: ${state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 219,
+          "lineText": "const lines: string[] = [`state: ${state}`];"
+        },
+        {
+          "text": "settle: ${NO_SETTLE_OBSERVED}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 253,
+          "lineText": "const lines = [`settle: ${NO_SETTLE_OBSERVED}`, NO_SETTLE_TEXT];"
+        },
+        {
+          "text": "absence: ${name}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 316,
+          "lineText": "const sentence = ABSENCE_TEXTS[name as AbsenceName] ?? `absence: ${name}`;"
+        }
+      ],
+      "notes": [
+        "Two maps and three constants rather than one registry: the four absences live in `ABSENCE_TEXTS` (:94), the four state sentences in `STATE_TEXTS` (:106), and the settle, repeated-work and emission-time texts are module constants at :115, :119 and :123. A digest authored from this surface has to read four places.",
+        "The state sentences use a typographic apostrophe (`page’s`), not an ASCII one: a digest that normalised it would hold a different string than the pane renders."
+      ],
+      "alsoDeclares": [
+        {
+          "name": "STATE_TEXTS",
+          "file": "apps/angular-ai-devtools/src/app/panel-stability.ts",
+          "line": 106,
+          "lineText": "export const STATE_TEXTS: Readonly<Record<string, string>> = {"
+        }
+      ]
+    },
+    {
+      "id": "error-boundary",
+      "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+      "renderer": "errorBoundaryPanel",
+      "declares": "map",
+      "declaration": {
+        "kind": "object-map",
+        "name": "ABSENCE_TEXTS",
+        "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+        "line": 97,
+        "lineText": "export const ABSENCE_TEXTS: Readonly<Record<AbsenceName, string>> = {"
+      },
+      "sentences": [
+        {
+          "key": "no-error-boundary-declared",
+          "text": "no-error-boundary-declared: the record names no error boundary on this page, so there is no declaring component and no caught-by mechanism to report",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 99,
+          "lineText": "'no-error-boundary-declared: the record names no error boundary on this page, so there is no declaring component and no caught-by mechanism to report',"
+        },
+        {
+          "key": "no-error-caught",
+          "text": "no-error-caught: the boundary hook is installed and caught nothing in this window, which is not the same as a page without a boundary",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 101,
+          "lineText": "'no-error-caught: the boundary hook is installed and caught nothing in this window, which is not the same as a page without a boundary',"
+        },
+        {
+          "key": "no-boundary-details",
+          "text": "no-boundary-details: the arrival reached the error handler with no ErrorDetails, so it names no boundary and no caught-by mechanism",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 103,
+          "lineText": "'no-boundary-details: the arrival reached the error handler with no ErrorDetails, so it names no boundary and no caught-by mechanism',"
+        },
+        {
+          "key": "no-error-view-rendered",
+          "text": "no-error-view-rendered: no rendered error view was found, so the content the boundary rendered instead was not recorded",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 105,
+          "lineText": "'no-error-view-rendered: no rendered error view was found, so the content the boundary rendered instead was not recorded',"
+        },
+        {
+          "key": "no-replaced-subtree",
+          "text": "no-replaced-subtree: the boundary removed the primary view and kept no record of it, so the pane cannot show what was replaced",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 107,
+          "lineText": "'no-replaced-subtree: the boundary removed the primary view and kept no record of it, so the pane cannot show what was replaced',"
+        },
+        {
+          "key": "no-global-error-listeners",
+          "text": "no-global-error-listeners: the page declares no browser global error listeners, which is not evidence that no raw error happened",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 109,
+          "lineText": "'no-global-error-listeners: the page declares no browser global error listeners, which is not evidence that no raw error happened',"
+        },
+        {
+          "key": "machinery-unconfirmed",
+          "text": "machinery-unconfirmed: the boundary machinery was not confirmed on this build, so the answer cannot be given",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 111,
+          "lineText": "'machinery-unconfirmed: the boundary machinery was not confirmed on this build, so the answer cannot be given',"
+        },
+        {
+          "key": "handler-unresolved",
+          "text": "handler-unresolved: the error handler could not be resolved, so the boundary hook was never installed",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 113,
+          "lineText": "'handler-unresolved: the error handler could not be resolved, so the boundary hook was never installed',"
+        },
+        {
+          "key": "hook-refused",
+          "text": "hook-refused: the error handler refused the boundary hook, so no arrival could be recorded",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 115,
+          "lineText": "'hook-refused: the error handler refused the boundary hook, so no arrival could be recorded',"
+        },
+        {
+          "key": "no-core-version",
+          "text": "no-core-version: the page reports no core version, so the pane can name only the version it works against",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 117,
+          "lineText": "'no-core-version: the page reports no core version, so the pane can name only the version it works against',"
+        },
+        {
+          "key": "CAUGHT_TEXT",
+          "text": "caught: a boundary caught an error",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 121,
+          "lineText": "export const CAUGHT_TEXT = 'caught: a boundary caught an error';"
+        },
+        {
+          "key": "CANNOT_TELL_TEXT",
+          "text": "cannot-tell: the answer does not establish what happened on this page",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 125,
+          "lineText": "'cannot-tell: the answer does not establish what happened on this page';"
+        },
+        {
+          "key": "IDLE_MESSAGE",
+          "text": "idle: no error boundary answer has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 128,
+          "lineText": "export const IDLE_MESSAGE = 'idle: no error boundary answer has arrived yet';"
+        },
+        {
+          "key": "NO_VERSION_LINE",
+          "text": "version: (the answer names no version)",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 146,
+          "lineText": "export const NO_VERSION_LINE = 'version: (the answer names no version)';"
+        },
+        {
+          "key": "DECLARING_LABEL",
+          "text": "declaring component",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 131,
+          "lineText": "export const DECLARING_LABEL = 'declaring component';"
+        },
+        {
+          "key": "THROWING_LABEL",
+          "text": "throwing component",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 134,
+          "lineText": "export const THROWING_LABEL = 'throwing component';"
+        },
+        {
+          "key": "FALLBACK_LABEL",
+          "text": "fallback rendered by the boundary",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 143,
+          "lineText": "export const FALLBACK_LABEL = 'fallback rendered by the boundary';"
+        },
+        {
+          "key": "CAUGHT_BY_TEXT",
+          "text": "recorded",
+          "kind": "word-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 137,
+          "lineText": "export const CAUGHT_BY_TEXT = 'recorded';"
+        },
+        {
+          "key": "RESET_TEXT",
+          "text": "available",
+          "kind": "word-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 140,
+          "lineText": "export const RESET_TEXT = 'available';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "route: ${finding.route}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 301,
+          "lineText": "if (finding.route !== '') lines.push(`route: ${finding.route}`);"
+        },
+        {
+          "text": "${DECLARING_LABEL}: ${finding.declaringType}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 303,
+          "lineText": "lines.push(`${DECLARING_LABEL}: ${finding.declaringType}`);"
+        },
+        {
+          "text": "${THROWING_LABEL}: ${finding.throwingType}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 305,
+          "lineText": "lines.push(`${THROWING_LABEL}: ${finding.throwingType}`);"
+        },
+        {
+          "text": "caught by: ${finding.caughtBy}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 306,
+          "lineText": "if (finding.caughtBy !== '') lines.push(`caught by: ${finding.caughtBy}`);"
+        },
+        {
+          "text": "reset: ${finding.reset}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 307,
+          "lineText": "if (finding.reset !== '') lines.push(`reset: ${finding.reset}`);"
+        },
+        {
+          "text": "error: ${finding.errorName}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 308,
+          "lineText": "if (finding.errorName !== '') lines.push(`error: ${finding.errorName}`);"
+        },
+        {
+          "text": "error message: ${finding.errorMessage}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 310,
+          "lineText": "lines.push(`error message: ${finding.errorMessage}`);"
+        },
+        {
+          "text": "cause: ${finding.cause}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 311,
+          "lineText": "if (finding.cause !== '') lines.push(`cause: ${finding.cause}`);"
+        },
+        {
+          "text": "replaced subtree: ${finding.replacedSubtree}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 313,
+          "lineText": "lines.push(`replaced subtree: ${finding.replacedSubtree}`);"
+        },
+        {
+          "text": "state: ${read.state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 404,
+          "lineText": "const message = `state: ${read.state}`;"
+        },
+        {
+          "text": "absence: ${absence}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 445,
+          "lineText": "if (!isAbsenceName(absence)) lines.push(`absence: ${absence}`);"
+        },
+        {
+          "text": "version: ${read.version}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 451,
+          "lineText": "read.version === '' ? NO_VERSION_LINE : `version: ${read.version}`,"
+        },
+        {
+          "text": "core version: ${read.coreVersion}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 453,
+          "lineText": "if (read.coreVersion !== '') lines.push(`core version: ${read.coreVersion}`);"
+        }
+      ],
+      "notes": [
+        "Two of the pane’s labels are constants used inside a template (`${DECLARING_LABEL}: ` at :303), so the label is declared once and the line is built inline.",
+        "`CAUGHT_BY_TEXT` and `RESET_TEXT` are words the pane substitutes for a boolean the answer carried, and they are rendered as the value of the `caught by:` and `reset:` lines."
+      ],
+      "alsoDeclares": [
+        {
+          "name": "CAUGHT_TEXT",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 121,
+          "lineText": "export const CAUGHT_TEXT = 'caught: a boundary caught an error';"
+        },
+        {
+          "name": "CANNOT_TELL_TEXT",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 124,
+          "lineText": "export const CANNOT_TELL_TEXT ="
+        },
+        {
+          "name": "IDLE_MESSAGE",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 128,
+          "lineText": "export const IDLE_MESSAGE = 'idle: no error boundary answer has arrived yet';"
+        },
+        {
+          "name": "DECLARING_LABEL",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 131,
+          "lineText": "export const DECLARING_LABEL = 'declaring component';"
+        },
+        {
+          "name": "THROWING_LABEL",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 134,
+          "lineText": "export const THROWING_LABEL = 'throwing component';"
+        },
+        {
+          "name": "CAUGHT_BY_TEXT",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 137,
+          "lineText": "export const CAUGHT_BY_TEXT = 'recorded';"
+        },
+        {
+          "name": "RESET_TEXT",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 140,
+          "lineText": "export const RESET_TEXT = 'available';"
+        },
+        {
+          "name": "FALLBACK_LABEL",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 143,
+          "lineText": "export const FALLBACK_LABEL = 'fallback rendered by the boundary';"
+        },
+        {
+          "name": "NO_VERSION_LINE",
+          "file": "apps/angular-ai-devtools/src/app/panel-error-boundary.ts",
+          "line": 146,
+          "lineText": "export const NO_VERSION_LINE = 'version: (the answer names no version)';"
+        }
+      ]
+    },
+    {
+      "id": "fields",
+      "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+      "renderer": "fieldsPanel",
+      "declares": "map",
+      "declaration": {
+        "kind": "object-map",
+        "name": "CANNOT_TELL_MESSAGES",
+        "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+        "line": 73,
+        "lineText": "const CANNOT_TELL_MESSAGES: Readonly<Record<string, string>> = {"
+      },
+      "sentences": [
+        {
+          "key": "root-invalid-without-error-kind",
+          "text": "cannot tell: the form root is invalid and carries no error kind",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 75,
+          "lineText": "'cannot tell: the form root is invalid and carries no error kind',"
+        },
+        {
+          "key": "submit-state-unreadable",
+          "text": "cannot tell: the page did not report a submit state",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 77,
+          "lineText": "'cannot tell: the page did not report a submit state',"
+        },
+        {
+          "key": "GENERIC_CANNOT_TELL",
+          "text": "cannot tell: the page did not report what this pane needs",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 81,
+          "lineText": "'cannot tell: the page did not report what this pane needs';"
+        },
+        {
+          "key": "LOADING_MESSAGE",
+          "text": "loading: the field set is being read",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 71,
+          "lineText": "const LOADING_MESSAGE = 'loading: the field set is being read';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "fields: ${Object.keys(fields).length} field${Object.keys(fields).length === 1 ? '' : 's'}, submit ${submit}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 151,
+          "lineText": "const message = `fields: ${Object.keys(fields).length} field${Object.keys(fields).length === 1 ? '' : 's'}, submit ${submit}`;"
+        },
+        {
+          "text": "error: the form could not be read",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 194,
+          "lineText": "const message = 'error: the form could not be read';"
+        },
+        {
+          "text": "${name}: ${field.valid ? 'valid' : 'invalid'}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 142,
+          "lineText": "lines.push(`${name}: ${field.valid ? 'valid' : 'invalid'}`);"
+        },
+        {
+          "text": "${name}: error ${err.kind}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 144,
+          "lineText": "lines.push(`${name}: error ${err.kind}`);"
+        },
+        {
+          "text": "submit: ${submit}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 147,
+          "lineText": "lines.push(`submit: ${submit}`);"
+        },
+        {
+          "text": "form: error ${rootError}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 149,
+          "lineText": "lines.push(`form: error ${rootError}`);"
+        },
+        {
+          "text": "reason: ${named}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 179,
+          "lineText": "const rootLines = [message, `reason: ${named}`, `submit: ${submit}`];"
+        }
+      ],
+      "notes": [
+        "The map holds two of the pane’s four fixed sentences and is keyed by the reason the join named; the loading sentence is a module constant and `error: the form could not be read` is a literal inside `error()` (:194).",
+        "The pane also writes the single-token submit values `disabled` (:232) and `unknown` (:235) when the answer states neither; they are values of the `submit:` line and are not enumerated as sentences.",
+        "The error pane prints the reason token bare on its second line (`pane(message, [message, named])`, :196): that line is the answer’s word and no sentence of the pane’s."
+      ],
+      "alsoDeclares": [
+        {
+          "name": "LOADING_MESSAGE",
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 71,
+          "lineText": "const LOADING_MESSAGE = 'loading: the field set is being read';"
+        },
+        {
+          "name": "GENERIC_CANNOT_TELL",
+          "file": "apps/angular-ai-devtools/src/app/panel-fields.ts",
+          "line": 80,
+          "lineText": "const GENERIC_CANNOT_TELL ="
+        }
+      ]
+    },
+    {
+      "id": "navigation",
+      "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+      "renderer": "navigationPanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "IDLE_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+        "line": 150,
+        "lineText": "const IDLE_MESSAGE = 'idle: no navigation answer has arrived yet';"
+      },
+      "sentences": [
+        {
+          "key": "NO_LOAD_ROUTE",
+          "text": "(the answer named no route)",
+          "kind": "fragment-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 73,
+          "lineText": "export const NO_LOAD_ROUTE = '(the answer named no route)';"
+        },
+        {
+          "key": "NO_UNATTRIBUTED_FIELD",
+          "text": "(the answer named neither a kind nor a route)",
+          "kind": "fragment-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 77,
+          "lineText": "'(the answer named neither a kind nor a route)';"
+        },
+        {
+          "key": "NO_NAVIGATION_LINE",
+          "text": "navigations: (the answer carried no navigation)",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 81,
+          "lineText": "'navigations: (the answer carried no navigation)';"
+        },
+        {
+          "key": "IDLE_MESSAGE",
+          "text": "idle: no navigation answer has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 150,
+          "lineText": "const IDLE_MESSAGE = 'idle: no navigation answer has arrived yet';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "unattributed: ${NO_UNATTRIBUTED_FIELD}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 317,
+          "lineText": "return `unattributed: ${NO_UNATTRIBUTED_FIELD}`;"
+        },
+        {
+          "text": "unattributed: ${kind}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 318,
+          "lineText": "if (route === null) return `unattributed: ${kind}`;"
+        },
+        {
+          "text": "unattributed: ${route}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 319,
+          "lineText": "if (kind === null) return `unattributed: ${route}`;"
+        },
+        {
+          "text": "unattributed: ${kind} ${route}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 320,
+          "lineText": "return `unattributed: ${kind} ${route}`;"
+        },
+        {
+          "text": "state: ${row.state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 275,
+          "lineText": "const lines: string[] = [`state: ${row.state}`];"
+        },
+        {
+          "text": "route: ${row.route}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 276,
+          "lineText": "if (row.route !== '') lines.push(`route: ${row.route}`);"
+        },
+        {
+          "text": "endRoute: ${row.endRoute}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 277,
+          "lineText": "if (row.endRoute !== '') lines.push(`endRoute: ${row.endRoute}`);"
+        },
+        {
+          "text": "terminal: ${row.terminal}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 278,
+          "lineText": "if (row.terminal !== '') lines.push(`terminal: ${row.terminal}`);"
+        },
+        {
+          "text": "code: ${row.code}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 279,
+          "lineText": "if (row.code !== '') lines.push(`code: ${row.code}`);"
+        },
+        {
+          "text": "reason: ${row.reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 280,
+          "lineText": "if (row.reason !== '') lines.push(`reason: ${row.reason}`);"
+        },
+        {
+          "text": "error: ${row.errorName}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 281,
+          "lineText": "if (row.errorName !== '') lines.push(`error: ${row.errorName}`);"
+        },
+        {
+          "text": "error message: ${row.errorMessage}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 282,
+          "lineText": "if (row.errorMessage !== '') lines.push(`error message: ${row.errorMessage}`);"
+        },
+        {
+          "text": "stage reached: ${row.stage}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 283,
+          "lineText": "if (row.stage !== '') lines.push(`stage reached: ${row.stage}`);"
+        },
+        {
+          "text": "stage absence: ${row.absence}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 284,
+          "lineText": "if (row.absence !== '') lines.push(`stage absence: ${row.absence}`);"
+        },
+        {
+          "text": "lastEvent: ${row.lastEvent}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 286,
+          "lineText": "lines.push(`lastEvent: ${row.lastEvent}`);"
+        },
+        {
+          "text": "holder: ${row.holder}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 287,
+          "lineText": "if (row.holder !== '') lines.push(`holder: ${row.holder}`);"
+        },
+        {
+          "text": "holder absence: ${row.holderAbsence}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 289,
+          "lineText": "lines.push(`holder absence: ${row.holderAbsence}`);"
+        },
+        {
+          "text": "guards: ${row.guards}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 290,
+          "lineText": "if (row.guards !== '') lines.push(`guards: ${row.guards}`);"
+        },
+        {
+          "text": "guards absence: ${row.guardAbsence}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 292,
+          "lineText": "lines.push(`guards absence: ${row.guardAbsence}`);"
+        },
+        {
+          "text": "shouldActivate: ${row.shouldActivate}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 294,
+          "lineText": "lines.push(`shouldActivate: ${row.shouldActivate}`);"
+        },
+        {
+          "text": "resolve: ${row.resolve}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 295,
+          "lineText": "if (row.resolve !== '') lines.push(`resolve: ${row.resolve}`);"
+        },
+        {
+          "text": "resolve absence: ${row.resolveAbsence}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 297,
+          "lineText": "lines.push(`resolve absence: ${row.resolveAbsence}`);"
+        },
+        {
+          "text": "matched: ${row.matched}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 298,
+          "lineText": "if (row.matched !== '') lines.push(`matched: ${row.matched}`);"
+        },
+        {
+          "text": "load: ${load.route === '' ? NO_LOAD_ROUTE : load.route}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 300,
+          "lineText": "lines.push(`load: ${load.route === '' ? NO_LOAD_ROUTE : load.route}`);"
+        },
+        {
+          "text": "load interval: ${load.interval}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 301,
+          "lineText": "if (load.interval !== '') lines.push(`load interval: ${load.interval}`);"
+        },
+        {
+          "text": "absence: ${read.absence}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 379,
+          "lineText": "if (read.absence !== null) lines.push(`absence: ${read.absence}`);"
+        }
+      ],
+      "notes": [
+        "No map: the pane’s four fixed texts are module constants (:73, :76, :80, :150) and every other line is a label built inline in `rowLines` and `unattributedLine`.",
+        "`stage reached:` is the one label whose wording carries a claim (`:283`): the pane made the stage a labelled word rather than a reason, and the label itself is the copy that says so.",
+        "`booleanText` (:186) writes the single-token words `true` and `false` as the `shouldActivate` value; they are values, not sentences."
+      ],
+      "alsoDeclares": [
+        {
+          "name": "NO_LOAD_ROUTE",
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 73,
+          "lineText": "export const NO_LOAD_ROUTE = '(the answer named no route)';"
+        },
+        {
+          "name": "NO_UNATTRIBUTED_FIELD",
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 76,
+          "lineText": "export const NO_UNATTRIBUTED_FIELD ="
+        },
+        {
+          "name": "NO_NAVIGATION_LINE",
+          "file": "apps/angular-ai-devtools/src/app/panel-navigation.ts",
+          "line": 80,
+          "lineText": "export const NO_NAVIGATION_LINE ="
+        }
+      ]
+    },
+    {
+      "id": "performance",
+      "file": "apps/angular-ai-devtools/src/app/panel-performance.ts",
+      "renderer": "performancePanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "IDLE_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-performance.ts",
+        "line": 106,
+        "lineText": "const IDLE_MESSAGE = 'idle: no performance answer has arrived yet';"
+      },
+      "sentences": [
+        {
+          "key": "NO_INTERVAL_LINE",
+          "text": "intervals: (the answer carried no interval)",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-performance.ts",
+          "line": 64,
+          "lineText": "export const NO_INTERVAL_LINE = 'intervals: (the answer carried no interval)';"
+        },
+        {
+          "key": "IDLE_MESSAGE",
+          "text": "idle: no performance answer has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-performance.ts",
+          "line": 106,
+          "lineText": "const IDLE_MESSAGE = 'idle: no performance answer has arrived yet';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "state: ${row.state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-performance.ts",
+          "line": 166,
+          "lineText": "const lines = [`state: ${row.state}`];"
+        },
+        {
+          "text": "identity: ${row.identity}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-performance.ts",
+          "line": 167,
+          "lineText": "if (row.identity !== '') lines.push(`identity: ${row.identity}`);"
+        },
+        {
+          "text": "cost: ${row.cost}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-performance.ts",
+          "line": 168,
+          "lineText": "if (row.cost !== '') lines.push(`cost: ${row.cost}`);"
+        },
+        {
+          "text": "absence: ${read.absence}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-performance.ts",
+          "line": 225,
+          "lineText": "if (read.absence !== null) lines.push(`absence: ${read.absence}`);"
+        }
+      ],
+      "notes": [],
+      "alsoDeclares": [
+        {
+          "name": "NO_INTERVAL_LINE",
+          "file": "apps/angular-ai-devtools/src/app/panel-performance.ts",
+          "line": 64,
+          "lineText": "export const NO_INTERVAL_LINE = 'intervals: (the answer carried no interval)';"
+        }
+      ]
+    },
+    {
+      "id": "render-phase",
+      "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+      "renderer": "renderPhasePanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "IDLE_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+        "line": 151,
+        "lineText": "const IDLE_MESSAGE = 'idle: no render-phase answer has arrived yet';"
+      },
+      "sentences": [
+        {
+          "key": "IDLE_MESSAGE",
+          "text": "idle: no render-phase answer has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 151,
+          "lineText": "const IDLE_MESSAGE = 'idle: no render-phase answer has arrived yet';"
+        },
+        {
+          "key": "NO_LABEL_LINE",
+          "text": "effect: (the graph gives no label)",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 157,
+          "lineText": "const NO_LABEL_LINE = 'effect: (the graph gives no label)';"
+        },
+        {
+          "key": "NO_READ_LINE",
+          "text": "read: (the recorded edges name no signal)",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 160,
+          "lineText": "const NO_READ_LINE = 'read: (the recorded edges name no signal)';"
+        },
+        {
+          "key": "NO_FIELD_LINE",
+          "text": "change-detection: the answer carried no code, no message and no provenance",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 164,
+          "lineText": "'change-detection: the answer carried no code, no message and no provenance';"
+        },
+        {
+          "key": "NO_MESSAGE",
+          "text": "change-detection: the answer carried no message",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 167,
+          "lineText": "const NO_MESSAGE = 'change-detection: the answer carried no message';"
+        },
+        {
+          "key": "ABSENCE_MESSAGE",
+          "text": "cannot tell: the answer names an absence, not a finding",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 171,
+          "lineText": "'cannot tell: the answer names an absence, not a finding';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "${FINDINGS_STATE}: ${blocks.length}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 408,
+          "lineText": "? `${FINDINGS_STATE}: ${blocks.length}`"
+        },
+        {
+          "text": "effect: ${effect}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 227,
+          "lineText": "effect === null ? NO_LABEL_LINE : `effect: ${effect}`,"
+        },
+        {
+          "text": "namedBy: ${namedBy}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 229,
+          "lineText": "if (namedBy !== null) lines.push(`namedBy: ${namedBy}`);"
+        },
+        {
+          "text": "read: ${signal}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 233,
+          "lineText": "for (const signal of reads) lines.push(`read: ${signal}`);"
+        },
+        {
+          "text": "phase: ${state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 250,
+          "lineText": "const message = `phase: ${state}`;"
+        },
+        {
+          "text": "absence: ${absence}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 256,
+          "lineText": "...pane(message, [message, `absence: ${absence}`]),"
+        },
+        {
+          "text": "code: ${code}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 271,
+          "lineText": "if (code !== null) lines.push(`code: ${code}`);"
+        },
+        {
+          "text": "message: ${body}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 272,
+          "lineText": "if (body !== null) lines.push(`message: ${body}`);"
+        },
+        {
+          "text": "provenance: ${provenance}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 273,
+          "lineText": "if (provenance !== null) lines.push(`provenance: ${provenance}`);"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 293,
+          "lineText": "...pane(ABSENCE_MESSAGE, [ABSENCE_MESSAGE, `reason: ${reason}`]),"
+        },
+        {
+          "text": "state: ${state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 303,
+          "lineText": "const message = `state: ${state}`;"
+        }
+      ],
+      "notes": [
+        "Six module constants and no map. The multi-block pane also writes `findings: <n>` (:408), the only sentence it composes from a count."
+      ],
+      "alsoDeclares": [
+        {
+          "name": "NO_LABEL_LINE",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 157,
+          "lineText": "const NO_LABEL_LINE = 'effect: (the graph gives no label)';"
+        },
+        {
+          "name": "NO_READ_LINE",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 160,
+          "lineText": "const NO_READ_LINE = 'read: (the recorded edges name no signal)';"
+        },
+        {
+          "name": "NO_FIELD_LINE",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 163,
+          "lineText": "const NO_FIELD_LINE ="
+        },
+        {
+          "name": "NO_MESSAGE",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 167,
+          "lineText": "const NO_MESSAGE = 'change-detection: the answer carried no message';"
+        },
+        {
+          "name": "ABSENCE_MESSAGE",
+          "file": "apps/angular-ai-devtools/src/app/panel-render-phase.ts",
+          "line": 170,
+          "lineText": "const ABSENCE_MESSAGE ="
+        }
+      ]
+    },
+    {
+      "id": "linked-state",
+      "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+      "renderer": "linkedStatePanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "IDLE_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+        "line": 147,
+        "lineText": "const IDLE_MESSAGE = 'idle: no linked-state fact has arrived yet';"
+      },
+      "sentences": [
+        {
+          "key": "IDLE_MESSAGE",
+          "text": "idle: no linked-state fact has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+          "line": 147,
+          "lineText": "const IDLE_MESSAGE = 'idle: no linked-state fact has arrived yet';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "cannot tell: no linked state can be named from this fact",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+          "line": 239,
+          "lineText": "const message = 'cannot tell: no linked state can be named from this fact';"
+        },
+        {
+          "text": "signal: ${signal}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+          "line": 216,
+          "lineText": "`signal: ${signal}`,"
+        },
+        {
+          "text": "source: ${source}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+          "line": 217,
+          "lineText": "`source: ${source}`,"
+        },
+        {
+          "text": "value: ${value}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+          "line": 218,
+          "lineText": "`value: ${value}`,"
+        },
+        {
+          "text": "sourceValue: ${sourceValue}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+          "line": 219,
+          "lineText": "`sourceValue: ${sourceValue}`,"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+          "line": 220,
+          "lineText": "`reason: ${reason}`,"
+        },
+        {
+          "text": "state: ${state}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-linked-state.ts",
+          "line": 254,
+          "lineText": "const message = `state: ${state}`;"
+        }
+      ],
+      "notes": [
+        "One module constant (the idle message) and one fixed sentence written inside `cannotTell()` (:239); the `cannot tell` sentence is the pane’s only prose absence and it cannot be read from a constant.",
+        "The finding’s `message` is the agreement word itself (:250, `pane(reason, lines)`), so that line is the answer’s word and no sentence of the pane’s."
+      ]
+    },
+    {
+      "id": "lint",
+      "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+      "renderer": "lintPanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "LOADING_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+        "line": 106,
+        "lineText": "const LOADING_MESSAGE = 'loading: no diagnostic fact has arrived yet';"
+      },
+      "sentences": [
+        {
+          "key": "LOADING_MESSAGE",
+          "text": "loading: no diagnostic fact has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+          "line": 106,
+          "lineText": "const LOADING_MESSAGE = 'loading: no diagnostic fact has arrived yet';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "cannot tell: no construct can be named from this message",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+          "line": 166,
+          "lineText": "const message = 'cannot tell: no construct can be named from this message';"
+        },
+        {
+          "text": "error: the diagnostic fact could not be read",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+          "line": 177,
+          "lineText": "const message = 'error: the diagnostic fact could not be read';"
+        },
+        {
+          "text": "construct: ${construct}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+          "line": 148,
+          "lineText": "`construct: ${construct}`,"
+        },
+        {
+          "text": "code: ${code}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+          "line": 149,
+          "lineText": "`code: ${code}`,"
+        },
+        {
+          "text": "message: ${body}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+          "line": 150,
+          "lineText": "`message: ${body}`,"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+          "line": 171,
+          "lineText": "...pane(message, [message, `reason: ${reason}`]),"
+        }
+      ],
+      "notes": [
+        "The pane’s `cannot tell` and `error` sentences are literals inside `cannotTell()` (:166) and `error()` (:177), so two of its three sentences are unreachable from the one constant it declares."
+      ]
+    },
+    {
+      "id": "router",
+      "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+      "renderer": "routerPanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "LOADING_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+        "line": 106,
+        "lineText": "const LOADING_MESSAGE = 'loading: no router diagnostic fact has arrived yet';"
+      },
+      "sentences": [
+        {
+          "key": "LOADING_MESSAGE",
+          "text": "loading: no router diagnostic fact has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+          "line": 106,
+          "lineText": "const LOADING_MESSAGE = 'loading: no router diagnostic fact has arrived yet';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "cannot tell: no router finding can be named",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+          "line": 173,
+          "lineText": "const message = 'cannot tell: no router finding can be named';"
+        },
+        {
+          "text": "error: the router diagnostic fact could not be read",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+          "line": 184,
+          "lineText": "const message = 'error: the router diagnostic fact could not be read';"
+        },
+        {
+          "text": "segment: ${segment}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+          "line": 153,
+          "lineText": "`segment: ${segment}`,"
+        },
+        {
+          "text": "code: ${code}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+          "line": 154,
+          "lineText": "`code: ${code}`,"
+        },
+        {
+          "text": "message: ${body}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+          "line": 155,
+          "lineText": "`message: ${body}`,"
+        },
+        {
+          "text": "considered: ${consideredCount}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+          "line": 156,
+          "lineText": "`considered: ${consideredCount}`,"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-router.ts",
+          "line": 178,
+          "lineText": "...pane(message, [message, `reason: ${reason}`]),"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "resource",
+      "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+      "renderer": "resourcePanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "LOADING_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+        "line": 133,
+        "lineText": "const LOADING_MESSAGE = 'loading: no resource fact has arrived yet';"
+      },
+      "sentences": [
+        {
+          "key": "LOADING_MESSAGE",
+          "text": "loading: no resource fact has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+          "line": 133,
+          "lineText": "const LOADING_MESSAGE = 'loading: no resource fact has arrived yet';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "cannot tell: no resource state can be named from this fact",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+          "line": 200,
+          "lineText": "const message = 'cannot tell: no resource state can be named from this fact';"
+        },
+        {
+          "text": "error: the resource fact could not be read",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+          "line": 211,
+          "lineText": "const message = 'error: the resource fact could not be read';"
+        },
+        {
+          "text": "resource: ${resource}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+          "line": 181,
+          "lineText": "`resource: ${resource}`,"
+        },
+        {
+          "text": "status: ${status}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+          "line": 182,
+          "lineText": "`status: ${status}`,"
+        },
+        {
+          "text": "params: ${params}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+          "line": 183,
+          "lineText": "`params: ${params}`,"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+          "line": 205,
+          "lineText": "...pane(message, [message, `reason: ${reason}`]),"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "onpush",
+      "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+      "renderer": "onpushPanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "LOADING_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+        "line": 113,
+        "lineText": "const LOADING_MESSAGE ="
+      },
+      "sentences": [
+        {
+          "key": "NO_READINESS_FACTS",
+          "text": "no readiness fact is recorded",
+          "kind": "fragment-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 53,
+          "lineText": "export const NO_READINESS_FACTS = 'no readiness fact is recorded';"
+        },
+        {
+          "key": "LOADING_MESSAGE",
+          "text": "loading: no change-detection readiness fact has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 114,
+          "lineText": "'loading: no change-detection readiness fact has arrived yet';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "cannot tell: no change-detection readiness can be named from this fact",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 179,
+          "lineText": "'cannot tell: no change-detection readiness can be named from this fact';"
+        },
+        {
+          "text": "error: the change-detection readiness fact could not be read",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 191,
+          "lineText": "'error: the change-detection readiness fact could not be read';"
+        },
+        {
+          "text": "component: ${component}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 160,
+          "lineText": "const lines = [`component: ${component}`, `strategy: ${strategy}`];"
+        },
+        {
+          "text": "strategy: ${strategy}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 160,
+          "lineText": "const lines = [`component: ${component}`, `strategy: ${strategy}`];"
+        },
+        {
+          "text": "facts: ${NO_READINESS_FACTS}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 161,
+          "lineText": "if (facts.length === 0) lines.push(`facts: ${NO_READINESS_FACTS}`);"
+        },
+        {
+          "text": "fact: ${fact}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 162,
+          "lineText": "for (const fact of facts) lines.push(`fact: ${fact}`);"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 184,
+          "lineText": "...pane(message, [message, `reason: ${reason}`]),"
+        }
+      ],
+      "notes": [
+        "`component:` and `strategy:` are two labels on one line (:160), so one cited line carries two of the pane’s labels."
+      ],
+      "alsoDeclares": [
+        {
+          "name": "NO_READINESS_FACTS",
+          "file": "apps/angular-ai-devtools/src/app/panel-onpush.ts",
+          "line": 53,
+          "lineText": "export const NO_READINESS_FACTS = 'no readiness fact is recorded';"
+        }
+      ]
+    },
+    {
+      "id": "legacy",
+      "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+      "renderer": "legacyPanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "LOADING_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+        "line": 118,
+        "lineText": "const LOADING_MESSAGE = 'loading: no legacy structure fact has arrived yet';"
+      },
+      "sentences": [
+        {
+          "key": "NO_SOURCED_FORM",
+          "text": "no modern form is recorded for this structure",
+          "kind": "fragment-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 55,
+          "lineText": "export const NO_SOURCED_FORM = 'no modern form is recorded for this structure';"
+        },
+        {
+          "key": "LOADING_MESSAGE",
+          "text": "loading: no legacy structure fact has arrived yet",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 118,
+          "lineText": "const LOADING_MESSAGE = 'loading: no legacy structure fact has arrived yet';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "cannot tell: no legacy structure can be named from this fact",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 196,
+          "lineText": "'cannot tell: no legacy structure can be named from this fact';"
+        },
+        {
+          "text": "error: the legacy structure fact could not be read",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 207,
+          "lineText": "const message = 'error: the legacy structure fact could not be read';"
+        },
+        {
+          "text": "component: ${component}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 165,
+          "lineText": "const lines = [`component: ${component}`, `structure: ${structure}`];"
+        },
+        {
+          "text": "structure: ${structure}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 165,
+          "lineText": "const lines = [`component: ${component}`, `structure: ${structure}`];"
+        },
+        {
+          "text": "modernForm: ${NO_SOURCED_FORM}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 167,
+          "lineText": "lines.push(`modernForm: ${NO_SOURCED_FORM}`);"
+        },
+        {
+          "text": "source: ${source}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 178,
+          "lineText": "lines.push(`modernForm: ${modernForm}`, `source: ${source}`);"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 201,
+          "lineText": "...pane(message, [message, `reason: ${reason}`]),"
+        }
+      ],
+      "notes": [],
+      "alsoDeclares": [
+        {
+          "name": "NO_SOURCED_FORM",
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 55,
+          "lineText": "export const NO_SOURCED_FORM = 'no modern form is recorded for this structure';"
+        }
+      ]
+    },
+    {
+      "id": "redirect",
+      "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+      "renderer": "redirectPanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "LOADING_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+        "line": 83,
+        "lineText": "const LOADING_MESSAGE = 'loading: the redirect chain is being walked';"
+      },
+      "sentences": [
+        {
+          "key": "LOADING_MESSAGE",
+          "text": "loading: the redirect chain is being walked",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 83,
+          "lineText": "const LOADING_MESSAGE = 'loading: the redirect chain is being walked';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "walked: ${chain.length} route${chain.length === 1 ? '' : 's'} entered, destination ${destination ?? 'not recorded'}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 141,
+          "lineText": "const message = `walked: ${chain.length} route${chain.length === 1 ? '' : 's'} entered, destination ${destination ?? 'not recorded'}`;"
+        },
+        {
+          "text": "cycle: the walk revisited ${named}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 154,
+          "lineText": "const message = `cycle: the walk revisited ${named}`;"
+        },
+        {
+          "text": "gated: a route is gated",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 165,
+          "lineText": "const message = `gated: a route is gated`;"
+        },
+        {
+          "text": "cannot tell: the router configuration could not be read",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 180,
+          "lineText": "const message = 'cannot tell: the router configuration could not be read';"
+        },
+        {
+          "text": "error: the walk stopped at a lazy boundary at ${named}",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 191,
+          "lineText": "const message = `error: the walk stopped at a lazy boundary at ${named}`;"
+        },
+        {
+          "text": "not recorded",
+          "kind": "word",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 153,
+          "lineText": "const named = route.length > 0 ? route : 'not recorded';"
+        },
+        {
+          "text": "gated",
+          "kind": "word",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 166,
+          "lineText": "const lines = [`route ${named}`, 'gated'];"
+        },
+        {
+          "text": "(changed)",
+          "kind": "word",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 137,
+          "lineText": "lines.push(marked ? `${entry.path} (changed)` : entry.path);"
+        },
+        {
+          "text": "destination ${destination}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 140,
+          "lineText": "lines.push(`destination ${destination}`);"
+        },
+        {
+          "text": "route ${named}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 159,
+          "lineText": "...pane(message, [`route ${named}`]),"
+        }
+      ],
+      "notes": [
+        "Five of the pane’s six sentences are written inside the factory functions (:141, :154, :165, :180, :191) — three of them interpolated and two of them fixed — and only the loading sentence is a constant, so this surface declares one sentence of six in a place a digest can read.",
+        "`not recorded` (:153) is the word substituted for a missing value and is rendered in three sentences (:141, :154, :191)."
+      ]
+    },
+    {
+      "id": "sanitizer",
+      "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+      "renderer": "sanitizerPanel",
+      "declares": "constants",
+      "declaration": {
+        "kind": "module-constants",
+        "name": "LOADING_MESSAGE",
+        "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+        "line": 114,
+        "lineText": "const LOADING_MESSAGE = 'loading: the sanitizer finding is being assembled';"
+      },
+      "sentences": [
+        {
+          "key": "LOADING_MESSAGE",
+          "text": "loading: the sanitizer finding is being assembled",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 114,
+          "lineText": "const LOADING_MESSAGE = 'loading: the sanitizer finding is being assembled';"
+        },
+        {
+          "key": "NONE_MESSAGE",
+          "text": "none: no sanitizer warning was captured for this page",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 120,
+          "lineText": "const NONE_MESSAGE = 'none: no sanitizer warning was captured for this page';"
+        },
+        {
+          "key": "NONE_ABSENCE_LINE",
+          "text": "the absence of a capture is not a measurement of the page",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 122,
+          "lineText": "'the absence of a capture is not a measurement of the page';"
+        },
+        {
+          "key": "CANNOT_TELL_MESSAGE",
+          "text": "cannot tell: a warning was captured and no covering record was found to join it to, so no component can be named",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 126,
+          "lineText": "'cannot tell: a warning was captured and no covering record was found to join it to, so no component can be named';"
+        },
+        {
+          "key": "ERROR_MESSAGE",
+          "text": "error: the sanitizer capture could not be read",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 129,
+          "lineText": "const ERROR_MESSAGE = 'error: the sanitizer capture could not be read';"
+        },
+        {
+          "key": "ERROR_LINE",
+          "text": "no sanitizer finding can be rendered from this capture",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 130,
+          "lineText": "const ERROR_LINE = 'no sanitizer finding can be rendered from this capture';"
+        },
+        {
+          "key": "DELIBERATE_MESSAGE",
+          "text": "deliberate: this binding declares a sanitizer bypass and the capture recorded no warning for it",
+          "kind": "sentence-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 134,
+          "lineText": "'deliberate: this binding declares a sanitizer bypass and the capture recorded no warning for it';"
+        },
+        {
+          "key": "NOT_RECORDED",
+          "text": "not recorded",
+          "kind": "word-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 60,
+          "lineText": "const NOT_RECORDED = 'not recorded';"
+        }
+      ],
+      "inline": [
+        {
+          "text": "at ${rendered(finding.at)}: no covering record (${NO_COVERING_RECORD})",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 253,
+          "lineText": "return `at ${rendered(finding.at)}: no covering record (${NO_COVERING_RECORD})`;"
+        },
+        {
+          "text": "stripped: ${counted(placed.length, 'warning')} placed on a covering record",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 298,
+          "lineText": "`stripped: ${counted(placed.length, 'warning')} placed on a covering record`,"
+        },
+        {
+          "text": "${counted(unattributable, 'warning')} could not be placed",
+          "kind": "sentence",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 301,
+          "lineText": "parts.push(`${counted(unattributable, 'warning')} could not be placed`);"
+        },
+        {
+          "text": "no single binding was carried",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 303,
+          "lineText": "binding === null ? 'no single binding was carried' : `binding ${binding}`,"
+        },
+        {
+          "text": "${count} ${noun}${count === 1 ? '' : 's'}",
+          "kind": "word",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 180,
+          "lineText": "return `${count} ${noun}${count === 1 ? '' : 's'}`;"
+        },
+        {
+          "text": "component ${name}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 258,
+          "lineText": "const lines = finding.components.map((name) => `component ${name}`);"
+        },
+        {
+          "text": "cycle ${cycleId}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 259,
+          "lineText": "for (const cycleId of finding.cycleIds) lines.push(`cycle ${cycleId}`);"
+        },
+        {
+          "text": "at ${rendered(finding.at)}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 260,
+          "lineText": "lines.push(`at ${rendered(finding.at)}`);"
+        },
+        {
+          "text": "binding ${finding.binding}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 261,
+          "lineText": "if (finding.binding !== null) lines.push(`binding ${finding.binding}`);"
+        },
+        {
+          "text": "binding ${binding}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 331,
+          "lineText": "const lines = [`binding ${binding}`];"
+        },
+        {
+          "text": "at ${at}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 332,
+          "lineText": "if (at !== null) lines.push(`at ${at}`);"
+        }
+      ],
+      "notes": [
+        "Seven module constants, which is the most of any surface, and no map: the six sentences are declared as constants above their renderers rather than in one registry.",
+        "`counted()` (:180) is the pane’s pluraliser and writes the `s` of `warnings`: a digest that held `2 warning` would hold a string the pane never renders."
+      ],
+      "alsoDeclares": [
+        {
+          "name": "NOT_RECORDED",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 60,
+          "lineText": "const NOT_RECORDED = 'not recorded';"
+        },
+        {
+          "name": "NONE_MESSAGE",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 120,
+          "lineText": "const NONE_MESSAGE = 'none: no sanitizer warning was captured for this page';"
+        },
+        {
+          "name": "NONE_ABSENCE_LINE",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 121,
+          "lineText": "const NONE_ABSENCE_LINE ="
+        },
+        {
+          "name": "CANNOT_TELL_MESSAGE",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 125,
+          "lineText": "const CANNOT_TELL_MESSAGE ="
+        },
+        {
+          "name": "ERROR_MESSAGE",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 129,
+          "lineText": "const ERROR_MESSAGE = 'error: the sanitizer capture could not be read';"
+        },
+        {
+          "name": "ERROR_LINE",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 130,
+          "lineText": "const ERROR_LINE = 'no sanitizer finding can be rendered from this capture';"
+        },
+        {
+          "name": "DELIBERATE_MESSAGE",
+          "file": "apps/angular-ai-devtools/src/app/panel-sanitizer.ts",
+          "line": 133,
+          "lineText": "const DELIBERATE_MESSAGE ="
+        }
+      ]
+    },
+    {
+      "id": "panel-demo",
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "renderer": "PanelDemoComponent",
+      "declares": "inline-only",
+      "declaration": null,
+      "sentences": [],
+      "inline": [
+        {
+          "text": "panel surface: {{ name() }}",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+          "line": 457,
+          "lineText": "<h2>panel surface: {{ name() }}</h2>"
+        },
+        {
+          "text": "state: {{ state() }}",
+          "kind": "label",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+          "line": 458,
+          "lineText": "<p class=\"state\">state: {{ state() }}</p>"
+        },
+        {
+          "text": "error: no such surface",
+          "kind": "sentence",
+          "interpolated": false,
+          "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+          "line": 501,
+          "lineText": "this.lines.set(['error: no such surface ' + name]);"
+        }
+      ],
+      "notes": [
+        "The demo host declares its own two template lines inside the component’s `template` string (:457, :458) and its one error sentence by string concatenation (:501). Nothing it writes is in a constant or a map.",
+        "It is recorded because it is a `panel-*.ts` file and it renders copy of its own; it is not one of the nineteen subject surfaces, and the lines it renders for them are theirs.",
+        "The template also renders `{{ block.state }}` (:466) and `{{ line }}` (:468, :474), which are values with no pane text of their own.",
+        "The three lines moved from :447, :448 and :491 at T001’s head when the `copy-check` sample fact was appended to `FACTS` above them (panel-demo.ts:437-:445); the citations here were re-read at this head rather than shifted."
+      ]
+    },
+    {
+      "id": "context",
+      "file": "apps/angular-ai-devtools/src/app/panel-context.ts",
+      "renderer": "buildPanelContext",
+      "declares": "nothing",
+      "declaration": null,
+      "sentences": [],
+      "inline": [],
+      "notes": [],
+      "absence": {
+        "statement": "panel-context.ts renders nothing and declares no sentence: it is the adapter that turns the panel’s signals into one `PanelContext`, and its whole surface is three exported types and one pure function.",
+        "evidence": [
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-context.ts",
+            "line": 36,
+            "lineText": "import type { Signal } from '@angular/core';"
+          },
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-context.ts",
+            "line": 37,
+            "lineText": "import type { CompanionRecord } from './companion';"
+          },
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-context.ts",
+            "line": 48,
+            "lineText": "export type ReplayOutcome = 'outstanding' | 'answered' | 'failed';"
+          },
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-context.ts",
+            "line": 159,
+            "lineText": "function readZoneMode(value: string | null): 'zone' | 'noop' | 'unknown' {"
+          },
+          {
+            "file": "apps/angular-ai-devtools/src/app/panel-context.ts",
+            "line": 160,
+            "lineText": "return value === 'zone' || value === 'noop' ? value : 'unknown';"
+          }
+        ],
+        "why": "The only string literals in the file’s code are the members of two union types (`outstanding`/`answered`/`failed` and `zone`/`noop`/`unknown`) and the object keys it writes: no template literal, no quoted string containing a space, and no map. Its doc comments are prose and are never rendered. The scan that says so is the suite’s own — scripts/copy-check.test.mjs, the test named \"a surface that declares no sentences is recorded as an absence, not skipped\" — which strips the comments and then requires zero template literals and zero string literals containing whitespace, with panel-components.ts beside it as the control where the same scan finds nine sentence literals.",
+        "consequence": "The join in T002 has to answer `cannot-tell` for this surface rather than an empty list, and the record states the absence so that answer is read off a measurement rather than inferred from a missing entry."
+      }
+    },
+    {
+      "id": "copy-check",
+      "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+      "renderer": "copyCheckPanel",
+      "declares": "map",
+      "declaration": {
+        "kind": "array-registry",
+        "name": "PANE_SENTENCES",
+        "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+        "line": 85,
+        "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = ["
+      },
+      "sentences": [
+        {
+          "key": "state-clean",
+          "text": "clean: every string the surfaces declare is explained by the digest, and the count below is how many were compared",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 88,
+          "lineText": "text: 'clean: every string the surfaces declare is explained by the digest, and the count below is how many were compared',"
+        },
+        {
+          "key": "state-unexplained",
+          "text": "unexplained: the digest does not explain the strings below, and each is named with the surface that renders it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 93,
+          "lineText": "text: 'unexplained: the digest does not explain the strings below, and each is named with the surface that renders it',"
+        },
+        {
+          "key": "state-cannot-tell",
+          "text": "cannot-tell: the copy could not be checked, so no string is reported as explained and the reason below states why",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 98,
+          "lineText": "text: 'cannot-tell: the copy could not be checked, so no string is reported as explained and the reason below states why',"
+        },
+        {
+          "key": "no-copy-check-answer",
+          "text": "no-copy-check-answer: no copy-check answer was handed over, so no state, no string, no count and no reason are reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 103,
+          "lineText": "text: 'no-copy-check-answer: no copy-check answer was handed over, so no state, no string, no count and no reason are reported',"
+        },
+        {
+          "key": "no-checked",
+          "text": "no-checked: the answer states no count of compared strings, so no count is rendered",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 108,
+          "lineText": "text: 'no-checked: the answer states no count of compared strings, so no count is rendered',"
+        },
+        {
+          "key": "no-unexplained-list",
+          "text": "no-unexplained-list: the answer reported unexplained without a list of strings, so no string is rendered",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 113,
+          "lineText": "text: 'no-unexplained-list: the answer reported unexplained without a list of strings, so no string is rendered',"
+        },
+        {
+          "key": "no-unexplained-string",
+          "text": "no-unexplained-string: an unexplained entry arrived with no string, so no string is rendered for it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 118,
+          "lineText": "text: 'no-unexplained-string: an unexplained entry arrived with no string, so no string is rendered for it',"
+        },
+        {
+          "key": "no-unexplained-surface",
+          "text": "no-unexplained-surface: an unexplained entry arrived with no surface, so no surface is rendered for it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 123,
+          "lineText": "text: 'no-unexplained-surface: an unexplained entry arrived with no surface, so no surface is rendered for it',"
+        },
+        {
+          "key": "no-reason",
+          "text": "no-reason: the answer reported cannot-tell without a reason, so no reason is stated",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 128,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',"
+        }
+      ],
+      "inline": [
+        {
+          "text": "string: ${string}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 259,
+          "lineText": "? `string: ${string}`"
+        },
+        {
+          "text": "surface: ${surfaceId}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 264,
+          "lineText": "? `surface: ${surfaceId}`"
+        },
+        {
+          "text": "state: ${answerWord}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 289,
+          "lineText": "return surface(answerWord, [`state: ${answerWord}`]);"
+        },
+        {
+          "text": "reason: ${reason}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 298,
+          "lineText": "reason === null ? NO_REASON_TEXT : `reason: ${reason}`,"
+        },
+        {
+          "text": "checked: ${checked}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 303,
+          "lineText": "const count = checked === null ? NO_CHECKED_TEXT : `checked: ${checked}`;"
+        },
+        {
+          "text": "state: ${CLEAN}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 306,
+          "lineText": "return surface(CLEAN, [`state: ${CLEAN}`, sentence, count]);"
+        },
+        {
+          "text": "state: ${UNEXPLAINED}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 315,
+          "lineText": "`state: ${UNEXPLAINED}`,"
+        }
+      ],
+      "notes": [
+        "Nine sentences in one registry and no loose constant: the three state sentences in the order `STATES` names them (:88, :93, :98), then the six absences the pane can state about the answer it was handed (:103, :108, :113, :118, :123, :128).",
+        "The three state words are module constants (:59, :60, :61) and `STATES` (:64) holds them in the order the surface states them. A state word is the value of a line and not a sentence, so it is named here rather than recorded as an entry, as `scope` states for the value words of other surfaces.",
+        "Each distinct interpolated literal is one entry, cited at the first line that builds it: `state: ${answerWord}` is built at :289 and again at :296, and `state: ${UNEXPLAINED}` at :315 and again at :322. That is the reading the record already gives panel-fields.ts, whose `submit: ${submit}` is one entry (:147) although :179 builds it a second time.",
+        "The lines the pane builds are all labels: `state:`, `string:`, `surface:`, `checked:` and `reason:`, the answer’s own fields. No sentence is written inline, which is why this surface’s inline entries are all read past by the join’s `SCOPE` and none of them is digested.",
+        "The sentence registered as `no-reason` (:128) carries the exact text panel-components.ts:147 declares for its own `no-reason`; `corrections` records that, because it is why the digest holds one row for two sentences."
+      ]
+    }
+  ],
+  "absences": [
+    "context"
+  ],
+  "mapSurfaces": [
+    "components",
+    "console",
+    "console-read",
+    "stability",
+    "error-boundary",
+    "fields",
+    "copy-check"
+  ],
+  "noMapSurfaces": [
+    "navigation",
+    "performance",
+    "render-phase",
+    "linked-state",
+    "lint",
+    "router",
+    "resource",
+    "onpush",
+    "legacy",
+    "redirect",
+    "sanitizer",
+    "panel-demo",
+    "context"
+  ],
+  "excluded": [
+    {
+      "file": "apps/angular-ai-devtools/src/app/panel-context.spec.ts",
+      "line": 2,
+      "lineText": "import { describe, expect, it } from 'vitest';",
+      "why": "a vitest spec, not a surface: it imports the test framework and asserts over `buildPanelContext`. It matches `panel-*.ts` but renders nothing, so it is named here rather than counted as a surface."
+    },
+    {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+      "line": 92,
+      "lineText": "import { describe, expect, it, vi } from 'vitest';",
+      "why": "a vitest spec for the demo host: it renders each surface and holds the sample facts to the recordings. It renders no copy of its own."
+    }
+  ],
+  "measurements": [
+    {
+      "what": "the page agent reads no page text, which is why this record measures the panel and not a page",
+      "command": "node -e \"const s=require('fs').readFileSync('extension/agent-main.js','utf8');for(const k of ['innerText','textContent'])console.log(k,[...s.matchAll(new RegExp(k,'g'))].length)\"",
+      "output": [
+        "innerText 0",
+        "textContent 0"
+      ]
+    },
+    {
+      "what": "no panel sentence is explained by a digest: how many of this record’s sentences occur in either digest the repository ships",
+      "command": "node -e \"const fs=require('fs');const r=JSON.parse(fs.readFileSync('research/raw/m048-surface-copy.json','utf8'));const d=['extension/error-digest.json','extension/image-digest.json'].map(f=>fs.readFileSync(f,'utf8')).join('\\n');let hit=0,total=0;for(const s of r.surfaces)for(const x of s.sentences){total++;if(d.includes(x.text))hit++}console.log('sentences '+total);console.log('explainedByADigest '+hit)\"",
+      "output": [
+        "sentences 99",
+        "explainedByADigest 1"
+      ]
+    }
+  ],
+  "corrections": [
+    {
+      "claim": "the milestone brief and INTENT.md § Scope cite the sentence map at `apps/angular-ai-devtools/src/app/panel-components.ts:47` and say that pattern is \"the same pattern every recent surface uses\"",
+      "measured": "line 47 is a doc-comment line that mentions `PANE_SENTENCES`; the map itself is declared at panel-components.ts:104. And the pattern is not the one every surface uses: 7 of the 20 surfaces declare their copy in a map, 11 declare it as loose module constants, 1 (panel-demo.ts) declares it entirely inside a template and a function, and 1 (panel-context.ts) declares nothing because it renders nothing.",
+      "citations": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 47,
+          "lineText": "* The sentences the pane writes for itself are enumerated once, below, in `PANE_SENTENCES`:"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 104,
+          "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = ["
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-redirect.ts",
+          "line": 180,
+          "lineText": "const message = 'cannot tell: the router configuration could not be read';"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-context.ts",
+          "line": 159,
+          "lineText": "function readZoneMode(value: string | null): 'zone' | 'noop' | 'unknown' {"
+        }
+      ],
+      "consequence": "a digest authored from \"the sentence maps\" would cover the 7 map surfaces and miss 12 surfaces’ copy. The record carries the location of every sentence it found, per surface, so the digest can be authored against the measurement rather than against the brief’s sentence."
+    },
+    {
+      "claim": "a surface that cannot be read is an absence for SC2 — INTENT.md § Open questions asks whether every surface declares its copy in one place or some interpolate sentences inline, and T001 answers it",
+      "measured": "every surface but one is readable; what varies is where the copy sits. Seven surfaces (linked-state, lint, router, resource, onpush, legacy, redirect) write their absence sentences as literals inside the function that renders them — `cannot tell` in all seven, and `error:` in six of the seven — so those sentences cannot be reached by reading a constant. Exactly one surface, panel-context.ts, supplies no strings at all.",
+      "citations": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-lint.ts",
+          "line": 166,
+          "lineText": "const message = 'cannot tell: no construct can be named from this message';"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-resource.ts",
+          "line": 211,
+          "lineText": "const message = 'error: the resource fact could not be read';"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-legacy.ts",
+          "line": 196,
+          "lineText": "'cannot tell: no legacy structure can be named from this fact';"
+        }
+      ],
+      "consequence": "the absence case for SC2 is one surface, not a class of surfaces, and the inline sentences are copy a digest must still explain — which is why they are enumerated here with their own path:line."
+    },
+    {
+      "claim": "the digest T002 authored carries one row per sentence the record declares, so a digest row and a declared sentence are the same count",
+      "measured": "one sentence is declared twice. `panel-copy-check.ts:128` registers `no-reason` with the exact text `panel-components.ts:147` declares for its own `no-reason` — `no-reason: the answer reported cannot-tell without a reason, so no reason is stated`, byte for byte — so this record’s 122 sentences carry 121 distinct texts.",
+      "citations": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 147,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-copy-check.ts",
+          "line": 128,
+          "lineText": "text: 'no-reason: the answer reported cannot-tell without a reason, so no reason is stated',"
+        }
+      ],
+      "consequence": "the digest carries 121 rows for 122 sentences, one row per distinct string, and the shared row is filed under `components`/`no-reason` because that surface declared it first. A second row for the same text would be a second explanation of one string, which explains nothing the first does not; the join compares the digest’s texts with `===` and so explains the sentence at both surfaces from the one row. The row-per-sentence count is therefore 121 and not 122, and the suite states the difference as the measured duplicate rather than as a rounding."
+    }
+  ],
+  "notCaptured": [
+    "No page text was read and no browser was opened for this record. The roadmap’s own observable — the strings a page renders — is not measured here and does not exist in this repository: `innerText` and `textContent` occur 0 times in extension/agent-main.js, counted by the command in `measurements`. Nothing in this record is a reading of a served page.",
+    "The record does not measure what a surface renders at runtime. It records the literals the source declares, and a rendered line is those literals joined with values the answer carried; which fields a join supplies, and what a pane does with an absent one, is T002’s join and not this record. Nor does it measure a sentence composed at render: `panel-sanitizer.ts:180` builds a plural from a count, and the digest records that decision rather than a row for a string the pane never renders.",
+    "The record does not claim to be exhaustive about single-token value words (see `scope`), and it does not read the baseline stylesheet, the routes table or the demo’s sample facts. `panel-demo.ts` is recorded only for the copy it writes itself.",
+    "The record does not judge the copy. It does not claim a sentence is accurate, consistent with its siblings, or supported by the record the pane was handed; it states where each sentence is and what it says, and the three surfaces whose wording the record singles out (panel-navigation.ts:283, panel-sanitizer.ts:180, panel-fields.ts:196) are described and not graded.",
+    "No test of the app was run and no build was made. The verify command below runs this record’s own suite and prettier, and nothing else was executed.",
+    "The verify command above does not send this file to prettier, because `.prettierignore` excludes every `*.json` (`*.json` is line 22 of that file) and `npx prettier --check research/raw/m048-surface-copy.json` therefore prints \"All matched files use Prettier code style!\" without reading a byte of it — exit 0 however the file is formatted. The gate that actually reads this record is `scripts/copy-check.test.mjs`, which re-reads all 322 citations it makes and re-derives every count it states; T001’s `verify` field claimed the prettier check as its second gate, and T004 states the limit rather than repeating the claim."
+  ],
+  "verify": "node --test scripts/copy-check.test.mjs && node -e \"JSON.parse(require('fs').readFileSync('research/raw/m048-surface-copy.json','utf8'))\" && npx prettier --check scripts/copy-check.test.mjs",
+  "verdict": "measured: this repository has 20 panel-*.ts surfaces (two more files match the glob and are vitest specs, named in `excluded`). 7 declare their sentences in a map, 11 in loose module constants, 1 only inside a component template and a function, and 1 — panel-context.ts, the signal-to-context adapter — declares no sentence at all because it renders nothing. 88 sentences are declared in a map or a constant, 34 more are written inline where no map can reach them, and 118 label prefixes and 7 prose words are built into lines inline. The roadmap’s premise does not survive the reading: no surface compares anything against a copy digest, and of the 99 sentences this record declares in a map or a constant exactly 1 occurs in either digest the repository ships (extension/error-digest.json, extension/image-digest.json) — the one hit is the single word `available` (error-boundary/RESET_TEXT), which occurs in a digest body and explains no rendered line. What exists is the copy measured here, and the digest T002 authored from this record — which T004 extended to the twentieth surface — is the first one that holds it.",
+  "revision": {
+    "author": "T001",
+    "head": "cfdff38990b7715e38a917976dad957b64840cd5",
+    "surfaces": 19,
+    "sentences": 113,
+    "remeasuredBy": {
+      "task": "T004",
+      "head": "b428f0680dc7679a84944d36c4174b14e98767ca",
+      "why": "panel-copy-check.ts shipped as the twentieth surface in T003, so the record measured nineteen of the twenty `panel-*.ts` files the tree carries and the digest explained the 113 sentences those nineteen declare",
+      "what": "every citation re-read, the twentieth surface measured, and the three panel-demo.ts citations the T003 commit moved repaired"
+    }
+  }
+}

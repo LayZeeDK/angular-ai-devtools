@@ -1711,8 +1711,8 @@ Goal: The panel reports which user-visible strings a page renders that its own d
 Depends on: [M020]
 Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/048-ui-copy-check
 Integrated: null
 
 Scope: in

@@ -1,0 +1,104 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "d9c1f5a415642263ebb685b936a3b395acf8a5c8",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M048",
+        "candidates": [
+          {
+            "base": "d08282c6216f558c76c605b7a0682984c4ed2f5f",
+            "commit": "518cb997f3f872803a61c5694dae2a5ad6692e40",
+            "valid": true
+          }
+        ],
+        "head": "d9c1f5a415642263ebb685b936a3b395acf8a5c8",
+        "subject": "T001: Measure the copy each panel surface declares and where it declares none"
+      },
+      "landed_commit": "518cb997f3f872803a61c5694dae2a5ad6692e40",
+      "reasons": [],
+      "task": {
+        "base": "d08282c6216f558c76c605b7a0682984c4ed2f5f",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-measure-the-copy-each-panel-surface-declares-and-where-it-declares-none.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M048",
+        "candidates": [
+          {
+            "base": "d6abae60ce4b855885077b3a85d1176a6d6813ee",
+            "commit": "43c091912c01f8e448abd930ada0e39997bfbbb3",
+            "valid": true
+          }
+        ],
+        "head": "d9c1f5a415642263ebb685b936a3b395acf8a5c8",
+        "subject": "T002: Explain the declared strings against a digest and report what it cannot"
+      },
+      "landed_commit": "43c091912c01f8e448abd930ada0e39997bfbbb3",
+      "reasons": [],
+      "task": {
+        "base": "d6abae60ce4b855885077b3a85d1176a6d6813ee",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-explain-the-declared-strings-against-a-digest-and-report-what-it-cannot.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M048",
+        "candidates": [
+          {
+            "base": "3523040fb90f205dc5b001cb6530d4747cf3307b",
+            "commit": "b428f0680dc7679a84944d36c4174b14e98767ca",
+            "valid": true
+          }
+        ],
+        "head": "d9c1f5a415642263ebb685b936a3b395acf8a5c8",
+        "subject": "T003: Render the three states and pin the route and loader they add"
+      },
+      "landed_commit": "b428f0680dc7679a84944d36c4174b14e98767ca",
+      "reasons": [],
+      "task": {
+        "base": "3523040fb90f205dc5b001cb6530d4747cf3307b",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-render-the-three-states-and-pin-the-route-and-loader-they-add.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M048",
+        "candidates": [
+          {
+            "base": "195ff8e22e2a88243c11ee69cc03cec602b7bae2",
+            "commit": "e2672a8b47e15ab725e8ed291465507abbef2402",
+            "valid": true
+          }
+        ],
+        "head": "d9c1f5a415642263ebb685b936a3b395acf8a5c8",
+        "subject": "T004: Record the surface and run the project verify"
+      },
+      "landed_commit": "e2672a8b47e15ab725e8ed291465507abbef2402",
+      "reasons": [],
+      "task": {
+        "base": "195ff8e22e2a88243c11ee69cc03cec602b7bae2",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-record-the-surface-and-run-the-project-verify.md"
+      }
+    }
+  ]
+}

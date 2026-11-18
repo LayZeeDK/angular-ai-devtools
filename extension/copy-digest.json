@@ -1,0 +1,612 @@
+{
+  "schema": "copy-digest/v1",
+  "version": "m048+t004",
+  "source": "research/raw/m048-surface-copy.json",
+  "entries": [
+    {
+      "surface": "components",
+      "key": "state-listed",
+      "text": "listed: the record names these components, and every row below is one the record carries"
+    },
+    {
+      "surface": "components",
+      "key": "state-filtered",
+      "text": "filtered: the typed text kept the rows below, and the count states how many rows matched"
+    },
+    {
+      "surface": "components",
+      "key": "state-empty",
+      "text": "empty: the record states the page rendered no components, so this is an empty list and not a source that could not be read"
+    },
+    {
+      "surface": "components",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the source could not be read, so no list is rendered and the reason below states why"
+    },
+    {
+      "surface": "components",
+      "key": "no-search-answer",
+      "text": "no-search-answer: no component-search answer was handed over, so no state, no row and no reason are reported"
+    },
+    {
+      "surface": "components",
+      "key": "no-name",
+      "text": "no-name: a row arrived with no name the record states, so no component name is rendered for it"
+    },
+    {
+      "surface": "components",
+      "key": "no-instance-count",
+      "text": "no-instance-count: the record states no instance count for this component, so no count is rendered"
+    },
+    {
+      "surface": "components",
+      "key": "no-rows",
+      "text": "no-rows: the answer carried no row list, so no row is rendered and no count is stated"
+    },
+    {
+      "surface": "components",
+      "key": "no-reason",
+      "text": "no-reason: the answer reported cannot-tell without a reason, so no reason is stated"
+    },
+    {
+      "surface": "console",
+      "key": "state-joined",
+      "text": "joined: the capture held at least one diagnostic, and every finding below is one diagnostic in the capture's own order"
+    },
+    {
+      "surface": "console",
+      "key": "state-captured-nothing",
+      "text": "captured-nothing: a capture was read and carried no diagnostic, and a capture whose own attempt failed also emits nothing, so this states what was read and never that the page was silent"
+    },
+    {
+      "surface": "console",
+      "key": "state-no-diagnostics",
+      "text": "no-diagnostics: no capture was handed to the join at all, so no capture was read"
+    },
+    {
+      "surface": "console",
+      "key": "no-console-answer",
+      "text": "no-console-answer: no console join answer was handed over, so no state and no finding are reported"
+    },
+    {
+      "surface": "console",
+      "key": "no-finding",
+      "text": "no-finding: the answer reported joined and carried no finding, so no finding is rendered"
+    },
+    {
+      "surface": "console",
+      "key": "no-code",
+      "text": "no-code: the captured message carried no code, so this finding carries no code and no title"
+    },
+    {
+      "surface": "console",
+      "key": "no-title",
+      "text": "no-title: the digest carries the code this message carried and states no title for it, so no title is rendered"
+    },
+    {
+      "surface": "console",
+      "key": "unreadable-finding",
+      "text": "unreadable-finding: the answer carried a list entry that is not a finding, so it is named here and nothing is filled in for it"
+    },
+    {
+      "surface": "console",
+      "key": "no-digest-entry",
+      "text": "no-digest-entry: the digest carries no entry for {code}, so this finding is named by the code it carried and no title is rendered"
+    },
+    {
+      "surface": "console",
+      "key": "case-difference",
+      "text": "case-difference: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and title"
+    },
+    {
+      "surface": "console",
+      "key": "case-difference-no-title",
+      "text": "case-difference-no-title: the message carried {carriedCode} and the digest carries {digestCode}, so this finding carries the digest's own spelling and no title is stated for it"
+    },
+    {
+      "surface": "console-read",
+      "key": "state-handed-over",
+      "text": "handed-over: the text the pane drew is the text handed over, and the answer's control sentence names what will be sent before anything is sent"
+    },
+    {
+      "surface": "console-read",
+      "key": "state-absence-carried",
+      "text": "absence-carried: the absence this text names is carried in it as the pane stated it, and no part of it is filled in, inferred or repaired here"
+    },
+    {
+      "surface": "console-read",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the finding could not be expressed as a question, so nothing was handed over and no cause, element, remedy or rule identity is stated"
+    },
+    {
+      "surface": "console-read",
+      "key": "no-hand-off-answer",
+      "text": "no-hand-off-answer: no hand-off answer was handed over, so no state, no text and no reason are reported"
+    },
+    {
+      "surface": "console-read",
+      "key": "no-control",
+      "text": "no-control: the answer carried no control description, so what would be sent is not stated"
+    },
+    {
+      "surface": "console-read",
+      "key": "no-body",
+      "text": "no-body: the answer carried no body, so no text is handed over"
+    },
+    {
+      "surface": "console-read",
+      "key": "no-reason",
+      "text": "no-reason: the answer reported cannot-tell without naming a reason, so no reason is stated"
+    },
+    {
+      "surface": "stability",
+      "key": "no-stability-observable",
+      "text": "no-stability-observable: the page published no isStable stream this reader could reach, so no state and no reading are reported"
+    },
+    {
+      "surface": "stability",
+      "key": "no-cause-reported",
+      "text": "no-cause-reported: isStable is a boolean stream and carries no reason, so no cause is reported"
+    },
+    {
+      "surface": "stability",
+      "key": "no-outstanding-inventory",
+      "text": "no-outstanding-inventory: the pending-task set holds bare task ids with no owner, no kind and no count, so no outstanding item is listed"
+    },
+    {
+      "surface": "stability",
+      "key": "no-settle-order",
+      "text": "no-settle-order: the pending-task set records no per-item order and no per-item settle time, so no first item to settle is reported"
+    },
+    {
+      "surface": "stability",
+      "key": "unstable",
+      "text": "unstable: the page’s isStable emitted false"
+    },
+    {
+      "surface": "stability",
+      "key": "stable",
+      "text": "stable: the page’s isStable emitted true"
+    },
+    {
+      "surface": "stability",
+      "key": "cannot-tell",
+      "text": "cannot-tell: no isStable emission was reachable, so no state is claimed"
+    },
+    {
+      "surface": "stability",
+      "key": "idle",
+      "text": "idle: no isStable emission has been read yet, which is no verdict either way"
+    },
+    {
+      "surface": "stability",
+      "key": "NO_SETTLE_TEXT",
+      "text": "no-settle-observed: the record carries no settle reading, so no time and no duration are reported"
+    },
+    {
+      "surface": "stability",
+      "key": "NO_PAIRED_WORK_TEXT",
+      "text": "repeated work: the frame recorded no paired work"
+    },
+    {
+      "surface": "stability",
+      "key": null,
+      "text": "emission: isStable ${value} (the answer carries ${NO_EMISSION_TIME} for it)"
+    },
+    {
+      "surface": "stability",
+      "key": null,
+      "text": "emission: isStable ${value} at ${at} ms"
+    },
+    {
+      "surface": "stability",
+      "key": null,
+      "text": "settle: settled at ${at} ms (the answer carries no attach interval, so none is printed)"
+    },
+    {
+      "surface": "stability",
+      "key": null,
+      "text": "settle: settled at ${at} ms, ${since} ms after attach"
+    },
+    {
+      "surface": "stability",
+      "key": null,
+      "text": "${pair} ${subject}: ${count} ${word}"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "no-error-boundary-declared",
+      "text": "no-error-boundary-declared: the record names no error boundary on this page, so there is no declaring component and no caught-by mechanism to report"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "no-error-caught",
+      "text": "no-error-caught: the boundary hook is installed and caught nothing in this window, which is not the same as a page without a boundary"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "no-boundary-details",
+      "text": "no-boundary-details: the arrival reached the error handler with no ErrorDetails, so it names no boundary and no caught-by mechanism"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "no-error-view-rendered",
+      "text": "no-error-view-rendered: no rendered error view was found, so the content the boundary rendered instead was not recorded"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "no-replaced-subtree",
+      "text": "no-replaced-subtree: the boundary removed the primary view and kept no record of it, so the pane cannot show what was replaced"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "no-global-error-listeners",
+      "text": "no-global-error-listeners: the page declares no browser global error listeners, which is not evidence that no raw error happened"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "machinery-unconfirmed",
+      "text": "machinery-unconfirmed: the boundary machinery was not confirmed on this build, so the answer cannot be given"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "handler-unresolved",
+      "text": "handler-unresolved: the error handler could not be resolved, so the boundary hook was never installed"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "hook-refused",
+      "text": "hook-refused: the error handler refused the boundary hook, so no arrival could be recorded"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "no-core-version",
+      "text": "no-core-version: the page reports no core version, so the pane can name only the version it works against"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "CAUGHT_TEXT",
+      "text": "caught: a boundary caught an error"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "CANNOT_TELL_TEXT",
+      "text": "cannot-tell: the answer does not establish what happened on this page"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "IDLE_MESSAGE",
+      "text": "idle: no error boundary answer has arrived yet"
+    },
+    {
+      "surface": "error-boundary",
+      "key": "NO_VERSION_LINE",
+      "text": "version: (the answer names no version)"
+    },
+    {
+      "surface": "fields",
+      "key": "root-invalid-without-error-kind",
+      "text": "cannot tell: the form root is invalid and carries no error kind"
+    },
+    {
+      "surface": "fields",
+      "key": "submit-state-unreadable",
+      "text": "cannot tell: the page did not report a submit state"
+    },
+    {
+      "surface": "fields",
+      "key": "GENERIC_CANNOT_TELL",
+      "text": "cannot tell: the page did not report what this pane needs"
+    },
+    {
+      "surface": "fields",
+      "key": "LOADING_MESSAGE",
+      "text": "loading: the field set is being read"
+    },
+    {
+      "surface": "fields",
+      "key": null,
+      "text": "fields: ${Object.keys(fields).length} field${Object.keys(fields).length === 1 ? '' : 's'}, submit ${submit}"
+    },
+    {
+      "surface": "fields",
+      "key": null,
+      "text": "error: the form could not be read"
+    },
+    {
+      "surface": "navigation",
+      "key": "NO_NAVIGATION_LINE",
+      "text": "navigations: (the answer carried no navigation)"
+    },
+    {
+      "surface": "navigation",
+      "key": "IDLE_MESSAGE",
+      "text": "idle: no navigation answer has arrived yet"
+    },
+    {
+      "surface": "navigation",
+      "key": null,
+      "text": "unattributed: ${NO_UNATTRIBUTED_FIELD}"
+    },
+    {
+      "surface": "navigation",
+      "key": null,
+      "text": "unattributed: ${kind}"
+    },
+    {
+      "surface": "navigation",
+      "key": null,
+      "text": "unattributed: ${route}"
+    },
+    {
+      "surface": "navigation",
+      "key": null,
+      "text": "unattributed: ${kind} ${route}"
+    },
+    {
+      "surface": "performance",
+      "key": "NO_INTERVAL_LINE",
+      "text": "intervals: (the answer carried no interval)"
+    },
+    {
+      "surface": "performance",
+      "key": "IDLE_MESSAGE",
+      "text": "idle: no performance answer has arrived yet"
+    },
+    {
+      "surface": "render-phase",
+      "key": "IDLE_MESSAGE",
+      "text": "idle: no render-phase answer has arrived yet"
+    },
+    {
+      "surface": "render-phase",
+      "key": "NO_LABEL_LINE",
+      "text": "effect: (the graph gives no label)"
+    },
+    {
+      "surface": "render-phase",
+      "key": "NO_READ_LINE",
+      "text": "read: (the recorded edges name no signal)"
+    },
+    {
+      "surface": "render-phase",
+      "key": "NO_FIELD_LINE",
+      "text": "change-detection: the answer carried no code, no message and no provenance"
+    },
+    {
+      "surface": "render-phase",
+      "key": "NO_MESSAGE",
+      "text": "change-detection: the answer carried no message"
+    },
+    {
+      "surface": "render-phase",
+      "key": "ABSENCE_MESSAGE",
+      "text": "cannot tell: the answer names an absence, not a finding"
+    },
+    {
+      "surface": "render-phase",
+      "key": null,
+      "text": "${FINDINGS_STATE}: ${blocks.length}"
+    },
+    {
+      "surface": "linked-state",
+      "key": "IDLE_MESSAGE",
+      "text": "idle: no linked-state fact has arrived yet"
+    },
+    {
+      "surface": "linked-state",
+      "key": null,
+      "text": "cannot tell: no linked state can be named from this fact"
+    },
+    {
+      "surface": "lint",
+      "key": "LOADING_MESSAGE",
+      "text": "loading: no diagnostic fact has arrived yet"
+    },
+    {
+      "surface": "lint",
+      "key": null,
+      "text": "cannot tell: no construct can be named from this message"
+    },
+    {
+      "surface": "lint",
+      "key": null,
+      "text": "error: the diagnostic fact could not be read"
+    },
+    {
+      "surface": "router",
+      "key": "LOADING_MESSAGE",
+      "text": "loading: no router diagnostic fact has arrived yet"
+    },
+    {
+      "surface": "router",
+      "key": null,
+      "text": "cannot tell: no router finding can be named"
+    },
+    {
+      "surface": "router",
+      "key": null,
+      "text": "error: the router diagnostic fact could not be read"
+    },
+    {
+      "surface": "resource",
+      "key": "LOADING_MESSAGE",
+      "text": "loading: no resource fact has arrived yet"
+    },
+    {
+      "surface": "resource",
+      "key": null,
+      "text": "cannot tell: no resource state can be named from this fact"
+    },
+    {
+      "surface": "resource",
+      "key": null,
+      "text": "error: the resource fact could not be read"
+    },
+    {
+      "surface": "onpush",
+      "key": "LOADING_MESSAGE",
+      "text": "loading: no change-detection readiness fact has arrived yet"
+    },
+    {
+      "surface": "onpush",
+      "key": null,
+      "text": "cannot tell: no change-detection readiness can be named from this fact"
+    },
+    {
+      "surface": "onpush",
+      "key": null,
+      "text": "error: the change-detection readiness fact could not be read"
+    },
+    {
+      "surface": "legacy",
+      "key": "LOADING_MESSAGE",
+      "text": "loading: no legacy structure fact has arrived yet"
+    },
+    {
+      "surface": "legacy",
+      "key": null,
+      "text": "cannot tell: no legacy structure can be named from this fact"
+    },
+    {
+      "surface": "legacy",
+      "key": null,
+      "text": "error: the legacy structure fact could not be read"
+    },
+    {
+      "surface": "redirect",
+      "key": "LOADING_MESSAGE",
+      "text": "loading: the redirect chain is being walked"
+    },
+    {
+      "surface": "redirect",
+      "key": null,
+      "text": "walked: ${chain.length} route${chain.length === 1 ? '' : 's'} entered, destination ${destination ?? 'not recorded'}"
+    },
+    {
+      "surface": "redirect",
+      "key": null,
+      "text": "cycle: the walk revisited ${named}"
+    },
+    {
+      "surface": "redirect",
+      "key": null,
+      "text": "gated: a route is gated"
+    },
+    {
+      "surface": "redirect",
+      "key": null,
+      "text": "cannot tell: the router configuration could not be read"
+    },
+    {
+      "surface": "redirect",
+      "key": null,
+      "text": "error: the walk stopped at a lazy boundary at ${named}"
+    },
+    {
+      "surface": "sanitizer",
+      "key": "LOADING_MESSAGE",
+      "text": "loading: the sanitizer finding is being assembled"
+    },
+    {
+      "surface": "sanitizer",
+      "key": "NONE_MESSAGE",
+      "text": "none: no sanitizer warning was captured for this page"
+    },
+    {
+      "surface": "sanitizer",
+      "key": "NONE_ABSENCE_LINE",
+      "text": "the absence of a capture is not a measurement of the page"
+    },
+    {
+      "surface": "sanitizer",
+      "key": "CANNOT_TELL_MESSAGE",
+      "text": "cannot tell: a warning was captured and no covering record was found to join it to, so no component can be named"
+    },
+    {
+      "surface": "sanitizer",
+      "key": "ERROR_MESSAGE",
+      "text": "error: the sanitizer capture could not be read"
+    },
+    {
+      "surface": "sanitizer",
+      "key": "ERROR_LINE",
+      "text": "no sanitizer finding can be rendered from this capture"
+    },
+    {
+      "surface": "sanitizer",
+      "key": "DELIBERATE_MESSAGE",
+      "text": "deliberate: this binding declares a sanitizer bypass and the capture recorded no warning for it"
+    },
+    {
+      "surface": "sanitizer",
+      "key": null,
+      "text": "at ${rendered(finding.at)}: no covering record (${NO_COVERING_RECORD})"
+    },
+    {
+      "surface": "sanitizer",
+      "key": null,
+      "text": "stripped: ${counted(placed.length, 'warning')} placed on a covering record"
+    },
+    {
+      "surface": "sanitizer",
+      "key": null,
+      "text": "${counted(unattributable, 'warning')} could not be placed"
+    },
+    {
+      "surface": "sanitizer",
+      "key": null,
+      "text": "no single binding was carried"
+    },
+    {
+      "surface": "panel-demo",
+      "key": null,
+      "text": "panel surface: {{ name() }}"
+    },
+    {
+      "surface": "panel-demo",
+      "key": null,
+      "text": "error: no such surface"
+    },
+    {
+      "surface": "copy-check",
+      "key": "state-clean",
+      "text": "clean: every string the surfaces declare is explained by the digest, and the count below is how many were compared"
+    },
+    {
+      "surface": "copy-check",
+      "key": "state-unexplained",
+      "text": "unexplained: the digest does not explain the strings below, and each is named with the surface that renders it"
+    },
+    {
+      "surface": "copy-check",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the copy could not be checked, so no string is reported as explained and the reason below states why"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-copy-check-answer",
+      "text": "no-copy-check-answer: no copy-check answer was handed over, so no state, no string, no count and no reason are reported"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-checked",
+      "text": "no-checked: the answer states no count of compared strings, so no count is rendered"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-unexplained-list",
+      "text": "no-unexplained-list: the answer reported unexplained without a list of strings, so no string is rendered"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-unexplained-string",
+      "text": "no-unexplained-string: an unexplained entry arrived with no string, so no string is rendered for it"
+    },
+    {
+      "surface": "copy-check",
+      "key": "no-unexplained-surface",
+      "text": "no-unexplained-surface: an unexplained entry arrived with no surface, so no surface is rendered for it"
+    }
+  ]
+}

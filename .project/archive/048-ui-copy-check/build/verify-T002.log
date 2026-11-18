@@ -1,0 +1,56 @@
+T001 surfaces: 19 surfaces, 79 declared sentences, 34 inline sentences, 1 absence
+T001 citations: 303 lines re-read
+T001 verbatim: 90 sentences found in their files
+T001 coverage: 19 surfaces and 2 specs on disk
+T001 absence: context declares nothing, 13 single-token literals, 0 templates, and cites 5 lines
+T001 boundary: the copy is measured and the digest is T002’s, not this record’s
+T002 digest: 113 sentences, 18558 bytes against the record's 118599
+T002 scope: 79 declared + 34 inline sentences read, 129 labels and value words read past
+T002 not digested: sanitizer "${count} ${noun}${count === 1 ? '' : 's'}" (composed-at-render)
+T002 per surface: components: clean, 9 sentences | console: clean, 11 sentences | console-read: clean, 7 sentences | stability: clean, 15 sentences | error-boundary: clean, 14 sentences | fields: clean, 6 sentences | navigation: clean, 6 sentences | performance: clean, 2 sentences | render-phase: clean, 7 sentences | linked-state: clean, 2 sentences | lint: clean, 3 sentences | router: clean, 3 sentences | resource: clean, 3 sentences | onpush: clean, 3 sentences | legacy: clean, 3 sentences | redirect: clean, 6 sentences | sanitizer: clean, 11 sentences | panel-demo: clean, 2 sentences | context: cannot-tell (surface-declares-nothing)
+T002 record: clean, 113 sentences compared, 0 unexplained; context row: cannot-tell (surface-declares-nothing)
+T002 precedence: no digest → cannot-tell (no-digest), checked 0
+T002 precedence: zero strings → cannot-tell (surface-declares-nothing), checked 0
+T002 precedence: one unexplained string → unexplained, naming "listed: the record names…" (components)
+T002 precedence: fully explained record → clean (113 compared), context row → cannot-tell (surface-declares-nothing)
+T002 exact text: "filtered: the typed text kept the rows below, and the count states how many rows match" and "unstable: the page's isStable emitted false" are reported rather than explained
+T002 idempotency: 4 rows, twice, identical and in record order
+T002 mutants: digest-entry-dropped: every sentence the copy-bearing surfaces declare is in the digest, and the answer is "unexplained" naming "listed: the record names these components, and every row below is one the record carries" (components) as unexplained || similarity-match: a sentence is explained by the digest's own text and never by similarity, and this near-miss was explained: "filtered: the typed text kept the rows below, and the count states how many rows match" (components) || invented-row: an invented row is not an explanation, and this module explains "cannot tell: no panel copy can be named", which no surface in the record renders || missing-digest-reported-clean: a surface with strings and no digest reports cannot-tell with the reason "no-digest", because nobody compared the strings; this reported "clean"
+✔ the record is every panel surface, the copy each declares, and the absence (8.2513ms)
+✔ every cited path and line is the one the record read (1.5866ms)
+✔ every declared sentence appears verbatim in the file it is cited in (0.5398ms)
+✔ every surface on disk is in the record, and the specs are named as excluded (0.7274ms)
+✔ the counts the record states are the counts its entries carry (0.2398ms)
+✔ a surface that declares no sentences is recorded as an absence, not skipped (0.4214ms)
+✔ the record states what it does not claim (0.1323ms)
+✔ a citation that slid off its line, or lost its text, is refused (1.6613ms)
+✔ a surface that declares copy cannot be recorded as declaring nothing (2.0881ms)
+✔ the record names the task that authors the digest, and measures no join itself (0.229ms)
+✔ T002 — the digest is the record’s sentences, under the surface and key each is declared under (0.9921ms)
+✔ T002 — the scope reads the sentences and reads past the labels and value words by count (1.016ms)
+✔ T002 — the pluralised word the pane never renders whole is a recorded decision, not a digest row (0.9605ms)
+✔ T002 — every sentence a surface declares is explained, and the surface that renders no copy is cannot-tell (3.4799ms)
+✔ T002 — the record as measured is clean, and the surface that renders no copy is its own row (2.4475ms)
+✔ T002 / precedence 1 — a missing digest is cannot-tell with "no-digest", before anything else (2.2757ms)
+✔ T002 / precedence 2 — zero strings compared is cannot-tell with "surface-declares-nothing" (0.9352ms)
+✔ T002 / precedence 3 — one unexplained string is "unexplained" even when a surface renders no copy (1.2112ms)
+✔ T002 / precedence 4 — a fully explained record with an absent surface is clean, and its absent row is cannot-tell (3.3212ms)
+✔ T002 — the states and the reasons are closed lists the module publishes (2.5351ms)
+✔ T002 / E4 — a surface with strings and no digest is cannot-tell, and the same surface beside a stale digest is reported (0.8289ms)
+✔ T002 — a match is the digest’s own text: a near-miss sentence and a respelled apostrophe are reported (1.5085ms)
+✔ T002 / E6 — the same record and digest answer identical rows in identical order, and the join writes neither (2.7761ms)
+✔ T002 — the join is one implementation, reads no page, and reads no file (2.8829ms)
+✔ T002 mutants — every anchor is one place in the shipped module and really changes it (0.1164ms)
+✔ T002 mutants — each defect reddens its pin, and the failure names the defect by string (10.0487ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 208.6272
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/copy-check.js extension/copy-digest.json scripts/copy-check.test.mjs

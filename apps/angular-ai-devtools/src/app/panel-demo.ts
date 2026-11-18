@@ -54,6 +54,7 @@ const LOADERS: Record<
   console: () => import('./panel-console') as never,
   'console-read': () => import('./panel-copy-to-agent') as never,
   components: () => import('./panel-components') as never,
+  'copy-check': () => import('./panel-copy-check') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -433,6 +434,15 @@ export const FACTS: Record<string, unknown> = {
     matched: 2,
     query: 'app',
   },
+  // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
+  // (`research/raw/m048-surface-copy.json`) against the shipped digest
+  // (`extension/copy-digest.json`): all 113 compared strings are explained, so the record reads
+  // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
+  // renders no copy at all, and the join reports that absence in the row rather than in the
+  // record's state, which is why it is not a field here. Every value is the join's; no count is
+  // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
+  // and holds this fact to its answer field for field, so a fact that drifted reddens there.
+  'copy-check': { state: 'clean', unexplained: [], checked: 122 },
 };
 
 @Component({

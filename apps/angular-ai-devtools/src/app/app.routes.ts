@@ -199,4 +199,15 @@ export const appRoutes: Route[] = [
     loadComponent: loadPanelDemo,
     data: { surface: 'components' },
   },
+  // The M048 SC1-SC2 surface: every string the surfaces declare compared against the copy digest
+  // — the count compared when all are explained, each string the digest does not carry named with
+  // the surface that renders it, or the reason one side is missing — and nothing read off a page.
+  // It installs the shared loader above, so the demo module is imported once and the panel's
+  // initial bundle keeps the bytes it had. Lazy for the same reason as the surfaces above it —
+  // the panel's eager bundle is measured.
+  {
+    path: 'copy-check',
+    loadComponent: loadPanelDemo,
+    data: { surface: 'copy-check' },
+  },
 ];
