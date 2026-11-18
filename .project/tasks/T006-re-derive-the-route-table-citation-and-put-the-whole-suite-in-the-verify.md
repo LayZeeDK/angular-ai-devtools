@@ -12,6 +12,10 @@ task_branch: null
 files:
   - research/raw/m047-names-and-absences.json
   - scripts/component-search.test.mjs
+  - scripts/gate-integrity.test.mjs
+  - research/raw/m044-gate-shapes.json
+  - extension/panel/index.html
+  - .project/review/VERIFICATION.json
 ---
 
 # T006 — Re-derive the route-table citation and put the whole suite in the Verify
@@ -63,6 +67,10 @@ None
 
   - research/raw/m047-names-and-absences.json
   - scripts/component-search.test.mjs
+  - scripts/gate-integrity.test.mjs
+  - research/raw/m044-gate-shapes.json
+  - extension/panel/index.html
+  - .project/review/VERIFICATION.json
 
 ## Acceptance criteria
 
