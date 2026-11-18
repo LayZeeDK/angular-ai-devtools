@@ -49,7 +49,12 @@ route. Prove the route-map assertion reddens when the loader key is removed, the
 object, and returns `{ state, unexplained, checked, reason }`. `state` is one of `clean`,
 `unexplained`, `cannot-tell`; `unexplained` is an array of `{ string, surface }`; `checked` is the
 number of strings compared; `reason` is present only when `state` is `cannot-tell` and is one of a
-closed set. No other file implements this function, and no caller reads the page to decide what the
+closed set. The record-level state is decided in this order: a missing digest is `cannot-tell`
+with `no-digest`; zero strings compared is `cannot-tell` with `surface-declares-nothing`; any
+string the digest does not explain is `unexplained`; otherwise `clean`. A surface that renders
+no copy is reported in its own row as `cannot-tell` and does not decide the record's state, so a
+page whose read copy is fully explained reads `clean` while the absence stays visible in the row
+that carries it. No other file implements this function, and no caller reads the page to decide what the
 copy says.
 
 ## Files
