@@ -1,0 +1,419 @@
+{
+  "schema": "m047-surface/v1",
+  "milestone": "M047 component-search",
+  "task": "T004",
+  "title": "Record the surface and run the project verify",
+  "question": "which route renders the components surface, which LOADERS key serves it, which four states does the surface render, and which field of the record does each state read?",
+  "head": "943ba2802f48da77ff05bd5c8797a0d674e26a73",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: the four files the `sources` block names were read line by line at the head above, and every citation below is that read. No browser was opened, no build was run and nothing was executed.",
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-components.ts",
+    "join": "extension/component-search.js"
+  },
+  "route": {
+    "name": "components",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 198,
+      "lineText": "path: 'components',"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 199,
+      "lineText": "loadComponent: loadPanelDemo,"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 200,
+      "lineText": "data: { surface: 'components' },"
+    },
+    "statement": "one route, appended last to the 27-entry `appRoutes` table, lazy through the shared `loadPanelDemo` closure the table defines once, and naming its surface in `data.surface` as every demo-backed route does. The route carries no `components` key and no `children` key, which is the finding `research/raw/m047-names-and-absences.json` records at its `panelRoutes` section: the panel's route table is not a component tree either."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<"
+    },
+    "key": "components",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 56,
+      "lineText": "components: () => import('./panel-components') as never,"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-components.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 488,
+        "lineText": "const loader = LOADERS[name];"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 495,
+        "lineText": "const surface = mod.default(FACTS[name]);"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 496,
+        "lineText": "this.state.set(surface.state);"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 427,
+      "lineText": "components: {"
+    },
+    "statement": "the `components` key is the last key `LOADERS` carries, and it is the only thing that reaches `panel-components.ts`: the demo looks the key up by the name the route's `data.surface` states, awaits the dynamic import, and sets the state the module answers. The sample fact at :427 is the answer the join gives for a three-name record and the text `app`, so the route renders a `listed` answer beside a typed text — `filtered` — until a reader changes the fact."
+  },
+  "record": {
+    "shape": "{ components, source }",
+    "components": [
+      {
+        "field": "components[]",
+        "file": "extension/component-search.js",
+        "line": 128,
+        "lineText": "const rows = rowsOf(record.components);",
+        "note": "the list the page agent enumerated; a list that is not an array, or an entry carrying no name, makes the record unreadable rather than short"
+      },
+      {
+        "field": "components[].name",
+        "file": "extension/component-search.js",
+        "line": 97,
+        "lineText": "const name = entry.name;",
+        "note": "the text the agent read from the page, which is the only text a query is matched against"
+      },
+      {
+        "field": "components[].instanceCount",
+        "file": "extension/component-search.js",
+        "line": 99,
+        "lineText": "rows.push({ name: name, instanceCount: recordedCount(entry) });",
+        "note": "copied as a non-negative integer, or null where the record states none"
+      },
+      {
+        "field": "source.state",
+        "file": "extension/component-search.js",
+        "line": 72,
+        "lineText": "const state = readable ? source.state : null;",
+        "note": "read as `read` or `unreadable`; the list is never inspected to decide it"
+      },
+      {
+        "field": "source.reason",
+        "file": "extension/component-search.js",
+        "line": 74,
+        "lineText": "if (state === UNREADABLE && isReason(source.reason)) return source.reason;",
+        "note": "repeated only when it is a member of the closed set at :48"
+      }
+    ],
+    "statement": "the record is `{ components, source }` and nothing else. The source is read before the list, so an unreadable source answers `cannot-tell` whatever the list holds, and a readable source beside an empty list answers `empty`. A cause the record states and the closed set does not carry is never repeated: it answers `unreadable-source`."
+  },
+  "states": [
+    {
+      "id": "listed",
+      "word": "listed",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+        "line": 77,
+        "lineText": "export const LISTED = 'listed';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 107,
+          "lineText": "text: 'listed: the record names these components, and every row below is one the record carries',"
+        }
+      ],
+      "answeredBy": {
+        "file": "extension/component-search.js",
+        "line": 136,
+        "lineText": "return { state: LISTED, rows: kept, matched: kept.length };"
+      },
+      "reads": [
+        {
+          "field": "rows[].name",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 273,
+            "lineText": "lines.push(`component: ${name}`);"
+          }
+        },
+        {
+          "field": "rows[].instanceCount",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 275,
+            "lineText": "lines.push(count === null ? NO_INSTANCE_COUNT_TEXT : `instances: ${count}`);"
+          }
+        },
+        {
+          "field": "rows.length",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 329,
+            "lineText": "lines.push(`rows: ${rows.length}`);"
+          }
+        },
+        {
+          "field": "matched",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 333,
+            "lineText": "lines.push(`matched: ${statedCount(answer['matched']) ?? rows.length}`);"
+          }
+        }
+      ],
+      "statement": "one line per row the record carries, under the name the record states and with the count it states; a row whose count the record does not state renders `no-instance-count` rather than a `0`. The pane states `listed` only when no typed text was handed beside the answer — the join's own word for an answer it kept rows for."
+    },
+    {
+      "id": "filtered",
+      "word": "filtered",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+        "line": 78,
+        "lineText": "export const FILTERED = 'filtered';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 112,
+          "lineText": "text: 'filtered: the typed text kept the rows below, and the count states how many rows matched',"
+        }
+      ],
+      "derivedAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+        "line": 286,
+        "lineText": "return answerWord === LISTED && typed !== null ? FILTERED : answerWord;"
+      },
+      "reads": [
+        {
+          "field": "query",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 300,
+            "lineText": "const typed = nonEmptyString(answer['query']);"
+          }
+        },
+        {
+          "field": "rows",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 322,
+            "lineText": "const rows = Array.isArray(answer['rows']) ? answer['rows'] : null;"
+          }
+        },
+        {
+          "field": "matched",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 333,
+            "lineText": "lines.push(`matched: ${statedCount(answer['matched']) ?? rows.length}`);"
+          }
+        }
+      ],
+      "statement": "the same answer beside the text it was answered for: the state word, its sentence, the rows the join kept and `matched`, the join's own count of them. A text that kept nothing renders `matched: 0` and no row, never a name the record does not carry. `filtered` is the one state word of the four the join never answers — `extension/component-search.js` carries three (:56) — so the fourth is the pane's own reading of a `listed` answer beside a typed text, and an answer carrying every row is still `filtered` because the filter ran."
+    },
+    {
+      "id": "empty",
+      "word": "empty",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+        "line": 79,
+        "lineText": "export const EMPTY = 'empty';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 117,
+          "lineText": "text: 'empty: the record states the page rendered no components, so this is an empty list and not a source that could not be read',"
+        }
+      ],
+      "answeredBy": {
+        "file": "extension/component-search.js",
+        "line": 130,
+        "lineText": "if (rows.length === 0) return { state: EMPTY, rows: [], matched: 0 };"
+      },
+      "reads": [
+        {
+          "field": "rows",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 327,
+            "lineText": "const lines: string[] = [`state: ${state}`, sentence, ...rowLines(rows)];"
+          }
+        },
+        {
+          "field": "rows.length",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 329,
+            "lineText": "lines.push(`rows: ${rows.length}`);"
+          }
+        }
+      ],
+      "statement": "`empty` is the record's own statement that the page rendered no components — an empty `components` list beside a source at `read` (extension/component-search.js:73) — and the pane renders it as a stated empty list with its count, in a sentence of its own. The same empty list beside an unreadable source is `cannot-tell` with that reason instead, so a stated empty list can never be read as a read that did not happen."
+    },
+    {
+      "id": "cannot-tell",
+      "word": "cannot-tell",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+        "line": 80,
+        "lineText": "export const CANNOT_TELL = 'cannot-tell';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+          "line": 122,
+          "lineText": "text: 'cannot-tell: the source could not be read, so no list is rendered and the reason below states why',"
+        }
+      ],
+      "answeredBy": {
+        "file": "extension/component-search.js",
+        "line": 127,
+        "lineText": "if (unreadable !== null) return cannotTell(unreadable);"
+      },
+      "reads": [
+        {
+          "field": "reason",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 314,
+            "lineText": "const reason = nonEmptyString(answer['reason']);"
+          }
+        },
+        {
+          "field": "reason",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+            "line": 318,
+            "lineText": "reason === null ? NO_REASON_TEXT : `reason: ${reason}`,"
+          }
+        }
+      ],
+      "statement": "the source could not be read, so the pane renders the state word, its sentence and the reason the answer states, and nothing beside them: no row, no count, no cause, no element and no remedy. The reason is echoed as the join's own word from the closed set below and is never translated; an answer that carries no reason renders `no-reason` rather than an invented one."
+    }
+  ],
+  "stateWords": {
+    "join": {
+      "words": ["listed", "empty", "cannot-tell"],
+      "at": {
+        "file": "extension/component-search.js",
+        "line": 56,
+        "lineText": "const STATES = Object.freeze([LISTED, EMPTY, CANNOT_TELL]);"
+      }
+    },
+    "surface": {
+      "words": ["listed", "filtered", "empty", "cannot-tell"],
+      "at": {
+        "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
+        "line": 83,
+        "lineText": "export const STATES = [LISTED, FILTERED, EMPTY, CANNOT_TELL] as const;"
+      }
+    },
+    "statement": "the surface renders four state words and the join answers three. `filtered` is the surface's own, and the difference is recorded rather than flattened: a reader of the join cannot see `filtered`, and a reader of the pane never sees the three-word vocabulary minus one."
+  },
+  "reasonSet": {
+    "closed": true,
+    "declaredAt": {
+      "file": "extension/component-search.js",
+      "line": 48,
+      "lineText": "const REASONS = Object.freeze(["
+    },
+    "enforcedAt": [
+      {
+        "file": "extension/component-search.js",
+        "line": 60,
+        "lineText": "function isReason(value) {"
+      },
+      {
+        "file": "extension/component-search.js",
+        "line": 75,
+        "lineText": "return 'unreadable-source';"
+      }
+    ],
+    "members": [
+      {
+        "id": "agent-not-installed",
+        "memberAt": {
+          "file": "extension/component-search.js",
+          "line": 49,
+          "lineText": "'agent-not-installed',"
+        },
+        "producedBy": {
+          "file": "extension/agent-main.js",
+          "line": 509,
+          "lineText": "if (!ngObj) return 'waiting';"
+        },
+        "why": "the page publishes no window.ng, so the agent installs nothing and enumerates nothing: there is no list to read."
+      },
+      {
+        "id": "no-profiler",
+        "memberAt": {
+          "file": "extension/component-search.js",
+          "line": 50,
+          "lineText": "'no-profiler',"
+        },
+        "producedBy": {
+          "file": "extension/agent-main.js",
+          "line": 531,
+          "lineText": "return 'notsupported';"
+        },
+        "why": "the page publishes no ɵsetProfiler, so no frame is ever produced. The agent's own word for this cause is `notsupported`, which it answers for four causes, so the filter takes the cause and never translates the agent's state word."
+      },
+      {
+        "id": "enumerate-without-getter",
+        "memberAt": {
+          "file": "extension/component-search.js",
+          "line": 51,
+          "lineText": "'enumerate-without-getter',"
+        },
+        "producedBy": {
+          "file": "extension/agent-main.js",
+          "line": 862,
+          "lineText": "if (!getComponent) return [];"
+        },
+        "why": "the page publishes no component getter, so the enumeration answers an empty array — an emptiness that is not a statement that the page rendered none."
+      },
+      {
+        "id": "unreadable-source",
+        "memberAt": {
+          "file": "extension/component-search.js",
+          "line": 52,
+          "lineText": "'unreadable-source',"
+        },
+        "producedBy": {
+          "file": "extension/component-search.js",
+          "line": 75,
+          "lineText": "return 'unreadable-source';"
+        },
+        "why": "this file's own: the record carries no source, or a cause outside this list. A cause the record invented is never repeated as though it had been measured, which is why the fallback is a member of the set rather than the record's word."
+      },
+      {
+        "id": "unreadable-record",
+        "memberAt": {
+          "file": "extension/component-search.js",
+          "line": 53,
+          "lineText": "'unreadable-record',"
+        },
+        "producedBy": {
+          "file": "extension/component-search.js",
+          "line": 124,
+          "lineText": "return cannotTell('unreadable-record');"
+        },
+        "why": "this file's own: the record is not `{ components, source }` in the shape the join reads — no list at all, or a list whose entry carries no name. Dropping such an entry would shorten the list the page named."
+      }
+    ],
+    "statement": "five reasons and no sixth. Three are cases `research/raw/m047-names-and-absences.json` measured, one per absence id, and two are the record's own unreadability; a cause outside the five answers `unreadable-source`, so no word the record invented reaches a pane."
+  },
+  "notCaptured": [
+    "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the four files the `sources` block names, at the head recorded above, and the record carries no clock, no timing and no capture.",
+    "No suite pins this file. The names it cites are held by two suites that pin the same artefacts from the other side — `scripts/component-search.test.mjs` holds `research/raw/m047-names-and-absences.json` and `extension/component-search.js` to the tree line by line, and `apps/angular-ai-devtools/src/app/panel-demo.spec.ts` pins the route, the `LOADERS` key and the four states — so a move in any of them reddens there, but a citation in this record that slid off its line reddens nowhere. `npx prettier --check research/raw/m047-surface.json` is the only gate that reads this file.",
+    "The record does not measure what the pane looks like: the lines each state writes are enumerated in `apps/angular-ai-devtools/src/app/panel-components.ts`'s `PANE_SENTENCES` and held by `panel-demo.spec.ts`, and this record names the state words and the fields rather than reproducing the sentences' rendering.",
+    "The counts in the sample fact at `panel-demo.ts:427` are fixture data, not measurements: the enumerator deduplicates by class name and states no instance count, which `research/raw/m047-names-and-absences.json`'s `notPinned` says. This record does not claim how many instances of a component a page carries.",
+    "The route table's total is not pinned here. A sibling task in a later milestone adds a route on purpose, and a total recorded in this file would go stale without changing what the record says about `components`."
+  ],
+  "verdict": "measured: `/components` is one lazy route whose `data.surface` names the `components` key of `panel-demo.ts`'s `LOADERS`, and that key is the only path to `panel-components.ts`. The surface renders four states and the join answers three, so `filtered` is the surface's own reading of a `listed` answer beside a typed text. Each state reads a field the join copied from the record: `listed` and `filtered` read `rows` and `matched`, `empty` reads a stated empty `rows` beside a source at `read`, and `cannot-tell` reads `reason`, which is always one of the five closed reasons — a cause outside them answers `unreadable-source` rather than being repeated."
+}

@@ -3614,6 +3614,8 @@ const SUITE_DIFF_REASONS = {
     'wholly added at this head: M045 T003 pins the console pane’s rendering of the join’s `{ state, findings[] }` — captured-nothing as a statement, an unmatched code named rather than counted, and no cause, element, remedy or unattributed wording — with six mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit',
   'scripts/console-panel-record.test.mjs':
     'wholly added at this head: M045 T004 pins the console pane’s behaviour as one recorded reading of it — every case’s join `state`, each finding’s `text` with its `code`/`title`/`reason` exactly where the contract places them, and the pane’s own rendered lines — by re-deriving all of it from the join, the shipped digest and the pane, with a code the digest lacks named rather than counted, captured-nothing stated rather than rendered as an empty list, the two absences kept as two statements, and the one write behind `M045_CAPTURE=1` so a default run reads the same bytes; two mutants each redden the pin that names its defect, a reading the measured commit carries no file to edit',
+  'scripts/component-search.test.mjs':
+    'wholly added at this head: M047 T001 measured the names the page agent yields and the absences it states, and T002 pinned the filter over them, so the suite holds `research/raw/m047-names-and-absences.json` to the tree line by line and `extension/component-search.js` to that record — sixteen tests appended, no assertion line removed and no earlier suite touched, a reading the measured commit carries no file to edit',
 };
 
 /** The driven-check recording, measured once in the root `before` hook below. */
