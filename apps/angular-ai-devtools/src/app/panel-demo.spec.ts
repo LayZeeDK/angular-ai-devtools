@@ -2614,15 +2614,20 @@ describe('the panel demo', () => {
     ).toHaveLength(1);
 
     // The measured record's answer: every string it declares is explained, and the count is the
-    // join's own comparison — not a count written in this spec or in the demo fact.
+    // join's own comparison — not a count written in this spec or in the demo fact. The count is
+    // larger than the digest's row count because one sentence is declared by two surfaces and an
+    // explanation of one string is still one row: 122 sentences compared, 121 distinct rows.
     expect(answer).toEqual({
       state: COPY_CLEAN,
       unexplained: [],
-      checked: 113,
+      checked: 122,
     });
-    expect(answer.checked).toBe(digest.entries.length);
+    expect(answer.checked).toBe(
+      recording.counts.declaredSentences + recording.counts.inlineSentences,
+    );
+    expect(digest.entries.length).toBeLessThan(answer.checked);
     expect(recording.counts.surfaces).toBe(recording.surfaces.length);
-    expect(recording.counts.surfaces).toBe(19);
+    expect(recording.counts.surfaces).toBe(20);
 
     // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
     // with its own reason, while the record stays clean. Both answers are the join's.

@@ -4,7 +4,7 @@
 // T001 measured both sides and published them as `research/raw/m048-surface-copy.json`; this module
 // reads only what that record states:
 //
-//   surfaces   the record's `surfaces` list — 19 entries, one per `panel-*.ts` surface. Each carries
+//   surfaces   the record's `surfaces` list — 20 entries, one per `panel-*.ts` surface. Each carries
 //              an `id`, the sentences it declares in a map or a module constant (`sentences[]`, each
 //              with `key`, `text` and `kind`) and the lines it builds inline where no map can reach
 //              them (`inline[]`, each with `text` and `kind`). Nothing here reads a panel source, a
@@ -60,7 +60,7 @@
 // The digest is a digest of sentences and not of every literal the record carries. `SCOPE` below is
 // the boundary as data: the sentence kinds are read, and the record's label prefixes and value words
 // are read past. T001 counts those separately — `declaredLabels` (3), `declaredWordsAndFragments`
-// (8), `inlineLabels` (111), `inlineWords` (7) — and they are the prefix a line is built from and the
+// (8), `inlineLabels` (118), `inlineWords` (7) — and they are the prefix a line is built from and the
 // word substituted into it (`state: `, `recorded`, `no readable count`), never a string a surface
 // renders whole. Digesting them would hold strings the pane never renders, which is the defect the
 // sanitizer's pluraliser is recorded against in `NOT_DIGESTED`. So this join explains the sentences,

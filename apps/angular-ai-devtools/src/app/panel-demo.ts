@@ -442,7 +442,7 @@ export const FACTS: Record<string, unknown> = {
   // record's state, which is why it is not a field here. Every value is the join's; no count is
   // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
   // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 113 },
+  'copy-check': { state: 'clean', unexplained: [], checked: 122 },
 };
 
 @Component({
