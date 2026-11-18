@@ -2,10 +2,10 @@
 id: T002
 title: Judge the record for an event whose consequent never arrived, or refuse
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 639998fd3387ab8a83f55d1be967962bb0cf0015
 worktree: null
 task_branch: null
 files:
@@ -74,3 +74,6 @@ node --test scripts/dead-click.test.mjs && npx prettier --check extension/dead-c
 ## Log
 
 - pending.
+
+- **Built xtension/dead-click.js and extended the suite to 14 tests.** The router chain is judged on the navigation's own id, mirroring `navigation-narrator.js:453-:455`; work and boundary are refused through the exported `REFUSALS` with their own reasons (`work-chain-unjudgeable`, `boundary-chain-unjudgeable`), because the contract's single `reason` cannot carry three chain verdicts and dropping the refusals would hide them. Four mutants, each with a precondition proving the mutation changes behaviour: a paired start reported as dangling, a pair matched by adjacency, an unbounded record reported as clean, and a finding carrying an invented `handler`. `npx tsc -p extension/tsconfig.json` exits 0. The coder did not append this entry: the brief named three writable files and also said to append to the Log, and it followed the stricter instruction. The Log clause in every brief is now understood to cover the task file itself.
+- Landed paths: `extension/dead-click.js`, `scripts/dead-click.test.mjs`, `research/raw/m050-chains.json` — each is read from this tree, ready.

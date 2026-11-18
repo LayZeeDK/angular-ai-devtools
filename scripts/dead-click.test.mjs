@@ -21,6 +21,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { createContext, runInContext } from 'node:vm';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const RECORD = 'research/raw/m050-chains.json';
@@ -1111,5 +1112,944 @@ test('a doctored record reddens the check it violates', () => {
     () => validate(short),
     /three measured chains/,
     'a chain dropped from the record is refused',
+  );
+});
+
+// ================================================ T002 — judge the record, or refuse ====
+//
+// T001 measured three consequence chains and narrowed the judgement to the router's: a
+// `NavigationStart` and its terminal share the navigation's own `id`
+// (extension/agent-main.js:1639), and the shipped reader keys on it and never on position
+// (extension/navigation-narrator.js:451–:455). A start whose id no terminal in the window
+// carries is a finding; the work chain is refused on pairing and the boundary chain on a
+// consequent the record does not keep, each with its own reason. This half of the suite pins
+// `extension/dead-click.js`, proves each pin reddens on the defect it exists for, and holds the
+// judgement to the record it is handed — no DOM, no clock, no console and no network.
+//
+// The module is evaluated in a bare `node:vm` context; the checkout is never written. Every
+// fixture below is shaped like the entry `extension/agent-main.js` records (the router's eleven
+// keys at :1636–:1648), and no fixture value is a measurement this suite claims: it is only the
+// input a judgement is asked about.
+
+const DEAD_CLICK_SRC = readFileSync(
+  new URL('../extension/dead-click.js', import.meta.url),
+  'utf8',
+);
+
+/** The four fields the interface contract names, and no others. */
+const ANSWER_KEYS = ['considered', 'findings', 'state'];
+const REFUSAL_KEYS = ['considered', 'findings', 'reason', 'state'];
+
+/** The three fields one finding carries, and no others. */
+const FINDING_KEYS = ['chain', 'event', 'window'];
+
+/** The keys a router entry assigns, sorted, so a finding's event is held to them exactly. */
+const ROUTER_ENTRY_KEYS = Object.keys(
+  routerEntry({ type: 'NavigationStart', at: 0, id: 0 }),
+).sort();
+
+// ---------------------------------------------------------------- plumbing ----
+
+/** The standalone module: a bare context holding the source and whatever the caller puts in it. */
+function deadClickSource(source = DEAD_CLICK_SRC, sandbox = {}) {
+  const context = createContext(sandbox);
+  runInContext(source, context);
+  const api = context.angularAiDeadClick;
+  assert.ok(
+    api,
+    'the module must publish its namespace on the global object of whatever world it runs in',
+  );
+  assert.equal(
+    typeof api.deadClick,
+    'function',
+    'the module publishes the judgement',
+  );
+  return { api, context };
+}
+
+function deadClickApi() {
+  return deadClickSource().api;
+}
+
+/**
+ * A value from the vm context carries that context's own prototypes, so it is copied into this
+ * realm before a structural assertion reads it. It is also how every answer is cloned, so a test
+ * can never mutate a fixture for the next one.
+ */
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+/** One judgement, copied into this realm. */
+function judgementOf(api, value) {
+  return clone(api.deadClick(value));
+}
+
+/** The keys an object carries, in the one order an assertion can compare. */
+function keysOf(value) {
+  return Object.keys(value).sort();
+}
+
+// The host globals a judgement may never reach for, and a global that throws when it is read,
+// called or constructed, naming itself in the error.
+const HOST_GLOBALS = [
+  'document',
+  'window',
+  'console',
+  'Date',
+  'performance',
+  'setTimeout',
+  'setInterval',
+  'fetch',
+  'XMLHttpRequest',
+];
+
+/** A global that throws when read, called or constructed, naming itself in the error. */
+function tripwire(name) {
+  const reached = () => {
+    throw new Error(`the module reached for ${name}`);
+  };
+  return new Proxy(function tripwire() {}, {
+    get: reached,
+    set: reached,
+    has: reached,
+    apply: reached,
+    construct: reached,
+  });
+}
+
+// ----------------------------------------------------------------- fixtures ----
+//
+// The three entry shapes are the ones extension/agent-main.js builds: the router's eleven keys at
+// :1636–:1648, the work entry's five at :695–:701, and the boundary entry's four with its nested
+// `details` at :2051–:2074. Every value below is a value those builders write.
+
+/** One router entry, with a null for every field the event in the fixture does not carry. */
+function routerEntry(fields) {
+  return {
+    type: fields.type,
+    at: fields.at,
+    id: fields.id === undefined ? null : fields.id,
+    url: fields.url === undefined ? null : fields.url,
+    urlAfterRedirects:
+      fields.urlAfterRedirects === undefined ? null : fields.urlAfterRedirects,
+    route: fields.route === undefined ? null : fields.route,
+    reason: fields.reason === undefined ? null : fields.reason,
+    code: fields.code === undefined ? null : fields.code,
+    error: fields.error === undefined ? null : fields.error,
+    shouldActivate:
+      fields.shouldActivate === undefined ? null : fields.shouldActivate,
+    matchedPaths: fields.matchedPaths === undefined ? [] : fields.matchedPaths,
+  };
+}
+
+/** One work entry, shaped like the one the frame publishes in its `events` list. */
+function workEntry(fields) {
+  return {
+    type: fields.type,
+    pair: fields.pair,
+    end: fields.end,
+    at: fields.at,
+    componentName:
+      fields.componentName === undefined ? null : fields.componentName,
+  };
+}
+
+/** One boundary arrival, its `details` object carrying every presence-tested null. */
+function boundaryEntry(fields) {
+  return {
+    route: fields.route === undefined ? 'hook' : fields.route,
+    error:
+      fields.error === undefined
+        ? { name: 'Error', message: 'boom' }
+        : fields.error,
+    details: {
+      declarationType: null,
+      declarationInstanceName: null,
+      caughtBy: null,
+      boundaryType: null,
+      boundaryReset:
+        fields.boundaryReset === undefined ? null : fields.boundaryReset,
+    },
+    at: fields.at,
+  };
+}
+
+/**
+ * E4's fixture: one dangling start beside one paired start. Navigation 1 ends; navigation 2's
+ * start is the last thing the window recorded. Exactly one finding, id 2.
+ */
+function e4Record() {
+  return {
+    routerEvents: [
+      routerEntry({ type: 'NavigationStart', at: 10, id: 1, url: '/kept' }),
+      routerEntry({
+        type: 'NavigationEnd',
+        at: 11,
+        id: 1,
+        url: '/kept',
+        urlAfterRedirects: '/kept',
+      }),
+      routerEntry({ type: 'NavigationStart', at: 20, id: 2, url: '/lost' }),
+    ],
+  };
+}
+
+/**
+ * Every navigation paired, one by each of the four terminal classes: a cancel, an error and a
+ * skip end a navigation exactly as an end does, so nothing is dangling here.
+ */
+function allPairedRecord() {
+  const terminals = [
+    { type: 'NavigationEnd' },
+    { type: 'NavigationCancel', code: 1, reason: 'superseded' },
+    {
+      type: 'NavigationError',
+      error: { name: 'TypeError', message: 'chunk failed' },
+    },
+    { type: 'NavigationSkipped', code: 0, reason: 'same url' },
+  ];
+  const routerEvents = [];
+  for (const [index, terminal] of terminals.entries()) {
+    const id = index + 1;
+    routerEvents.push(
+      routerEntry({ type: 'NavigationStart', at: id * 10, id, url: `/n${id}` }),
+    );
+    routerEvents.push(
+      routerEntry({
+        type: terminal.type,
+        at: id * 10 + 1,
+        id,
+        url: `/n${id}`,
+        urlAfterRedirects: terminal.type === 'NavigationEnd' ? `/n${id}` : null,
+        code: terminal.code,
+        reason: terminal.reason,
+        error: terminal.error,
+      }),
+    );
+  }
+  return { routerEvents: routerEvents };
+}
+
+/** Four paired navigations and one start with no terminal: exactly one finding, id 9. */
+function oneDanglingBesideEveryTerminal() {
+  const input = allPairedRecord();
+  input.routerEvents.push(
+    routerEntry({ type: 'NavigationStart', at: 100, id: 9, url: '/lost' }),
+  );
+  return input;
+}
+
+/**
+ * Id and adjacency disagree: start 1 is followed by start 2, and start 2 is followed by
+ * navigation 1's terminal. Pairing by id leaves start 2 dangling; pairing by adjacency pairs
+ * start 2 to a terminal that carries id 1 and leaves start 1 dangling.
+ */
+function adjacencyRecord() {
+  return {
+    routerEvents: [
+      routerEntry({ type: 'NavigationStart', at: 10, id: 1, url: '/one' }),
+      routerEntry({ type: 'NavigationStart', at: 20, id: 2, url: '/two' }),
+      routerEntry({
+        type: 'NavigationEnd',
+        at: 30,
+        id: 1,
+        url: '/one',
+        urlAfterRedirects: '/one',
+      }),
+    ],
+  };
+}
+
+/** Two starts with no terminal, in the order the window recorded them. */
+function twoDanglingRecord() {
+  return {
+    routerEvents: [
+      routerEntry({ type: 'NavigationStart', at: 10, id: 1, url: '/one' }),
+      routerEntry({ type: 'NavigationStart', at: 20, id: 3, url: '/three' }),
+      routerEntry({
+        type: 'NavigationEnd',
+        at: 30,
+        id: 2,
+        url: '/two',
+        urlAfterRedirects: '/two',
+      }),
+    ],
+  };
+}
+
+/**
+ * A clean router window beside events the judgement counts and never reports: a stage class in
+ * the router stream, two work entries in the refused work stream and one boundary arrival.
+ */
+function outsideRecord() {
+  return {
+    routerEvents: [
+      routerEntry({ type: 'NavigationStart', at: 10, id: 1, url: '/a' }),
+      routerEntry({ type: 'RoutesRecognized', at: 11, id: 1, url: '/a' }),
+      routerEntry({
+        type: 'NavigationEnd',
+        at: 12,
+        id: 1,
+        url: '/a',
+        urlAfterRedirects: '/a',
+      }),
+      routerEntry({ type: 'GuardsCheckStart', at: 13, id: 1 }),
+    ],
+    events: [
+      workEntry({ type: 2, pair: 'TemplateUpdate', end: false, at: 20 }),
+      workEntry({ type: 3, pair: 'TemplateUpdate', end: true, at: 21 }),
+    ],
+    boundary: { entries: [boundaryEntry({ at: 30 })] },
+  };
+}
+
+// -------------------------------------------------------------- the pin ----
+//
+// One function per criterion, used unchanged for the untouched module and for every mutant, so a
+// mutation that survives a pin or reddens with a message not naming its defect fails the test.
+
+/**
+ * SC1 and held-out E4: one dangling start beside one paired start is exactly one finding; a
+ * paired start is never reported; every terminal class ends a navigation; and the join is by the
+ * measured `id`, never by adjacency.
+ */
+function pinJudgement(api) {
+  const input = e4Record();
+  const answer = judgementOf(api, input);
+  assert.deepEqual(
+    keysOf(answer),
+    ANSWER_KEYS,
+    'a judging answer carries the contract fields and no reason',
+  );
+  assert.equal(
+    answer.state,
+    api.FINDINGS,
+    'one dangling start beside one paired start is a finding',
+  );
+  assert.equal(
+    answer.considered,
+    3,
+    'every event in the measured streams is considered',
+  );
+  assert.equal(
+    answer.findings.length,
+    1,
+    'one dangling start beside one paired start yields exactly one finding; a paired start is never reported as dangling',
+  );
+  const finding = answer.findings[0];
+  assert.deepEqual(
+    keysOf(finding),
+    FINDING_KEYS,
+    'a finding is exactly a chain, the start’s own fields and the window',
+  );
+  assert.equal(
+    finding.chain,
+    'router',
+    'the finding names the one judgeable chain',
+  );
+  assert.equal(
+    finding.event.id,
+    2,
+    'the terminal is joined to a start by its own id, never by the start sitting next to it',
+  );
+  assert.deepEqual(
+    clone(finding.event),
+    input.routerEvents[2],
+    'a finding carries the start’s own recorded fields, copied as they stand',
+  );
+  assert.deepEqual(
+    clone(finding.window),
+    {
+      chain: 'router',
+      field: 'routerEvents',
+      kind: 'published-list',
+      length: 3,
+      final: false,
+    },
+    'a finding names the bounds the judgement used: the published list, its length and that it is not final',
+  );
+  assert.equal(
+    answer.findings.some((candidate) => candidate.event.id === 1),
+    false,
+    'a paired start is never reported as dangling',
+  );
+
+  // E4's other half: the all-paired record is clean.
+  const clean = judgementOf(api, allPairedRecord());
+  assert.equal(
+    clean.state,
+    api.CLEAN,
+    'a window whose every start has a terminal is clean',
+  );
+  assert.deepEqual(clean.findings, [], 'a clean judgement carries no finding');
+  assert.equal(clean.considered, 8, 'every paired event is considered');
+  assert.equal('reason' in clean, false, 'a clean answer carries no reason');
+
+  // Four terminal classes end a navigation, not `NavigationEnd` alone.
+  const terminals = judgementOf(api, oneDanglingBesideEveryTerminal());
+  assert.equal(
+    terminals.findings.length,
+    1,
+    'a start with no terminal is the only finding when the four terminal classes ended the others',
+  );
+  assert.equal(
+    terminals.findings[0].event.id,
+    9,
+    'a cancel, an error and a skip each end the navigation whose id they carry',
+  );
+
+  // The terminal is joined by its own id, never by the next start in the list.
+  const adjacency = judgementOf(api, adjacencyRecord());
+  assert.equal(
+    adjacency.findings.length,
+    1,
+    'the id-paired fixture yields one finding',
+  );
+  assert.equal(
+    adjacency.findings[0].event.id,
+    2,
+    'the terminal is joined to a start by its own id, never by the start sitting next to it',
+  );
+}
+
+/**
+ * SC3: an unbounded record is `cannot-tell` with a closed reason, an empty window is not a clean
+ * page, an event outside every judged pair is counted and never reported, and the two refused
+ * chains answer `cannot-tell` with their own reasons.
+ */
+function pinBound(api) {
+  for (const value of [
+    null,
+    {},
+    { routerEvents: null },
+    { routerEvents: 'nope' },
+  ]) {
+    const answer = judgementOf(api, value);
+    assert.equal(
+      answer.state,
+      api.CANNOT_TELL,
+      'an unbounded record is cannot-tell with its own reason, never clean',
+    );
+    assert.deepEqual(
+      keysOf(answer),
+      REFUSAL_KEYS,
+      'a refusal carries the contract fields',
+    );
+    assert.equal(
+      answer.reason,
+      api.NO_WINDOW_BOUND,
+      'an unbounded record is the named no-window-bound refusal',
+    );
+    assert.deepEqual(
+      answer.findings,
+      [],
+      'an unbounded record yields no finding',
+    );
+    assert.equal(
+      answer.considered,
+      0,
+      'an unbounded record with no stream considers no event',
+    );
+  }
+
+  // Events the record publishes in the other measured streams are still counted, even when the
+  // router window, the only one judgeable, is absent.
+  const partial = {
+    events: [
+      workEntry({ type: 2, pair: 'TemplateUpdate', end: false, at: 20 }),
+      workEntry({ type: 3, pair: 'TemplateUpdate', end: true, at: 21 }),
+    ],
+    boundary: { entries: [boundaryEntry({ at: 30 })] },
+  };
+  const partialAnswer = judgementOf(api, partial);
+  assert.equal(
+    partialAnswer.reason,
+    api.NO_WINDOW_BOUND,
+    'a record with no router window is refused even when other streams are populated',
+  );
+  assert.equal(
+    partialAnswer.considered,
+    3,
+    'events in the other measured streams are counted',
+  );
+
+  const empty = judgementOf(api, { routerEvents: [] });
+  assert.equal(
+    empty.state,
+    api.CANNOT_TELL,
+    'an empty window is cannot-tell, never a clean page',
+  );
+  assert.equal(
+    empty.reason,
+    api.NO_NAVIGATION_RECORDED,
+    'an empty window is the named no-navigation-recorded refusal',
+  );
+  assert.equal(empty.considered, 0, 'an empty window holds no event to count');
+  assert.deepEqual(empty.findings, [], 'an empty window yields no finding');
+
+  const noStart = judgementOf(api, {
+    routerEvents: [routerEntry({ type: 'RoutesRecognized', at: 5, id: 1 })],
+  });
+  assert.equal(
+    noStart.state,
+    api.CANNOT_TELL,
+    'a window that opens no navigation is cannot-tell, never clean',
+  );
+  assert.equal(
+    noStart.reason,
+    api.NO_START_RECORDED,
+    'a window with no start is the named no-start-recorded refusal',
+  );
+  assert.equal(
+    noStart.considered,
+    1,
+    'an event outside every judged pair is counted',
+  );
+  assert.deepEqual(
+    noStart.findings,
+    [],
+    'an event outside every judged pair is never reported',
+  );
+
+  const idless = judgementOf(api, {
+    routerEvents: [routerEntry({ type: 'NavigationStart', at: 5, id: null })],
+  });
+  assert.equal(
+    idless.reason,
+    api.NO_START_RECORDED,
+    'a start with no measured id opens nothing and is never reported as dangling',
+  );
+
+  // The reason set is closed and exported, and the two chains T001 refused answer with their own.
+  assert.deepEqual(
+    clone(api.REASONS),
+    [
+      'no-window-bound',
+      'no-navigation-recorded',
+      'no-start-recorded',
+      'work-chain-unjudgeable',
+      'boundary-chain-unjudgeable',
+    ],
+    'the reason set is closed and exported',
+  );
+  assert.deepEqual(
+    clone(api.REFUSALS),
+    [
+      { chain: 'work', state: 'cannot-tell', reason: 'work-chain-unjudgeable' },
+      {
+        chain: 'boundary',
+        state: 'cannot-tell',
+        reason: 'boundary-chain-unjudgeable',
+      },
+    ],
+    'the work and boundary chains answer cannot-tell with their own reasons rather than being silently dropped',
+  );
+  for (const refusal of clone(api.REFUSALS))
+    assert.equal(
+      api.REASONS.includes(refusal.reason),
+      true,
+      `the ${refusal.chain} refusal is a member of the closed reason set`,
+    );
+
+  // Counted, never reported.
+  const outside = judgementOf(api, outsideRecord());
+  assert.equal(
+    outside.state,
+    api.CLEAN,
+    'the outside fixture is a clean router window',
+  );
+  assert.equal(
+    outside.considered,
+    7,
+    'every entry in the three measured streams is considered, including events outside every judged pair',
+  );
+  assert.deepEqual(
+    outside.findings,
+    [],
+    'an event outside every judged pair is counted and never reported',
+  );
+}
+
+/**
+ * SC2: a finding carries the start's own recorded fields and the window, and invents no cause, no
+ * handler, no component and no remedy the record does not state.
+ */
+function pinHonestFinding(api) {
+  const input = e4Record();
+  const start = input.routerEvents[2];
+  const answer = judgementOf(api, input);
+  const finding = answer.findings[0];
+  assert.deepEqual(
+    keysOf(finding),
+    FINDING_KEYS,
+    'a finding carries exactly a chain, an event and a window',
+  );
+  assert.deepEqual(
+    keysOf(finding.event),
+    keysOf(start),
+    'a finding carries the start’s own recorded fields and invents no cause, handler, component or remedy the record does not state',
+  );
+  assert.deepEqual(
+    clone(finding.event),
+    start,
+    'the event’s values are the record’s own, with nothing added',
+  );
+  assert.deepEqual(
+    keysOf(finding.event),
+    ROUTER_ENTRY_KEYS,
+    'the event carries exactly the eleven keys a router entry assigns',
+  );
+  for (const invented of [
+    'cause',
+    'handler',
+    'component',
+    'componentName',
+    'remedy',
+    'fix',
+    'suggestion',
+    'advice',
+    'explanation',
+    'blame',
+  ])
+    assert.equal(
+      invented in finding || invented in finding.event,
+      false,
+      `a finding must not invent ${invented}; the record states no such field`,
+    );
+  assert.deepEqual(
+    clone(finding.window),
+    {
+      chain: 'router',
+      field: 'routerEvents',
+      kind: 'published-list',
+      length: 3,
+      final: false,
+    },
+    'the window names the list, its length and that it is not final',
+  );
+
+  const two = judgementOf(api, twoDanglingRecord());
+  assert.equal(
+    two.findings.length,
+    2,
+    'the two-dangling fixture yields two findings',
+  );
+  for (const candidate of two.findings)
+    assert.deepEqual(
+      keysOf(candidate.event),
+      ROUTER_ENTRY_KEYS,
+      'every finding carries only the start’s own fields',
+    );
+}
+
+// ------------------------------------------------------------- mutant tools ----
+
+/**
+ * A copy of the module with one anchored replacement applied. The anchor must occur exactly once,
+ * so a mutation cannot silently rewrite a different branch, and the result must differ from the
+ * source, so a no-op mutation is a failure rather than a green mutant.
+ */
+function mutant(anchor, replacement) {
+  assert.ok(
+    DEAD_CLICK_SRC.includes(anchor),
+    `mutation anchor not found in extension/dead-click.js — restate the bite: ${JSON.stringify(
+      anchor,
+    )}`,
+  );
+  const occurrences = DEAD_CLICK_SRC.split(anchor).length - 1;
+  assert.equal(
+    occurrences,
+    1,
+    `mutation anchor must occur exactly once, found ${occurrences}: ${JSON.stringify(
+      anchor,
+    )}`,
+  );
+  const mutated = DEAD_CLICK_SRC.replace(anchor, replacement);
+  assert.notEqual(
+    mutated,
+    DEAD_CLICK_SRC,
+    'the mutation must change the module source',
+  );
+  return deadClickSource(mutated).api;
+}
+
+/** A pin that a value reddens: returns the failure the pin raises on it. */
+function reddens(pin, what) {
+  let failure = null;
+  try {
+    pin();
+  } catch (error) {
+    failure = error;
+  }
+  assert.ok(
+    failure instanceof Error,
+    `${what} passed on the mutant, so the mutation is not caught`,
+  );
+  return failure;
+}
+
+/**
+ * The pin first, then every mutant: a mutation that survives the pin, or that reddens with a
+ * message not naming its defect, fails. Returns one `mutant -> failure` line per mutation so the
+ * run prints its own evidence.
+ */
+function proveNonVacuous(pin, mutations) {
+  pin(deadClickApi());
+
+  const caught = [];
+  for (const mutation of mutations) {
+    const api = mutant(mutation.anchor, mutation.replacement);
+    mutation.defect(api);
+
+    const failure = reddens(() => pin(api), mutation.what);
+    assert.match(
+      failure.message,
+      mutation.message,
+      `${mutation.what} must redden naming the defect ${mutation.message}: ${failure.message}`,
+    );
+    caught.push(`${mutation.what} -> ${failure.message.split('\n')[0]}`);
+  }
+
+  pin(deadClickApi());
+  return caught;
+}
+
+// ------------------------------------------------------------------- tests ----
+
+test('the judgement reuses the record’s own vocabulary and the chains T001 measured', () => {
+  const api = deadClickApi();
+  assert.equal(api.NAVIGATION_START, 'NavigationStart');
+  assert.deepEqual(clone(api.TERMINAL_CLASSES), [
+    'NavigationEnd',
+    'NavigationCancel',
+    'NavigationError',
+    'NavigationSkipped',
+  ]);
+  assert.deepEqual(
+    clone(api.CHAINS).sort(),
+    record.chains.map((chain) => chain.id).sort(),
+    'the judgement names exactly the three chains T001 measured',
+  );
+  assert.deepEqual(
+    clone(api.REFUSALS).map((refusal) => refusal.chain),
+    record.answer.notJudgeable.map((entry) => entry.chain),
+    'the judgement refuses exactly the chains T001 refused',
+  );
+
+  const narrator = sourceLines('extension/navigation-narrator.js').join('\n');
+  assert.ok(
+    narrator.includes("const NAVIGATION_START = 'NavigationStart';"),
+    'the start class is the shipped reader’s own constant',
+  );
+  for (const type of clone(api.TERMINAL_CLASSES))
+    assert.ok(
+      narrator.includes(`'${type}',`),
+      `the shipped reader classifies ${type} as a terminal`,
+    );
+
+  const router = record.chains.find((chain) => chain.id === 'router');
+  assert.equal(
+    router.pairingField.name,
+    'id',
+    'the router pairs on the measured id',
+  );
+  for (const type of clone(api.TERMINAL_CLASSES))
+    assert.ok(
+      router.consequent.citations.some((citation) =>
+        citation.lineText.includes(type),
+      ),
+      `T001 recorded ${type} as a terminal of the router chain`,
+    );
+});
+
+test('SC1/E4 — one dangling start beside a paired start is one finding, and the join is by id', () => {
+  const caught = proveNonVacuous(pinJudgement, [
+    {
+      what: 'M1 a paired start reported as dangling',
+      anchor: '      if (terminals.has(id)) continue;',
+      replacement: '      if (false) continue;',
+      message: /paired start is never reported as dangling/,
+      defect(api) {
+        const answer = judgementOf(api, e4Record());
+        assert.equal(
+          answer.findings.length,
+          2,
+          'the mutant reports the paired start too',
+        );
+        assert.equal(
+          answer.findings.some((candidate) => candidate.event.id === 1),
+          true,
+          'the mutant reports the paired start',
+        );
+      },
+    },
+    {
+      what: 'M2 a pair matched by adjacency rather than by id',
+      anchor: '    const terminals = terminalsOf(events);',
+      replacement:
+        '    const terminals = (function () { const set = new Set(); for (let i = 0; i + 1 < events.length; i += 1) { const next = events[i + 1]; if (classOf(events[i]) !== NAVIGATION_START) continue; if (TERMINAL_CLASSES.indexOf(classOf(next)) === -1) continue; if (isMeasurement(next.id)) set.add(events[i].id); } return set; })();',
+      message: /never by the start sitting next to it/,
+      defect(api) {
+        const answer = judgementOf(api, adjacencyRecord());
+        assert.equal(
+          answer.findings.length,
+          1,
+          'the adjacency mutant still finds one start',
+        );
+        assert.equal(
+          answer.findings[0].event.id,
+          1,
+          'the adjacency mutant pairs the wrong start',
+        );
+        const idPaired = judgementOf(api, e4Record());
+        assert.equal(
+          idPaired.findings[0].event.id,
+          2,
+          'the adjacency mutant is invisible where a start sits beside its own terminal',
+        );
+      },
+    },
+  ]);
+  console.log(`SC1/E4 non-vacuous:\n  ${caught.join('\n  ')}`);
+});
+
+test('SC3 — an unbounded record is cannot-tell with a closed reason, never clean', () => {
+  const caught = proveNonVacuous(pinBound, [
+    {
+      what: 'M3 an unbounded record reported as clean',
+      anchor:
+        '      return answer(CANNOT_TELL, [], considered, NO_WINDOW_BOUND);',
+      replacement:
+        '      return answer(CLEAN, [], considered, NO_WINDOW_BOUND);',
+      message:
+        /an unbounded record is cannot-tell with its own reason, never clean/,
+      defect(api) {
+        const answer = judgementOf(api, {});
+        assert.equal(
+          answer.state,
+          'clean',
+          'the mutant reports the unbounded record as clean',
+        );
+      },
+    },
+  ]);
+  console.log(`SC3 non-vacuous:\n  ${caught.join('\n  ')}`);
+});
+
+test('SC2 — a finding carries the record’s own fields and invents no cause', () => {
+  const caught = proveNonVacuous(pinHonestFinding, [
+    {
+      what: 'M4 a finding carrying an invented cause',
+      anchor: '        event: copyOf(entry),',
+      replacement:
+        "        event: Object.assign(copyOf(entry), { handler: 'onClick' }),",
+      message: /invents no cause, handler, component or remedy/,
+      defect(api) {
+        const answer = judgementOf(api, e4Record());
+        assert.equal(
+          'handler' in answer.findings[0].event,
+          true,
+          'the mutant invents a handler the record does not state',
+        );
+      },
+    },
+  ]);
+  console.log(`SC2 non-vacuous:\n  ${caught.join('\n  ')}`);
+});
+
+test('the judgement is pure over the record: no DOM, no clock, no console and no network', () => {
+  for (const needle of [
+    ['im', 'port '].join(''),
+    ['req', 'uire('].join(''),
+    ['docu', 'ment.'].join(''),
+    ['win', 'dow.addEventListener'].join(''),
+    ['cons', 'ole.'].join(''),
+    ['Date', '.now'].join(''),
+    ['fe', 'tch('].join(''),
+    ['XMLHttp', 'Request'].join(''),
+    ['set', 'Timeout('].join(''),
+  ]) {
+    assert.equal(
+      DEAD_CLICK_SRC.includes(needle),
+      false,
+      `the module carries ${JSON.stringify(
+        needle,
+      )}, and it must read the record it is handed and nothing else`,
+    );
+  }
+
+  const { context } = deadClickSource();
+  for (const name of [
+    'document',
+    'window',
+    'performance',
+    'setTimeout',
+    'setInterval',
+    'fetch',
+    'XMLHttpRequest',
+  ]) {
+    assert.equal(
+      runInContext(`typeof ${name}`, context),
+      'undefined',
+      `the module must not run with a ${name} in scope`,
+    );
+  }
+
+  const traps = createContext({});
+  for (const name of HOST_GLOBALS) traps[name] = tripwire(name);
+  assert.throws(
+    () => runInContext('Date.now()', traps),
+    /the module reached for Date/,
+    'the Date trap must bite, or the guard is decoration',
+  );
+  assert.throws(
+    () => runInContext('console.log("x")', traps),
+    /the module reached for console/,
+    'the console trap must bite, or the guard is decoration',
+  );
+
+  const sandbox = { __record: e4Record() };
+  for (const name of HOST_GLOBALS) sandbox[name] = tripwire(name);
+  const { context: guardedContext } = deadClickSource(DEAD_CLICK_SRC, sandbox);
+  const guarded = clone(
+    runInContext('angularAiDeadClick.deadClick(__record)', guardedContext),
+  );
+  assert.equal(
+    guarded.state,
+    'findings',
+    'the judgement answers while every host global in scope is a trap',
+  );
+  assert.equal(
+    guarded.findings.length,
+    1,
+    'the guarded answer is the E4 finding',
+  );
+});
+
+test('judging the same record twice returns identical findings in identical order', () => {
+  const api = deadClickApi();
+  const input = twoDanglingRecord();
+  const before = clone(input);
+  const first = judgementOf(api, input);
+  const second = judgementOf(api, input);
+  assert.deepEqual(first, second, 'the second judgement equals the first');
+  assert.deepEqual(
+    first.findings.map((finding) => finding.event.id),
+    [1, 3],
+    'the findings keep the order the starts arrived in',
+  );
+  assert.deepEqual(
+    clone(input),
+    before,
+    'the judgement does not write the record it reads',
+  );
+
+  first.findings[0].event.url = '/mutated';
+  const third = judgementOf(api, input);
+  assert.deepEqual(
+    third,
+    second,
+    'a caller mutating a returned finding cannot change a later judgement',
   );
 });
