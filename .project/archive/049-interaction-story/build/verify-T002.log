@@ -1,0 +1,40 @@
+SC1 non-vacuous:
+  M1 a step is reordered out of `at` order -> the story is in the order the measurement supports: every step is ordered by `at`, ascending
+  M2 a step paraphrases its event instead of quoting it -> every step quotes the event’s own recorded fields, and no field is a paraphrase
+  M3 a step is invented for an event the record does not carry -> the story invents a step for an event the record does not carry
+SC2/E4 non-vacuous:
+  M4 an all-empty record is reported as an empty story -> an all-empty record is cannot-tell, never an empty story
+SC3 non-vacuous:
+  M5 a record whose entries carry no `at` is ordered anyway -> a record whose entries carry no `at` is refused, never ordered
+equal-at non-vacuous:
+  M6 equal `at` events are ordered by an invented tie-break -> equal `at` events are one instant and are never ordered by an invented tie-break from stream name or type
+  M7 equal `at` events are ordered by an invented type tie-break -> equal `at` events are one instant and are never ordered by an invented tie-break from stream name or type
+✔ the record is three streams, one clock, an answer and what it does not claim (36.8441ms)
+✔ every cited path and line is the one the record read (48.374ms)
+✔ every stream records exactly the fields its cited builder assigns (1.8175ms)
+✔ the shared field is read from one clock at every receipt (1.952ms)
+✔ no stream records a user interaction, and the record says so (5.6435ms)
+✔ no stream records a cross-stream sequence number (1.0332ms)
+✔ a doctored record reddens the check it violates (135.0424ms)
+✔ the narration carries the measured vocabulary and states its bound (1.6625ms)
+✔ SC1 — the story is every recorded event in `at` order, each step quoting its own fields (8.0067ms)
+✔ SC2/E4 — an empty stream is named beside a story, and all-empty is not an empty story (5.8814ms)
+✔ SC3 — a record whose entries carry no `at` is refused, never ordered (2.3053ms)
+✔ equal `at` is one instant: no tie-break by stream name or type is invented (11.1039ms)
+✔ a record this narration cannot read is refused rather than read as empty (0.8431ms)
+✔ a step quotes nested recorded values and drops no key the event carries (0.6838ms)
+✔ narrating the same record twice returns identical steps in identical order (0.8545ms)
+✔ the narration is pure over the record: no DOM, no clock, no console and no network (2.0258ms)
+✔ the module republishes in place on a second run in the same world (0.6017ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 425.7624
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/interaction-story.js scripts/interaction-story.test.mjs

@@ -1741,8 +1741,8 @@ Goal: The panel narrates the interaction sequence a page recorded as a sequence 
 Depends on: [M020]
 Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/049-interaction-story
 Integrated: null
 
 Scope: in
