@@ -31,7 +31,8 @@ describe('App', () => {
  * that, M042 appends `error-boundary` after that and M043 appends `stability` after that, the same
  * way. M045 appends `console` after `stability`, M046 appends `console-read` after that, M047
  * appends `components` after that and M048 appends `copy-check` after that, which is why the count
- * moves from twenty-four to twenty-eight.
+ * moved from twenty-four to twenty-eight. M049 appends `interaction-story` after that, which is why
+ * the count moves from twenty-eight to twenty-nine.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -64,6 +65,7 @@ describe('the route table', () => {
       'console-read', // M046 SC1-3 surface: the control that names what will be sent, the body the pane drew, and the absence or the cannot-tell reason
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
+      'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
     ]);
     expect(appRoutes.filter((route) => route.path === 'lint')).toHaveLength(1);
 
@@ -222,5 +224,17 @@ describe('the route table', () => {
     expect(copyCheck.data?.['surface']).toBe('copy-check');
     // Its own name, so a copy of another surface's route cannot stand in for it.
     expect(copyCheck.data?.['surface']).not.toBe('components');
+
+    const interactionStory = appRoutes.find(
+      (route) => route.path === 'interaction-story',
+    );
+    expect(interactionStory?.component).toBeUndefined();
+    if (interactionStory?.loadComponent === undefined) {
+      throw new Error('the interaction-story surface must load lazily');
+    }
+    expect(await interactionStory.loadComponent()).toBe(PanelDemoComponent);
+    expect(interactionStory.data?.['surface']).toBe('interaction-story');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(interactionStory.data?.['surface']).not.toBe('copy-check');
   });
 });
