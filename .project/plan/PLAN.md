@@ -116,3 +116,20 @@ T004 records the route, the loader key and each state with the report field it r
 copy record and digest so the new surface's sentences are explained; captures
 `research/raw/m050-verdict-claims.json`, which the project verify reads and no task owned in three
 consecutive milestones; re-derives both gate recordings; and runs `npm run check && npm test`.
+
+## Wave 5 — give the eager bytes back so the panel bundle fits its baseline
+
+Goal: the panel's initial bundle measures at or below the recorded 535.44 kB baseline at the head that
+ships, from a fresh build rather than whatever artifact happens to sit in `extension/panel`.
+
+Review depth: full
+
+T005 repairs what `prepare-final` found: twenty panel surface routes are the same route object with
+`path` and `data.surface` holding one string each, so every surface has cost the eager bundle its own
+copy of the property names. M041's T006 repaired the identical duplication one layer down, collapsing
+thirteen copies of one lazy closure into `loadPanelDemo`; the closure is shared and the objects are not.
+T005 declares the surface names once and maps them over a single object literal, keeps every path, its
+order and its `data.surface`, builds, and proves the measured total moved under the baseline. The
+constant is not raised: the evidence for the failure, and the two measurements that show the gate was
+reading a stale build for three milestones, are in `.project/review/BUNDLE-PROBE.md`.
+
