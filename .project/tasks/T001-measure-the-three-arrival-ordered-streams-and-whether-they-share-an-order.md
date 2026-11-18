@@ -2,10 +2,10 @@
 id: T001
 title: Measure the three arrival-ordered streams and whether they share an order
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: 642ce70a0f4434b46a201b634e7f43256ae5248b
 worktree: null
 task_branch: null
 files:
@@ -58,3 +58,23 @@ node --test scripts/interaction-story.test.mjs && node -e "JSON.parse(require('f
 ## Log
 
 - pending.
+- T001 done. `research/raw/m049-streams.json` measures all three streams — `routerEvents`
+  (`extension/agent-main.js:1474`), `pendingWorkEvents`/the frame's `events` (`:639`, `:692`) and
+  `boundaryEntries` (`:1942`) — with `path:line` and the line's own trimmed text, each entry's every
+  field and where it is assigned, each bound (512 / 64 / 128, oldest dropped) and its enforcing
+  lines, the sentence that states the order, and the reader a narration can reuse
+  (`routerEventList` :1671, `closeCycle` :1038, `boundaryField` :2248). Answer: `sharedOrder: true`
+  — all three record `at` from the one reader `nowMs` (`:728`; assignments at `:1638`, `:699`,
+  `:2073`), so a merge sorted by `at` is honest; no cross-stream sequence number exists (`seq`,
+  `sequence`, `arrivalIndex` all 0 occurrences), so equal `at` readings are one instant, and the
+  router's `id` is not a tiebreak. The record states that no interaction is captured (`interaction`
+  0 times in `extension/agent-main.js` and across the 28 `extension/*.js` files; no click, pointer,
+  mouse or key listener registered), that the bounds make the story incomplete, and that
+  `routerEvents`/`boundary.entries` are cumulative copies while the work list is frame-scoped.
+  Pinned by `scripts/interaction-story.test.mjs` (7 tests, including doctored-record refusals).
+  Verify passes: `node --test scripts/interaction-story.test.mjs` (7/7), the JSON parses, and
+  `npx prettier --check` passes — the JSON leg is vacuous, since `research/raw/**` and `*.json` are
+  in `.prettierignore` (`npx prettier --file-info research/raw/m049-streams.json` answers
+  `{ "ignored": true, "inferredParser": null }`). No page was read, no browser was opened, nothing
+  was rendered, and nothing was committed.
+- Landed paths: `research/raw/m049-streams.json`, `scripts/interaction-story.test.mjs` — each is read from this tree, ready.
