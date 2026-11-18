@@ -72,6 +72,14 @@ sentence — a copy defect named at the string rather than at the component — 
 observable that exists. T001 measures the declared copy of every surface before any join is written,
 as M046's and M047's first tasks did.
 
+**The citation in `## Scope` was one line off, and T001 caught it.** The scope paragraph cites
+`apps/angular-ai-devtools/src/app/panel-components.ts:47` for the sentence map; line 47 is a
+doc-comment that only *mentions* `PANE_SENTENCES`, and the map itself is at `:104`. Measured by
+T001, which re-read all 303 citations: 19 surfaces, 79 declared sentences in maps or loose module
+constants, 34 written inline where no map can reach them, and one surface (`panel-context.ts`) that
+renders no copy at all — SC2's absence case. That distribution is the reason SC1 is stated over
+"every string a surface renders" rather than over "every map's sentences".
+
 ## Risks
 
 - A digest authored alongside the strings it explains can be made to agree with them trivially. E1
