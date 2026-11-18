@@ -16,6 +16,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
+import { createContext, runInContext } from 'node:vm';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const RECORD = 'research/raw/m049-streams.json';
@@ -817,11 +819,20 @@ test('no stream records a user interaction, and the record says so', () => {
     file.endsWith('.js'),
   );
   assert.ok(files.length >= 1, 'the extension holds files to read');
+  // T002 adds extension/interaction-story.js: a pure reader of the record, named by the surface it
+  // narrates, with no listener and no page read. The measurement counts what a recorder writes, so
+  // the narration's own name is excluded from the word count; every file is still held to the
+  // listener count, and the narration registers none.
+  const NARRATION = 'interaction-story.js';
   let interactions = 0;
   let listeners = 0;
+  let recorders = 0;
   for (const file of files) {
     const source = sourceLines(`${EXTENSION}/${file}`).join('\n');
-    interactions += [...source.matchAll(/interaction/g)].length;
+    if (file !== NARRATION) {
+      recorders += 1;
+      interactions += [...source.matchAll(/interaction/g)].length;
+    }
     listeners += [
       ...source.matchAll(/addEventListener\(\s*.(?:click|pointer|mouse|key)/g),
     ].length;
@@ -829,7 +840,7 @@ test('no stream records a user interaction, and the record says so', () => {
   assert.equal(
     interactions,
     0,
-    `the ${files.length} extension/*.js files record no interaction`,
+    `the ${recorders} extension/*.js recorder files record no interaction (the narration ${NARRATION} is a reader and is excluded from the word count)`,
   );
   assert.equal(
     listeners,
@@ -943,4 +954,1126 @@ test('a doctored record reddens the check it violates', () => {
     /three measured streams/,
     'a stream dropped from the record is refused',
   );
+});
+
+// ================================================ T002 — narrate the record, or refuse ====
+//
+// T001 measured that the three streams share one field, `at`, written by one reader, and that no
+// stream records a sequence number. T002 turns that measurement into
+// `extension/interaction-story.js`: the union of the three streams sorted by `at`, each step
+// quoting its event's own fields, the equal-`at` group emitted as one instant, and every missing
+// or unorderable case refused rather than guessed.
+//
+// The module is evaluated in a bare `node:vm` context; the checkout is never written. Every fact
+// below is either read from the T001 record or built from the entry shapes the record cites.
+
+const STORY_SRC = readFileSync(
+  new URL('../extension/interaction-story.js', import.meta.url),
+  'utf8',
+);
+
+/** The four fields the interface contract names, and no others. */
+const ANSWER_KEYS = ['cannotTell', 'reason', 'state', 'steps'];
+
+/** The three fields one step carries, and no others. */
+const STEP_KEYS = ['at', 'fields', 'stream'];
+
+// ---------------------------------------------------------------- plumbing ----
+
+/** The standalone module: a bare context holding the source and whatever the caller puts in it. */
+function storySource(source = STORY_SRC, sandbox = {}) {
+  const context = createContext(sandbox);
+  runInContext(source, context);
+  const api = context.angularAiInteractionStory;
+  assert.ok(
+    api,
+    'the module must publish its namespace on the global object of whatever world it runs in',
+  );
+  assert.equal(
+    typeof api.interactionStory,
+    'function',
+    'the module publishes the narration',
+  );
+  return { api, context };
+}
+
+function storyApi() {
+  return storySource().api;
+}
+
+/**
+ * A value from the vm context carries that context's own prototypes, so it is copied into this
+ * realm before a structural assertion reads it. It is also how every answer is cloned, so a test
+ * can never mutate a fixture for the next one.
+ */
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+/** One answer, copied into this realm. */
+function storyOf(api, input) {
+  return clone(api.interactionStory(input));
+}
+
+/** The keys an object carries, in the one order an assertion can compare. */
+function keysOf(value) {
+  return Object.keys(value).sort();
+}
+
+// ----------------------------------------------------------------- fixtures ----
+//
+// The three entry shapes are the ones extension/agent-main.js builds and T001 cites: the router's
+// eleven keys at :1636–:1648, the work entry's five at :695–:701, and the boundary entry's four
+// with its nested `details` at :2051–:2074. Every value below is a value those builders write.
+
+/** One router entry, with a null for every field the event in the fixture does not carry. */
+function routerEntry(fields) {
+  return {
+    type: fields.type,
+    at: fields.at,
+    id: fields.id === undefined ? null : fields.id,
+    url: fields.url === undefined ? null : fields.url,
+    urlAfterRedirects:
+      fields.urlAfterRedirects === undefined ? null : fields.urlAfterRedirects,
+    route: fields.route === undefined ? null : fields.route,
+    reason: fields.reason === undefined ? null : fields.reason,
+    code: fields.code === undefined ? null : fields.code,
+    error: fields.error === undefined ? null : fields.error,
+    shouldActivate:
+      fields.shouldActivate === undefined ? null : fields.shouldActivate,
+    matchedPaths: fields.matchedPaths === undefined ? [] : fields.matchedPaths,
+  };
+}
+
+/** One work entry, shaped like the one the frame publishes in its `events` list. */
+function workEntry(fields) {
+  return {
+    type: fields.type,
+    pair: fields.pair,
+    end: fields.end,
+    at: fields.at,
+    componentName:
+      fields.componentName === undefined ? null : fields.componentName,
+  };
+}
+
+/** The boundary entry's nested `details` object, every key a presence-tested null. */
+function emptyDetails() {
+  return {
+    declarationType: null,
+    declarationInstanceName: null,
+    caughtBy: null,
+    boundaryType: null,
+    boundaryReset: null,
+  };
+}
+
+/** One boundary entry, shaped like the one extension/agent-main.js:2051–:2074 records. */
+function boundaryEntry(fields) {
+  return {
+    route: fields.route,
+    error: fields.error === undefined ? null : fields.error,
+    details: fields.details === undefined ? emptyDetails() : fields.details,
+    at: fields.at,
+  };
+}
+
+/**
+ * The page record extension/agent-main.js publishes: `events` is the frame's own work, and
+ * `routerEvents` and `boundary.entries` are the two cumulative streams. The other fields are ones
+ * the narration must ignore.
+ */
+function pageRecord(lists) {
+  return {
+    cycleId: 7,
+    startedAt: 0,
+    trigger: { kind: 'unknown', listenerName: null },
+    zoneMode: 'zoneless',
+    events: lists.events === undefined ? [] : lists.events,
+    routerEvents: lists.routerEvents === undefined ? [] : lists.routerEvents,
+    boundary: {
+      entries: lists.boundaryEntries === undefined ? [] : lists.boundaryEntries,
+    },
+    stability: { reachedBy: null, absence: null },
+    checks: [],
+  };
+}
+
+/**
+ * The streams recorded out of `at` order: the record lists the router's arrivals first, but the
+ * work entry at 10 was held before the frame opened and was adopted later (T001, `work.reader`),
+ * so sorting by `at` moves it in front. The order this fixture is listed in is not the order any
+ * stream-name, type or list-position sort would produce.
+ */
+function interleavedRecord() {
+  return pageRecord({
+    routerEvents: [
+      routerEntry({
+        type: 'NavigationEnd',
+        at: 30,
+        id: 1,
+        url: '/a',
+        urlAfterRedirects: '/a',
+        matchedPaths: [],
+      }),
+      routerEntry({
+        type: 'RoutesRecognized',
+        at: 31,
+        id: 2,
+        url: '/b',
+        matchedPaths: [''],
+      }),
+    ],
+    events: [
+      workEntry({
+        type: 1,
+        pair: 'TemplateUpdate',
+        end: false,
+        at: 10,
+        componentName: '_App',
+      }),
+      workEntry({
+        type: 2,
+        pair: 'TemplateUpdate',
+        end: true,
+        at: 11,
+        componentName: '_App',
+      }),
+    ],
+    boundaryEntries: [
+      boundaryEntry({
+        route: 'hook',
+        error: { name: 'TypeError', message: 'boom' },
+        at: 20,
+      }),
+    ],
+  });
+}
+
+/**
+ * One instant shared by four events, bracketed by entries at 1 and 9 so the group is visible.
+ * The router carries two arrivals at the same reading in its own arrival order, the work entry
+ * and the boundary entry share it, and the record's read order for the group is neither the
+ * stream-name order nor the type order.
+ */
+function tieRecord() {
+  return pageRecord({
+    routerEvents: [
+      routerEntry({ type: 'NavigationEnd', at: 5, id: 1, url: '/a' }),
+      routerEntry({ type: 'NavigationStart', at: 5, id: 2, url: '/b' }),
+    ],
+    events: [
+      workEntry({
+        type: 1,
+        pair: 'TemplateUpdate',
+        end: false,
+        at: 1,
+        componentName: '_App',
+      }),
+      workEntry({
+        type: 2,
+        pair: 'TemplateUpdate',
+        end: false,
+        at: 5,
+        componentName: '_Counter',
+      }),
+    ],
+    boundaryEntries: [
+      boundaryEntry({ route: 'hook', at: 5 }),
+      boundaryEntry({ route: 'handler', at: 9 }),
+    ],
+  });
+}
+
+/** Every stream empty: the absence SC2 asks for, never an empty story. */
+function allEmptyRecord() {
+  return pageRecord({});
+}
+
+/** The boundary stream empty, the other two populated: held-out E4. */
+function oneEmptyRecord() {
+  return pageRecord({
+    routerEvents: [
+      routerEntry({ type: 'NavigationEnd', at: 10, id: 1, url: '/a' }),
+    ],
+    events: [
+      workEntry({
+        type: 1,
+        pair: 'TemplateUpdate',
+        end: false,
+        at: 5,
+        componentName: '_App',
+      }),
+    ],
+    boundaryEntries: [],
+  });
+}
+
+/** Two streams empty: the story of the one that is populated, and both empties named. */
+function twoEmptyRecord() {
+  return pageRecord({
+    routerEvents: [
+      routerEntry({ type: 'NavigationEnd', at: 10, id: 1, url: '/a' }),
+    ],
+  });
+}
+
+/** One populated entry with no measured `at`: no merged order is recorded. */
+function noAtRecord() {
+  return pageRecord({
+    routerEvents: [
+      routerEntry({ type: 'NavigationEnd', at: null, id: 1, url: '/a' }),
+    ],
+    events: [
+      workEntry({
+        type: 1,
+        pair: 'TemplateUpdate',
+        end: false,
+        at: 5,
+        componentName: '_App',
+      }),
+    ],
+    boundaryEntries: [boundaryEntry({ route: 'hook', at: 20 })],
+  });
+}
+
+/** Every populated stream's every entry has no measured `at`. */
+function noAtAnywhereRecord() {
+  return pageRecord({
+    routerEvents: [routerEntry({ type: 'NavigationEnd', at: null })],
+    events: [
+      workEntry({ type: 1, pair: 'TemplateUpdate', end: false, at: null }),
+    ],
+    boundaryEntries: [boundaryEntry({ route: 'hook', at: null })],
+  });
+}
+
+/** A record whose `boundary` section it does not carry: unreadable, not empty. */
+function unreadableRecord() {
+  return { routerEvents: [], events: [], boundary: null };
+}
+
+/**
+ * The steps the record itself supports: every entry of every stream, its own fields with `at`
+ * hoisted, in the order the streams are listed. The narration's own answer is compared against
+ * this, so a step it invents, reorders or paraphrases cannot pass.
+ */
+function expectedSteps(input) {
+  const lists = [
+    ['routerEvents', input.routerEvents],
+    ['pendingWorkEvents', input.events],
+    ['boundaryEntries', input.boundary.entries],
+  ];
+  const steps = [];
+  for (const [stream, entries] of lists) {
+    for (const entry of entries) {
+      const fields = {};
+      for (const key of Object.keys(entry)) {
+        if (key === 'at') continue;
+        fields[key] = entry[key];
+      }
+      steps.push({ stream: stream, at: entry.at, fields: fields });
+    }
+  }
+  return steps;
+}
+
+/** One step quoted as the event it came from: the keys, the stream, the reading and the fields. */
+function assertStepQuotes(step, expected) {
+  assert.deepEqual(
+    keysOf(step),
+    STEP_KEYS,
+    'a step carries exactly `stream`, `at` and `fields`',
+  );
+  assert.equal(
+    step.stream,
+    expected.stream,
+    'a step names the stream it came from',
+  );
+  assert.equal(step.at, expected.at, 'a step carries the measured `at`');
+  assert.equal(
+    'at' in step.fields,
+    false,
+    'the measured `at` is hoisted beside `fields`, not left inside it',
+  );
+  assert.deepEqual(
+    step.fields,
+    expected.fields,
+    'every step quotes the event’s own recorded fields, and no field is a paraphrase',
+  );
+}
+
+// ------------------------------------------------------------------- the pins ----
+
+/**
+ * SC1. Every recorded event is one step, the steps are ordered by `at` ascending — never by the
+ * order the streams are listed, by stream name or by type — and each step quotes its own event.
+ */
+function pinStory(api) {
+  const input = interleavedRecord();
+  const answer = storyOf(api, input);
+  assert.deepEqual(
+    keysOf(answer),
+    ANSWER_KEYS,
+    'the answer carries the four contract fields and no others',
+  );
+  assert.equal(answer.state, api.STEPS, 'a populated record is a story');
+  assert.deepEqual(
+    answer.cannotTell,
+    [],
+    'a populated record misses no stream',
+  );
+  assert.equal(answer.reason, null, 'a populated record has nothing to refuse');
+
+  const expected = expectedSteps(input);
+  assert.equal(
+    answer.steps.length,
+    expected.length,
+    'the story invents a step for an event the record does not carry',
+  );
+
+  const ats = answer.steps.map((step) => step.at);
+  assert.deepEqual(
+    ats,
+    ats.slice().sort((left, right) => left - right),
+    'the story is in the order the measurement supports: every step is ordered by `at`, ascending',
+  );
+  assert.deepEqual(
+    ats,
+    [10, 11, 20, 30, 31],
+    'the story interleaves the streams by `at`, not by the order the record lists them',
+  );
+
+  const remaining = expected.slice();
+  for (const step of answer.steps) {
+    const index = remaining.findIndex(
+      (candidate) =>
+        candidate.stream === step.stream &&
+        candidate.at === step.at &&
+        isDeepStrictEqual(candidate.fields, step.fields),
+    );
+    assert.notEqual(
+      index,
+      -1,
+      'every step quotes the event’s own recorded fields, and no field is a paraphrase',
+    );
+    assertStepQuotes(step, remaining[index]);
+    remaining.splice(index, 1);
+  }
+  assert.deepEqual(
+    remaining,
+    [],
+    'every recorded event is a step and no recorded event is dropped',
+  );
+
+  assert.equal(
+    JSON.stringify(storyOf(api, input)),
+    JSON.stringify(answer),
+    'narrating the same record twice returns identical steps in identical order',
+  );
+}
+
+/**
+ * SC2 and held-out E4, in one pin so the two cannot collapse: one or two empty streams leave a
+ * story of the populated ones with the empty ones named, and an all-empty record is the absence,
+ * never an empty story.
+ */
+function pinEmptyCases(api) {
+  const oneEmpty = storyOf(api, oneEmptyRecord());
+  assert.deepEqual(
+    keysOf(oneEmpty),
+    ANSWER_KEYS,
+    'E4 the answer carries the four contract fields',
+  );
+  assert.equal(
+    oneEmpty.state,
+    api.STEPS,
+    'E4 one empty stream still leaves a story of the populated ones',
+  );
+  assert.deepEqual(
+    oneEmpty.steps.map((step) => step.stream),
+    ['pendingWorkEvents', 'routerEvents'],
+    'E4 the story renders the two populated streams, in `at` order',
+  );
+  assert.deepEqual(
+    oneEmpty.cannotTell,
+    ['boundaryEntries'],
+    'E4 the empty stream is named as empty',
+  );
+  assert.equal(
+    oneEmpty.reason,
+    api.STREAM_EMPTY,
+    'E4 the reason names the empty stream',
+  );
+
+  const twoEmpty = storyOf(api, twoEmptyRecord());
+  assert.equal(
+    twoEmpty.state,
+    api.STEPS,
+    'E4 two empty streams still leave a story of the populated one',
+  );
+  assert.deepEqual(
+    twoEmpty.steps.map((step) => step.stream),
+    ['routerEvents'],
+    'E4 the story renders the one populated stream',
+  );
+  assert.deepEqual(
+    twoEmpty.cannotTell,
+    ['pendingWorkEvents', 'boundaryEntries'],
+    'E4 both empty streams are named',
+  );
+  assert.equal(
+    twoEmpty.reason,
+    api.STREAM_EMPTY,
+    'E4 the reason names the empty streams',
+  );
+
+  const allEmpty = storyOf(api, allEmptyRecord());
+  assert.deepEqual(
+    keysOf(allEmpty),
+    ANSWER_KEYS,
+    'SC2 the answer carries the four contract fields',
+  );
+  assert.equal(
+    allEmpty.state,
+    api.CANNOT_TELL,
+    'an all-empty record is cannot-tell, never an empty story',
+  );
+  assert.deepEqual(allEmpty.steps, [], 'an all-empty record renders no step');
+  assert.deepEqual(
+    allEmpty.cannotTell,
+    ['routerEvents', 'pendingWorkEvents', 'boundaryEntries'],
+    'the absence names every stream the record carries empty',
+  );
+  assert.equal(
+    allEmpty.reason,
+    api.ALL_STREAMS_EMPTY,
+    'the absence is the named all-streams-empty one',
+  );
+
+  assert.notEqual(
+    oneEmpty.state,
+    allEmpty.state,
+    'a story with one empty stream is not the all-empty absence',
+  );
+}
+
+/**
+ * SC3. A populated stream holding an entry with no measured `at` is refused: no order is
+ * recorded, and no stream's reading is lent to the entry that carries none.
+ */
+function pinNoSharedOrder(api) {
+  const mixed = storyOf(api, noAtRecord());
+  assert.deepEqual(
+    keysOf(mixed),
+    ANSWER_KEYS,
+    'SC3 the refusal carries the four contract fields',
+  );
+  assert.equal(
+    mixed.state,
+    api.CANNOT_TELL,
+    'a record whose entries carry no `at` is refused, never ordered',
+  );
+  assert.deepEqual(mixed.steps, [], 'the refusal renders no step');
+  assert.deepEqual(
+    mixed.cannotTell,
+    ['routerEvents'],
+    'the refusal names the stream whose entry carries no `at`',
+  );
+  assert.equal(
+    mixed.reason,
+    api.NO_SHARED_ORDER,
+    'the refusal is the named no-shared-order one',
+  );
+
+  const none = storyOf(api, noAtAnywhereRecord());
+  assert.equal(
+    none.state,
+    api.CANNOT_TELL,
+    'a record whose every entry carries no `at` is refused',
+  );
+  assert.deepEqual(none.steps, [], 'the refusal renders no step');
+  assert.deepEqual(
+    none.cannotTell,
+    ['routerEvents', 'pendingWorkEvents', 'boundaryEntries'],
+    'the refusal names every stream whose entries carry no `at`',
+  );
+  assert.equal(
+    none.reason,
+    api.NO_SHARED_ORDER,
+    'the refusal is the named no-shared-order one',
+  );
+}
+
+/**
+ * Rule 1. Two entries with equal `at` are one instant: they are emitted contiguously, keep each
+ * stream's own recorded order, and are never reordered by a stream-name, type or position
+ * tie-break. The fixture's instant is deliberately not in either sort's order, so an invented
+ * tie-break is visible rather than plausible.
+ */
+function pinEqualAt(api) {
+  const input = tieRecord();
+  const answer = storyOf(api, input);
+  assert.equal(answer.state, api.STEPS, 'the tie fixture is a story');
+  assert.deepEqual(
+    keysOf(answer),
+    ANSWER_KEYS,
+    'the answer carries four fields',
+  );
+
+  const group = answer.steps.filter((step) => step.at === 5);
+  assert.equal(group.length, 4, 'four recorded events share one `at`');
+  const indices = answer.steps
+    .map((step, index) => (step.at === 5 ? index : -1))
+    .filter((index) => index !== -1);
+  assert.deepEqual(
+    indices,
+    [1, 2, 3, 4],
+    'equal `at` events are emitted together, as one instant',
+  );
+  assert.deepEqual(
+    group.map((step) => step.stream),
+    ['routerEvents', 'routerEvents', 'pendingWorkEvents', 'boundaryEntries'],
+    'equal `at` events are one instant and are never ordered by an invented tie-break from stream name or type',
+  );
+  assert.deepEqual(
+    group.map((step) => ('type' in step.fields ? step.fields.type : null)),
+    ['NavigationEnd', 'NavigationStart', 2, null],
+    'the instant keeps each stream’s own recorded order',
+  );
+
+  const byStream = group
+    .slice()
+    .sort((left, right) => left.stream.localeCompare(right.stream));
+  assert.notDeepEqual(
+    group.map((step) => step.stream),
+    byStream.map((step) => step.stream),
+    'the fixture’s instant is not already in stream-name order, so an invented tie-break would be visible',
+  );
+  const byType = group
+    .slice()
+    .sort((left, right) =>
+      String(left.fields.type).localeCompare(String(right.fields.type)),
+    );
+  assert.notDeepEqual(
+    group.map((step) => step.fields.type),
+    byType.map((step) => step.fields.type),
+    'the fixture’s instant is not already in type order, so an invented tie-break would be visible',
+  );
+}
+
+/** A record this narration cannot read is refused, not read as a story with empty streams. */
+function pinUnreadable(api) {
+  const missing = storyOf(api, unreadableRecord());
+  assert.deepEqual(
+    keysOf(missing),
+    ANSWER_KEYS,
+    'the refusal carries the four contract fields',
+  );
+  assert.equal(
+    missing.state,
+    api.CANNOT_TELL,
+    'a record this narration cannot read is refused, never read as empty',
+  );
+  assert.deepEqual(missing.steps, [], 'the refusal renders no step');
+  assert.deepEqual(
+    missing.cannotTell,
+    ['boundaryEntries'],
+    'the refusal names the stream the record does not carry',
+  );
+  assert.equal(
+    missing.reason,
+    api.RECORD_UNREADABLE,
+    'the refusal is the named record-unreadable one',
+  );
+
+  const nothing = storyOf(api, null);
+  assert.equal(nothing.state, api.CANNOT_TELL, 'no record at all is refused');
+  assert.deepEqual(
+    nothing.cannotTell,
+    ['routerEvents', 'pendingWorkEvents', 'boundaryEntries'],
+    'no record names every stream it did not carry',
+  );
+  assert.equal(
+    nothing.reason,
+    api.RECORD_UNREADABLE,
+    'no record is the named record-unreadable refusal',
+  );
+}
+
+// ------------------------------------------------------------- mutant tools ----
+
+/**
+ * A copy of the module with one anchored replacement applied. The anchor must occur exactly once,
+ * so a mutation cannot silently rewrite a different branch, and the result must differ from the
+ * source, so a no-op mutation is a failure rather than a green mutant.
+ */
+function mutant(anchor, replacement) {
+  assert.ok(
+    STORY_SRC.includes(anchor),
+    `mutation anchor not found in extension/interaction-story.js — restate the bite: ${JSON.stringify(
+      anchor,
+    )}`,
+  );
+  const occurrences = STORY_SRC.split(anchor).length - 1;
+  assert.equal(
+    occurrences,
+    1,
+    `mutation anchor must occur exactly once, found ${occurrences}: ${JSON.stringify(
+      anchor,
+    )}`,
+  );
+  const mutated = STORY_SRC.replace(anchor, replacement);
+  assert.notEqual(
+    mutated,
+    STORY_SRC,
+    'the mutation must change the module source',
+  );
+  return storySource(mutated).api;
+}
+
+/** A pin that a value reddens: returns the failure the pin raises on it. */
+function reddens(pin, what) {
+  let failure = null;
+  try {
+    pin();
+  } catch (error) {
+    failure = error;
+  }
+  assert.ok(
+    failure instanceof Error,
+    `${what} passed on the mutant, so the mutation is not caught`,
+  );
+  return failure;
+}
+
+/**
+ * The four phases, per criterion. `pin` is the same function for the untouched module and for
+ * every mutant; a mutation that survives it, or that reddens with a message not naming its
+ * defect, fails. Returns one `mutant -> failure` line per mutation so the run prints its own
+ * evidence.
+ */
+function proveNonVacuous(pin, mutations) {
+  pin(storyApi());
+
+  const caught = [];
+  for (const mutation of mutations) {
+    const api = mutant(mutation.anchor, mutation.replacement);
+    mutation.defect(api);
+
+    const failure = reddens(() => pin(api), mutation.what);
+    assert.match(
+      failure.message,
+      mutation.message,
+      `${mutation.what} must redden naming the defect ${mutation.message}: ${failure.message}`,
+    );
+    caught.push(`${mutation.what} -> ${failure.message.split('\n')[0]}`);
+  }
+
+  pin(storyApi());
+  return caught;
+}
+
+// ------------------------------------------------------------------- tests ----
+
+test('the narration carries the measured vocabulary and states its bound', () => {
+  const api = storyApi();
+  assert.deepEqual(
+    clone(api.STREAM_NAMES),
+    record.streams.map((stream) => stream.stream),
+    'the narration names the three streams T001 measured',
+  );
+  assert.equal(
+    api.SHARED_FIELD,
+    record.answer.sharedField,
+    'the shared field is the one T001 measured',
+  );
+  assert.equal(
+    api.SHARED_READER,
+    record.clock.reader,
+    'the shared field is read by the one clock reader T001 measured',
+  );
+  assert.deepEqual(
+    clone(api.BOUNDS),
+    {
+      routerEvents: 512,
+      pendingWorkEvents: 64,
+      boundaryEntries: 128,
+    },
+    'the bounds are the ones T001 measured',
+  );
+  for (const stream of record.streams)
+    assert.equal(
+      api.BOUNDS[stream.stream],
+      stream.bound.limit,
+      `the ${stream.stream} bound matches the measurement`,
+    );
+  for (const needle of [
+    'what the record kept',
+    'not what the page did',
+    'incomplete',
+    '512',
+    '64',
+    '128',
+  ])
+    assert.ok(
+      api.BOUNDED_STATEMENT.includes(needle),
+      `the bounded statement states ${JSON.stringify(needle)}: ${
+        api.BOUNDED_STATEMENT
+      }`,
+    );
+  assert.deepEqual(
+    clone(api.REASONS),
+    [
+      'all-streams-empty',
+      'stream-empty',
+      'no-shared-order',
+      'record-unreadable',
+    ],
+    'the reason set is closed and exported',
+  );
+  assert.equal(api.STEPS, 'steps');
+  assert.equal(api.CANNOT_TELL, 'cannot-tell');
+
+  const answer = storyOf(api, interleavedRecord());
+  assert.deepEqual(
+    keysOf(answer),
+    ANSWER_KEYS,
+    'the answer carries the four contract fields and no completeness claim',
+  );
+  assert.equal(
+    'complete' in answer,
+    false,
+    'the answer never claims the story is complete',
+  );
+});
+
+test('SC1 — the story is every recorded event in `at` order, each step quoting its own fields', () => {
+  const caught = proveNonVacuous(pinStory, [
+    {
+      what: 'M1 a step is reordered out of `at` order',
+      anchor: '    steps.sort(byAt);',
+      replacement: '    steps.sort(byAt).reverse();',
+      message: /in the order the measurement supports/,
+      defect(api) {
+        const answer = storyOf(api, interleavedRecord());
+        assert.notDeepEqual(
+          answer.steps.map((step) => step.at),
+          [10, 11, 20, 30, 31],
+          'the mutant answers a story `at` does not support',
+        );
+      },
+    },
+    {
+      what: 'M2 a step paraphrases its event instead of quoting it',
+      anchor: '      fields[key] = entry[key];',
+      replacement: '      fields[key] = String(entry[key]);',
+      message: /quotes the event’s own recorded fields/,
+      defect(api) {
+        const answer = storyOf(api, interleavedRecord());
+        const step = answer.steps[0];
+        const expected = expectedSteps(interleavedRecord()).find(
+          (candidate) =>
+            candidate.stream === step.stream && candidate.at === step.at,
+        );
+        assert.notDeepEqual(
+          step.fields,
+          expected.fields,
+          'the mutant paraphrases the fields it was handed',
+        );
+      },
+    },
+    {
+      what: 'M3 a step is invented for an event the record does not carry',
+      anchor: '    return answer(STEPS, steps, empty, reason);',
+      replacement:
+        '    steps.push({ stream: ROUTER, at: 0, fields: { type: "NavigationStart" } });\n' +
+        '    return answer(STEPS, steps, empty, reason);',
+      message: /invents a step for an event the record does not carry/,
+      defect(api) {
+        const answer = storyOf(api, interleavedRecord());
+        assert.equal(
+          answer.steps.length,
+          6,
+          'the mutant mints a sixth step for five recorded events',
+        );
+        assert.equal(
+          answer.steps[5].fields.type,
+          'NavigationStart',
+          'the invented step is not an event the record carries',
+        );
+      },
+    },
+  ]);
+  console.log(`SC1 non-vacuous:\n  ${caught.join('\n  ')}`);
+});
+
+test('SC2/E4 — an empty stream is named beside a story, and all-empty is not an empty story', () => {
+  const caught = proveNonVacuous(pinEmptyCases, [
+    {
+      what: 'M4 an all-empty record is reported as an empty story',
+      anchor: '      return answer(CANNOT_TELL, [], empty, ALL_STREAMS_EMPTY);',
+      replacement: '      return answer(STEPS, [], [], null);',
+      message: /all-empty record is cannot-tell, never an empty story/,
+      defect(api) {
+        const answer = storyOf(api, allEmptyRecord());
+        assert.equal(
+          answer.state,
+          'steps',
+          'the mutant reports the all-empty record as a story',
+        );
+        assert.deepEqual(answer.steps, [], 'the mutant’s story has no step');
+      },
+    },
+  ]);
+  console.log(`SC2/E4 non-vacuous:\n  ${caught.join('\n  ')}`);
+});
+
+test('SC3 — a record whose entries carry no `at` is refused, never ordered', () => {
+  const caught = proveNonVacuous(pinNoSharedOrder, [
+    {
+      what: 'M5 a record whose entries carry no `at` is ordered anyway',
+      anchor:
+        '      return answer(CANNOT_TELL, [], withoutAt, NO_SHARED_ORDER);',
+      replacement:
+        '      if (false) return answer(CANNOT_TELL, [], withoutAt, NO_SHARED_ORDER);',
+      message: /a record whose entries carry no `at` is refused, never ordered/,
+      defect(api) {
+        const answer = storyOf(api, noAtRecord());
+        assert.equal(
+          answer.state,
+          'steps',
+          'the mutant orders a record whose entries carry no `at`',
+        );
+        assert.equal(
+          answer.steps.length,
+          3,
+          'the mutant emits a step for every entry anyway',
+        );
+      },
+    },
+  ]);
+  console.log(`SC3 non-vacuous:\n  ${caught.join('\n  ')}`);
+});
+
+test('equal `at` is one instant: no tie-break by stream name or type is invented', () => {
+  const caught = proveNonVacuous(pinEqualAt, [
+    {
+      what: 'M6 equal `at` events are ordered by an invented tie-break',
+      anchor: '    steps.sort(byAt);',
+      replacement:
+        '    steps.sort(function (left, right) {\n' +
+        '      return (\n' +
+        '        left.at - right.at ||\n' +
+        '        String(left.stream).localeCompare(String(right.stream))\n' +
+        '      );\n' +
+        '    });',
+      message:
+        /equal `at` events are one instant and are never ordered by an invented tie-break/,
+      defect(api) {
+        const answer = storyOf(api, tieRecord());
+        const group = answer.steps.filter((step) => step.at === 5);
+        assert.deepEqual(
+          group.map((step) => step.stream),
+          [
+            'boundaryEntries',
+            'pendingWorkEvents',
+            'routerEvents',
+            'routerEvents',
+          ],
+          'the mutant orders the instant by stream name',
+        );
+      },
+    },
+    {
+      what: 'M7 equal `at` events are ordered by an invented type tie-break',
+      anchor: '    steps.sort(byAt);',
+      replacement:
+        '    steps.sort(function (left, right) {\n' +
+        '      return (\n' +
+        '        left.at - right.at ||\n' +
+        '        String(left.fields.type).localeCompare(String(right.fields.type))\n' +
+        '      );\n' +
+        '    });',
+      message:
+        /equal `at` events are one instant and are never ordered by an invented tie-break/,
+      defect(api) {
+        const answer = storyOf(api, tieRecord());
+        const group = answer.steps.filter((step) => step.at === 5);
+        assert.deepEqual(
+          group.map((step) =>
+            'type' in step.fields ? step.fields.type : null,
+          ),
+          [2, 'NavigationEnd', 'NavigationStart', null],
+          'the mutant orders the instant by type',
+        );
+      },
+    },
+  ]);
+  console.log(`equal-at non-vacuous:\n  ${caught.join('\n  ')}`);
+});
+
+test('a record this narration cannot read is refused rather than read as empty', () => {
+  const api = storyApi();
+  pinUnreadable(api);
+});
+
+test('a step quotes nested recorded values and drops no key the event carries', () => {
+  const api = storyApi();
+  const input = interleavedRecord();
+  const answer = storyOf(api, input);
+  const boundary = answer.steps.find(
+    (step) => step.stream === 'boundaryEntries',
+  );
+  const source = input.boundary.entries[0];
+  assert.deepEqual(
+    boundary.fields.error,
+    source.error,
+    'the error is the error the record carries, not a summary of it',
+  );
+  assert.deepEqual(
+    boundary.fields.details,
+    source.details,
+    'the details are the details the record carries',
+  );
+  assert.deepEqual(
+    Object.keys(boundary.fields).sort(),
+    Object.keys(source)
+      .filter((key) => key !== 'at')
+      .sort(),
+    'every key the event carries is quoted once and no key is invented',
+  );
+});
+
+test('narrating the same record twice returns identical steps in identical order', () => {
+  const api = storyApi();
+  for (const [what, input] of [
+    ['an interleaved record', interleavedRecord()],
+    ['a record with one empty stream', oneEmptyRecord()],
+    ['a record whose instant is shared', tieRecord()],
+    ['an all-empty record', allEmptyRecord()],
+    ['a record whose entries carry no `at`', noAtRecord()],
+  ]) {
+    const first = storyOf(api, input);
+    const second = storyOf(api, input);
+    assert.deepEqual(second, first, `${what} answers identically twice`);
+    assert.deepEqual(
+      second.steps,
+      first.steps,
+      `${what} keeps identical steps in identical order`,
+    );
+  }
+});
+
+// ------------------------------------------------------------------- purity ----
+
+const HOST_GLOBALS = [
+  'document',
+  'window',
+  'console',
+  'Date',
+  'performance',
+  'setTimeout',
+  'setInterval',
+  'fetch',
+  'XMLHttpRequest',
+];
+
+/** A global that throws when read, called or constructed, naming itself in the error. */
+function tripwire(name) {
+  const reached = () => {
+    throw new Error(`the module reached for ${name}`);
+  };
+  return new Proxy(function tripwire() {}, {
+    get: reached,
+    set: reached,
+    has: reached,
+    apply: reached,
+    construct: reached,
+  });
+}
+
+test('the narration is pure over the record: no DOM, no clock, no console and no network', () => {
+  for (const needle of [
+    ['im', 'port '].join(''),
+    ['req', 'uire('].join(''),
+    ['docu', 'ment'].join(''),
+    ['win', 'dow.'].join(''),
+    ['cons', 'ole.'].join(''),
+    ['Date', '.now'].join(''),
+    ['fe', 'tch('].join(''),
+    ['XMLHttp', 'Request'].join(''),
+  ]) {
+    assert.equal(
+      STORY_SRC.includes(needle),
+      false,
+      `the module carries ${JSON.stringify(
+        needle,
+      )}, and it must read the record it is handed and nothing else`,
+    );
+  }
+
+  const { context } = storySource();
+  for (const name of [
+    'document',
+    'window',
+    'performance',
+    'setTimeout',
+    'setInterval',
+    'fetch',
+    'XMLHttpRequest',
+  ]) {
+    assert.equal(
+      runInContext(`typeof ${name}`, context),
+      'undefined',
+      `the module must not run with a ${name} in scope`,
+    );
+  }
+
+  const traps = createContext({});
+  for (const name of HOST_GLOBALS) traps[name] = tripwire(name);
+  assert.throws(
+    () => runInContext('Date.now()', traps),
+    /the module reached for Date/,
+    'the Date trap must bite, or the guard is decoration',
+  );
+  assert.throws(
+    () => runInContext('console.log("x")', traps),
+    /the module reached for console/,
+    'the console trap must bite, or the guard is decoration',
+  );
+
+  const sandbox = { __record: interleavedRecord() };
+  for (const name of HOST_GLOBALS) sandbox[name] = tripwire(name);
+  const { context: guardedContext } = storySource(STORY_SRC, sandbox);
+  const guarded = clone(
+    runInContext(
+      'angularAiInteractionStory.interactionStory(__record)',
+      guardedContext,
+    ),
+  );
+  assert.equal(
+    guarded.steps.length,
+    5,
+    'the narration answers while every host global in scope is a trap',
+  );
+  assert.equal(
+    guarded.steps[0].at,
+    10,
+    'the guarded answer is the measured order',
+  );
+});
+
+test('the module republishes in place on a second run in the same world', () => {
+  const context = createContext({});
+  runInContext(STORY_SRC, context);
+  const first = context.angularAiInteractionStory;
+  runInContext(STORY_SRC, context);
+  const second = context.angularAiInteractionStory;
+  assert.equal(
+    first,
+    second,
+    'a second run must republish the same namespace, so a caller’s reference stays valid',
+  );
+  assert.equal(typeof second.interactionStory, 'function');
 });
