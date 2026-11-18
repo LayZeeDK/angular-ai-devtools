@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: interaction-story
+milestone: dead-click
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M049
-archive: .project/archive/049-interaction-story
+branch: gsd-path/M050
+archive: .project/archive/050-dead-click
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1041,6 +1041,25 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-18 — define — define opened for interaction-story
 - 2026-11-18 — define — milestone intent approved
 - 2026-11-18 — plan — planning started
+- 2026-11-18 — plan — plan approved
+- 2026-11-18 — build — build started
+- 2026-11-18 — ship — build done; final review pending
+- 2026-11-18 — shipped — archive preflight passed; shipment recorded
+- 2026-11-18 — inspect — router bound next milestone
+- 2026-11-18 — inspect — inspection measured and closed
+- 2026-11-18 — define — define opened for dead-click
+- 2026-11-18 — define — milestone intent approved
+- 2026-11-18 — plan — planning started
+- 2026-11-18 — plan — plan approved
+- 2026-11-18 — build — build started
+- 2026-11-18 — ship — build done; final review pending
+- 2026-11-18 — ship — \ ship blocked\
+- 2026-11-18 — plan — patch plan reopened
+- 2026-11-18 — plan — plan approved
+- 2026-11-18 — build — build started
+- 2026-11-18 — build — build blocked
+- 2026-11-18 — plan — build plan repair requested
+- 2026-11-18 — plan — build recovery: {"base": "5f5657fa49b03f48f0205dbcb787a4d7ec8433af", "branch": "gsd-path/M050", "kind": "plan", "source": "build"}
 - 2026-11-18 — plan — plan approved
 - 2026-11-18 — build — build started
 - 2026-11-18 — ship — build done; final review pending

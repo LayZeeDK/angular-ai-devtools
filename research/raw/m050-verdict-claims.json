@@ -1,0 +1,111 @@
+{
+  "schema": "m050-verdict-claims/v1",
+  "milestone": "M050",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M050\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 3 criteria it declares are [\"SC1\",\"SC2\",\"SC3\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: 6 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\"] and the suites [\"scripts/dead-click.test.mjs\"]"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 3,
+    "why": [
+      "No row is required, and the list therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext - with the required rows together citing drawnRect, descriptor and noDevContext. Every fact the 3 criteria this milestone declares is written about is a reading of this repository's own gate: 6 edge row(s) held by [\"scripts/dead-click.test.mjs\"], against 12 stage(s) of the check chain. None of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each row cites the suite the milestone itself assigned its criterion, the reading that suite carries and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": [
+        "E4"
+      ]
+    },
+    "edges": {
+      "rows": 6,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3"
+      ]
+    },
+    "suites": [
+      {
+        "path": "scripts/dead-click.test.mjs",
+        "tests": 14,
+        "groups": 0
+      }
+    ],
+    "recordings": [
+      "research/raw/m050-chains.json",
+      "research/raw/m050-surface.json"
+    ]
+  },
+  "capture": {
+    "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "records": "research/raw/m050-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, the five-column edge coverage that intent declares and the suites the plan assigns each criterion, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "A recorded event whose consequent is absent from the record is named with the event's own fields and the window it was judged over; a mutant that reports a paired event reddens the pin.",
+      "criterionCharacters": 185,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"A recorded event whose consequent is absent from the record is named with the event's own fields and the window it was judged over; a mutant that reports a paired event reddens the pin.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E2\",\"E6\"] the intent itself assigns the criterion, held by [\"scripts/dead-click.test.mjs\",\"scripts/dead-click.test.mjs\",\"scripts/dead-click.test.mjs\"] and recorded as [\"criterion SC1\"].",
+      "artefactPath": "scripts/dead-click.test.mjs",
+      "artefact": "scripts/dead-click.test.mjs (edge [\"E1\",\"E2\",\"E6\"] of the intent's own coverage: E1 boundary criterion SC1: A `*Start` with its matching `*End` is paired and never reported; the pair is matched on the record's own fields, not on adjacency.; E2 precision criterion SC1: A `*Start` whose `*End` is absent within the window is reported with its own fields and the window bounds.; E6 idempotency criterion SC1: Judging the same record twice returns the same findings in the same order.; the suite carries 14 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "14 test declaration(s) in scripts/dead-click.test.mjs hold SC1 through the 3 boundary edge row(s) the intent assigns it, [\"E1\",\"E2\",\"E6\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/dead-click.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "A record that cannot bound the window reports cannot-tell naming the absence, never a dangling event.",
+      "criterionCharacters": 101,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"A record that cannot bound the window reports cannot-tell naming the absence, never a dangling event.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\",\"E4\"] the intent itself assigns the criterion, held by [\"scripts/dead-click.test.mjs\",\"scripts/dead-click.test.mjs\"] and recorded as [\"criterion SC2\",\"held-out\"].",
+      "artefactPath": "scripts/dead-click.test.mjs",
+      "artefact": "scripts/dead-click.test.mjs (edge [\"E3\",\"E4\"] of the intent's own coverage: E3 empty criterion SC2: A record carrying no window bound reports cannot-tell with its reason, never a list of dangling events.; E4 boundary held-out: A record with one dangling event and one paired event renders exactly one finding, and the same suite asserts the all-paired case, so \"nothing is dangling\" cannot collapse into \"nothing was compared\".; the suite carries 14 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "14 test declaration(s) in scripts/dead-click.test.mjs hold SC2 through the 2 empty edge row(s) the intent assigns it, [\"E3\",\"E4\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/dead-click.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "A record whose events belong to none of the measured consequence chains reports cannot-tell rather than treating every event as dangling.",
+      "criterionCharacters": 137,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"A record whose events belong to none of the measured consequence chains reports cannot-tell rather than treating every event as dangling.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E5\"] the intent itself assigns the criterion, held by [\"scripts/dead-click.test.mjs\"] and recorded as [\"criterion SC3\"].",
+      "artefactPath": "scripts/dead-click.test.mjs",
+      "artefact": "scripts/dead-click.test.mjs (edge [\"E5\"] of the intent's own coverage: E5 boundary criterion SC3: An event belonging to no measured chain is counted as considered and never reported as dangling.; the suite carries 14 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "14 test declaration(s) in scripts/dead-click.test.mjs hold SC3 through the 1 boundary edge row(s) the intent assigns it, [\"E5\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/dead-click.test.mjs\"",
+        "npm run check"
+      ]
+    }
+  ]
+}

@@ -56,6 +56,7 @@ const LOADERS: Record<
   components: () => import('./panel-components') as never,
   'copy-check': () => import('./panel-copy-check') as never,
   'interaction-story': () => import('./panel-interaction-story') as never,
+  'dead-click': () => import('./panel-dead-click') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -437,13 +438,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 135 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 154 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
   // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
   // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 135 },
+  'copy-check': { state: 'clean', unexplained: [], checked: 154 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the
@@ -505,6 +506,61 @@ export const FACTS: Record<string, unknown> = {
     reason: null,
     bounded:
       'a story is what the record kept, not what the page did: routerEvents keeps 512 arrivals, pendingWorkEvents 64 and boundaryEntries 128, and the oldest fall off the front, so every story is incomplete',
+  },
+  // The join's own answer (`extension/dead-click.js`, T002) for a record this spec rebuilds from
+  // T001's measurement (`research/raw/m050-chains.json`): each entry carries exactly the fields the
+  // record cites for its own builder, so nothing here is a key the recorder does not write. Three
+  // router arrivals — a start, its end and a second start — one work entry and one boundary
+  // arrival: the second start carries id 2 and no terminal in the window carries that id, so the
+  // join answers one finding naming that start's own eleven fields and the window it judged over
+  // (the published `routerEvents` list, three entries long, `final: false`), and `considered` is
+  // the five entries the record published across the three measured streams. `refusals` carries
+  // the join's own `REFUSALS` — the work and boundary chains, with their own reasons — handed
+  // beside the four contract fields because this pane may not import the join: a panel surface has
+  // no runtime imports, so the two chains the judgement refused travel as data rather than being
+  // re-derived here. `panel-demo.spec.ts` evaluates the shipped join, runs it over that rebuilt
+  // record and holds this fact to its answer field for field, so a fact that drifted from the join
+  // reddens there rather than shipping.
+  'dead-click': {
+    state: 'findings',
+    findings: [
+      {
+        chain: 'router',
+        event: {
+          type: 'NavigationStart',
+          at: 20,
+          id: 2,
+          url: '/lost',
+          urlAfterRedirects: null,
+          route: null,
+          reason: null,
+          code: null,
+          error: null,
+          shouldActivate: null,
+          matchedPaths: [],
+        },
+        window: {
+          chain: 'router',
+          field: 'routerEvents',
+          kind: 'published-list',
+          length: 3,
+          final: false,
+        },
+      },
+    ],
+    considered: 5,
+    refusals: [
+      {
+        chain: 'work',
+        state: 'cannot-tell',
+        reason: 'work-chain-unjudgeable',
+      },
+      {
+        chain: 'boundary',
+        state: 'cannot-tell',
+        reason: 'boundary-chain-unjudgeable',
+      },
+    ],
   },
 };
 

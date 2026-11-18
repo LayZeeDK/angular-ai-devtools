@@ -1771,8 +1771,8 @@ Goal: The panel reports a click the page recorded that produced no app-side effe
 Depends on: [M020]
 Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/050-dead-click
 Integrated: null
 
 Scope: in

@@ -23,3 +23,8 @@ research/raw/
 
 # Generated from the source enum by scripts/generate-error-digest.mjs
 extension/error-digest.json
+
+# Written by `nx run angular-ai-devtools:build-extension`. Tracked because the extension
+# loads it, generated because the build inlines critical CSS and rewrites it on every run,
+# so it cannot hold a formatted shape and must not be format-checked.
+extension/panel/index.html

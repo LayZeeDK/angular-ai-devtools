@@ -1,0 +1,1190 @@
+{
+  "schema": "m050-chains/v1",
+  "milestone": "M050 dead-click",
+  "task": "T001",
+  "title": "Measure the three consequence chains and what bounds the window",
+  "question": "for each of the three consequence chains the record defines — the profiler work pairs, the router's NavigationStart and its terminal, and a boundary arrival carrying boundaryReset — what field pairs a start with its consequent, can two starts of one kind be open at once and be told apart, does a start whose consequent never arrived survive into the published record, and what bounds the window a finding may be judged over?",
+  "head": "3c2042133a29e2365b110c206ad276ce8bffcb8b",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: extension/agent-main.js was read line by line at the head above, and so were the three files that read the record (extension/navigation-narrator.js, extension/performance-narrator.js, extension/error-boundary.js) and extension/overlay.js. Every citation below was printed from its file with the leading and trailing whitespace trimmed and then re-read, and every count in `measurements` was produced by the command recorded beside it. No page was read, no browser was opened, nothing was rendered and no build was run; the only commands executed were the reading and counting commands in `measurements`, the verify suite at scripts/dead-click.test.mjs, and `git rev-parse HEAD`.",
+  "lineTextConvention": "every `lineText` is the cited line with its leading and trailing whitespace trimmed and nothing else removed; `line` is 1-indexed. The suite re-reads every cited line and requires trimmed equality with `lineText`, so a citation that slides off its line fails.",
+  "measurements": [
+    {
+      "id": "head",
+      "claims": "the record was measured at the head it names",
+      "command": "git rev-parse HEAD",
+      "output": ["3c2042133a29e2365b110c206ad276ce8bffcb8b"]
+    },
+    {
+      "id": "interaction-recount",
+      "claims": "the brief's count of `interaction` across extension/*.js does not reproduce at this head; the count in extension/agent-main.js does",
+      "commands": [
+        "node -e \"const fs=require('fs');const files=fs.readdirSync('extension').filter(f=>f.endsWith('.js'));let i=0,a=0,u=0,at=0;for(const f of files){const s=fs.readFileSync('extension/'+f,'utf8');i+=[...s.matchAll(/interaction/g)].length;a+=[...s.matchAll(/addEventListener/g)].length;u+=[...s.matchAll(/addEventListener\\(\\s*[\\x27\\x22](?:click|pointer|mouse|key)/g)].length;at+=[...s.matchAll(/attachInput\\(/g)].length}console.log('files',files.length,'interaction',i,'addEventListener',a,'uiListenerNames',u,'attachInputCalls',at)\"",
+        "node -e \"const fs=require('fs');const files=fs.readdirSync('extension').filter(f=>f.endsWith('.js'));for(const f of files){const s=fs.readFileSync('extension/'+f,'utf8');const n=[...s.matchAll(/interaction/g)].length;if(n)console.log(f,n)};console.log('agentMain',[...fs.readFileSync('extension/agent-main.js','utf8').matchAll(/interaction/g)].length)\""
+      ],
+      "output": [
+        "files 29 interaction 7 addEventListener 19 uiListenerNames 0 attachInputCalls 7",
+        "interaction-story.js 7",
+        "agentMain 0"
+      ],
+      "note": "THE BRIEF'S COUNT DOES NOT REPRODUCE, and this is the finding. The brief (and `.project/intent/INTENT.md:62`) states that `interaction` occurs 0 times 'across the twenty-eight extension/*.js files'. Measured at 3c204213 the directory holds 29 .js files and `interaction` occurs 7 times — all 7 inside extension/interaction-story.js, the M049 T002 narration, which is a reader of the record and registers no listener. In extension/agent-main.js the count is 0, exactly as the brief states. So the conclusion the count was used for stands (no stream records an interaction; the only click listener is the panel's picker) but the number does not, for the same class of reason M049's did: the search was scoped to the recorders and the directory has since gained a reader."
+    },
+    {
+      "id": "ui-listener",
+      "claims": "the only click listener in extension/ is the panel's own element picker at overlay.js:507, attached through the wrapper at :440",
+      "command": "node -e \"const fs=require('fs');for(const f of fs.readdirSync('extension').filter(x=>x.endsWith('.js'))){const L=fs.readFileSync('extension/'+f,'utf8').split(/\\r?\\n/);L.forEach((l,i)=>{if(/attachInput\\(|[\\x27\\x22](?:click|pointer|mouse|key)/.test(l))console.log(f+':'+(i+1)+'|'+l.trim())})}\"",
+      "output": [
+        "overlay.js:117|'pointer-events:none;z-index:2147483647;transform-origin:0 0}' +",
+        "overlay.js:440|function attachInput(target, type, handler, capture) {",
+        "overlay.js:498|attachInput(window, 'scroll', markDirty, true);",
+        "overlay.js:499|attachInput(window, 'resize', markDirty);",
+        "overlay.js:502|attachInput(visualViewport, 'resize', markDirty);",
+        "overlay.js:503|attachInput(visualViewport, 'scroll', markDirty);",
+        "overlay.js:506|attachInput(window, 'pointermove', onPointerMove, true);",
+        "overlay.js:507|attachInput(window, 'click', onClick, true);"
+      ],
+      "note": "this reproduces the brief: seven attachInput calls, exactly one of them 'click' (:507), through the wrapper at :440. overlay.js:117 is a CSS string, not a listener. The literal-`addEventListener('click'` search the brief calls blind measures 0 (uiListenerNames 0) while the truth is 1, which is why this record counts attachInput calls instead."
+    },
+    {
+      "id": "work-entry-fields",
+      "claims": "the work entry assigns five keys — type, pair, end, at, componentName — and no key identifies an instance, an event or a particular start",
+      "command": "node -e \"const L=require('fs').readFileSync('extension/agent-main.js','utf8').split(/\\r?\\n/);for(let i=694;i<701;i++)console.log((i+1)+'|'+L[i].trim())\"",
+      "output": [
+        "695|var entry = {",
+        "696|type: event,",
+        "697|pair: kind.pair,",
+        "698|end: kind.end,",
+        "699|at: nowMs(),",
+        "700|componentName: instanceNameFor(instance),",
+        "701|};"
+      ],
+      "note": "`componentName` is a name, not an identity: `instanceNameFor` answers a host tag or a class name lowercased, so two instances of one class or one tag share it, and it is null for every ComponentStart and every ChangeDetection event the encoder's own measured comment records (:620–:621)."
+    },
+    {
+      "id": "no-entry-identity-comparison",
+      "claims": "the recorder never compares two entries' ids, never reads `entry.id`, assigns `boundaryReset` exactly once, and touches `pendingWorkEvents` on no line that publishes it",
+      "command": "node -e \"const s=require('fs').readFileSync('extension/agent-main.js','utf8');console.log('idEquals',[...s.matchAll(/\\.id\\s*===|===\\s*[\\w$.]+\\.id/g)].length);console.log('entryId',[...s.matchAll(/entry\\.id/g)].length);console.log('boundaryReset',[...s.matchAll(/boundaryReset/g)].length);const L=s.split(/\\r?\\n/);console.log('pendingWorkEventLines',L.map((l,i)=>[i+1,l]).filter(x=>/pendingWorkEvents/.test(x[1])).map(x=>x[0]).join(','))\"",
+      "output": [
+        "idEquals 0",
+        "entryId 0",
+        "boundaryReset 1",
+        "pendingWorkEventLines 639,708,711,712,714,721,722,1888"
+      ],
+      "note": "the pairing rules this record measures are the readers' rules, not the recorder's: nothing in agent-main.js compares two entries at all. The eight `pendingWorkEvents` lines are its declaration (:639), its push (:708), its bound (:711–:714), the adoption that returns it (:721) and empties it (:722), and the reset that clears it (:1888); none of them publishes the held list as itself."
+    },
+    {
+      "id": "reset-lines",
+      "claims": "no line in the recorder records a boundary reset as an event; every `reset` is the agent's own teardown or a comment about the app's hook",
+      "command": "node -e \"const L=require('fs').readFileSync('extension/agent-main.js','utf8').split(/\\r?\\n/);const h=L.map((l,i)=>[i+1,l]).filter(x=>/reset/.test(x[1]));console.log('resetLines',h.length);for(const [n,l] of h)console.log(n+'|'+l.trim())\"",
+      "output": [
+        "resetLines 12",
+        "1468|// this reads the page's own injector beside that answer, `reset` removes both, and the profiler is",
+        "1475|var routerSubscription = null; // the stream's own subscription, removed by reset()",
+        "1851|// Removed by the same reset path as the profiler subscription, so a second install starts empty.",
+        "1877|function reset() {",
+        "1909|// `@error` view, which answers `{$error, $reset}`, is the other. Two `details` shapes reach the",
+        "1912|// `caughtBy` at all. The boundary's own `ON_ERROR` hook adds `details.boundary = {type, reset}`",
+        "2070|? typeof boundaryFieldOf(boundary, 'reset') === 'function'",
+        "2213|// Removed by the same reset path as the profiler and router subscriptions: the app's own hook is",
+        "2282|// the same reset path as the profiler and router subscriptions, and built where no cited line",
+        "2288|var stabilitySubscription = null; // the observable's own subscription, removed by reset()",
+        "2422|// Removed by the same reset path as the profiler and router subscriptions, and every field with it,",
+        "2461|reset: reset,"
+      ],
+      "note": "the case-sensitive search above does not match :2069 (`boundaryReset: hasBoundary`), whose capital R makes it a different word; :2070 is the presence test that gives that bit its value, and it tests the payload's own `reset` function rather than calling it. :1877 is the agent's own teardown, exposed at :2461. Nothing here records a reset that happened, so nothing here is the consequent of a boundary arrival."
+    },
+    {
+      "id": "removal-lines",
+      "claims": "nothing in the recorder removes an entry because its consequent is missing; the only removals are the three list bounds and the boundary uninstall",
+      "command": "node -e \"const L=require('fs').readFileSync('extension/agent-main.js','utf8').split(/\\r?\\n/);const h=L.map((l,i)=>[i+1,l]).filter(x=>/splice|\\.filter\\(|delete /.test(x[1]));console.log('removalLines',h.length);for(const [n,l] of h)console.log(n+'|'+l.trim())\"",
+      "output": [
+        "removalLines 5",
+        "712|pendingWorkEvents.splice(",
+        "1207|.filter(function (s) {",
+        "1654|routerEvents.splice(0, routerEvents.length - ROUTER_EVENT_LIMIT);",
+        "2077|boundaryEntries.splice(0, boundaryEntries.length - BOUNDARY_ENTRY_LIMIT);",
+        "2227|else delete handler.onViewError;"
+      ],
+      "note": ":712 falls inside the held list's bound (:711–:714), :1654 is the router bound and :2077 the boundary bound, so the only entries ever removed are the oldest ones above a page-health limit. :1207 is a string filter inside the DI path, not an entry list, and :2227 removes the recorder's own hook from the app's handler. No line mentions `end`, a terminal or a consequent, so a recorded start that never got its consequent is not removed: it stays where it was recorded."
+    },
+    {
+      "id": "frame-list-lines",
+      "claims": "the frame's own work list is written once and copied once, and carries no bound",
+      "command": "node -e \"const L=require('fs').readFileSync('extension/agent-main.js','utf8').split(/\\r?\\n/);const h=L.map((l,i)=>[i+1,l]).filter(x=>/c\\.events|cycle\\.events/.test(x[1]));for(const [n,l] of h)console.log(n+'|'+l.trim())\"",
+      "output": [
+        "588|if (c) c.events.push(event); // mid-cycle output belongs to this component",
+        "702|if (cycle) cycle.events.push(entry);",
+        "1048|events: c.events.slice(),"
+      ],
+      "note": ":588 pushes into a per-check list (`c` is `cycle.checks.get(instance)`), not the frame's; the frame's own list is written at :702 and copied at :1048 and nowhere else. It has no bound and no removal path, so the only limit on the frame's work list is how much work one microtask-delimited frame holds."
+    }
+  ],
+  "chains": [
+    {
+      "id": "work",
+      "stream": "pendingWorkEvents",
+      "publishedAs": "events",
+      "file": "extension/agent-main.js",
+      "declaration": {
+        "file": "extension/agent-main.js",
+        "line": 639,
+        "lineText": "var pendingWorkEvents = []; // entries recorded before the frame's opener: { type, pair, ... }"
+      },
+      "entry": {
+        "builder": {
+          "file": "extension/agent-main.js",
+          "line": 692,
+          "lineText": "function recordWorkEvent(event, instance) {"
+        },
+        "opener": {
+          "file": "extension/agent-main.js",
+          "line": 695,
+          "lineText": "var entry = {"
+        },
+        "closer": {
+          "file": "extension/agent-main.js",
+          "line": 701,
+          "lineText": "};"
+        },
+        "nested": null,
+        "fields": [
+          {
+            "name": "type",
+            "kind": "derived",
+            "from": "the profiler event value passed to recordWorkEvent, recorded as it arrived",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 696,
+              "lineText": "type: event,"
+            }
+          },
+          {
+            "name": "pair",
+            "kind": "derived",
+            "from": "kind.pair — the pair name the one table (WORK_EVENT_PAIRS) gives the event value",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 697,
+              "lineText": "pair: kind.pair,"
+            }
+          },
+          {
+            "name": "end",
+            "kind": "derived",
+            "from": "kind.end — whether the value is the pair's end, from the same table",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 698,
+              "lineText": "end: kind.end,"
+            }
+          },
+          {
+            "name": "at",
+            "kind": "derived",
+            "from": "nowMs() — the page's own clock read at receipt",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 699,
+              "lineText": "at: nowMs(),"
+            }
+          },
+          {
+            "name": "componentName",
+            "kind": "derived",
+            "from": "instanceNameFor(instance) — a host tag or class name lowercased, or null; a name, never an identity",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 700,
+              "lineText": "componentName: instanceNameFor(instance),"
+            }
+          }
+        ]
+      },
+      "start": {
+        "what": "a `*Start` profiler value: `type` carries the number, `pair` names the family and `end` is false",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 25,
+            "lineText": "TemplateUpdateStart: 2,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 33,
+            "lineText": "ComponentStart: 18,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 684,
+            "lineText": "kinds[named.start] = { pair: named.pair, end: false };"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 575,
+            "lineText": "recordWorkEvent(event, instance);"
+          }
+        ],
+        "statement": "every profiler value reaches recordWorkEvent on the one subscriber path (:575), and the table's start value is recorded with `end: false` from the one index (:684). The six pairs are the whole vocabulary: TemplateUpdate, LifecycleHook, Output, ChangeDetection, Component and HostBindingsUpdate (:644–:675)."
+      },
+      "consequent": {
+        "what": "the matching `*End` profiler value: the same `pair`, `end` true",
+        "recorded": true,
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 26,
+            "lineText": "TemplateUpdateEnd: 3,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 34,
+            "lineText": "ComponentEnd: 19,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 685,
+            "lineText": "kinds[named.end] = { pair: named.pair, end: true };"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 648,
+            "lineText": "end: ProfilerEvent.TemplateUpdateEnd,"
+          }
+        ],
+        "statement": "the end value is recorded as its own entry with `end: true`, not folded into its start: the two are two list entries, and the record keeps both (:637–:638)."
+      },
+      "pairingField": {
+        "name": "pair",
+        "also": "end",
+        "complete": false,
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 697,
+          "lineText": "pair: kind.pair,"
+        },
+        "sideSite": {
+          "file": "extension/agent-main.js",
+          "line": 698,
+          "lineText": "end: kind.end,"
+        },
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 637,
+            "lineText": "// boundary. Nothing here pairs a start with its end: the pairing rule belongs to the narrator that"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 638,
+            "lineText": "// reads this record, and this file keeps both arrivals."
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 619,
+            "lineText": "// `TemplateUpdate`, `LifecycleHook` and `HostBindingsUpdate` pass an instance at both ends,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 700,
+            "lineText": "componentName: instanceNameFor(instance),"
+          },
+          {
+            "file": "extension/performance-narrator.js",
+            "line": 23,
+            "lineText": "//   the agent frame is not the profiler bracket; a start and its end are matched by recorded arrival"
+          },
+          {
+            "file": "extension/performance-narrator.js",
+            "line": 167,
+            "lineText": "// of its own pair, and it is a stack, so the end closes the innermost one."
+          }
+        ],
+        "statement": "there is no pairing field. `pair` names the family and `end` names the side; neither identifies a particular start, so two starts of one pair carry identical pairing values and nothing in the entry tells them apart. The file says so itself at :637: 'Nothing here pairs a start with its end: the pairing rule belongs to the narrator that reads this record'. The shipped reader resolves it by recorded arrival order and nesting — a last-in-first-out stack per pair (extension/performance-narrator.js:23–:25, :166–:167) — which is a rule the reader chooses, not a field the record carries."
+      },
+      "ambiguity": {
+        "distinguishable": false,
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 620,
+            "lineText": "// `Component` passes one at its end only — every `ComponentStart` measured `null` — and"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 621,
+            "lineText": "// `ChangeDetection` passes none at all. This list states what arrived and nothing more: an event"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 635,
+            "lineText": "// 3/3 on both pages and preceded the opener, `Component`'s outermost start 3 of 6 times on `/`,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 700,
+            "lineText": "componentName: instanceNameFor(instance),"
+          }
+        ],
+        "statement": "yes, two starts of one kind can be open at once, and the record cannot tell them apart. The recorder's own measured comment names a nested case — `Component`'s *outermost* start (:635), which is a start with at least one start inside it — and the two pairs that nest carry no identity at all: every measured ComponentStart passed `null` (:620) and ChangeDetection passes no instance on either side (:621). Two open ComponentStarts are therefore two entries with `pair: 'Component'`, `end: false` and `componentName: null`; the only thing that orders them is `at` and list position, and neither says which one a later ComponentEnd closes."
+      },
+      "survival": {
+        "survives": true,
+        "publishedAt": {
+          "file": "extension/agent-main.js",
+          "line": 1048,
+          "lineText": "events: c.events.slice(),"
+        },
+        "removedBy": {
+          "frameClose": false,
+          "missingConsequent": false,
+          "bound": {
+            "file": "extension/agent-main.js",
+            "line": 711,
+            "lineText": "if (pendingWorkEvents.length > PENDING_WORK_EVENT_LIMIT) {"
+          },
+          "reset": {
+            "file": "extension/agent-main.js",
+            "line": 1888,
+            "lineText": "pendingWorkEvents = [];"
+          }
+        },
+        "held": {
+          "applies": true,
+          "published": false,
+          "emptiedByAdoption": {
+            "file": "extension/agent-main.js",
+            "line": 722,
+            "lineText": "pendingWorkEvents = [];"
+          },
+          "adoptedAt": {
+            "file": "extension/agent-main.js",
+            "line": 744,
+            "lineText": "events: adoptPendingWorkEvents(),"
+          },
+          "bound": {
+            "file": "extension/agent-main.js",
+            "line": 640,
+            "lineText": "var PENDING_WORK_EVENT_LIMIT = 64; // one frame's worth; a page that never ticks holds no record"
+          },
+          "statement": "an entry recorded with no frame open is held in `pendingWorkEvents` (:703, :708) and reaches a record only if a later frame adopts it at its opener (:744); the held list is never published as itself, and it is emptied by adoption (:722), by its 64-entry bound (:640, :711–:714) and by reset (:1888)."
+        },
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 702,
+            "lineText": "if (cycle) cycle.events.push(entry);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 703,
+            "lineText": "else holdPendingWorkEvent(entry);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 744,
+            "lineText": "events: adoptPendingWorkEvents(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 747,
+            "lineText": "globalThis.queueMicrotask(closeCycle);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1038,
+            "lineText": "function closeCycle() {"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1048,
+            "lineText": "events: c.events.slice(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1059,
+            "lineText": "dispatch(RECORD_EVENT, facts);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1888,
+            "lineText": "pendingWorkEvents = [];"
+          }
+        ],
+        "statement": "A DANGLING WORK START DOES SURVIVE, and the brief's hypothesis that it is dropped when the frame closes is measured false: the frame's close is what publishes it. An entry recorded while a frame is open is appended to that frame's own list (:702), and closeCycle copies the whole list into the record (:1048) and dispatches it (:1059); nothing removes an entry whose end never arrived (measurements.removal-lines) and the file states the intent at :638 — 'this file keeps both arrivals'. The losses are elsewhere and smaller: an entry recorded with no frame open is held, and if no later frame adopts it (:744) it is in no record at all; a held entry is also dropped above 64 (:640, :711–:714) or discarded by reset (:1888). So survival does not narrow the judgeable chain — pairing does."
+      },
+      "window": {
+        "kind": "union-of-frames",
+        "field": "events",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1048,
+          "lineText": "events: c.events.slice(),"
+        },
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 744,
+            "lineText": "events: adoptPendingWorkEvents(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 632,
+            "lineText": "// The frame boundary is the microtask `closeCycle` runs in, not the template update that opens it:"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 747,
+            "lineText": "globalThis.queueMicrotask(closeCycle);"
+          }
+        ],
+        "final": false,
+        "statement": "the window is not one frame. A frame's list is opened from the held entries (:744), appended to (:702) and published by closeCycle one microtask after the frame opened (:747, :1038, :1048), so a start and its end can land in two different frames' lists: the window that can contain both is the union of the `events` lists the record has published, and judging one frame alone would report a start dangling whose end closed it in the next frame. The union carries no bound in the recorder (the frame's own list has neither a limit nor a removal path) and it is emptied by reset (:1888). It is not final: the record carries no marker that a frame was the last, so a 'no consequent' answer is true as of the record it was read from and a later record can supply the end."
+      },
+      "judgeable": false,
+      "judgeableReason": "no-pairing-field"
+    },
+    {
+      "id": "router",
+      "stream": "routerEvents",
+      "publishedAs": "routerEvents",
+      "file": "extension/agent-main.js",
+      "declaration": {
+        "file": "extension/agent-main.js",
+        "line": 1474,
+        "lineText": "var routerEvents = []; // one entry per Router.events emission, in arrival order"
+      },
+      "entry": {
+        "builder": {
+          "file": "extension/agent-main.js",
+          "line": 1635,
+          "lineText": "function recordRouterEvent(event) {"
+        },
+        "opener": {
+          "file": "extension/agent-main.js",
+          "line": 1636,
+          "lineText": "var entry = {"
+        },
+        "closer": {
+          "file": "extension/agent-main.js",
+          "line": 1648,
+          "lineText": "};"
+        },
+        "nested": null,
+        "fields": [
+          {
+            "name": "type",
+            "kind": "derived",
+            "from": "routerClassNameOf(event) — the class name the runtime reports for the event, never its number",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1637,
+              "lineText": "type: routerClassNameOf(event),"
+            }
+          },
+          {
+            "name": "at",
+            "kind": "derived",
+            "from": "nowMs() — the page's own clock read at receipt",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1638,
+              "lineText": "at: nowMs(),"
+            }
+          },
+          {
+            "name": "id",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'id') — the event's own navigation id where it carries one, otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1639,
+              "lineText": "id: routerPrimitiveOf(event, 'id'),"
+            }
+          },
+          {
+            "name": "url",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'url'), otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1640,
+              "lineText": "url: routerPrimitiveOf(event, 'url'),"
+            }
+          },
+          {
+            "name": "urlAfterRedirects",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'urlAfterRedirects'), otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1641,
+              "lineText": "urlAfterRedirects: routerPrimitiveOf(event, 'urlAfterRedirects'),"
+            }
+          },
+          {
+            "name": "route",
+            "kind": "derived",
+            "from": "routerRoutePathOf(event) — the route config's own path string",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1642,
+              "lineText": "route: routerRoutePathOf(event),"
+            }
+          },
+          {
+            "name": "reason",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'reason') — the cancel and skip reason, otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1643,
+              "lineText": "reason: routerPrimitiveOf(event, 'reason'),"
+            }
+          },
+          {
+            "name": "code",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'code') — the cancel and skip code, otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1644,
+              "lineText": "code: routerPrimitiveOf(event, 'code'),"
+            }
+          },
+          {
+            "name": "error",
+            "kind": "derived",
+            "from": "routerErrorOf(event) — the error's own name and message as plain data, or null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1645,
+              "lineText": "error: routerErrorOf(event),"
+            }
+          },
+          {
+            "name": "shouldActivate",
+            "kind": "derived",
+            "from": "routerPrimitiveOf(event, 'shouldActivate'), otherwise null",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1646,
+              "lineText": "shouldActivate: routerPrimitiveOf(event, 'shouldActivate'),"
+            }
+          },
+          {
+            "name": "matchedPaths",
+            "kind": "derived",
+            "from": "routerMatchedPathsOf(event) — the primary chain's own config path strings",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1647,
+              "lineText": "matchedPaths: routerMatchedPathsOf(event),"
+            }
+          }
+        ]
+      },
+      "start": {
+        "what": "a `NavigationStart` emission: `type` is the class name and `id` is the navigation's own id",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1637,
+            "lineText": "type: routerClassNameOf(event),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1639,
+            "lineText": "id: routerPrimitiveOf(event, 'id'),"
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 145,
+            "lineText": "const NAVIGATION_START = 'NavigationStart';"
+          }
+        ],
+        "statement": "the start is the entry whose `type` is the class name 'NavigationStart' (:1637, and the shipped reader's own constant at navigation-narrator.js:145); its id is whatever the event carried, recorded as it stands (:1639)."
+      },
+      "consequent": {
+        "what": "the navigation's terminal — `NavigationEnd`, or one of `NavigationCancel`, `NavigationError` and `NavigationSkipped`, keyed by the same id",
+        "recorded": true,
+        "citations": [
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 150,
+            "lineText": "'NavigationEnd',"
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 151,
+            "lineText": "'NavigationCancel',"
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 152,
+            "lineText": "'NavigationError',"
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 153,
+            "lineText": "'NavigationSkipped',"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1643,
+            "lineText": "reason: routerPrimitiveOf(event, 'reason'),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1644,
+            "lineText": "code: routerPrimitiveOf(event, 'code'),"
+          }
+        ],
+        "statement": "the consequent is not `NavigationEnd` alone. Four classes end a navigation and all four are recorded with the same shape: the shipped reader lists them at navigation-narrator.js:150–:153, and the recorder keeps the fields only a cancel or a skip carries — `reason` (:1643) and `code` (:1644). So a `NavigationStart` with no `NavigationEnd` is not yet a dangling start: it may have ended as a cancel, an error or a skip, and those entries are its own terminal."
+      },
+      "pairingField": {
+        "name": "id",
+        "also": null,
+        "complete": true,
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1639,
+          "lineText": "id: routerPrimitiveOf(event, 'id'),"
+        },
+        "sideSite": {
+          "file": "extension/agent-main.js",
+          "line": 1637,
+          "lineText": "type: routerClassNameOf(event),"
+        },
+        "citations": [
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 451,
+            "lineText": "// start. It is identified by that id and never by its position: a start with no id opens"
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 452,
+            "lineText": "// nothing, and a second start for an id already recorded is not a second navigation (E3)."
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 453,
+            "lineText": "if (!isMeasurement(entry.id) || byId.has(entry.id)) continue;"
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 455,
+            "lineText": "byId.set(entry.id, navigation);"
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 467,
+            "lineText": "let navigation = byId.get(entry.id);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1632,
+            "lineText": "// event alone: no field is read from the last event seen, from the navigation in flight or from a"
+          }
+        ],
+        "statement": "`id` is the navigation's own id, recorded from the event itself and never filled in from a neighbouring navigation or the navigation in flight (:1632). It is an identity, not a classification: two entries carrying the same id are the same navigation, which is how the shipped reader joins a start to its terminal (:453, :455, :467) and why it identifies a navigation 'by that id and never by its position' (:451). The record does not itself compare the two entries — nothing in agent-main.js compares any two entries (measurements.no-entry-identity-comparison) — so the join is the field's meaning plus the reader's rule; what the record guarantees is that the value came off each event as it stood."
+      },
+      "ambiguity": {
+        "distinguishable": true,
+        "citations": [
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 452,
+            "lineText": "// nothing, and a second start for an id already recorded is not a second navigation (E3)."
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 473,
+            "lineText": "if (navigation.state === OPEN) {"
+          },
+          {
+            "file": "extension/navigation-narrator.js",
+            "line": 474,
+            "lineText": "endNavigation(navigation, entry);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1639,
+            "lineText": "id: routerPrimitiveOf(event, 'id'),"
+          }
+        ],
+        "statement": "yes, two navigations can be open at once, and their ids tell them apart: the reader keys on id (:452) and ends only the navigation that id names (:473–:474). Two limits remain and neither is positional ambiguity: an event whose id is not a measurement opens nothing (:451–:452), and the router reuses an id in the same-URL skip case, so a second terminal for an id that already ended is recorded as a skip rather than folded into the first navigation (navigation-narrator.js:435–:438, :482)."
+      },
+      "survival": {
+        "survives": true,
+        "publishedAt": {
+          "file": "extension/agent-main.js",
+          "line": 1050,
+          "lineText": "routerEvents: routerEventList(),"
+        },
+        "removedBy": {
+          "frameClose": false,
+          "missingConsequent": false,
+          "bound": {
+            "file": "extension/agent-main.js",
+            "line": 1653,
+            "lineText": "if (routerEvents.length > ROUTER_EVENT_LIMIT) {"
+          },
+          "reset": {
+            "file": "extension/agent-main.js",
+            "line": 1895,
+            "lineText": "routerEvents = [];"
+          }
+        },
+        "held": null,
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1649,
+            "lineText": "routerEvents.push(entry);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1671,
+            "lineText": "function routerEventList() {"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1672,
+            "lineText": "return routerEvents.slice();"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1050,
+            "lineText": "routerEvents: routerEventList(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1440,
+            "lineText": "routerEvents: routerEventList(),"
+          }
+        ],
+        "statement": "every emission is pushed as it arrives (:1649) and every record publishes a copy of the whole list (:1672, at :1050 in a frame and :1440 in the initial snapshot), so a start with no terminal is in the record exactly as it arrived. Nothing removes an entry for a missing terminal (measurements.removal-lines): the only removals are the 512-arrival bound (:1653–:1654) and reset (:1895)."
+      },
+      "window": {
+        "kind": "published-list",
+        "field": "routerEvents",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1050,
+          "lineText": "routerEvents: routerEventList(),"
+        },
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1672,
+            "lineText": "return routerEvents.slice();"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1471,
+            "lineText": "var ROUTER_EVENT_LIMIT = 512; // arrivals kept: a page-health guard, not a curation"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1654,
+            "lineText": "routerEvents.splice(0, routerEvents.length - ROUTER_EVENT_LIMIT);"
+          }
+        ],
+        "final": false,
+        "statement": "the window is the whole `routerEvents` list the record publishes, and it is cumulative: each record carries a copy of every arrival so far (:1672), so the latest record's list is the widest one and the window to judge over. It is bounded only by 512 kept arrivals (:1471, :1653–:1654) — above that the oldest fall off the front, which can hide a start but cannot invent one — and it is emptied by reset (:1895). It is not final: nothing marks a navigation as the last, so a navigation open at the end of the list is open as of that record, and a later record can carry its terminal."
+      },
+      "judgeable": true,
+      "judgeableReason": "paired-by-id"
+    },
+    {
+      "id": "boundary",
+      "stream": "boundaryEntries",
+      "publishedAs": "boundary.entries",
+      "file": "extension/agent-main.js",
+      "declaration": {
+        "file": "extension/agent-main.js",
+        "line": 1942,
+        "lineText": "var boundaryEntries = []; // one entry per arrival, in arrival order"
+      },
+      "entry": {
+        "builder": {
+          "file": "extension/agent-main.js",
+          "line": 2046,
+          "lineText": "function recordBoundaryArrival(error, details) {"
+        },
+        "opener": {
+          "file": "extension/agent-main.js",
+          "line": 2051,
+          "lineText": "var entry = {"
+        },
+        "closer": {
+          "file": "extension/agent-main.js",
+          "line": 2074,
+          "lineText": "};"
+        },
+        "nested": {
+          "parent": "details",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 2054,
+            "lineText": "details: {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 2072,
+            "lineText": "},"
+          },
+          "fields": [
+            {
+              "name": "declarationType",
+              "kind": "derived",
+              "from": "boundaryTypeNameOf(details.declarationType) — the payload's type constructor's own name, or null",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2055,
+                "lineText": "declarationType: boundaryTypeNameOf("
+              }
+            },
+            {
+              "name": "declarationInstanceName",
+              "kind": "derived",
+              "from": "instanceNameFor(details.declarationInstance) — the declaring instance's host tag or class name, or null",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2058,
+                "lineText": "declarationInstanceName: instanceNameFor("
+              }
+            },
+            {
+              "name": "caughtBy",
+              "kind": "derived",
+              "from": "typeof caughtBy === 'function' ? true : null — a presence bit, never the function",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2065,
+                "lineText": "caughtBy: typeof caughtBy === 'function' ? true : null,"
+              }
+            },
+            {
+              "name": "boundaryType",
+              "kind": "derived",
+              "from": "boundaryTypeNameOf(boundary.type) where the payload carried a boundary, otherwise null",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2066,
+                "lineText": "boundaryType: hasBoundary"
+              }
+            },
+            {
+              "name": "boundaryReset",
+              "kind": "derived",
+              "from": "whether details.boundary.reset is a function where the payload carried a boundary, otherwise null — a presence bit on this arrival",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2069,
+                "lineText": "boundaryReset: hasBoundary"
+              }
+            }
+          ]
+        },
+        "fields": [
+          {
+            "name": "route",
+            "kind": "literal",
+            "from": "the literal word 'hook' where the payload carried `details`, 'handler' where it carried none",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2052,
+              "lineText": "route: carried ? 'hook' : 'handler',"
+            }
+          },
+          {
+            "name": "error",
+            "kind": "derived",
+            "from": "boundaryErrorOf(error) — the error's own name and message, with a cause only where the boundary wrapped a non-Error",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2053,
+              "lineText": "error: boundaryErrorOf(error),"
+            }
+          },
+          {
+            "name": "details",
+            "kind": "derived",
+            "from": "the payload's own detail fields, each behind a presence test — the nested object below",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2054,
+              "lineText": "details: {"
+            }
+          },
+          {
+            "name": "at",
+            "kind": "derived",
+            "from": "nowMs() — the page's own clock read at receipt",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2073,
+              "lineText": "at: nowMs(),"
+            }
+          }
+        ]
+      },
+      "start": {
+        "what": "a boundary arrival: one entry per error the boundary caught or the handler received",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2046,
+            "lineText": "function recordBoundaryArrival(error, details) {"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2075,
+            "lineText": "boundaryEntries.push(entry);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2042,
+            "lineText": "// One entry per arrival, in arrival order, one shape for every arrival: the route it arrived by,"
+          }
+        ],
+        "statement": "the arrival is the start marker: recordBoundaryArrival builds the entry (:2046) and pushes it (:2075), and that push is the only way anything reaches boundaryEntries (measurements.removal-lines, and the single `boundaryEntries.push` in the file)."
+      },
+      "consequent": {
+        "what": "the boundary's reset — the thing the intent's phrase 'caught an error and never reset' would have to observe",
+        "recorded": false,
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2070,
+            "lineText": "? typeof boundaryFieldOf(boundary, 'reset') === 'function'"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2071,
+            "lineText": ": null,"
+          },
+          {
+            "file": "extension/error-boundary.js",
+            "line": 156,
+            "lineText": "reset: carriedOf(fieldOf(details, 'boundaryReset')),"
+          },
+          {
+            "file": "extension/error-boundary.js",
+            "line": 155,
+            "lineText": "// The boundary's `reset()`, reported as available only where the record carries it."
+          }
+        ],
+        "statement": "there is no consequent in the record. `boundaryReset` is not a later event: it is a boolean on the arrival that describes it, true where the payload's boundary carried a reset function and null where the payload carried no boundary at all (:2069–:2071). The one reader that consumes it reports it as 'available only where the record carries it' (error-boundary.js:155–:156) — an availability bit on the same finding, never a second event. No line in the recorder records a reset happening (measurements.reset-lines), so a reset cannot be absent from the record in the way a NavigationEnd or an OutputEnd can."
+      },
+      "pairingField": {
+        "name": "boundaryReset",
+        "also": null,
+        "complete": false,
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 2069,
+          "lineText": "boundaryReset: hasBoundary"
+        },
+        "sideSite": {
+          "file": "extension/agent-main.js",
+          "line": 2049,
+          "lineText": "var hasBoundary = boundary !== null && typeof boundary === 'object';"
+        },
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2049,
+            "lineText": "var hasBoundary = boundary !== null && typeof boundary === 'object';"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2070,
+            "lineText": "? typeof boundaryFieldOf(boundary, 'reset') === 'function'"
+          },
+          {
+            "file": "extension/error-boundary.js",
+            "line": 156,
+            "lineText": "reset: carriedOf(fieldOf(details, 'boundaryReset')),"
+          }
+        ],
+        "statement": "there is no pairing field: `boundaryReset` is a presence bit computed from the same arrival's payload — `hasBoundary` is a typeof test on `details.boundary` (:2049) and the bit is true where that boundary's `reset` is a function (:2070). It joins no two entries, because there is no second entry to join: the field is one key of the entry it sits in, and the only reader treats it as an availability flag on that entry (error-boundary.js:156)."
+      },
+      "ambiguity": {
+        "distinguishable": false,
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2073,
+            "lineText": "at: nowMs(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1942,
+            "lineText": "var boundaryEntries = []; // one entry per arrival, in arrival order"
+          }
+        ],
+        "statement": "not applicable, and stated so rather than left empty: nothing is open. Each arrival is one entry, complete when it is pushed (:2075), and there is no second half of it to be open. Two arrivals are told apart only by their own fields and `at` (:2073); the entry carries no id, and none is needed, because no two entries are ever joined."
+      },
+      "survival": {
+        "survives": true,
+        "publishedAt": {
+          "file": "extension/agent-main.js",
+          "line": 2256,
+          "lineText": "entries: boundaryEntries.slice(),"
+        },
+        "removedBy": {
+          "frameClose": false,
+          "missingConsequent": false,
+          "bound": {
+            "file": "extension/agent-main.js",
+            "line": 2076,
+            "lineText": "if (boundaryEntries.length > BOUNDARY_ENTRY_LIMIT) {"
+          },
+          "reset": {
+            "file": "extension/agent-main.js",
+            "line": 1900,
+            "lineText": "boundaryEntries = [];"
+          }
+        },
+        "held": null,
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2075,
+            "lineText": "boundaryEntries.push(entry);"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2256,
+            "lineText": "entries: boundaryEntries.slice(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1051,
+            "lineText": "boundary: boundaryField(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1939,
+            "lineText": "var BOUNDARY_ENTRY_LIMIT = 128; // arrivals kept: a page-health guard, not a curation"
+          }
+        ],
+        "statement": "the arrival survives, and so does its `boundaryReset` bit, because both are the same entry: pushed at :2075, copied whole at :2256 and published by every record (:1051, :1441). Nothing can be dangling here — the entry is complete when it is written — so survival is not what decides this chain either; the absent consequent is."
+      },
+      "window": {
+        "kind": "published-list",
+        "field": "boundary.entries",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1051,
+          "lineText": "boundary: boundaryField(),"
+        },
+        "also": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2256,
+            "lineText": "entries: boundaryEntries.slice(),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2077,
+            "lineText": "boundaryEntries.splice(0, boundaryEntries.length - BOUNDARY_ENTRY_LIMIT);"
+          }
+        ],
+        "final": false,
+        "statement": "the window is the whole `boundary.entries` list, published cumulatively in every record (:1051 through :2256), bounded at 128 kept arrivals (:1939, :2076–:2077) and cleared by reset (:1900). It would be the right window for 'this arrival carried no reset' only as a property of each entry; for 'this arrival never got its reset' there is no window, because there is no reset event anywhere in the record."
+      },
+      "judgeable": false,
+      "judgeableReason": "no-consequent-recorded"
+    }
+  ],
+  "answer": {
+    "judgeable": ["router"],
+    "notJudgeable": [
+      {
+        "chain": "work",
+        "reason": "no-pairing-field"
+      },
+      {
+        "chain": "boundary",
+        "reason": "no-consequent-recorded"
+      }
+    ],
+    "windows": [
+      {
+        "chain": "work",
+        "fields": ["events"],
+        "kind": "union-of-frames",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1048,
+          "lineText": "events: c.events.slice(),"
+        }
+      },
+      {
+        "chain": "router",
+        "fields": ["routerEvents"],
+        "kind": "published-list",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1050,
+          "lineText": "routerEvents: routerEventList(),"
+        }
+      },
+      {
+        "chain": "boundary",
+        "fields": ["boundary.entries"],
+        "kind": "published-list",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1051,
+          "lineText": "boundary: boundaryField(),"
+        }
+      }
+    ],
+    "survival": {
+      "danglingStartsSurvive": true,
+      "statement": "a recorded start that never got its consequent is in the published record, for all three chains: the frame's close publishes its work list (:1048), every record publishes the whole router list (:1050, :1672) and the whole boundary list (:1051, :2256), and no removal path in the file looks at whether a consequent arrived (measurements.removal-lines). The brief's hypothesis — that a dangling start is dropped when the frame closes — does not reproduce: the only work entries lost are the ones held with no later frame to adopt them, the ones pushed off the 64-entry held bound and everything a reset clears. So survival does not narrow the judgeable chain."
+    },
+    "narrowing": {
+      "narrowed": true,
+      "to": ["router"],
+      "cause": "no-pairing-field",
+      "statement": "the judgeable chain does narrow to the router's, but not for the reason the brief proposed. The brief offered survival as the narrowing cause and said that if dangling starts are dropped the chain that remains judgeable is the router's. Measured, dangling starts are not dropped — they survive (answer.survival) — and the work chain is refused anyway, on pairing: `pair` and `end` name a family and a side and identify no particular start, two ComponentStarts are two entries differing in nothing but `at`, and the record says of itself that it pairs nothing (:637). Pairing two work entries would be pairing by position, which N3 forbids and E1 excludes, so the judgement must refuse that chain and report its absence. The boundary chain is refused for a third reason again: it has no consequent in the record at all."
+    },
+    "evidence": [
+      {
+        "chain": "work",
+        "file": "extension/agent-main.js",
+        "line": 637,
+        "lineText": "// boundary. Nothing here pairs a start with its end: the pairing rule belongs to the narrator that"
+      },
+      {
+        "chain": "router",
+        "file": "extension/agent-main.js",
+        "line": 1639,
+        "lineText": "id: routerPrimitiveOf(event, 'id'),"
+      },
+      {
+        "chain": "boundary",
+        "file": "extension/agent-main.js",
+        "line": 2069,
+        "lineText": "boundaryReset: hasBoundary"
+      }
+    ],
+    "statement": "One of the three chains is judgeable. The router's is: a `NavigationStart` and a terminal share the event's own navigation `id` (:1639), the field is an identity rather than a classification, concurrent navigations are told apart by it, and both the start and its terminal survive into the cumulative published list. Two things must still be said when it is judged: the consequent is any of four terminal classes, not `NavigationEnd` alone (navigation-narrator.js:150–:153), so a start with no `End` may have ended as a cancel, an error or a skip and is not dangling until those are excluded by id; and the window is the list the record published, which is not final, so an open navigation is open as of that record. The work chain is refused — no pairing field exists and pairing it would be pairing by position (:637, N3, E1), even though its dangling starts do survive. The boundary chain is refused — `boundaryReset` is a presence bit on the arrival that describes it (:2069–:2070), not a later event, and the record keeps no reset at all (measurements.reset-lines), so 'caught an error and never reset' has no consequent to be absent."
+  },
+  "notClaimed": [
+    "No page was read and no browser was opened: every citation here was read from source files at the recorded head. Nothing was executed against a page, nothing was rendered and no running page's record was observed, so the pairing fields are read off the entry builders and the three readers, not observed in a live record.",
+    "Nothing here claims the judgement exists: T002 is not written and no file for it exists at this head. This record measures the chains and the window; it does not decide what a finding looks like, how many fields it carries or how the panel renders it.",
+    "Nothing here re-measures the runtime: that `NavigationStart` and its terminal carry equal ids, that Component starts nest, that every measured ComponentStart passed a null instance and that four classes terminate a navigation are the recorder's and the readers' own measured statements, cited where they are written (:620, :635, navigation-narrator.js:150–:153), not measurements taken here.",
+    "Nothing here claims a work start can be paired: the shipped reader pairs by recorded arrival order and nesting (performance-narrator.js:23–:25, :166–:167) and reports an unclosed start as `unmeasured` (:32–:33, :211–:214). That is the reader's rule and it is recorded here as a fact about the reader; this record does not adopt it as a pairing field of the record.",
+    "Nothing here claims the record is complete in any chain: 512 router arrivals, 128 boundary arrivals and 64 held work entries are kept and the oldest fall off the front, the frame's own work list has no bound but only one microtask's worth of work, and reset clears all three lists. A window is what the record still holds.",
+    "Nothing here claims a finding can be final: no field marks a list or a navigation as the last, so 'its consequent never arrived' is only ever true as of the record it was read from, and a later record can supply the consequent.",
+    "Nothing here claims the brief's `interaction` count: it does not reproduce (measurements.interaction-recount — 7 occurrences in extension/interaction-story.js across 29 files, 0 in extension/agent-main.js). The conclusion it was used for is unchanged and is not measured again here: the only click listener in extension/ is the panel's element picker at overlay.js:507 through :440."
+  ],
+  "verdict": "measured: of the three consequence chains the record defines, one is judgeable. The router's `NavigationStart` is paired with its consequent by the event's own navigation `id` (extension/agent-main.js:1639) — an identity, so two navigations open at once are told apart, and the shipped reader joins on exactly that field (navigation-narrator.js:451–:455) — and any of four terminal classes ends a navigation (navigation-narrator.js:150–:153), so a start is dangling only when none of them carries its id. The profiler work pairs are not judgeable: the entry carries `pair` and `end` (:697–:698), which name a family and a side and identify no particular start, the two pairs that nest carry no instance at all (:620–:621), and the file states that it pairs nothing (:637) — a judgement would have to pair by position, which N3 forbids. The boundary chain is not judgeable for a third reason: `boundaryReset` is a presence bit on the arrival that carries it (:2069–:2070, read as an availability flag at error-boundary.js:156), and no line in the recorder keeps a reset (:measurements.reset-lines), so there is no consequent that could be absent. Survival does not narrow the chain, contrary to the brief's hypothesis: a recorded start that never got its consequent survives into the published record in all three chains, because the frame's close publishes its list (:1048) and every record publishes the router and boundary lists whole (:1050, :1051), and no removal path looks at whether a consequent arrived (:measurements.removal-lines). What bounds a finding is the published list of the latest record — the union of the frames' `events` lists for work, `routerEvents` for the router, `boundary.entries` for the boundary — each bounded only as a page-health guard (512, 128, and one frame's worth) and never marked final, so every finding is true as of the record it was read from."
+}

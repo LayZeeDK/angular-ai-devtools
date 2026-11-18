@@ -1,0 +1,123 @@
+✔ E1: a panel route installs a component through the one shared loader, never a surface function (4.3876ms)
+✔ E2: the surface functions are still exported for their suites (2.2102ms)
+✔ E3: the demo module renders the surface text it is handed (0.3556ms)
+✔ E4: every declared route surface has a panel-demo LOADERS key (7.6425ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 148.7772
+skill-lint: 18 SKILL.md files, no findings
+skills-registered: 18 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M050; stages archive-paths
+gate-integrity: archive-paths clean - examined 16 live path reference(s) of 183 reference(s) in 150 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M050; stages fix-record
+gate-integrity: fix-record clean - examined 7 claim(s) in 4 task log(s) of .project/tasks (logs of M050) against 12 changed path(s) of e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422 (rule ship: M049's ship commit, e6355ac6 (ship: M049 — interaction-story); the head is this tree's HEAD, 21e95251 (T002: Judge the record for an event whose consequent never arrived, or refuse); claims: declared)
+gate-integrity: fix-record pins - 17 declared path(s) byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as changes
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-dead-click.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:88 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin scripts/panel-routes.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:117 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin scripts/component-search.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:125 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:129 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:139 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-dead-click.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-demo.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/app.routes.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/app.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/page-picker.component.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-demo.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin scripts/panel-routes.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin scripts/component-search.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: pin tests/held-out/fixture-explainers-unchanged.test.mjs at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:159 (T003) - declared and byte-identical across e6355ac6e95e3d9bfa52c2f14a93391399684eb7..21e952511d8cb6ec9bcd9d0e161d06474e6ff422, recorded and not judged as a change
+gate-integrity: mention extension/interaction-story.js at .project/tasks/T001-measure-the-three-consequence-chains-and-what-bounds-the-window.md:88 (T001) - recorded and not judged
+gate-integrity: mention extension/agent-main.js at .project/tasks/T001-measure-the-three-consequence-chains-and-what-bounds-the-window.md:89 (T001) - recorded and not judged
+gate-integrity: mention panel-copy-check.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:89 (T003) - recorded and not judged
+gate-integrity: mention panel-interaction-story.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:89 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:100 (T003) - recorded and not judged
+gate-integrity: mention extension/dead-click.js at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:105 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:107 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m050-chains.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:108 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:111 (T003) - recorded and not judged
+gate-integrity: mention app.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:120 (T003) - recorded and not judged
+gate-integrity: mention chat-entry.component.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:121 (T003) - recorded and not judged
+gate-integrity: mention page-picker.component.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:122 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:124 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m047-names-and-absences.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:127 (T003) - recorded and not judged
+gate-integrity: mention panel-components.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:132 (T003) - recorded and not judged
+gate-integrity: mention panel-copy-check.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:132 (T003) - recorded and not judged
+gate-integrity: mention panel-interaction-story.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:133 (T003) - recorded and not judged
+gate-integrity: mention extension/copy-digest.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:134 (T003) - recorded and not judged
+gate-integrity: mention panel-dead-click.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:136 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m044-gate-shapes.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:144 (T003) - recorded and not judged
+gate-integrity: mention extension/copy-digest.json at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:154 (T003) - recorded and not judged
+gate-integrity: mention panel-dead-click.ts at .project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md:156 (T003) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 22 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .
+npm notice run npx
+npm notice run prettier --check apps/angular-ai-devtools/src/app/panel-dead-click.ts apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/app.routes.ts apps/angular-ai-devtools/src/app/app.spec.ts apps/angular-ai-devtools/src/app/page-picker.component.spec.ts apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts apps/angular-ai-devtools/src/app/panel-demo.spec.ts scripts/panel-routes.test.mjs scripts/component-search.test.mjs scripts/gate-integrity.test.mjs scripts/gate-integrity-default-tasks.test.mjs tests/held-out/fixture-explainers-unchanged.test.mjs

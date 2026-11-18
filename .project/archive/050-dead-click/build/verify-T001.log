@@ -1,0 +1,20 @@
+✔ the record is three chains, three windows, an answer and what it does not claim (53.4958ms)
+✔ every cited path and line is the one the record read (57.3705ms)
+✔ every chain records exactly the fields its cited builder assigns (1.8049ms)
+✔ only the router pairs a start with its consequent on an identity field (0.2073ms)
+✔ the survival answer is the recorder’s, not the record’s preference (2.1765ms)
+✔ the brief’s interaction count does not reproduce, and the record says so (1.0611ms)
+✔ no window is claimed final, and the recorder marks none (1.9458ms)
+✔ a doctored record reddens the check it violates (311.8181ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 571.0122
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/dead-click.test.mjs

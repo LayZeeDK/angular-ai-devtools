@@ -1,0 +1,33 @@
+SC1/E4 non-vacuous:
+  M1 a paired start reported as dangling -> one dangling start beside one paired start yields exactly one finding; a paired start is never reported as dangling
+  M2 a pair matched by adjacency rather than by id -> the terminal is joined to a start by its own id, never by the start sitting next to it
+SC3 non-vacuous:
+  M3 an unbounded record reported as clean -> an unbounded record is cannot-tell with its own reason, never clean
+SC2 non-vacuous:
+  M4 a finding carrying an invented cause -> a finding carries the start’s own recorded fields and invents no cause, handler, component or remedy the record does not state
+✔ the record is three chains, three windows, an answer and what it does not claim (54.167ms)
+✔ every cited path and line is the one the record read (58.9203ms)
+✔ every chain records exactly the fields its cited builder assigns (1.3444ms)
+✔ only the router pairs a start with its consequent on an identity field (0.1718ms)
+✔ the survival answer is the recorder’s, not the record’s preference (1.8794ms)
+✔ the brief’s interaction count does not reproduce, and the record says so (1.0809ms)
+✔ no window is claimed final, and the recorder marks none (1.3611ms)
+✔ a doctored record reddens the check it violates (324.3779ms)
+✔ the judgement reuses the record’s own vocabulary and the chains T001 measured (1.2463ms)
+✔ SC1/E4 — one dangling start beside a paired start is one finding, and the join is by id (4.4887ms)
+✔ SC3 — an unbounded record is cannot-tell with a closed reason, never clean (2.0602ms)
+✔ SC2 — a finding carries the record’s own fields and invents no cause (1.8136ms)
+✔ the judgement is pure over the record: no DOM, no clock, no console and no network (1.4936ms)
+✔ judging the same record twice returns identical findings in identical order (0.5363ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 592.5372
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/dead-click.js scripts/dead-click.test.mjs

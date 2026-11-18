@@ -1,0 +1,104 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "298870ebb22402b9fb6d6dddc14b54d9a19bed49",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M050",
+        "candidates": [
+          {
+            "base": "97a0d285898f0f1b056be02b5c47b6cf0d3d7e24",
+            "commit": "639998fd3387ab8a83f55d1be967962bb0cf0015",
+            "valid": true
+          }
+        ],
+        "head": "298870ebb22402b9fb6d6dddc14b54d9a19bed49",
+        "subject": "T001: Measure the three consequence chains and what bounds the window"
+      },
+      "landed_commit": "639998fd3387ab8a83f55d1be967962bb0cf0015",
+      "reasons": [],
+      "task": {
+        "base": "97a0d285898f0f1b056be02b5c47b6cf0d3d7e24",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-measure-the-three-consequence-chains-and-what-bounds-the-window.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M050",
+        "candidates": [
+          {
+            "base": "639998fd3387ab8a83f55d1be967962bb0cf0015",
+            "commit": "21e952511d8cb6ec9bcd9d0e161d06474e6ff422",
+            "valid": true
+          }
+        ],
+        "head": "298870ebb22402b9fb6d6dddc14b54d9a19bed49",
+        "subject": "T002: Judge the record for an event whose consequent never arrived, or refuse"
+      },
+      "landed_commit": "21e952511d8cb6ec9bcd9d0e161d06474e6ff422",
+      "reasons": [],
+      "task": {
+        "base": "639998fd3387ab8a83f55d1be967962bb0cf0015",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-judge-the-record-for-an-event-whose-consequent-never-arrived-or-refuse.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M050",
+        "candidates": [
+          {
+            "base": "21e952511d8cb6ec9bcd9d0e161d06474e6ff422",
+            "commit": "173166b310de6167c7b20b47210609ecab50d33b",
+            "valid": true
+          }
+        ],
+        "head": "298870ebb22402b9fb6d6dddc14b54d9a19bed49",
+        "subject": "T003: Render the finding states and pin the route and loader they add"
+      },
+      "landed_commit": "173166b310de6167c7b20b47210609ecab50d33b",
+      "reasons": [],
+      "task": {
+        "base": "21e952511d8cb6ec9bcd9d0e161d06474e6ff422",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-render-the-finding-states-and-pin-the-route-and-loader-they-add.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M050",
+        "candidates": [
+          {
+            "base": "2a17ca9516fd6cde8857a7c62a6c97871e7c6ca2",
+            "commit": "014cf650120af0f1c9ba204dc1a8e5de6749b632",
+            "valid": true
+          }
+        ],
+        "head": "298870ebb22402b9fb6d6dddc14b54d9a19bed49",
+        "subject": "T004: Record the surface, capture the claims record and run the project verify"
+      },
+      "landed_commit": "014cf650120af0f1c9ba204dc1a8e5de6749b632",
+      "reasons": [],
+      "task": {
+        "base": "2a17ca9516fd6cde8857a7c62a6c97871e7c6ca2",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-record-the-surface-capture-the-claims-record-and-run-the-project-verify.md"
+      }
+    }
+  ]
+}

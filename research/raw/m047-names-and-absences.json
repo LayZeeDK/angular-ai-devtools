@@ -660,7 +660,7 @@
     "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
     "declaration": {
       "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "line": 17,
+      "line": 113,
       "lineText": "export const appRoutes: Route[] = ["
     },
     "measurement": {
