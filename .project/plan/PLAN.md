@@ -2,7 +2,12 @@
 
 ## Config
 
-Project verify: `npm run check && npm test`
+Project verify: `npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm run check && npm test`
+
+The build leads because `scripts/panel-bundle-budget.test.mjs` now refuses an output older than the
+newest source: without a fresh build every project verify would compare a stale artifact, which is the
+defect this milestone removed. `--skip-nx-cache` because a cached replay restores its recorded output
+without refreshing the timestamp the assertion reads.
 
 - max_review_cycles: 3
 - wave_budget: none
