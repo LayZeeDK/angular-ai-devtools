@@ -1,0 +1,104 @@
+{
+  "canonical_project_dir": ".project",
+  "command": "verify-landed",
+  "head": "c982d1d2a33671581a01cb8a59b90e082fd95b1d",
+  "project_dir": ".project",
+  "tasks": [
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M049",
+        "candidates": [
+          {
+            "base": "642ce70a0f4434b46a201b634e7f43256ae5248b",
+            "commit": "eed1477990f3dde85ce1f74755bb9843d15e3618",
+            "valid": true
+          }
+        ],
+        "head": "c982d1d2a33671581a01cb8a59b90e082fd95b1d",
+        "subject": "T001: Measure the three arrival-ordered streams and whether they share an order"
+      },
+      "landed_commit": "eed1477990f3dde85ce1f74755bb9843d15e3618",
+      "reasons": [],
+      "task": {
+        "base": "642ce70a0f4434b46a201b634e7f43256ae5248b",
+        "id": "T001",
+        "status": "done",
+        "task_file": ".project/tasks/T001-measure-the-three-arrival-ordered-streams-and-whether-they-share-an-order.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M049",
+        "candidates": [
+          {
+            "base": "eed1477990f3dde85ce1f74755bb9843d15e3618",
+            "commit": "ccef25dce91e8fa68bfdec7cf20374764fd576b5",
+            "valid": true
+          }
+        ],
+        "head": "c982d1d2a33671581a01cb8a59b90e082fd95b1d",
+        "subject": "T002: Narrate the record as steps in the measured order, or refuse"
+      },
+      "landed_commit": "ccef25dce91e8fa68bfdec7cf20374764fd576b5",
+      "reasons": [],
+      "task": {
+        "base": "eed1477990f3dde85ce1f74755bb9843d15e3618",
+        "id": "T002",
+        "status": "done",
+        "task_file": ".project/tasks/T002-narrate-the-record-as-steps-in-the-measured-order-or-refuse.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M049",
+        "candidates": [
+          {
+            "base": "ccef25dce91e8fa68bfdec7cf20374764fd576b5",
+            "commit": "72d6f7de22d89d2a523f20b56610093fed982c4a",
+            "valid": true
+          }
+        ],
+        "head": "c982d1d2a33671581a01cb8a59b90e082fd95b1d",
+        "subject": "T003: Render the story states and pin the route and loader they add"
+      },
+      "landed_commit": "72d6f7de22d89d2a523f20b56610093fed982c4a",
+      "reasons": [],
+      "task": {
+        "base": "ccef25dce91e8fa68bfdec7cf20374764fd576b5",
+        "id": "T003",
+        "status": "done",
+        "task_file": ".project/tasks/T003-render-the-story-states-and-pin-the-route-and-loader-they-add.md"
+      }
+    },
+    {
+      "classification": "proven-landed",
+      "command": "reconcile",
+      "history": {
+        "branch": "gsd-path/M049",
+        "candidates": [
+          {
+            "base": "02b042d97b9359ab1a63aabb9393eaa5266f1e9e",
+            "commit": "c3aef50e014e78107bd4bbf1b0c89d40865770c0",
+            "valid": true
+          }
+        ],
+        "head": "c982d1d2a33671581a01cb8a59b90e082fd95b1d",
+        "subject": "T004: Record the surface and run the project verify"
+      },
+      "landed_commit": "c3aef50e014e78107bd4bbf1b0c89d40865770c0",
+      "reasons": [],
+      "task": {
+        "base": "02b042d97b9359ab1a63aabb9393eaa5266f1e9e",
+        "id": "T004",
+        "status": "done",
+        "task_file": ".project/tasks/T004-record-the-surface-and-run-the-project-verify.md"
+      }
+    }
+  ]
+}
