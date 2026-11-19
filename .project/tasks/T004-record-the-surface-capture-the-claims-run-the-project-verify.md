@@ -2,10 +2,10 @@
 id: T004
 title: Record the surface, capture the claims, run the project verify
 wave: 4
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T004
+base: 7d7737e86ec30c06297dfe1fa1719280266a35ef
 worktree: null
 task_branch: null
 files:
@@ -134,3 +134,4 @@ npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm run check 
 - **`npm test` does not exit 0 at this head, and the 7 failures behind it are not this milestone's.** The check is a measurement: all seven titles reproduce at the milestone's baseline `b10bffb6` in a worktree — `✖ S6 shape`, `✖ E6 queue numbers stay unique…`, `✖ health: check() on the real resolved install…`, `✖ E4: removing a rule token…`, `✖ P3 check_handoffs pin…`, `✖ E1 helper pin…`, `✖ D1 dispatch pin…` (36 tests, 29 pass, 7 fail there). The two red corpus suites, `tests/held-out/e3-zero-skipped.test.mjs` and `tests/held-out/e4-idempotent-checks.test.mjs`, assert that `npm test` and `npm run check` exit 0 and therefore inherit exactly those seven; that inheritance is a deduction from the measured baseline, not a second measurement. Nothing in this task's diff touches `.commandcode/` or the docs-audit inventory, and no tolerance was widened, no check deleted and no capture-owned recording hand-edited to get here.
 - Two files outside this task's `files:` list were edited, named here rather than left for review to find. `.project/plan/PLAN.md`'s `## Intent coverage` table was two columns (`Criterion | Task`), and `scripts/navigation-blocking.test.mjs` parses that table as the three-column grammar every prior plan carries (`Criterion | Task | Acceptance`), so the claims record could not be captured at all until the table was restored to it — one row per criterion-and-task pair the three task contracts declare. `apps/angular-ai-devtools/src/app/panel-demo.ts`'s `FACTS['copy-check']` sample fact read `checked: 165` with a comment saying "all 165 compared strings"; growing the record to the twenty-fourth surface makes the join's answer 174, and `panel-demo.spec.ts` holds that fact to the join field for field, so the value and the one comment line were moved to 174. Neither edit changes a check.
 - Not established: whether the installed GSD skill under `<home>/.commandcode` is meant to carry the token `scripts/user-scope-autonomy.mjs` pins, and whether `.project/{CHARTER,LESSONS,ROADMAP,STATE}.md` and `.project/research/DOCS-AUDIT.md` are meant to appear in the docs-audit inventory. Both are outside this checkout's declared files and neither is answered by a record this milestone owns.
+- Landed paths: `research/raw/m052-surface.json`, `research/raw/m052-verdict-claims.json`, `research/raw/m048-surface-copy.json`, `research/raw/m048-surface.json`, `research/raw/m049-surface.json`, `research/raw/m050-surface.json`, `research/raw/m051-surface.json`, `research/raw/m056-gate-stability.json`, `research/raw/m044-gate-shapes.json`, `extension/copy-digest.json`, `extension/panel/index.html`, `scripts/copy-check.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/overlay-verdict-claims.test.mjs`, `scripts/gate-stability-record.test.mjs`, `scripts/held-out-corpus.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/user-scope-autonomy.mjs`, `scripts/user-scope-autonomy.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/console-panel-record.test.mjs`, `scripts/console-panel-render.test.mjs`, `scripts/error-boundary-capture.test.mjs`, `scripts/stability-capture.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts` — each is read from this tree, ready.
