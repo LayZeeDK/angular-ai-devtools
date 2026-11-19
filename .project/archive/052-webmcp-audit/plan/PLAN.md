@@ -44,6 +44,33 @@ E4 is held-out: a page whose tool list is readable but whose tool descriptions a
 each tool with its name and no invented description, and the same suite asserts the fully-described
 case, so "the list rendered" cannot collapse into "the descriptions were invented".
 
+## Surface contract
+
+### panel — T003
+
+Entry: the panel route `webmcp`, rendered through the `webmcp` key in `panel-demo.ts` `LOADERS` and the
+`PANEL_SURFACES` entry in `app.routes.ts`, lazy through the shared `loadPanelDemo` closure.
+
+States: `tools` — one block per declared tool, in the reading's own order: the position the block holds,
+the name the API reported, and the description only where the descriptor carried one, with no line at
+all where it did not; `empty` — the API answered a list and the list held no tool, stated in its own
+sentence with no tool block beside it and no reason; `cannot-tell` — the reading's `reason` echoed
+verbatim, its `code` and its `detail` on their own labelled lines and a named absence in place of
+either one the reason does not carry, with no tool block, no count and no empty-list sentence offered
+in its place.
+
+Walkthrough:
+1. Open the panel at route `webmcp` with a reading that names tools; the surface renders one block per
+   declared tool with the name the API reported and the description it reported where it carried one.
+2. Open a reading whose descriptors carry no description; each tool still renders with its name and no
+   invented description line (E4).
+3. Open a reading whose state is `empty`; the surface states the empty list in its own sentence, with
+   no tool block beside it and no reason line.
+4. Open a reading whose state is `cannot-tell`; the surface states the reason's `code` and `detail`
+   verbatim and renders no tool block, no count and no empty-list sentence in its place.
+
+Criteria: SC1, SC2
+
 ## Wave 1 — measure what the WebMCP API exposes to a page
 
 Goal: the milestone rests on what the page's model context actually exposes, measured rather than

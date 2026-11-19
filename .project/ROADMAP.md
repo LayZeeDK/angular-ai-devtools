@@ -1831,8 +1831,8 @@ Goal: The panel reports which WebMCP tools the inspected app declares and whethe
 Depends on: [M020]
 Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/052-webmcp-audit
 Integrated: null
 
 Scope: in

@@ -1,0 +1,19 @@
+head: 2401982b1ef8a461c8eccfeda9fb9dd2af55018c at 2026-11-19T15:33:16.135Z
+✔ the recording answers the three exposure questions and names the canary (15.7889ms)
+✔ every cited path and line is the one the record read (11.1208ms)
+✔ the tool list is readable by the recorded surface, and never read by anything here (0.1084ms)
+✔ the canary asks only for a typeof, and still does (3.0257ms)
+✔ the page-world agent the extension ships reads no model context (0.4494ms)
+✔ a doctored citation reddens naming the claim it breaks (27.9197ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191.0888
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/webmcp-api.test.mjs

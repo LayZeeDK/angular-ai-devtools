@@ -1,0 +1,57 @@
+head: 144e82caff38da58172b551af1a286da98686e6e at 2026-11-19T15:47:57.763Z
+webmcp-audit purity: 6 sources answer identically with document, fetch and Date armed as traps
+webmcp-audit M1 (tool name out of a DOM label) -> name "Search products"
+  reddened: SC1 name-is-the-APIs-string: each tool carries the name and the description the API reported, in the order it reported them
+webmcp-audit M2 (empty list drawn as "no tools declared") -> state "tools", 0 tools
+  reddened: SC2 empty-is-a-list-the-API-answered-empty: an empty array from the getter is the empty state
+webmcp-audit M3 (cannot-tell collapsed into an empty list) -> {"state":"empty","tools":[],"reason":null}
+  reddened: SC2 cannot-tell-is-not-an-empty-list: a registration surface with no list getter cannot tell, and its answer is not an empty list
+webmcp-audit M4 (a re-registration makes a tool observable) -> registered 1, reported [{"name":"webmcp-audit-probe"}]
+  reddened: SC3 no-registration-to-observe: reading a tool list never registers a tool to make one observable
+webmcp-audit M5 (a description invented) -> description "No description provided."
+  reddened: E4 no-invented-description: a descriptor the API reported no description for carries its name and nothing else
+▶ the recording the reader answers to
+  ✔ answers the list readable, and was never read: no fixture here is an observed list (0.6415ms)
+  ✔ names the getter and the two descriptor fields the module reads (1.1741ms)
+  ✔ refuses a source the recording says nothing was read from (0.9009ms)
+✔ the recording the reader answers to (3.7203ms)
+▶ webmcp-audit.js is pure over what it is handed
+  ✔ publishes one function and nothing else, and is safe to run twice (0.691ms)
+  ✔ holds no DOM read, no clock, no console and no network call in its code (0.4451ms)
+  ✔ evaluates where no DOM and no network exist at all, and says so from inside (0.7388ms)
+  ✔ reaches for no host global when it reads: document, fetch and Date are traps inside the context (14.4175ms)
+✔ webmcp-audit.js is pure over what it is handed (16.6169ms)
+▶ the vocabulary is closed
+  ✔ answers one of three states and one of five absences, and nothing outside them (0.8695ms)
+✔ the vocabulary is closed (1.0227ms)
+▶ SC1 — a tool is named by the API’s string
+  ✔ SC1 — reports the name and description the API reported, and no third field (1.8574ms)
+✔ SC1 — a tool is named by the API’s string (1.9408ms)
+▶ SC2 — an empty list and an unreadable one are different states
+  ✔ SC2 — answers empty for a list the getter answered empty, and cannot-tell for every absence (1.0327ms)
+✔ SC2 — an empty list and an unreadable one are different states (1.3549ms)
+▶ SC3 — the reading is pure over what the page exposes
+  ✔ SC3 — registers nothing, invokes nothing, and answers the same source the same way twice (0.6824ms)
+✔ SC3 — the reading is pure over what the page exposes (0.7417ms)
+▶ E4 — a name with no description gets no invented one
+  ✔ E4 — reports each tool with its name and no description the API did not report (0.5653ms)
+✔ E4 — a name with no description gets no invented one (0.6218ms)
+▶ mutants redden by name
+  ✔ reddens by name: a tool name taken from a DOM label rather than the API (2.887ms)
+  ✔ reddens by name: an empty list rendered as "no tools declared" (1.4154ms)
+  ✔ reddens by name: a cannot-tell collapsed into an empty list (1.4037ms)
+  ✔ reddens by name: a re-registration used to make a tool observable (1.4911ms)
+  ✔ reddens by name: an invented description where the API reported none (1.3119ms)
+✔ mutants redden by name (8.6861ms)
+ℹ tests 17
+ℹ suites 8
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 194.9625
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/webmcp-audit.js scripts/webmcp-audit.test.mjs
