@@ -2,11 +2,11 @@
 id: T003
 title: Render the three states and pin the route
 wave: 3
-status: pending
+status: in-progress
 deps: [T002]
-agent: null
-base: null
-worktree: null
+agent: build_T003
+base: 921cc0a5ab7edf9b910cdc1eb3cac27944cfcc80
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - apps/angular-ai-devtools/src/app/panel-webmcp.ts
@@ -22,6 +22,7 @@ files:
   - scripts/gate-integrity-default-tasks.test.mjs
   - tests/held-out/fixture-explainers-unchanged.test.mjs
   - extension/panel/index.html
+  - research/raw/m052-webmcp-observation.json
   - research/raw/m052-verdict-claims.json
 ---
 
@@ -76,6 +77,7 @@ through an edit.
   - scripts/gate-integrity-default-tasks.test.mjs
   - tests/held-out/fixture-explainers-unchanged.test.mjs
   - extension/panel/index.html
+  - research/raw/m052-webmcp-observation.json
   - research/raw/m052-verdict-claims.json
 
 ## Acceptance criteria
@@ -94,9 +96,10 @@ through an edit.
 ## Verify
 
 ```bash
-npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm test && git checkout -- extension/panel/index.html && npx prettier --check apps/angular-ai-devtools/src/app/panel-webmcp.ts
+npx nx run angular-ai-devtools:build-extension --skip-nx-cache && node --experimental-strip-types --test scripts/panel-routes.test.mjs scripts/component-search.test.mjs && npx nx run angular-ai-devtools:test --skip-nx-cache && git checkout -- extension/panel/index.html && npx prettier --check apps/angular-ai-devtools/src/app/panel-webmcp.ts
 ```
 
 ## Log
 
 - pending.
+- Landed paths: `apps/angular-ai-devtools/src/app/panel-webmcp.ts`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/component-search.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `tests/held-out/fixture-explainers-unchanged.test.mjs`, `extension/panel/index.html`, `research/raw/m052-verdict-claims.json` — each is read from this tree, ready.
