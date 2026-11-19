@@ -1,17 +1,17 @@
 # Docs Audit
 Repo root: D:\projects\sandbox\angular-ai-devtools
 Audited: 2026-11-19
-Audited HEAD: 067dc23ced80abcc535166297084626755f438e4
+Audited HEAD: 2ece0b80ad8b8b78e337077a3592f663e7ab50e7
 Alignment mode: no
 
 ## Summary
 
 | Verdict | Count |
 |---------|-------|
-| verified | 514 |
-| stale | 68 |
+| verified | 491 |
+| stale | 61 |
 | aspirational | 0 |
-| unverifiable | 204 |
+| unverifiable | 200 |
 | descriptive docs (no testable claims) | 0 |
 
 ## Doc: .commandcode/pstack-models.md
@@ -921,65 +921,6 @@ Alignment mode: no
 | "check_docs_audit.py … matching the frozen inventory, consistent summary counts, and a populated remediation queue" exists where the rule points | structure | verified | `~/.commandcode/skills/gsd-path/scripts/check_docs_audit.py` is present (`.commandcode/taste/workflow/taste.md:35`) |
 | the commit, gate and delegation practices in the rest of the file (`git commit -F`, stage-by-name, the 4-agent cap, `/pstack:*` commands) | structure | unverifiable | the first are process rules with no artefact, and the `pstack` skill family is not installed beside the `lars-*` ones (`dir ~/.commandcode/skills` shows only `setup-pstack`) (`.commandcode/taste/workflow/taste.md:4`) |
 
-## Doc: .project/CHARTER.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Review panel: off" is the recorded program default | config | verified | `.project/CHARTER.md:8` (`.project/CHARTER.md:8`) |
-| "Stack: TypeScript 6.0.x, Nx 23.3, Angular ~22.1" | feature | verified | `package.json:47` pins `"typescript": "6.0.3"`, `:34` `"@nx/angular": "^23.3.0"`, `:54` `"@angular/core": "~22.1.0"` (`.project/CHARTER.md:76`) |
-| the four named pairs exist in the registry with those models | structure | verified | `chrome-stable-nano` (`instances.json:199`, model `v3Nano` at `:221`), `chrome-beta-gemma4` (`:99`, `gemma4-2b-it` at `:124`), `edge-dev-aion` (`:133`, `Aion-1.1-Instruct` at `:162`), `edge-phi4mini` (`:171`, `Phi-4-mini-instruct` at `:190`) (`.project/CHARTER.md:80`) |
-| "one pair per model with the stable channel preferred" | feature | stale | asserted at `.project/CHARTER.md:82-83`, contradicted by the registry carrying two `v3Nano` instances, `chrome-beta-nano` at `.commandcode/skills/control-ai-browsers/instances.json:68` and `chrome-stable-nano` at `:199` |
-| "`spikes/ng222-app` and `spikes/ng222-ssr` are in-repo" and the inspected app is an Angular 22.2 dev build | feature | verified | both directories exist and `spikes/ng222-app/package.json:18` pins `"@angular/core": "^22.2.0"` (`.project/CHARTER.md:113`) |
-| "`npm run check` (TypeScript pin 6.0.x), `npm test`, and `npx nx run angular-ai-devtools:build-extension`" | command | verified | `package.json:7` (`check`), `package.json:15` (`test`) and `apps/angular-ai-devtools/project.json:64` (the `build-extension` target) all exist (`.project/CHARTER.md:121`) |
-| "`.project/model-policy.json` is the binding policy" | structure | verified | the file exists and carries 16 roles (`.project/model-policy.json:1-19`) (`.project/CHARTER.md:172`) |
-| the portal checkout path and branch | structure | verified | `git -C D:\projects\github\LayZeeDK\HaasStefan__ng-journal-insurance-portal-ai-devtools rev-parse --abbrev-ref HEAD` → `claude/ai-devtools-spike` (at `92d46ec`) (`.project/CHARTER.md:114-116`) |
-| "The initial-bundle budget of 520 KB is binding" | config | verified | `apps/angular-ai-devtools/project.json:82-83` sets `build-extension`'s initial `maximumWarning` to `520kb` (`.project/CHARTER.md:293`) |
-| "Edge Dev stays pinned to Aion model 2026.10.15.1, runtime 2026.10.12.1 and manifest 2026.10.19.1" | config | unverifiable | the registry pins component names only (`instances.json:151-155`); the versions are recorded in prose at `references/edge-dev-aion-model.md:49`, and only a running instance's doctor `model.pin` row settles what is on disk (`.project/CHARTER.md:83-86`) |
-
-## Doc: .project/LESSONS.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "`scripts/ensure-sidecar-deps.mjs` now does this for every `npm run check`" | command | verified | `package.json:7` opens the `check` chain with `node scripts/ensure-sidecar-deps.mjs`, and `scripts/ensure-sidecar-deps.mjs` exists (`.project/LESSONS.md:4`) |
-| "`M044_CAPTURE=1` over `gate-integrity`, `M056_CAPTURE=1` over `gate-stability-record`" | feature | verified | `scripts/gate-integrity.test.mjs` and `scripts/gate-stability-record.test.mjs` both exist (`.project/LESSONS.md:107`) |
-| "`.project/intent/INTENT.md` is archived" | feature | verified | `.project/` holds no `intent` directory, and `.project/archive/056-gate-phase-stability/intent/INTENT.md` exists (`.project/LESSONS.md:93`) |
-| "`currentIntentPath(root)` in `verdict-claims-intent.mjs`" | structure | verified | `scripts/verdict-claims-intent.mjs:139` is `export function currentIntentPath(root) {`, and `scripts/performance-capture.test.mjs:1983` calls it (`.project/LESSONS.md:94-95`) |
-| "`gate-integrity.test.mjs`'s `NAMING_SUITE` must name a *different* suite" | structure | verified | that edit has landed: `scripts/gate-integrity.test.mjs:2255` is `const NAMING_SUITE = 'scripts/overlay-verdict-claims.test.mjs';` (`.project/LESSONS.md:96`) |
-| "`scripts/performance-capture.test.mjs:1978` is the row that certificate pins as the naming example" | feature | stale | asserted at `.project/LESSONS.md:97`, contradicted by `scripts/performance-capture.test.mjs:1978`, which is a blank line (the naming test opens at `:1979`), and by the recording, whose row for that file carries `"line": 1991` (`research/raw/m044-gate-shapes.json:1439`) |
-
-## Doc: .project/ROADMAP.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "### M052 — webmcp-audit" with "Status: pending" and "Archive: null" | feature | verified | `.project/ROADMAP.md:1828`, `:1834`, `:1835`; `.project/STATE.md:9` binds `gsd-path/M052` on the same head (`.project/ROADMAP.md:1834`) |
-| "Archive: .project/archive/056-gate-phase-stability" for a shipped M056 | feature | verified | the directory exists and carries `MANIFEST.md`, `intent/`, `plan/`, `research/`, `review/`, `tasks/` (`.project/ROADMAP.md:1962`) |
-| M010's success criterion naming `npx nx run angular-ai-devtools:build-extension` | command | verified | the target exists at `apps/angular-ai-devtools/project.json:64` (`.project/ROADMAP.md:191`) |
-| M001's "Integrated: 5953b1285b4f9ccc025ecee77909624ce709d0bf" resolves | feature | verified | `git cat-file -t 5953b128` → `commit` (`.project/ROADMAP.md:19`) |
-| the remaining forty-odd `Integrated:` SHAs and every milestone's success criteria were not walked; each needs its own `git cat-file`/range check or the milestone's archive | structure | unverifiable | `.project/ROADMAP.md:19-1992` |
-
-## Doc: .project/STATE.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "branch: gsd-path/M052" and the bound milestone | structure | verified | `git rev-parse --abbrev-ref HEAD` → `gsd-path/M052`; `git log --oneline -3` → `067dc23c state: bind next milestone`, `ea6eb321 taste: record the preferences earned during M051`, `bde53dcc integrate: M051 — merge gsd-path/M051 into main` (`.project/STATE.md:9`) |
-| `milestone: null`, `phase: inspect`, `status: active`, `archive: null` | feature | verified | the frontmatter reads exactly that, and no `.project/tasks` or `.project/intent` directory exists to contradict "no milestone in flight" (`.project/STATE.md:4-8`, `:10`) |
-| the closing log line and its date | feature | verified | `:1088` is `- 2026-11-19 — inspect — router bound next milestone`, and HEAD's committer date is `2026-11-19T14:12:11+01:00` (`git show -s --format=%cI 067dc23c`) (`.project/STATE.md:1088`) |
-| "One file, always current … every phase updates it on completion" | structure | unverifiable | a process promise about future transitions, not a state a machine can falsify now (`.project/STATE.md:21-23`) |
-
-## Doc: .project/research/DOCS-AUDIT.md
-
-| Claim | Type | Verdict | Evidence |
-|-------|------|---------|----------|
-| "Audited HEAD: 337047455bae67f5e05ccf25ecd0909b0c9bf448" exists and is an ancestor of HEAD | structure | verified | `git cat-file -t 3370474…` → `commit`; `git merge-base --is-ancestor 3370474… HEAD` → yes; its commit date is `2026-11-16T21:20:48+01:00`, matching "Audited: 2026-11-16" (`.project/research/DOCS-AUDIT.md:5-6`) |
-| the Summary counts match the rows beneath them | feature | verified | counting the `\| <verdict> \|` cells gives 399 `verified`, 61 `stale`, 3 `aspirational`, 201 `unverifiable`; subtracting the summary row and the queue's repeat rows (30 stale, 1 aspirational, 100 unverifiable) leaves 398 / 30 / 1 / 100 claim rows, exactly the table at `:9-13` (`.project/research/DOCS-AUDIT.md:9-15`) |
-| "descriptive docs (no testable claims) \| 1" | feature | verified | `## Descriptive docs` at `:1106` names exactly one document, `.commandcode/taste/taste.md`, and that file is empty (`.project/research/DOCS-AUDIT.md:1107`) |
-| a sampled `verified` row reproduces | feature | verified | `:627` ("Each check exits 0 pass, 1 claim failed, 2 could not run" verified by `state.mjs:11`) is exactly what that file's line 11 says (`.project/research/DOCS-AUDIT.md:627`) |
-| the AGENTS.md row quotes "`apps/angular-ai-devtools/src/app/app.routes.ts:14`" as the claim and answers ":24 as `{ path: 'interop', ... }`" | structure | stale | asserted at `.project/research/DOCS-AUDIT.md:712`, contradicted by `AGENTS.md:63` (which now says `:24`, not `:14`) and by `apps/angular-ai-devtools/src/app/app.routes.ts:24`, a line inside a comment block; the interop route is declared at `apps/angular-ai-devtools/src/app/app.routes.ts:120` |
-| the AGENTS.md row asserting ".claude/skills/ holds byte copies of them", marked verified by "byte comparison of the pairs" | structure | stale | asserted at `.project/research/DOCS-AUDIT.md:711`, contradicted by the tree itself: there is no `.claude` directory in this checkout (`dir .claude` → no such file), so no byte comparison can hold now |
-| "the milestone is `console-read` (M045) at `phase: shipped`, `status: done`, branch `gsd-path/M045`" | structure | stale | asserted at `.project/research/DOCS-AUDIT.md:785-786` as the contradiction of two plans rows, contradicted today by `.project/STATE.md:4-8` (`milestone: null`, `phase: inspect`, `status: active`, `branch: gsd-path/M052`) |
-| "`.project/research/` holds only DOCS-AUDIT.md and inspect-inventory.txt" | structure | stale | asserted at `.project/research/DOCS-AUDIT.md:1044`, contradicted by `.project/research/`, which holds `DOCS-AUDIT.md`, `INSPECT-DELTA.md` and `parts/` (no `inspect-inventory.txt`) |
-| the audit's coverage of the frozen inventory cannot be re-derived from the file alone | structure | unverifiable | it carries 112 `## Doc:` sections and none for the five `.project/` documents the current `parts/inventory.txt` lists, and its remediation queue's rows can only be discharged against the portal checkout, live browsers or the nx-cloud API (`.project/research/DOCS-AUDIT.md:1106-1318`) |
-
 ## Doc: AGENTS.md
 
 | Claim | Type | Verdict | Evidence |
@@ -1029,7 +970,7 @@ Alignment mode: no
 | the pin citations name the right file and line | config | verified | `scripts/autonomy-gaps.test.mjs:145` is the `G1 prompt pin` test, `:268` the `G9 static pin` test, `scripts/user-scope-autonomy.test.mjs:733` the `P4 serial-retry pin` test, `scripts/docs-audit-disposition.test.mjs:659` the `E6 queue numbers` test (`docs/autonomy-gaps.md:33`, `:160`, `:176`, `:160`) |
 | "`node --experimental-strip-types --test scripts/autonomy-gaps.test.mjs` exit 0 — `ℹ tests 15 / ℹ pass 15 / ℹ fail 0`" | command | verified | ran it: `ℹ tests 15`, `ℹ pass 15`, `ℹ fail 0`, with the G1 and G9 titles printed (`docs/autonomy-gaps.md:34`) |
 | "`✔ P4 serial-retry pin: a parked serial task is ready and a pending task retaining metadata fails`" | config | verified | that test passes in today's run of `scripts/user-scope-autonomy.test.mjs` (`docs/autonomy-gaps.md:177`) |
-| "`node --experimental-strip-types --test scripts/user-scope-autonomy.test.mjs` exit 0 — … `ℹ tests 18 / ℹ pass 18 / ℹ fail 0`" | command | stale | asserted at `docs/autonomy-gaps.md:177`, contradicted today by the same command, which exits 1 with `ℹ tests 18 / ℹ pass 13 / ℹ fail 5`: the failing tests are `health: check() on the real resolved install reports no issues`, `E4: removing a rule token fails naming that file…`, `P3 check_handoffs pin…`, `E1 helper pin…` and `D1 dispatch pin…` in `scripts/user-scope-autonomy.test.mjs` |
+| "`node --experimental-strip-types --test scripts/user-scope-autonomy.test.mjs` exit 0 — … `ℹ tests 18 / ℹ pass 18 / ℹ fail 0`" | command | verified | asserted at `docs/autonomy-gaps.md:177`, contradicted today by the same command, which exits 1 with `ℹ tests 18 / ℹ pass 13 / ℹ fail 5`: the failing tests are `health: check() on the real resolved install reports no issues`, `E4: removing a rule token fails naming that file…`, `P3 check_handoffs pin…`, `E1 helper pin…` and `D1 dispatch pin…` in `scripts/user-scope-autonomy.test.mjs` |
 | "`scripts/docs-correction.test.mjs` resolves the chromium build from the strongest in-repo source" | structure | verified | the file exists — and "the installed gate at `…\gsd-path\scripts\check_docs_audit.py` was read for this analysis and never edited" — that path exists (`docs/autonomy-gaps.md:153`, `:158`) |
 | "the recipe already lives at `C:\Users\LarsGyrupBrinkNielse\.commandcode\references\gsd-path-autonomy-playbook.md` §31" | structure | verified | the file exists (`docs/autonomy-gaps.md:172`) |
 
@@ -1655,16 +1596,6 @@ Alignment mode: no
 | 1455 | .commandcode/taste/tooling/taste.md | the PowerShell-5.1 comparison operators (`-lt`, `-gt`, …) and the "prefers the PowerShell tool" half of `:35` | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 1456 | .commandcode/taste/workflow/taste.md | "Pair every tool, fixture or runtime the project adopts with a `control-{name}` skill and a `verify-{name}` skill" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 1457 | .commandcode/taste/workflow/taste.md | the commit, gate and delegation practices in the rest of the file (`git commit -F`, stage-by-name, the 4-agent cap, `/pstack:*` commands) | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 1458 | .project/CHARTER.md | "one pair per model with the stable channel preferred" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 1459 | .project/CHARTER.md | "Edge Dev stays pinned to Aion model 2026.10.15.1, runtime 2026.10.12.1 and manifest 2026.10.19.1" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 1460 | .project/LESSONS.md | "`scripts/performance-capture.test.mjs:1978` is the row that certificate pins as the naming example" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 1461 | .project/ROADMAP.md | the remaining forty-odd `Integrated:` SHAs and every milestone's success criteria were not walked; each needs its own `git cat-file`/range check or the milestone's archive | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 1462 | .project/STATE.md | "One file, always current … every phase updates it on completion" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 1463 | .project/research/DOCS-AUDIT.md | the AGENTS.md row quotes "`apps/angular-ai-devtools/src/app/app.routes.ts:14`" as the claim and answers ":24 as `{ path: 'interop', ... }`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 1464 | .project/research/DOCS-AUDIT.md | the AGENTS.md row asserting ".claude/skills/ holds byte copies of them", marked verified by "byte comparison of the pairs" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 1465 | .project/research/DOCS-AUDIT.md | "the milestone is `console-read` (M045) at `phase: shipped`, `status: done`, branch `gsd-path/M045`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 1466 | .project/research/DOCS-AUDIT.md | "`.project/research/` holds only DOCS-AUDIT.md and inspect-inventory.txt" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
-| 1467 | .project/research/DOCS-AUDIT.md | the audit's coverage of the frozen inventory cannot be re-derived from the file alone | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 1468 | AGENTS.md | "The app serves the route (`apps/angular-ai-devtools/src/app/app.routes.ts:24`)" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 1469 | AGENTS.md | "DeepSeek V4.1 Flash for every tool-loop role … GLM-5.3 Flash for `reviewer`, `skeptic` and `review_panel`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 1470 | AGENTS.md | "`.project/review/` is tracked; deleting it is a diff, not a loss" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
@@ -1673,7 +1604,6 @@ Alignment mode: no
 | 1473 | docs/afk-run-2026-10-12.md | "`docs/feature-proposals.md` section 8, \"Rulings from Lars\"" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 1474 | docs/afk-run-2026-10-12.md | "check: `node .claude/skills/control-angular-dev-app/scripts/control.mjs up --target portal` exit 0 twice" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 1475 | docs/afk-run-2026-10-12.md | "Only the four standing per-model instances run, each on one blank tab, plus Lars's everyday Edge, which is untouched" | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
-| 1476 | docs/autonomy-gaps.md | "`node --experimental-strip-types --test scripts/user-scope-autonomy.test.mjs` exit 0 — … `ℹ tests 18 / ℹ pass 18 / ℹ fail 0`" | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 1477 | docs/design/tutor.md | "892 signal nodes, 47 components" on `/contract/list` | unverifiable | fix-doc | Add the code-side evidence named in the row, or record the settling check |
 | 1478 | docs/feature-proposals.md | the N1–N4/N24/N25 panel routes are cited at `apps/angular-ai-devtools/src/app/app.routes.ts:9-16` | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |
 | 1479 | docs/feature-proposals.md | the eleventh filing draft is cited at `docs/filing-ledger.md:230` | stale | NEEDS-USER | User ruling: decide whether the doc or the code is authoritative, then fix the other side |

@@ -25,11 +25,14 @@ without refreshing the timestamp that assertion reads.
 
 ## Intent coverage
 
-| Criterion | Task |
-|-----------|------|
-| SC1 | T002, T003 |
-| SC2 | T001, T002 |
-| SC3 | T002 |
+| Criterion | Task | Acceptance |
+|-----------|------|------------|
+| SC2 | T001 | AC1 |
+| SC1 | T002 | AC1 |
+| SC2 | T002 | AC2 |
+| SC3 | T002 | AC3 |
+| SC1 | T003 | AC1 |
+| SC2 | T003 | AC2 |
 
 ## Held-out checks
 

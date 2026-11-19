@@ -69,11 +69,6 @@
 .commandcode/taste/taste.md
 .commandcode/taste/tooling/taste.md
 .commandcode/taste/workflow/taste.md
-.project/CHARTER.md
-.project/LESSONS.md
-.project/ROADMAP.md
-.project/STATE.md
-.project/research/DOCS-AUDIT.md
 AGENTS.md
 LESSONS.md
 docs/afk-run-2026-10-12.md
