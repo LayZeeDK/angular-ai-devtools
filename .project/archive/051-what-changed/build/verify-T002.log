@@ -1,0 +1,40 @@
+candidates (pageSnapshot): record:false checks:false router-entry:false boundary:false stability:false state:false di-graph:false picked:false error-capture:false
+T002 M1 reddens: checks differs between the two records and must be reported exactly once
+T002 M2 reddens: zoneMode agrees in both records and must not be reported as a change
+T002 M3 reddens: a pair with no panel binding must be refused: cannot-tell
+T002 M4 reddens: cycleId is reported with the after record's own value
+T002 M5a reddens: a removed field names checks, carries the one value that exists, and invents no after value
+T002 M5b reddens: checks is carried by the before record only, so it must be reported as removed, naming checks
+✔ the record is a measurement of candidates, an identity answer, a two-moments answer and its absences (10.3392ms)
+✔ every cited path and line is the one the record read (1.8088ms)
+✔ the field list is the list both dispatch blocks assign, and the order the tree pins (0.2124ms)
+✔ every candidate is the shape its cited block assigns, and none is a page snapshot (1.1771ms)
+✔ no field the record carries is a page identity, and the tree holds no reader for one (2.9425ms)
+✔ the record publishes no page snapshot at two moments: two dispatch sites, one frame and one install (2.3093ms)
+✔ the record states what it does not carry, and each absence quotes the line that states it (0.1481ms)
+✔ a doctored record reddens the check it violates (14.9319ms)
+✔ T002 — the comparison answers four keys over exactly the fields T001 measured (1.1177ms)
+✔ T002 — a real pair: differing fields are quoted from the records, the equal field is not reported (0.9895ms)
+✔ T002 — a key both records carry that T001 did not measure is not compared (0.8427ms)
+✔ E4 — a pair identical except in one field renders one finding, and the identical pair renders unchanged (0.7027ms)
+✔ E1 — a field present in one record and absent from the other is added or removed, never a change of value (0.7802ms)
+✔ SC2 — a pair the panel cannot bind is refused, naming the record's absent page identity and the panel's binding (0.7478ms)
+✔ one snapshot alone, and two records sharing no measured field, are refused rather than reported as no change (0.5805ms)
+✔ SC3 — the comparison reads no file, no clock and no third record (1.4352ms)
+✔ mutant M1 — a differing field reported as equal reddens the pin, naming `checks` (2.0528ms)
+✔ mutant M2 — an equal field reported as a change reddens the pin, naming `zoneMode` (2.3075ms)
+✔ mutant M3 — an unbound pair compared as one page reddens the refusal (2.3044ms)
+✔ mutant M4 — an invented after value reddens the pin, naming the field it was invented for (2.7718ms)
+✔ mutant M5 — a one-sided field dropped, or reported as a change of value, reddens the pin naming `checks` (4.3678ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 222.3329
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/what-changed.js scripts/what-changed.test.mjs
