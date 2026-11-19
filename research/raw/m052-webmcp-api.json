@@ -1,0 +1,326 @@
+{
+  "schema": "m052-webmcp-api/v1",
+  "milestone": "M052 webmcp-audit",
+  "task": "T001",
+  "title": "Measure what the WebMCP API exposes to a page",
+  "question": "does document.modelContext expose a readable list of the tools a page declares, or only registration?",
+  "branch": "gsd-path/M052",
+  "head": "2401982b1ef8a461c8eccfeda9fb9dd2af55018c",
+  "headCommands": [
+    "git rev-parse --abbrev-ref HEAD",
+    "git rev-parse HEAD"
+  ],
+  "measuredAt": "static: every line cited below was read from the working tree at the head named above, and every `lineText` was produced by trimming the line its `at` names. No browser was started, no page was opened, no extension was loaded, and no command ran against a browser. This is a reading of what the tree records about the WebMCP surface, not a measurement of a running one.",
+  "citationConvention": "every citation is `{ \"at\": \"path:line\", \"lineText\": ... }`: `at` is a repository-relative posix path and a 1-indexed line, and `lineText` is that line with its leading and trailing whitespace trimmed and nothing else changed. scripts/webmcp-api.test.mjs re-reads every cited line from the working tree and requires trimmed equality, so a citation that slid onto a neighbouring line fails there rather than in review.",
+  "measurements": [
+    {
+      "id": "head",
+      "claims": "the recording was taken at the head it names",
+      "commands": [
+        "git rev-parse --abbrev-ref HEAD",
+        "git rev-parse HEAD"
+      ],
+      "output": [
+        "gsd-path/M052",
+        "2401982b1ef8a461c8eccfeda9fb9dd2af55018c"
+      ]
+    },
+    {
+      "id": "canary-lines",
+      "claims": "the canary script holds exactly five lines that mention webmcp or modelContext, and none of them reads a member of the model context",
+      "commands": [
+        "node -e \"const L=require('fs').readFileSync('.commandcode/skills/control-ai-browsers/scripts/control.mjs','utf8').split(/\\r?\\n/);const h=L.map((l,i)=>[i+1,l]).filter(x=>/webmcp|modelContext/.test(x[1]));console.log('lines',L.length,'hits',h.length);for(const[n,l]of h)console.log(n+'|'+l.trim())\""
+      ],
+      "output": [
+        "lines 4366 hits 5",
+        "116|/** @typedef {{ contextWindow?: number, structured?: CanaryPart, tools?: CanaryPart, webmcp?: CanaryPart, createMs?: number }} Canary */",
+        "1886|o.webmcp = { documentModelContext: typeof document.modelContext, navigatorModelContext: typeof navigator.modelContext };",
+        "1953|o.webmcp = { pass: typeof document.modelContext === 'object', documentModelContext: typeof document.modelContext };",
+        "3570|'canary.webmcp',",
+        "3606|add('canary.webmcp', canary.webmcp?.pass === true, canary.webmcp);"
+      ],
+      "note": "line 116 types the canary result; 1886 and 1953 compute `typeof` only; 3570 is the skip list a missing model sends it to; 3606 is the verdict gate. Nothing in the file calls `registerTool`, `getTools`, `executeTool` or any event."
+    },
+    {
+      "id": "model-context-code-files",
+      "claims": "no typed declaration of the surface exists anywhere in the tree: `modelContext` occurs in exactly three code files, and two of them test the older `navigator` spelling",
+      "commands": [
+        "git grep -c -n -E \"modelContext\" -- \"*.ts\" \"*.js\" \"*.mjs\" \"*.d.ts\" \"*.html\""
+      ],
+      "output": [
+        ".commandcode/skills/control-ai-browsers/scripts/control.mjs:2",
+        "spikes/probes/probe3.js:1",
+        "spikes/probes/probe4.js:1"
+      ],
+      "note": "there is no `.d.ts`, no ambient declaration and no interface for `modelContext` in the tree. The two probe lines are `modelContext: typeof navigator.modelContext` (spikes/probes/probe3.js:5 and spikes/probes/probe4.js:5), the superseded spelling."
+    },
+    {
+      "id": "webmcp-member-call-sites",
+      "claims": "nothing in the tree calls a WebMCP member: no `getTools`, `registerTool`, `executeTool` or `ontoolchange` call site exists in any code file",
+      "commands": [
+        "git grep -n -E \"getTools\" -- \"*.ts\" \"*.js\" \"*.mjs\" \"*.html\"",
+        "git grep -n -E \"registerTool\" -- \"*.ts\" \"*.js\" \"*.mjs\" \"*.html\"",
+        "git grep -n -E \"executeTool\" -- \"*.ts\" \"*.js\" \"*.mjs\" \"*.html\"",
+        "git grep -n -E \"ontoolchange\" -- \"*.ts\" \"*.js\" \"*.mjs\" \"*.html\""
+      ],
+      "output": [
+        "(no matches)",
+        "(no matches)",
+        "(no matches)",
+        "(no matches)"
+      ],
+      "note": "`git grep` prints nothing and exits 1 when no line matches; the four commands printed no line. Measured through a script that turns exit 1 into an empty result, the count is 0 lines across all four patterns."
+    },
+    {
+      "id": "provide-tool-vocabulary",
+      "claims": "the only tool-registration vocabulary in the tree is the panel's own Angular registry, which is not WebMCP",
+      "commands": [
+        "git grep -l -E \"provideTool\" -- \"*.ts\" \"*.mjs\""
+      ],
+      "output": [
+        "apps/angular-ai-devtools/src/app/app.config.ts",
+        "apps/angular-ai-devtools/src/app/tool-groups.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/app-facts.spec.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/app-facts.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/error-digest.tool.spec.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/error-digest.tool.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/hostile-tools.spec.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/panel-environment.tool.spec.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/panel-environment.tool.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/read-tools.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/tool-registry.spec.ts",
+        "apps/angular-ai-devtools/src/app/tool-registry/tool-registry.ts",
+        "scripts/registry-envelope-pin.test.mjs"
+      ],
+      "note": "thirteen files, all of them the panel's own dependency-injection tool registry (`provideTools`, `provideToolRegistry`) plus one test string that names it. `provideTool` here is not the WebMCP proposal's `provideTool`: it registers a panel tool, not a page tool."
+    },
+    {
+      "id": "extension-and-apps",
+      "claims": "the shipped extension and the panel source hold no WebMCP code at all: neither mentions webmcp or modelContext",
+      "commands": [
+        "git grep -l -i -E \"webmcp|modelContext\" -- extension",
+        "git grep -l -i -E \"webmcp|modelContext\" -- apps"
+      ],
+      "output": [
+        "(no matches)",
+        "(no matches)"
+      ],
+      "note": "the panels and the page-world agent therefore neither register nor read a WebMCP tool at this head. The content script that could read one is extension/agent-main.js, loaded with `\"world\": \"MAIN\"` (extension/manifest.json:37)."
+    }
+  ],
+  "exposure": {
+    "present": {
+      "state": "present",
+      "value": "object",
+      "basis": "shipped-canary",
+      "observedHere": false,
+      "statement": "The canary answers presence and nothing else: it computes `typeof document.modelContext` on the page, compares it with the string `object`, and the doctor gates a check on that comparison. This is the tree's whole executable knowledge of the surface.",
+      "citations": [
+        {
+          "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:1953",
+          "lineText": "o.webmcp = { pass: typeof document.modelContext === 'object', documentModelContext: typeof document.modelContext };"
+        },
+        {
+          "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:1886",
+          "lineText": "o.webmcp = { documentModelContext: typeof document.modelContext, navigatorModelContext: typeof navigator.modelContext };"
+        },
+        {
+          "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:3606",
+          "lineText": "add('canary.webmcp', canary.webmcp?.pass === true, canary.webmcp);"
+        },
+        {
+          "at": ".commandcode/skills/control-ai-browsers/SKILL.md:175",
+          "lineText": "| `canary.webmcp`       | `typeof document.modelContext === 'object'`                                                                                                                                                                                                                                                                           |"
+        }
+      ]
+    },
+    "registration": {
+      "exposes": true,
+      "function": "registerTool",
+      "signature": "document.modelContext.registerTool({ name, description, inputSchema, execute }, { signal, exposedTo })",
+      "basis": "tree-prose",
+      "observedHere": false,
+      "statement": "A registration function is part of the surface. The tree records it twice: a browser probe measured the prototype members of `document.modelContext` and listed `registerTool` first (research/00-browser-probe.md:121), and the spec reading names the same function with its argument shape (research/01-built-in-ai-apis.md:187). Angular registers an app's tools through it, so the registration path is the one an inspected app uses (research/02-angular-surface.md:111).",
+      "citations": [
+        {
+          "at": "research/00-browser-probe.md:121",
+          "lineText": "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+        },
+        {
+          "at": "research/01-built-in-ai-apis.md:187",
+          "lineText": "- [measured, W1] Page API: `document.modelContext.registerTool({ name, description, inputSchema, execute }, { signal, exposedTo })`; unregister by aborting the signal. Tool result shape `{ content: [{ type: \"text\", text }] }` (MCP-like)."
+        },
+        {
+          "at": "research/02-angular-surface.md:111",
+          "lineText": "- This channel is **not WebMCP**. WebMCP registration goes through `document.modelContext.registerTool` (`packages/core/src/webmcp/declare_tool.ts:38-46,82`) and is only used for app-authored tools (section 4.3). An `rg` for `modelContext` in `packages/` finds only `webmcp/declare_tool.ts` and `webmcp/types.ts` - Angular registers no debugging tools through WebMCP."
+        },
+        {
+          "at": "research/14-ai-devtools-prior-art.md:327",
+          "lineText": "- The API is `document.modelContext` with `registerTool`, `getTools({fromOrigins})` and `executeTool(tool, input, {signal})`, plus `toolchange`, `toolactivated` and `toolcancel` events; `executeTool` resolves to the JSON-stringified return value of `execute`, whatever its shape, so the MCP `{content: [...]}` array is a convention, not a rule **[measured, `index.bs`]**. 00 measured the same members on `document.modelContext` in both browsers."
+        }
+      ]
+    },
+    "toolList": {
+      "state": "readable",
+      "getter": "getTools",
+      "basis": "tree-prose: the prototype member measured in research/00, the return shape documented in research/01",
+      "observedHere": false,
+      "needsBrowserToConfirm": true,
+      "nameField": "name",
+      "descriptionField": "description",
+      "fields": [
+        "name",
+        "description",
+        "inputSchema",
+        "origin",
+        "window"
+      ],
+      "fieldsBasis": "documented",
+      "emptyStateObserved": false,
+      "statement": "The API is not registration-only: a list getter is part of the surface the tree records. `getTools` is one of the prototype members the browser probe measured on `document.modelContext` (research/00-browser-probe.md:121), it is named again in the tree's spec reading together with its return shape — an array of `{ name, description, inputSchema, origin, window }` (research/01-built-in-ai-apis.md:188) — and a shipped sample extension reads a page's tools through it from a content script (research/01-built-in-ai-apis.md:192). The names a tool carries are therefore `name` and `description`, both fields of the returned descriptor, not values a caller supplies. What no line in this tree records is a call: `getTools()` is never invoked anywhere (measurements.webmcp-member-call-sites), so the state is `readable` on the strength of the recorded member and the documented shape, with `observedHere: false`.",
+      "citations": [
+        {
+          "at": "research/00-browser-probe.md:121",
+          "lineText": "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+        },
+        {
+          "at": "research/01-built-in-ai-apis.md:188",
+          "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+        },
+        {
+          "at": "research/01-built-in-ai-apis.md:192",
+          "lineText": "- [measured, W5] Google's \"Example Agentic Chrome Extension\" content script reads `document.modelContext.getTools()` and listens for `toolchange`, including in same-origin and cross-origin iframes (`fromOrigins`). It sends prompts to a cloud model (`gemini-3.6-flash` per W3), not the built-in model."
+        },
+        {
+          "at": "research/14-ai-devtools-prior-art.md:330",
+          "lineText": "- Exposure: by default a tool is visible to its own document, same-origin documents in the frame tree and the browser's built-in agent; `exposedTo` widens it to named origins; the `tools` Permissions Policy (default `'self'`) can disable it, and then `registerTool` rejects with `NotAllowedError` **[documented, explainer; measured, `index.bs`]**."
+        },
+        {
+          "at": "research/14-ai-devtools-prior-art.md:346",
+          "lineText": "| N10 runtime lint: a WebMCP tool audit                  | Deterministic rules over `getTools()`: a name outside the spec's character set or over Chrome's 30-character budget; an uppercase letter in a name (such a tool cannot reach a native Chrome session, S11); a description over 500 characters, or over the extension's 200-character cap (3.6); a parameter without a description; no annotation at all; a read with no `readOnlyHint` (EXT4); a tool that stays registered after the user leaves its route (Angular's guide says route tools need `withAutoCleanupInjectors()`; detectable as a tool still listed after navigation **[inferred]**); duplicate names (Angular throws; the spec rejects). The model explains each finding and names the modern Angular pattern (root services or `provideExperimentalWebMcpTools`, per the guide) | **Fits as is**: candidate C11, which folds EXT4 in                 |"
+        }
+      ]
+    }
+  },
+  "instrument": {
+    "name": "canary.webmcp",
+    "proves": {
+      "statement": "one thing: that `typeof document.modelContext` on the inspected page is the string `object` — the API is present, not absent. The probe records both spellings and the doctor turns the document one into `pass === true`.",
+      "citations": [
+        {
+          "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:1953",
+          "lineText": "o.webmcp = { pass: typeof document.modelContext === 'object', documentModelContext: typeof document.modelContext };"
+        },
+        {
+          "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:1886",
+          "lineText": "o.webmcp = { documentModelContext: typeof document.modelContext, navigatorModelContext: typeof navigator.modelContext };"
+        },
+        {
+          "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:3606",
+          "lineText": "add('canary.webmcp', canary.webmcp?.pass === true, canary.webmcp);"
+        },
+        {
+          "at": ".commandcode/skills/control-ai-browsers/SKILL.md:175",
+          "lineText": "| `canary.webmcp`       | `typeof document.modelContext === 'object'`                                                                                                                                                                                                                                                                           |"
+        }
+      ]
+    },
+    "doesNotProve": {
+      "statement": "It does not read a member, list a tool, register a tool, or say what the object contains. Its own result type says so: `webmcp?: CanaryPart`, and a `CanaryPart` is `{ pass: boolean | null }` with any other keys left as `unknown`, so no tool, name, description or count has a place in the recorded shape. It is also skipped outright when `LanguageModel` is not `available`, so on a model-less profile it answers nothing at all.",
+      "citations": [
+        {
+          "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:116",
+          "lineText": "/** @typedef {{ contextWindow?: number, structured?: CanaryPart, tools?: CanaryPart, webmcp?: CanaryPart, createMs?: number }} Canary */"
+        },
+        {
+          "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:115",
+          "lineText": "/** @typedef {{ pass: boolean | null } & Record<string, unknown>} CanaryPart */"
+        },
+        {
+          "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:3570",
+          "lineText": "'canary.webmcp',"
+        },
+        {
+          "at": ".commandcode/skills/control-ai-browsers/SKILL.md:171",
+          "lineText": "| `api.availability`    | `LanguageModel.availability()` is `available`; also reports tool use, Summarizer, Writer, Rewriter, Proofreader, LanguageDetector, Translator en->da, `document.modelContext`                                                                                                                                         |"
+        }
+      ]
+    }
+  },
+  "unknowns": [
+    {
+      "id": "getTools-return",
+      "question": "what does `getTools()` return on a page that declares tools, in the realm that would read it?",
+      "statement": "Unobserved. No code in this tree calls `getTools()`, no browser was started, and the tree's browser measurement stops at the prototype member list. Whether the getter returns the page's declared tools, an array of descriptors for every exposed tool, an empty array, or throws, is not determinable from the tree.",
+      "citations": [
+        {
+          "at": "research/00-browser-probe.md:121",
+          "lineText": "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+        },
+        {
+          "at": "research/01-built-in-ai-apis.md:188",
+          "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+        }
+      ]
+    },
+    {
+      "id": "empty-versus-absent",
+      "question": "is a page that declares no tools distinguishable from a surface that exposes no list?",
+      "statement": "Unobserved, and it is the distinction SC2 turns on. The spec reading says a tool is by default visible to its own document, same-origin documents in the frame tree and the browser's built-in agent (research/14-ai-devtools-prior-art.md:330), which makes an empty array the expected answer for a page that declares nothing; nothing in the tree measures it, so a reader cannot yet tell `[]` from an absent getter by evidence.",
+      "citations": [
+        {
+          "at": "research/14-ai-devtools-prior-art.md:330",
+          "lineText": "- Exposure: by default a tool is visible to its own document, same-origin documents in the frame tree and the browser's built-in agent; `exposedTo` widens it to named origins; the `tools` Permissions Policy (default `'self'`) can disable it, and then `registerTool` rejects with `NotAllowedError` **[documented, explainer; measured, `index.bs`]**."
+        }
+      ]
+    },
+    {
+      "id": "which-realm-reads-it",
+      "question": "which realm would read the list, and is the surface present there?",
+      "statement": "Unobserved. The panel is an extension realm that reads the inspected tab's id from the DevTools API (apps/angular-ai-devtools/src/app/extension-message.service.ts:156); the only content script the extension loads into the page's own JavaScript world (`\"world\": \"MAIN\"`) is extension/agent-main.js (extension/manifest.json:37), and that file contains no reference to the model context at this head. A read would have to be relayed from a page context, and whether `document.modelContext` is populated in that context is not measured here.",
+      "citations": [
+        {
+          "at": "apps/angular-ai-devtools/src/app/extension-message.service.ts:156",
+          "lineText": "this.inspectedTabId = chrome?.devtools?.inspectedWindow?.tabId;"
+        },
+        {
+          "at": "extension/manifest.json:37",
+          "lineText": "\"world\": \"MAIN\""
+        }
+      ]
+    },
+    {
+      "id": "member-list-still-current",
+      "question": "do the measured prototype members survive the browser versions this project pins today?",
+      "statement": "Unobserved. The member list is a measurement from 2026-10-11 (research/00-browser-probe.md:117), taken after the flag was enabled and the browser relaunched; nothing in the tree re-measures it against the versions the instance registry names today, and this task started no browser.",
+      "citations": [
+        {
+          "at": "research/00-browser-probe.md:117",
+          "lineText": "## After relaunch with `enable-webmcp-testing` (measured 2026-10-11 ~20:57)"
+        },
+        {
+          "at": "research/00-browser-probe.md:121",
+          "lineText": "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+        }
+      ]
+    }
+  ],
+  "notClaimed": [
+    "No browser was started and no page was opened: nothing here observes the WebMCP surface running, so no claim is made about runtime behaviour — what `getTools()` returns, whether it throws, whether it is present in the inspected page's realm.",
+    "No code in this tree has ever called `getTools()`: the tree's only executable knowledge is `typeof document.modelContext === 'object'`, so the list's readability is recorded from the tree's prose and the spec's documented shape, never from a read of a list.",
+    "The `readable` state does not claim a tool list was read, that it was non-empty, or that a page declaring tools returns them: `exposure.toolList.observedHere` is false and `answer.confirmedByInstrument` is false.",
+    "Nothing here distinguishes `empty` from `absent`: no page that declares no tools was measured, and `getTools()` answering `[]` is the spec's implication rather than an observation.",
+    "Nothing here re-measures the 2026-10-11 prototype member list against the browser versions this project pins today, and nothing here calls the surface from an extension or a content-script realm.",
+    "Nothing here reads or changes the canary: the task is out of scope for its semantics, and its answer is recorded as written rather than re-run. That the API is present was already answered before this milestone was planned, which is why this recording is about the tool list."
+  ],
+  "answer": {
+    "toolListState": "readable",
+    "confirmedByInstrument": false,
+    "needsBrowserToConfirm": true,
+    "citation": {
+      "at": "research/00-browser-probe.md:121",
+      "lineText": "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+    },
+    "statement": "A readable tool list is part of the surface the tree records — `getTools` was measured on `document.modelContext`'s prototype in both browsers and the spec reading gives its return shape as an array of `{ name, description, inputSchema, origin, window }` (research/00-browser-probe.md:121, research/01-built-in-ai-apis.md:188) — but nothing in this tree has ever called it, so whether that getter returns the tools a page declares, and whether it answers `[]` for a page that declares none, is not determinable without a browser."
+  }
+}

@@ -2,10 +2,10 @@
 id: T001
 title: Measure what the WebMCP API exposes to a page
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: 2401982b1ef8a461c8eccfeda9fb9dd2af55018c
 worktree: null
 task_branch: null
 files:
@@ -69,3 +69,4 @@ node --test scripts/webmcp-api.test.mjs && npx prettier --check scripts/webmcp-a
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m052-webmcp-api.json`, `scripts/webmcp-api.test.mjs` — each is read from this tree, ready.
