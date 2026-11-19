@@ -31,6 +31,8 @@ without refreshing the timestamp that assertion reads.
    `cannot-tell`/`unreadable-list`. Wiring that await into a caller that hands the resolved list to the
    shipped reader is part of T002's scope, stated here rather than re-derived or widened after landing.
 
+- C4 2026-11-19: T001 measured `executeTool` in Chrome/159.0.8154.13 (`research/raw/m053-execute-tool.json`): it needs one argument of type `Tool`, refuses `parameter 1 is not of type 'Tool'` otherwise, and `Tool` is a global with an illegal constructor, so a handle cannot be fabricated. On a page declaring no tool the call is therefore unreachable, and a rehearsal cannot run. Two consequences: the surface keys its refusal on the absent handle, not on a missing model (`document.modelContext` vanished under `--no-ai-features` while `LanguageModel.availability()` still read `available`, so the no-model state is unmeasured and must not be rendered as if observed); and T003 must ship a page that actually registers a tool, since without one SC2's success path cannot exist. Registering a tool in a page the demo owns is not prohibited by N4, which forbids registering a tool to observe a list.
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
