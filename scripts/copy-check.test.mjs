@@ -2273,12 +2273,19 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
 // re-read the three `panel-demo.ts` citations the new loader key and sample fact moved, in this record
 // and in the three route records `scripts/copy-check.test.mjs` re-reads.
 //
+// M052's T003 shipped `panel-webmcp.ts` as the twenty-fourth surface, so T004 re-measured the record
+// over all twenty-four — every citation re-read, the twenty-fourth surface's nine registry sentences
+// and eight labels cited — and authored eight more digest rows from that module's own `PANE_SENTENCES`.
+// Its ninth sentence, `no-reason`, is byte for byte the string five surfaces already declare, so the
+// digest needed no new row for it. The same pass re-read the three `panel-demo.ts` citations and the one
+// `panel-demo.spec.ts` citation the M052 T003 commit moved.
+//
 // Two facts the pins below state rather than assume:
 //
-//   * the digest holds one row per distinct sentence text, so 161 rows explain 165 sentences: the
+//   * the digest holds one row per distinct sentence text, so 169 rows explain 174 sentences: the
 //     `no-reason` sentence `panel-copy-check.ts:128`, `panel-interaction-story.ts:150`,
-//     `panel-dead-click.ts:202` and `panel-what-changed.ts:154` declare is byte for byte the one
-//     `panel-components.ts:147` declares, and the one row explains all five;
+//     `panel-dead-click.ts:202`, `panel-what-changed.ts:154` and `panel-webmcp.ts:138` declare is byte
+//     for byte the one `panel-components.ts:147` declares, and the one row explains all six;
 //   * no sentence is written inline on the copy-check pane. Its seven inline entries are labels
 //     (`state:`, `string:`, `surface:`, `checked:`, `reason:`), the answer's own fields, so every one
 //     of them is a kind the join reads past and none of them is a row the digest could hold. The
@@ -2293,7 +2300,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
 
   assert.equal(
     record.counts.surfaces,
-    23,
+    24,
     `the record measures every panel-*.ts surface the tree carries, and it measures ${record.counts.surfaces}`,
   );
   assert.equal(
@@ -2367,8 +2374,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   const all = recordSentenceRows();
   assert.equal(
     shippedDigest.entries.length,
-    161,
-    `the digest carries ${shippedDigest.entries.length} rows and the record carries 161 distinct sentence texts`,
+    169,
+    `the digest carries ${shippedDigest.entries.length} rows and the record carries 169 distinct sentence texts`,
   );
   assert.equal(
     shippedDigest.entries.length,
@@ -2377,11 +2384,11 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     all.length,
-    165,
-    `the record carries ${all.length} sentences: 131 declared in a map or a constant and 34 written inline`,
+    174,
+    `the record carries ${all.length} sentences: 140 declared in a map or a constant and 34 written inline`,
   );
 
-  // The one repeated sentence: five surfaces declare it, the digest holds one row for it, and the
+  // The one repeated sentence: six surfaces declare it, the digest holds one row for it, and the
   // row is filed under the surface that declared it first.
   const shared = recordSentenceText('copy-check', 'no-reason');
   assert.equal(
@@ -2403,6 +2410,11 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
     shared,
     recordSentenceText('what-changed', 'no-reason'),
     'the twenty-third surface declares the same `no-reason` sentence too, byte for byte',
+  );
+  assert.equal(
+    shared,
+    recordSentenceText('webmcp', 'no-reason'),
+    'the twenty-fourth surface declares the same `no-reason` sentence too, byte for byte',
   );
   const sharedRows = shippedDigest.entries.filter(
     (/** @type {{text: string}} */ entry) => entry.text === shared,
@@ -2617,6 +2629,94 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
       `the digest's row ${entry.key} is "${entry.text}", which the record does not carry under that key`,
     );
 
+  // The twenty-fourth surface, measured the same way at this head: nine registry sentences in the
+  // order the registry states them, eight inline labels and no inline sentence, and its own row clean
+  // over nine compared strings. The eight digest rows filed under it are its own sentences — the
+  // ninth is the shared `no-reason`, explained by the row the components pane declared first.
+  const webmcp = surfaceOf('webmcp');
+  assert.equal(
+    webmcp.file,
+    `${APP}/panel-webmcp.ts`,
+    'the twenty-fourth surface is the webmcp pane',
+  );
+  assert.equal(
+    webmcp.declares,
+    'map',
+    'the pane declares its copy in a registry rather than inline',
+  );
+  assert.equal(
+    webmcp.declaration?.name,
+    'PANE_SENTENCES',
+    'and the registry is the one its declaration names',
+  );
+  const webmcpSentences = recordSentences(webmcp);
+  assert.deepEqual(
+    webmcpSentences.map((row) => row.key),
+    [
+      'state-tools',
+      'state-empty',
+      'state-cannot-tell',
+      'no-webmcp-reading',
+      'no-tools-list',
+      'no-tool-name',
+      'no-reason',
+      'no-reason-code',
+      'no-reason-detail',
+    ],
+    'the pane declares the three state sentences and the six absences, in the order its registry states them',
+  );
+  assert.equal(
+    webmcpSentences.length,
+    9,
+    `the pane declares ${webmcpSentences.length} sentences and its registry carries nine`,
+  );
+  assert.equal(
+    webmcp.inline.length,
+    8,
+    `the pane builds ${webmcp.inline.length} distinct labels inline and the record carries eight`,
+  );
+  for (const line of webmcp.inline) {
+    assert.equal(
+      line.kind,
+      'label',
+      `the pane writes "${line.text}" inline and it is a label of the reading’s own field or the reason’s`,
+    );
+    assert.equal(
+      line.interpolated,
+      true,
+      `"${line.text}" is built from a value, so it is interpolated`,
+    );
+  }
+  assert.equal(
+    webmcp.inline.filter((line) => line.kind === 'sentence').length,
+    0,
+    'no sentence is written inline on this pane, which is why no inline entry of it is digested',
+  );
+  const webmcpRow = copyOf(
+    api.copyCheck(copyOf([webmcp]), copyOf(shippedDigest)),
+  );
+  assert.deepEqual(
+    webmcpRow,
+    { state: 'clean', unexplained: [], checked: 9 },
+    `the webmcp pane's own row answers ${JSON.stringify(webmcpRow)} rather than clean over nine compared sentences`,
+  );
+  const webmcpRows = shippedDigest.entries.filter(
+    (/** @type {{surface: string}} */ entry) => entry.surface === 'webmcp',
+  );
+  assert.equal(
+    webmcpRows.length,
+    8,
+    `the digest files ${webmcpRows.length} row(s) under the twenty-fourth surface: its eight new sentences, and none for the shared one`,
+  );
+  for (const entry of webmcpRows)
+    assert.ok(
+      webmcpSentences.some(
+        (/** @type {{key: string|null, text: string}} */ candidate) =>
+          candidate.key === entry.key && candidate.text === entry.text,
+      ),
+      `the digest's row ${entry.key} is "${entry.text}", which the record does not carry under that key`,
+    );
+
   // The whole record, at the counts this milestone re-measured.
   const whole = copyOf(
     api.copyCheck(copyOf(record.surfaces), copyOf(shippedDigest)),
@@ -2628,8 +2728,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     whole.checked,
-    165,
-    `every sentence the record declares is compared, the shared one at all five surfaces, and ${whole.checked} were`,
+    174,
+    `every sentence the record declares is compared, the shared one at all six surfaces, and ${whole.checked} were`,
   );
   assert.equal(
     whole.checked,
@@ -2643,7 +2743,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   console.log(
     `T004 surface: copy-check declares ${sentences.length} sentences and builds ${copyCheck.inline.length} labels; ` +
-      `the digest holds ${shippedDigest.entries.length} rows for ${whole.checked} sentences, three of them one text`,
+      `the digest holds ${shippedDigest.entries.length} rows for ${whole.checked} sentences, five of them one text`,
   );
 });
 

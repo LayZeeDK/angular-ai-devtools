@@ -78,93 +78,93 @@
     "resolvedBy": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 674,
+        "line": 698,
         "lineText": "const loader = LOADERS[name];",
         "holds": "const loader = LOADERS[name];"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 680,
+        "line": 704,
         "lineText": "void loader().then((mod) => {",
         "holds": "void loader().then((mod) => {"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 681,
+        "line": 705,
         "lineText": "const surface = mod.default(FACTS[name]);",
         "holds": "const surface = mod.default(FACTS[name]);"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 682,
+        "line": 706,
         "lineText": "this.state.set(surface.state);",
         "holds": "this.state.set(surface.state);"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 683,
+        "line": 707,
         "lineText": "this.lines.set(surface.lines);",
         "holds": "this.lines.set(surface.lines);"
       }
     ],
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 579,
+      "line": 580,
       "lineText": "'what-changed': {",
       "holds": "'what-changed': {"
     },
     "sampleFactAnswer": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 580,
+        "line": 581,
         "lineText": "state: 'changes',",
         "holds": "state: 'changes',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 581,
+        "line": 582,
         "lineText": "changes: [",
         "holds": "changes: ["
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 582,
+        "line": 583,
         "lineText": "{ field: 'cycleId', kind: 'changed', before: 41, after: 42 },",
         "holds": "{ field: 'cycleId', kind: 'changed', before: 41, after: 42 },"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 585,
+        "line": 586,
         "lineText": "field: 'stability',",
         "holds": "field: 'stability',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 586,
+        "line": 587,
         "lineText": "kind: 'removed',",
         "holds": "kind: 'removed',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 596,
+        "line": 597,
         "lineText": "field: 'checks',",
         "holds": "field: 'checks',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 597,
+        "line": 598,
         "lineText": "kind: 'added',",
         "holds": "kind: 'added',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 609,
+        "line": 610,
         "lineText": "compared: [",
         "holds": "compared: ["
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 620,
+        "line": 621,
         "lineText": "reason: null,",
         "holds": "reason: null,"
       }
@@ -172,24 +172,24 @@
     "sampleFactComment": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 566,
+        "line": 567,
         "lineText": "// The judgement's own answer (`extension/what-changed.js`, T002) for a pair of records this demo",
         "holds": "// The judgement's own answer (`extension/what-changed.js`, T002) for a pair of records this demo"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 567,
+        "line": 568,
         "lineText": "// writes in the shape T001 measured (`research/raw/m051-snapshots.json`, `record.keyOrder`: the",
         "holds": "// writes in the shape T001 measured (`research/raw/m051-snapshots.json`, `record.keyOrder`: the"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 576,
+        "line": 577,
         "lineText": "// surface needs to render. The binding is the panel's inspected tab, so the answer is the",
         "holds": "// surface needs to render. The binding is the panel's inspected tab, so the answer is the"
       }
     ],
-    "statement": "the `what-changed` key is the last key `LOADERS` carries (:60), and it is the only path to `panel-what-changed.ts`: the demo looks the key up by the name the route's `data.surface` states (:674), awaits the dynamic import (:680), calls the module's default export with the sample fact (:681), and sets the state (:682) and the lines (:683) the module answers. The fact it is handed (:579-:621) is the judgement's own `changes` answer for a pair of records the demo writes in the shape T001 measured (`research/raw/m051-snapshots.json`): `cycleId` and `startedAt` changed with both values, `stability` removed with the value that exists and no invented counterpart, `checks` added the same way, and the nine measured keys under `compared` (:609-:619) — so the pane is handed an answer the join `extension/what-changed.js` really produces for a bound pair, and the binding is the panel's, as the comment says (:576)."
+    "statement": "the `what-changed` key is the last key `LOADERS` carries (:60), and it is the only path to `panel-what-changed.ts`: the demo looks the key up by the name the route's `data.surface` states (:698), awaits the dynamic import (:704), calls the module's default export with the sample fact (:705), and sets the state (:706) and the lines (:707) the module answers. The fact it is handed (:580-:622) is the judgement's own `changes` answer for a pair of records the demo writes in the shape T001 measured (`research/raw/m051-snapshots.json`): `cycleId` and `startedAt` changed with both values, `stability` removed with the value that exists and no invented counterpart, `checks` added the same way, and the nine measured keys under `compared` (:609-:619) — so the pane is handed an answer the join `extension/what-changed.js` really produces for a bound pair, and the binding is the panel's, as the comment says (:577)."
   },
   "answer": {
     "shape": "{ state, changes, compared, reason }",

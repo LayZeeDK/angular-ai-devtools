@@ -1,0 +1,481 @@
+{
+  "schema": "m052-surface/v1",
+  "milestone": "M052 webmcp-audit",
+  "task": "T004",
+  "title": "Record the webmcp route, its loader key and the states each one reads",
+  "question": "which route reaches the webmcp surface, which LOADERS key resolves it, and what does each of its three states read off the reading the page’s model context answered?",
+  "head": "2ece0b80ad8b8b78e337077a3592f663e7ab50e7",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: every citation below was read out of the file it names at the head above with a script that resolves each quoted line to the one line of that file carrying it (the script is kept in the session scratchpad and not checked in), and `scripts/copy-check.test.mjs` re-reads every one of them on every run. The two readings this record describes are the reader `extension/webmcp-audit.js` (T002) and the surface `panel-webmcp.ts` (T003); the browser observation the reader’s judgement meets is `research/raw/m052-webmcp-observation.json`, measured by T003 in a live Chrome Beta 159 instance and quoted here as the record that produced plan Correction C3. No browser was opened for this record, no page was read, no build and no test of the app was run.",
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+    "reader": "extension/webmcp-audit.js",
+    "measurement": "research/raw/m052-webmcp-api.json",
+    "observation": "research/raw/m052-webmcp-observation.json"
+  },
+  "route": {
+    "name": "webmcp",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 89,
+      "lineText": "'webmcp',",
+      "holds": "webmcp"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadComponent: loadPanelDemo,"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "data: { surface },"
+    },
+    "table": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "export const appRoutes: Route[] = ["
+    },
+    "closure": [
+      {
+        "name": "loadPanelDemo",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "const loadPanelDemo = () =>"
+      },
+      {
+        "name": "PanelDemoComponent",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "import('./panel-demo').then((m) => m.PanelDemoComponent);"
+      }
+    ],
+    "statement": "one entry of the `PANEL_SURFACES` list (:89), spread into the `appRoutes` table (:113) by the one mapped literal the table ends with (:144-:148), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:147) as every demo-backed route does. The route carries no `component` key and no `children` key: the panel’s route table is a flat list of lazy entries, so the surface is reached by the lazy component and not by a nested route. It sits between `console-read` and `components` in the list, which is the order the table spreads; the total is not pinned here, because a later milestone appends to the list on purpose."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "const LOADERS: Record<"
+    },
+    "key": "webmcp",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 61,
+      "lineText": "webmcp: () => import('./panel-webmcp') as never,",
+      "holds": "'./panel-webmcp'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 698,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 704,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 705,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 706,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 707,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 634,
+      "lineText": "webmcp: {",
+      "holds": "webmcp: {"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 635,
+        "lineText": "state: 'tools',",
+        "holds": "state: 'tools',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 636,
+        "lineText": "tools: [",
+        "holds": "tools: ["
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 638,
+        "lineText": "name: 'find_components',",
+        "holds": "name: 'find_components',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 642,
+        "lineText": "{ name: 'count_components' },",
+        "holds": "{ name: 'count_components' }"
+      }
+    ],
+    "sampleFactComment": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 623,
+        "lineText": "// The reader's own answer (`extension/webmcp-audit.js`, T002) for a source whose model context",
+        "holds": "webmcp-audit.js"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 629,
+        "lineText": "// found `getTools` answers a **Promise** that resolves to `[]` on a page declaring no tools, and",
+        "holds": "Promise"
+      }
+    ],
+    "statement": "the `webmcp` key is the last key `LOADERS` carries (:61) and it is the only path to `panel-webmcp.ts`: the demo looks the key up by the name the route’s `data.surface` states (:698), awaits the dynamic import (:704), calls the module’s default export with the sample fact (:705), and sets the state (:706) and the lines (:707) the module answers. The fact it is handed (:634-:645) is the reading T002’s `readTools` answers for a source whose model context exposes `getTools` with two descriptors — one carrying a name and a description, one carrying a name alone — so the pane is handed a readable `tools` reading and the description-less descriptor E4 is written about. The fact is sample data and not a claim about any page: the comment above it (:623-:633) states what the milestone’s browser observation found, and `panel-demo.spec.ts` rebuilds the source, runs the shipped reader over it and holds this fact to the answer field for field."
+  },
+  "answer": {
+    "fields": [
+      {
+        "field": "state",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+          "line": 284,
+          "lineText": "const stateWord = nonEmptyString(reading['state']);",
+          "holds": "reading['state']"
+        },
+        "note": "the word the reading answered, and the only field that decides which of the three states renders."
+      },
+      {
+        "field": "tools",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+          "line": 319,
+          "lineText": "const tools = Array.isArray(reading['tools']) ? reading['tools'] : null;",
+          "holds": "reading['tools']"
+        },
+        "note": "the list the reading reported; a `tools` reading that carries no list states `no-tools-list` rather than rendering no line."
+      },
+      {
+        "field": "reason",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+          "line": 299,
+          "lineText": "const reason = reading['reason'];",
+          "holds": "reading['reason']"
+        },
+        "note": "the absence a cannot-tell names, read as its `code` and its `detail` and never as a cause or a remedy."
+      }
+    ],
+    "statement": "the reader answers exactly `{ state, tools, reason }` (T002’s contract), and the pane reads those three and nothing else: `state` decides the state (:284), `tools` is the list it renders (:319), and `reason` is read only on `cannot-tell` (:299). No field of a descriptor beyond `name` and `description` is read, so the pane cannot print an `inputSchema`, an `origin` or a `window` the reading never carried."
+  },
+  "states": [
+    {
+      "id": "tools",
+      "word": "tools",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+        "line": 80,
+        "lineText": "export const TOOLS = 'tools';",
+        "holds": "export const TOOLS = 'tools';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+          "line": 108,
+          "lineText": "text: 'tools: the API answered a list holding at least one tool, and each block below names one tool with the name the API reported and the description it reported where it carried one — a field the descriptor did not carry is absent from the block rather than filled in',",
+          "holds": "tools: the API answered a list"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/webmcp-audit.js",
+          "line": 232,
+          "lineText": "return { state: TOOLS, tools, reason: null };",
+          "holds": "state: TOOLS"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+            "line": 284,
+            "lineText": "const stateWord = nonEmptyString(reading['state']);",
+            "holds": "reading['state']"
+          }
+        },
+        {
+          "field": "tools",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+            "line": 319,
+            "lineText": "const tools = Array.isArray(reading['tools']) ? reading['tools'] : null;",
+            "holds": "reading['tools']"
+          }
+        },
+        {
+          "field": "tools[].name",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+            "line": 266,
+            "lineText": "const name = nonEmptyString(tool['name']);",
+            "holds": "tool['name']"
+          }
+        },
+        {
+          "field": "tools[].description",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+            "line": 272,
+            "lineText": "if (carries(tool, 'description') && typeof tool['description'] === 'string')",
+            "holds": "carries(tool, 'description')"
+          }
+        }
+      ],
+      "statement": "one block per declared tool, in the reading’s own order: the position the block holds, the name the API reported, and then the description only where the descriptor carried one. A descriptor that carried no description renders no description line at all — no defaulted sentence and no stand-in — because an invented description reads as the page’s own words and is not (E1, N1, E4). A tool whose name is missing states `no-tool-name` rather than borrowing a label from anywhere else."
+    },
+    {
+      "id": "empty",
+      "word": "empty",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+        "line": 81,
+        "lineText": "export const EMPTY = 'empty';",
+        "holds": "export const EMPTY = 'empty';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+          "line": 113,
+          "lineText": "text: 'empty: the API answered a list, and the list held no tool — so the page declares none, which is a fact the API stated and not a list that could not be read',",
+          "holds": "empty: the API answered a list"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/webmcp-audit.js",
+          "line": 230,
+          "lineText": "if (tools.length === 0) return { state: EMPTY, tools, reason: null };",
+          "holds": "state: EMPTY"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+            "line": 284,
+            "lineText": "const stateWord = nonEmptyString(reading['state']);",
+            "holds": "reading['state']"
+          }
+        },
+        {
+          "field": "tools",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+            "line": 319,
+            "lineText": "const tools = Array.isArray(reading['tools']) ? reading['tools'] : null;",
+            "holds": "reading['tools']"
+          }
+        }
+      ],
+      "statement": "the API answered a list and the list held no tool, so the pane states that fact in its own sentence, with no tool block beside it and no reason: an empty list the API answered is a fact about the page, and it is not a refusal (SC2). The state renders `state: empty` and the sentence and nothing else."
+    },
+    {
+      "id": "cannot-tell",
+      "word": "cannot-tell",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+        "line": 82,
+        "lineText": "export const CANNOT_TELL = 'cannot-tell';",
+        "holds": "export const CANNOT_TELL = 'cannot-tell';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+          "line": 118,
+          "lineText": "text: 'cannot-tell: the tool list could not be read, so the reason below states the absence in the reader’s own words and no tool is reported — an unreadable list is not a list of zero tools',",
+          "holds": "cannot-tell: the tool list could not be read"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/webmcp-audit.js",
+          "line": 209,
+          "lineText": "if (!Array.isArray(listed)) {",
+          "holds": "!Array.isArray(listed)"
+        },
+        {
+          "file": "extension/webmcp-audit.js",
+          "line": 58,
+          "lineText": "const UNREADABLE_LIST = 'unreadable-list';",
+          "holds": "unreadable-list"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+            "line": 284,
+            "lineText": "const stateWord = nonEmptyString(reading['state']);",
+            "holds": "reading['state']"
+          }
+        },
+        {
+          "field": "reason.code",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+            "line": 304,
+            "lineText": "const code = nonEmptyString(reason['code']);",
+            "holds": "reason['code']"
+          }
+        },
+        {
+          "field": "reason.detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+            "line": 306,
+            "lineText": "const detail = nonEmptyString(reason['detail']);",
+            "holds": "reason['detail']"
+          }
+        }
+      ],
+      "statement": "the reading’s `reason` echoed verbatim: its `code` and its `detail` on their own labelled lines, and a named absence in place of either one the reason does not carry (`no-reason-code`, `no-reason-detail`), or `no-reason` where the reading carries no reason at all. No tool block, no count and no empty-list sentence is offered in its place, because a list nobody read is not a list of zero tools — and `empty` never renders as this state either (SC2, N3). This is the state the measured API earns through this reader; see `corrections`."
+    }
+  ],
+  "stateWords": {
+    "reader": {
+      "words": [
+        "tools",
+        "empty",
+        "cannot-tell"
+      ],
+      "at": {
+        "file": "extension/webmcp-audit.js",
+        "line": 44,
+        "lineText": "const TOOLS = 'tools';",
+        "holds": "const TOOLS = 'tools';"
+      },
+      "alsoAt": [
+        {
+          "file": "extension/webmcp-audit.js",
+          "line": 45,
+          "lineText": "const EMPTY = 'empty';",
+          "holds": "const EMPTY = 'empty';"
+        },
+        {
+          "file": "extension/webmcp-audit.js",
+          "line": 46,
+          "lineText": "const CANNOT_TELL = 'cannot-tell';",
+          "holds": "const CANNOT_TELL = 'cannot-tell';"
+        }
+      ],
+      "note": "the reader publishes the three words as three constants inside its own scope rather than as one exported list, so a caller learns them from the answers it is handed; the five absence codes beside them (:55-:58) are reasons and not states, and `unreadable-list` (:58) is the one the measured API answers."
+    },
+    "surface": {
+      "words": [
+        "tools",
+        "empty",
+        "cannot-tell"
+      ],
+      "at": {
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+        "line": 85,
+        "lineText": "export const STATES = [TOOLS, EMPTY, CANNOT_TELL] as const;",
+        "holds": "export const STATES = [TOOLS, EMPTY, CANNOT_TELL] as const;"
+      }
+    },
+    "statement": "the surface renders the reader’s three words and adds none: `STATES` (:85) holds `TOOLS` (:80), `EMPTY` (:81) and `CANNOT_TELL` (:82) in the order the pane states them, and a state word the pane was not written for is rendered as the word it was given (:293) rather than as a sentence it does not have. The lookup is an own-property one (`Object.hasOwn`, :287), so a word that collides with an `Object.prototype` key is a word and not a sentence."
+  },
+  "notDigested": {
+    "added": [],
+    "sentencesAt": {
+      "file": "apps/angular-ai-devtools/src/app/panel-webmcp.ts",
+      "line": 105,
+      "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = [",
+      "holds": "export const PANE_SENTENCES: readonly PanelSentence[] = ["
+    },
+    "scopeAt": {
+      "file": "extension/copy-check.js",
+      "line": 97,
+      "lineText": "const SCOPE = Object.freeze({",
+      "holds": "SCOPE"
+    },
+    "statement": "nothing this pane renders is composed at render, so T004 added no decision to `NOT_DIGESTED`: all nine of its registry entries are sentences whose text is the string the pane renders whole, and T004 authored a digest row for the eight that are not the shared `no-reason`. Its eight interpolated literals are labels around a value the reading or the reason carries (`state:`, `tool:`, `name:`, `description:`, `code:`, `detail:`), which `SCOPE` (:97) reads past by kind. The one `Error` the module throws (:171) is developer-facing and never rendered, so it is not a sentence and not an entry."
+  },
+  "corrections": [
+    {
+      "claim": "the tool list getter answers a value the reader can judge synchronously, so the measured API reads as `empty` on a page that declares no tools",
+      "measured": "it does not. T003 called `document.modelContext.getTools()` in a live Chrome Beta 159 instance against `https://example.com` and recorded the answer in `research/raw/m052-webmcp-observation.json`: the getter returns a **Promise** (`\"constructorName\": \"Promise\"`, and the synchronous call’s `\"json\"` is `\"{}\"`), and awaited on a page that declares no tools that promise resolves to `[]` (`\"json\": \"[]\"`, length 0). `readTools` calls the getter once and judges the returned value with `Array.isArray` (:199, :209), so the measured API answers `cannot-tell` with `:58`’s `unreadable-list` and the detail that the list getter answered an object rather than a list. The units agree on the fact — the page declared no tools — and disagree on the shape: the answer is asynchronous, and the reader is synchronous by contract.",
+      "citations": [
+        {
+          "file": "research/raw/m052-webmcp-observation.json",
+          "line": 48,
+          "lineText": "\"constructorName\": \"Promise\",",
+          "holds": "Promise"
+        },
+        {
+          "file": "research/raw/m052-webmcp-observation.json",
+          "line": 47,
+          "lineText": "\"json\": \"{}\",",
+          "holds": "\"{}\""
+        },
+        {
+          "file": "research/raw/m052-webmcp-observation.json",
+          "line": 74,
+          "lineText": "\"json\": \"[]\",",
+          "holds": "\"[]\""
+        },
+        {
+          "file": "extension/webmcp-audit.js",
+          "line": 199,
+          "lineText": "listed = getter.call(context);",
+          "holds": "getter.call(context)"
+        },
+        {
+          "file": "extension/webmcp-audit.js",
+          "line": 209,
+          "lineText": "if (!Array.isArray(listed)) {",
+          "holds": "!Array.isArray(listed)"
+        },
+        {
+          "file": "extension/webmcp-audit.js",
+          "line": 58,
+          "lineText": "const UNREADABLE_LIST = 'unreadable-list';",
+          "holds": "unreadable-list"
+        }
+      ],
+      "consequence": "the pane renders whichever state the reading carries, and at this browser version a live page earns `cannot-tell` through that path rather than `empty`; the sample fact is a readable `tools` reading and is not a claim about any page. Whether `readTools` should await the getter is not this record’s decision: the reader stays pure and synchronous (T002’s contract, INTENT.md SC3), a page-world caller awaits and hands the resolved array in, and wiring that caller is carried as plan Correction C3 rather than done here or by silently widening T002 or T003 after they landed."
+    }
+  ],
+  "notCaptured": [
+    "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture. The one browser measurement it quotes is T003’s, recorded in `research/raw/m052-webmcp-observation.json` and cited rather than re-run.",
+    "The record does not measure what the pane looks like. The lines each state writes are held by `panel-demo.spec.ts` over the shipped reader and its sample fact, and this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
+    "Nothing here claims the panel reads a live page’s tool list: no code in this tree relays `getTools()` from an inspected tab, and the pane renders the reading it is handed. The route, the loader key and the states are the path a caller would use, not a claim that one exists.",
+    "The route table’s total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
+    "The sample fact at `panel-demo.ts:634-:645` is fixture data `panel-demo.spec.ts` rebuilds from a source it writes itself, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what any page recorded."
+  ],
+  "verdict": "measured: `/webmcp` is one lazy route — the `PANEL_SURFACES` entry at :89, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `webmcp` key of `panel-demo.ts`’s `LOADERS` (:61), and that key is the only path to `panel-webmcp.ts`: the demo looks it up (:698), awaits the import (:704), calls the module’s default export with the sample fact (:705) and sets the state (:706) and the lines (:707). The surface renders the reader’s three states and adds none of its own: `tools` reads `state` and the `tools` list, rendering each tool with the name and only the description the descriptor carried; `empty` reads `state` and the list and states that the API answered one holding no tool; and `cannot-tell` reads `reason.code` and `reason.detail` and no list at all. The reading the measured API actually answers is the third of those (plan Correction C3): `getTools()` returns a Promise, `readTools` judges the synchronous return, and a live page at this browser version earns `cannot-tell` with `unreadable-list` rather than `empty`."
+}

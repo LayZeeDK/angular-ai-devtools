@@ -440,13 +440,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 165 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 174 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
   // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
   // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 165 },
+  'copy-check': { state: 'clean', unexplained: [], checked: 174 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the

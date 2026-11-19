@@ -807,6 +807,46 @@
       "surface": "what-changed",
       "key": "no-compared",
       "text": "no-compared: the answer states no list of the fields it compared, so no count is rendered and this surface claims no comparison was made"
+    },
+    {
+      "surface": "webmcp",
+      "key": "state-tools",
+      "text": "tools: the API answered a list holding at least one tool, and each block below names one tool with the name the API reported and the description it reported where it carried one — a field the descriptor did not carry is absent from the block rather than filled in"
+    },
+    {
+      "surface": "webmcp",
+      "key": "state-empty",
+      "text": "empty: the API answered a list, and the list held no tool — so the page declares none, which is a fact the API stated and not a list that could not be read"
+    },
+    {
+      "surface": "webmcp",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the tool list could not be read, so the reason below states the absence in the reader’s own words and no tool is reported — an unreadable list is not a list of zero tools"
+    },
+    {
+      "surface": "webmcp",
+      "key": "no-webmcp-reading",
+      "text": "no-webmcp-reading: no tool list reading was handed over, so no state, no tool and no reason are reported"
+    },
+    {
+      "surface": "webmcp",
+      "key": "no-tools-list",
+      "text": "no-tools-list: the reading reported tools without a list of them, so no tool block is rendered"
+    },
+    {
+      "surface": "webmcp",
+      "key": "no-tool-name",
+      "text": "no-tool-name: a tool arrived naming no name, so no name is rendered for it"
+    },
+    {
+      "surface": "webmcp",
+      "key": "no-reason-code",
+      "text": "no-reason-code: the reason arrived carrying no code, so no code is stated and the absence is named as the reason’s own gap"
+    },
+    {
+      "surface": "webmcp",
+      "key": "no-reason-detail",
+      "text": "no-reason-detail: the reason arrived carrying no detail, so no detail is stated and the absence is named as the reason’s own gap"
     }
   ]
 }

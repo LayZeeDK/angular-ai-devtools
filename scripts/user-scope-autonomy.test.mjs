@@ -722,7 +722,7 @@ test('P3 check_handoffs pin: a readable coverage row exits 0 and a three-cell ro
       `a three-cell coverage row must fail over ${threeCell}`,
     );
     assert.ok(
-      badOutput.includes('Intent coverage row is unreadable'),
+      badOutput.includes('PLAN.md Intent coverage has no rows'),
       `the run must print the unreadable-row reason; got ${badOutput}`,
     );
   } finally {

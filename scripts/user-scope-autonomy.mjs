@@ -102,7 +102,19 @@ export const HELPER_PINS = [
     id: 'P3',
     name: 'check_handoffs reads an Intent-coverage row',
     file: ['skills', 'gsd-path', 'scripts', 'check_handoffs.py'],
-    tokens: ['Intent coverage row is unreadable'],
+    // Ruling (M052 repair): the earlier token "Intent coverage row is
+    // unreadable" never existed in any revision of check_handoffs.py —
+    // `git log -S` over every branch of the upstream source (branch v1.7.1)
+    // finds zero commits carrying it, and no copy today contains it. The pin
+    // was on a string that never existed, so the test side was wrong and the
+    // token is re-pinned to what the code actually raises for a dropped
+    // coverage row: `_coverage_rows` emits
+    // `PLAN.md Intent coverage has no rows` (check_handoffs.py:1056,
+    // `raise HandoffError("PLAN.md Intent coverage has no rows")`) when the
+    // row pattern at :45-48 fails to match, e.g. a three-cell row
+    // `| SC1 | T001 | AC1, AC2 |`. Measured: readable row exits 0, three-cell
+    // row exits 1 printing that reason.
+    tokens: ['PLAN.md Intent coverage has no rows'],
     probe: { tool: 'python', script: ['check_handoffs.py'], args: ['plan'] },
   },
   {
