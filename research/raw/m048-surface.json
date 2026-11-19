@@ -78,56 +78,56 @@
     "resolvedBy": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 674,
+        "line": 698,
         "lineText": "const loader = LOADERS[name];",
         "holds": "LOADERS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 680,
+        "line": 704,
         "lineText": "void loader().then((mod) => {",
         "holds": "loader()"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 681,
+        "line": 705,
         "lineText": "const surface = mod.default(FACTS[name]);",
         "holds": "FACTS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 682,
+        "line": 706,
         "lineText": "this.state.set(surface.state);",
         "holds": "surface.state"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 683,
+        "line": 707,
         "lineText": "this.lines.set(surface.lines);",
         "holds": "surface.lines"
       }
     ],
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 448,
-      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 165 },",
-      "holds": "checked: 165"
+      "line": 449,
+      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 174 },",
+      "holds": "checked: 174"
     },
     "sampleFactComment": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 440,
+        "line": 441,
         "lineText": "// The join's own answer (`extension/copy-check.js`, T002) for T001's measurement",
         "holds": "copy-check.js"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 442,
-        "lineText": "// (`extension/copy-digest.json`): all 165 compared strings are explained, so the record reads",
-        "holds": "165"
+        "line": 443,
+        "lineText": "// (`extension/copy-digest.json`): all 174 compared strings are explained, so the record reads",
+        "holds": "174"
       }
     ],
-    "statement": "the `copy-check` key is a `LOADERS` key (:57) and no longer the last one — M049’s T003 appended `interaction-story` after it (:58) and M051’s T003 appended `what-changed` (:60), which is what moved the resolution lines below — and this key is the only path to `panel-copy-check.ts`: the demo looks the key up by the name the route’s `data.surface` states (:674), awaits the dynamic import (:680), calls the module’s default export with the sample fact (:681), and sets the state (:682) and the lines (:683) the module answers. The fact it is handed (:448) is `{ state: 'clean', unexplained: [], checked: 165 }` — the join’s answer over the twenty-three-surface record this head measures and the 161-row digest authored from it — and the comment above it (:442) states the same count, so the fact and the record agree at this head."
+    "statement": "the `copy-check` key is a `LOADERS` key (:57) and no longer the last one — M049’s T003 appended `interaction-story` after it (:58) and M051’s T003 appended `what-changed` (:60), which is what moved the resolution lines below — and this key is the only path to `panel-copy-check.ts`: the demo looks the key up by the name the route’s `data.surface` states (:698), awaits the dynamic import (:704), calls the module’s default export with the sample fact (:705), and sets the state (:706) and the lines (:707) the module answers. The fact it is handed (:449) is `{ state: 'clean', unexplained: [], checked: 174 }` — the join’s answer over the twenty-four-surface record this head measures and the 169-row digest authored from it — and the comment above it (:442) states the same count, so the fact and the record agree at this head."
   },
   "answer": {
     "shape": "{ state, unexplained, checked, reason }",
@@ -265,7 +265,7 @@
           }
         }
       ],
-      "statement": "every string the surfaces declare is explained, so the pane renders the state word, its sentence and the count the answer states — `checked: 134` over the twenty-one-surface record T004 authored at this head, where the demo’s sample fact (:448) still states the 122 of the twenty-surface record. A count the answer does not state renders `no-checked` (:108) rather than a number the pane made up."
+      "statement": "every string the surfaces declare is explained, so the pane renders the state word, its sentence and the count the answer states — `checked: 174` over the twenty-four-surface record T004 authored at this head, and the demo’s sample fact (:449) states the same count. A count the answer does not state renders `no-checked` (:108) rather than a number the pane made up."
     },
     {
       "id": "unexplained",
@@ -535,7 +535,7 @@
   },
   "notCaptured": [
     "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture.",
-    "The sample fact at `panel-demo.ts:448` carries `checked: 165`, the count the join answers over the twenty-three-surface copy record this head measures, and the comment above it (:442) states the same count. Both were re-read at this head rather than left where M050 found them, and the `panel-demo.spec.ts` pin that compares the fact to the join’s answer holds the two together.",
+    "The sample fact at `panel-demo.ts:449` carries `checked: 174`, the count the join answers over the twenty-four-surface copy record this head measures, and the comment above it (:442) states the same count. Both were re-read at this head rather than left where M050 found them, and the `panel-demo.spec.ts` pin that compares the fact to the join’s answer holds the two together.",
     "The record does not measure what the pane looks like: the lines each state writes are enumerated in `panel-copy-check.ts`’s `PANE_SENTENCES` and held by `panel-demo.spec.ts`, and this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
     "The counts in the sample fact are fixture data, not measurements: the 122 is the join’s answer for a record and a digest that no longer match it, and repairing the fact is a change to `panel-demo.ts`, not a measurement this record could take.",
     "The route table’s total is not pinned here. A sibling task in a later milestone adds a route on purpose, and a total recorded in this file would go stale without changing what the record says about `copy-check`."

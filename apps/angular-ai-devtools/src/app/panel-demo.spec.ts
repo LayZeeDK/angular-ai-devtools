@@ -86,6 +86,19 @@
  * answer carries them, `absence-carried` renders the same text with the absence still stated and
  * nothing filled in for it, and `cannot-tell` renders the join's own reason and no cause, element,
  * remedy or rule identity (INTENT.md SC1, SC2, SC3; N1, N2, N3).
+ *
+ * M052 T003 extends it to the `webmcp` surface, and to the reading the milestone is about: the shipped
+ * `extension/webmcp-audit.js` is evaluated from its own committed text and run over a source whose
+ * model context answers two descriptors — one with a description, one without — so the sample fact is
+ * the reader's answer field for field and the two names are never a list written here. The pane is
+ * then held to the three states apart: `tools` prints each tool's name and only the description the
+ * API reported (E4: no invented description for the descriptor that carried none), `empty` states the
+ * empty list the API answered with no reason beside it, and `cannot-tell` prints the reason's `code`
+ * and `detail` verbatim and no tool block at all (SC2, N3). The measured API is driven too: the
+ * milestone's browser observation (`research/raw/m052-webmcp-observation.json`) found `getTools()`
+ * answers a Promise resolving to `[]`, which the reader's synchronous `Array.isArray` judgement
+ * reports as `cannot-tell` with `code: unreadable-list` — so the state a page earns is the reader's
+ * measurement and never this pane's claim.
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -153,6 +166,19 @@ import {
   UNCHANGED as CHANGED_UNCHANGED,
   whatChangedPanel,
 } from './panel-what-changed';
+import {
+  CANNOT_TELL as WEBMCP_CANNOT_TELL,
+  EMPTY as WEBMCP_EMPTY,
+  NO_READING_TEXT as WEBMCP_NO_READING_TEXT,
+  NO_REASON_CODE_TEXT,
+  NO_REASON_DETAIL_TEXT,
+  NO_REASON_TEXT as WEBMCP_NO_REASON_TEXT,
+  NO_TOOL_NAME_TEXT,
+  NO_TOOLS_LIST_TEXT,
+  STATE_TEXTS as WEBMCP_STATE_TEXTS,
+  TOOLS as WEBMCP_TOOLS,
+  webmcpPanel,
+} from './panel-webmcp';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -1693,6 +1719,95 @@ const WHAT_CHANGED_AFTER: Readonly<Record<string, unknown>> = {
 };
 
 /**
+ * One tool of the reader's answer: the name the API reported, and the description it reported where
+ * the descriptor carried one. No second field is read: the reader carries no `inputSchema`, no
+ * `origin` and no `window`.
+ */
+interface WebmcpTool {
+  name: string;
+  description?: string;
+}
+
+/** The reading `extension/webmcp-audit.js` answers: the three contract fields. */
+interface WebmcpReading {
+  state: string;
+  tools: WebmcpTool[];
+  reason?: { code: string; detail: string } | null;
+}
+
+/** The page's own reader namespace, as `extension/webmcp-audit.js` publishes it. */
+interface WebmcpAudit {
+  readTools(source: unknown): WebmcpReading;
+}
+
+/**
+ * The reader `extension/webmcp-audit.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `webmcp` fact is held to the reader's answer for the source this spec
+ * builds — and to the reader's own refusal codes — rather than to a copy of either written here. The
+ * module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function webmcpAudit(): WebmcpAudit {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/webmcp-audit.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/webmcp-audit.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const audit = (
+    globalThis as unknown as { angularAiWebmcpAudit?: WebmcpAudit }
+  ).angularAiWebmcpAudit;
+  if (audit === undefined || typeof audit.readTools !== 'function') {
+    throw new Error('extension/webmcp-audit.js published no readTools');
+  }
+  return audit;
+}
+
+/**
+ * The source the demo's `webmcp` fact is the reader's answer for: a page whose model context exposes
+ * `getTools`, answering two descriptors — the first with a description, the second with none. The two
+ * names and the one description are sample data, and this source is not a page: it is the shape a
+ * readable list has when one is read. The first descriptor carries `inputSchema`, `origin` and
+ * `window` as well, which the reader must drop and the pane must never print — the whole of "nothing
+ * else" in AC1.
+ */
+function webmcpSource(): { modelContext: { getTools(): unknown } } {
+  return {
+    modelContext: {
+      getTools: () => [
+        {
+          name: 'find_components',
+          description:
+            'Returns the components the page rendered for a CSS selector.',
+          inputSchema: { type: 'object', properties: { selector: {} } },
+          origin: 'https://example.com',
+          window: null,
+        },
+        { name: 'count_components' },
+      ],
+    },
+  };
+}
+
+/**
+ * The source the milestone's browser measurement is: `getTools` answers the Promise the measured API
+ * answers. `research/raw/m052-webmcp-observation.json` records that call on `chrome-beta-nano`
+ * (Chrome/159.0.8154.13): the synchronous return is a `Promise`, and awaited on a page declaring no
+ * tools it resolves to `[]`.
+ */
+function measuredWebmcpSource(): { modelContext: { getTools(): unknown } } {
+  return { modelContext: { getTools: () => Promise.resolve([]) } };
+}
+
+/**
  * The values each entry of the rebuilt record carries, keyed by the stream the record names. The
  * arrival readings (10, 11, 20, 30, 40) are this spec's own spine, and the ids are what the
  * judgement pairs on: navigation 1 ends, navigation 2 does not.
@@ -2664,13 +2779,14 @@ describe('the panel demo', () => {
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
+      'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(31);
+    expect(appRoutes).toHaveLength(32);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -3173,19 +3289,19 @@ describe('the panel demo', () => {
 
     // The measured record's answer: every string it declares is explained, and the count is the
     // join's own comparison — not a count written in this spec or in the demo fact. The count is
-    // larger than the digest's row count because one sentence is declared by five surfaces and an
-    // explanation of one string is still one row: 165 sentences compared, 161 distinct rows.
+    // larger than the digest's row count because one sentence is declared by six surfaces and an
+    // explanation of one string is still one row: 174 sentences compared, 169 distinct rows.
     expect(answer).toEqual({
       state: COPY_CLEAN,
       unexplained: [],
-      checked: 165,
+      checked: 174,
     });
     expect(answer.checked).toBe(
       recording.counts.declaredSentences + recording.counts.inlineSentences,
     );
     expect(digest.entries.length).toBeLessThan(answer.checked);
     expect(recording.counts.surfaces).toBe(recording.surfaces.length);
-    expect(recording.counts.surfaces).toBe(23);
+    expect(recording.counts.surfaces).toBe(24);
 
     // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
     // with its own reason, while the record stays clean. Both answers are the join's.
@@ -4066,6 +4182,215 @@ describe('the panel demo', () => {
       'rule: ',
       'handler: ',
       'component: ',
+    ]) {
+      expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
+    }
+  });
+
+  /**
+   * The M052 half — the tool list a page declares, read from the API, or the refusal to describe it.
+   * The surface behind `/webmcp` is reached through its own route entry, and the sample fact is the
+   * shipped reader's own answer for a source this spec builds rather than a list written here: two
+   * descriptors, one carrying a description and one carrying a name alone. The pane is then held to
+   * the three states apart — each tool with the name the API reported and only the description it
+   * reported (E4), `empty` stated as the empty list the API answered and never as a refusal, and
+   * `cannot-tell` printing the reason's `code` and `detail` verbatim with no tool block beside them
+   * (SC1, SC2; N1, N3). The measured API is driven too, so the milestone's own observation is the
+   * reader's answer rather than this pane's claim.
+   */
+  it('renders each declared tool with the name and description the API reported, and the empty list apart from the reason', async () => {
+    const audit = webmcpAudit();
+    const reading = audit.readTools(webmcpSource());
+
+    // The fact the demo is handed is the reader's own answer for this source, field for field.
+    expect(FACTS['webmcp']).toEqual(reading);
+    expect(reading.state).toBe(WEBMCP_TOOLS);
+    expect(reading.reason).toBeNull();
+    expect(reading.tools).toHaveLength(2);
+    expect(reading.tools[0]).toEqual({
+      name: 'find_components',
+      description:
+        'Returns the components the page rendered for a CSS selector.',
+    });
+    // E4: the second descriptor carried no description, so the reader carries none and invents none.
+    expect(reading.tools[1]).toEqual({ name: 'count_components' });
+    expect('description' in (reading.tools[1] ?? {})).toBe(false);
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find((candidate) => candidate.path === 'webmcp');
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the webmcp surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error('the webmcp route must name its surface in route data');
+    }
+    expect(surfaceName).toBe('webmcp');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'webmcp'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(WEBMCP_TOOLS);
+    const pane = webmcpPanel(FACTS['webmcp']);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+
+    // `tools`: its own word and sentence, then one block per tool — and nothing else. The whole pane
+    // is asserted, so a field the reader dropped cannot reach the screen as an extra line.
+    expect(pane.lines).toEqual([
+      `state: ${WEBMCP_TOOLS}`,
+      WEBMCP_STATE_TEXTS[WEBMCP_TOOLS],
+      'tool: 1',
+      'name: find_components',
+      'description: Returns the components the page rendered for a CSS selector.',
+      'tool: 2',
+      'name: count_components',
+    ]);
+    // E4: the description-less block is its name and nothing beside it — no empty value, no dash and
+    // no sentence that stands in for a description the API never reported.
+    const secondBlock = pane.lines.slice(pane.lines.indexOf('tool: 2'));
+    expect(secondBlock).toEqual(['tool: 2', 'name: count_components']);
+    // The one description the API reported reaches the pane exactly once, in its own block.
+    expect(
+      pane.lines.filter((line) => line.includes('Returns the')),
+    ).toHaveLength(1);
+    // The descriptor's other fields are neither carried nor printed.
+    for (const field of [
+      'inputSchema',
+      'origin',
+      'window',
+      'schema',
+      'count:',
+    ]) {
+      expect(pane.text).not.toContain(field);
+    }
+
+    // `empty`: the API answered a list and it held no tool. It states that, with no reason beside it
+    // and no tool block — and its sentence is not the refusal's.
+    const emptyReading = audit.readTools({
+      modelContext: { getTools: () => [] },
+    });
+    expect(emptyReading.state).toBe(WEBMCP_EMPTY);
+    expect(emptyReading.reason).toBeNull();
+    const emptyPane = webmcpPanel(emptyReading);
+    expect(emptyPane.state).toBe(WEBMCP_EMPTY);
+    expect(emptyPane.lines).toEqual([
+      `state: ${WEBMCP_EMPTY}`,
+      WEBMCP_STATE_TEXTS[WEBMCP_EMPTY],
+    ]);
+    expect(emptyPane.lines.some((line) => line.startsWith('tool: '))).toBe(
+      false,
+    );
+    expect(emptyPane.lines.some((line) => line.startsWith('code: '))).toBe(
+      false,
+    );
+
+    // `cannot-tell`: the reason's `code` and `detail` verbatim, and nothing else. A getter that
+    // throws and a model context with no getter are two absences with two codes.
+    const threw = audit.readTools({
+      modelContext: {
+        getTools: () => {
+          throw new Error('the list is not readable');
+        },
+      },
+    });
+    expect(threw.state).toBe(WEBMCP_CANNOT_TELL);
+    expect(threw.reason?.code).toBe('get-tools-threw');
+    const threwPane = webmcpPanel(threw);
+    expect(threwPane.state).toBe(WEBMCP_CANNOT_TELL);
+    expect(threwPane.lines).toContain(`code: ${threw.reason?.code}`);
+    expect(threwPane.lines).toContain(`detail: ${threw.reason?.detail}`);
+    expect(threw.reason?.detail).toBe(
+      'the list getter threw Error: the list is not readable; the tool list is not readable',
+    );
+    expect(threwPane.lines.some((line) => line.startsWith('tool: '))).toBe(
+      false,
+    );
+
+    const absent = audit.readTools({ modelContext: {} });
+    expect(absent.state).toBe(WEBMCP_CANNOT_TELL);
+    expect(absent.reason?.code).toBe('no-list-getter');
+    const absentPane = webmcpPanel(absent);
+    expect(absentPane.lines).toContain(`code: ${absent.reason?.code}`);
+    expect(absentPane.lines).toContain(`detail: ${absent.reason?.detail}`);
+    expect(absentPane.lines.some((line) => line.startsWith('tool: '))).toBe(
+      false,
+    );
+
+    // The measured API: `getTools()` answers a Promise here, which the reader's synchronous
+    // `Array.isArray` judgement reports as an unreadable list — and the promise's `[]` does not earn
+    // `empty`, because the reader never saw an array. This is the milestone's observation, driven.
+    const measured = audit.readTools(measuredWebmcpSource());
+    expect(measured.state).toBe(WEBMCP_CANNOT_TELL);
+    expect(measured.reason?.code).toBe('unreadable-list');
+    expect(measured.reason?.detail).toBe(
+      'the list getter answered an object rather than a list: the tool list is not readable',
+    );
+    const measuredPane = webmcpPanel(measured);
+    expect(measuredPane.lines).toContain(`code: ${measured.reason?.code}`);
+    expect(measuredPane.lines).toContain(`detail: ${measured.reason?.detail}`);
+    expect(
+      await (measuredWebmcpSource().modelContext.getTools() as Promise<unknown>),
+    ).toEqual([]);
+    expect(measuredPane.state).not.toBe(emptyPane.state);
+    expect(measuredPane.lines[1]).not.toBe(emptyPane.lines[1]);
+
+    // The three states never collapse into fewer than three words and three sentences.
+    expect(new Set([pane.state, emptyPane.state, threwPane.state]).size).toBe(
+      3,
+    );
+    expect(
+      new Set([pane.lines[1], emptyPane.lines[1], threwPane.lines[1]]).size,
+    ).toBe(3);
+
+    // An absence is never rendered as an empty list, and a stated list is never rendered as a
+    // refusal: `cannot-tell` offers no tool block and never the word "none", and `empty` names no
+    // cause.
+    expect(emptyPane.lines).not.toContain(
+      WEBMCP_STATE_TEXTS[WEBMCP_CANNOT_TELL],
+    );
+    expect(threwPane.lines).not.toContain(WEBMCP_STATE_TEXTS[WEBMCP_EMPTY]);
+    expect(threwPane.text).not.toMatch(/\bnone\b/i);
+    expect(absentPane.text).not.toMatch(/\bnone\b/i);
+    expect(emptyPane.lines[1]).toContain('held no tool');
+
+    // A reading nobody gave is its own named absence; a state word outside the registry renders as
+    // the word alone; a `tools` reading without a list and a tool without a name state their
+    // absences; a refusal without a reason, a code or a detail states each of them.
+    expect(webmcpPanel(undefined).lines).toEqual([WEBMCP_NO_READING_TEXT]);
+    expect(webmcpPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+    expect(webmcpPanel({ state: WEBMCP_TOOLS }).lines).toContain(
+      NO_TOOLS_LIST_TEXT,
+    );
+    expect(webmcpPanel({ state: WEBMCP_TOOLS, tools: [{}] }).lines).toContain(
+      NO_TOOL_NAME_TEXT,
+    );
+    expect(webmcpPanel({ state: WEBMCP_CANNOT_TELL }).lines).toContain(
+      WEBMCP_NO_REASON_TEXT,
+    );
+    const bareReason = webmcpPanel({ state: WEBMCP_CANNOT_TELL, reason: {} });
+    expect(bareReason.lines).toContain(NO_REASON_CODE_TEXT);
+    expect(bareReason.lines).toContain(NO_REASON_DETAIL_TEXT);
+
+    // Idempotency: the same reading renders the same lines in the same order, twice.
+    expect(webmcpPanel(FACTS['webmcp'])).toEqual(webmcpPanel(FACTS['webmcp']));
+
+    // The pane adds no DOM and writes no field of its own: every line is a labelled field of the
+    // reading or one of the pane's sentences, and no other descriptor field is named.
+    expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
+    for (const label of [
+      'inputSchema: ',
+      'origin: ',
+      'window: ',
+      'schema: ',
+      'count: ',
+      'component: ',
+      'handler: ',
     ]) {
       expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
     }

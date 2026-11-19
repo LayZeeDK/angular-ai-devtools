@@ -15,17 +15,14 @@ const loadPanelDemo = () =>
   import('./panel-demo').then((m) => m.PanelDemoComponent);
 
 /**
- * The panel's surfaces, in the order their routes sit in `appRoutes` below. Each name is both the
- * route's path and its `data.surface`, so the two readings of a surface cannot drift apart.
+ * The panel's surfaces, in the order their routes sit in `appRoutes` below; each name is both the route's path and its `data.surface`, so the two readings of a surface cannot drift apart.
  *
  * A list mapped over one object literal rather than twenty-one literals: the route object is eager
- * even though its component is lazy, because the table itself lives in the entry chunk, so every
- * entry carried its own copy of the property names and of the minifier's per-entry renames. One
- * literal is one copy of those bytes; the names below are the only thing that varies.
- *
- * Every route built from this list is lazy — installed through `loadPanelDemo`, never a surface
- * function — so the initial bundle stays inside its baseline; and the M051 entry `what-changed` has
- * no comment above it because every citation in this file is pinned to its line by `m047..m050`.
+ * even though its component is lazy, because the table lives in the entry chunk, so every entry
+ * carried its own copy of the property names and the minifier's per-entry renames; every route here
+ * is lazy — installed through `loadPanelDemo`, never a surface function — so the initial bundle stays
+ * inside its baseline. Every citation in this file is pinned to its line by `m047..m052`, which is
+ * why `webmcp` sits between `console-read` and `components` and `what-changed` carries no comment.
  */
 const PANEL_SURFACES = [
   // The M028 SC4 surface: the ordered after-render chain, or the state that names its absence.
@@ -87,6 +84,9 @@ const PANEL_SURFACES = [
   // rendered it, the same with the absence a finding names still stated, or the `cannot-tell` reason
   // and nothing beside it.
   'console-read',
+  // The M052 SC1-SC2 surface: each declared tool with the name and the description the API reported,
+  // an empty list it answered, or the reason's code and detail verbatim.
+  'webmcp',
   // The M047 SC1-SC2 surface: the components the record names, filtered by the text a user typed
   // and counted by the rows the join kept — or the record's own statement that the page rendered
   // none, or the reason its source could not be read, each in a sentence of its own.

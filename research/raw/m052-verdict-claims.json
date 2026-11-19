@@ -1,0 +1,117 @@
+{
+  "schema": "m052-verdict-claims/v1",
+  "milestone": "M052",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M052\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 3 criteria it declares are [\"SC1\",\"SC2\",\"SC3\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: 4 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\"] and the suites [\"scripts/webmcp-audit.test.mjs\",\"scripts/webmcp-api.test.mjs\"]"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 3,
+    "why": [
+      "No row is required, and the list therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext - with the required rows together citing drawnRect, descriptor and noDevContext. Every fact the 3 criteria this milestone declares is written about is a reading of this repository's own gate: 4 edge row(s) held by [\"scripts/webmcp-audit.test.mjs\",\"scripts/webmcp-api.test.mjs\"], against 12 stage(s) of the check chain. None of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each row cites the suite the milestone itself assigned its criterion, the reading that suite carries and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": [
+        "E4"
+      ]
+    },
+    "edges": {
+      "rows": 4,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3"
+      ]
+    },
+    "suites": [
+      {
+        "path": "scripts/webmcp-audit.test.mjs",
+        "tests": 17,
+        "groups": 8
+      },
+      {
+        "path": "scripts/webmcp-api.test.mjs",
+        "tests": 6,
+        "groups": 0
+      }
+    ],
+    "recordings": [
+      "research/raw/m052-surface.json",
+      "research/raw/m052-webmcp-api.json",
+      "research/raw/m052-webmcp-observation.json"
+    ]
+  },
+  "capture": {
+    "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "records": "research/raw/m052-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, the five-column edge coverage that intent declares and the suites the plan assigns each criterion, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "Each tool the page declares is named with its own fields, and the fields are read from the API rather than from the DOM. A surface lists every declared tool with the name the API reports and the description it reports, and nothing it does not report. A mutant that renders a tool name from a DOM label instead of the API reddens.",
+      "criterionCharacters": 329,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"Each tool the page declares is named with its own fields, and the fields are read from the API rather than from the DOM. A surface lists every declared tool with the name the API reports and the description it reports, and nothing it does not report. A mutant that renders a tool name from a DOM label instead of the API reddens.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E4\"] the intent itself assigns the criterion, held by [\"scripts/webmcp-audit.test.mjs\",\"scripts/webmcp-audit.test.mjs\"] and recorded as [\"criterion SC1\",\"held-out\"].",
+      "artefactPath": "scripts/webmcp-audit.test.mjs",
+      "artefact": "scripts/webmcp-audit.test.mjs (edge [\"E1\",\"E4\"] of the intent's own coverage: E1 boundary criterion SC1: A tool declared under a name the API reports is not looked up by any DOM label; the name is the API's string.; E4 boundary held-out: A page whose tool list is readable but whose tool descriptions are absent renders each tool with its name and no invented description.; the suite carries 17 test declaration(s) in 8 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "17 test declaration(s) in scripts/webmcp-audit.test.mjs hold SC1 through the 2 boundary edge row(s) the intent assigns it, [\"E1\",\"E4\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/webmcp-audit.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "A tool whose shape cannot be read is reported as cannot-tell, naming the absence. When the API exposes a registration surface but no readable tool list, the surface states that the list is absent rather than rendering an empty list, an inferred signature, or the word \"none\". A mutant that renders an empty list as \"no tools declared\" reddens.",
+      "criterionCharacters": 343,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"A tool whose shape cannot be read is reported as cannot-tell, naming the absence. When the API exposes a registration surface but no readable tool list, the surface states that the list is absent rather than rendering an empty list, an inferred signature, or the word \\\"none\\\". A mutant that renders an empty list as \\\"no tools declared\\\" reddens.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E2\"] the intent itself assigns the criterion, held by [\"scripts/webmcp-api.test.mjs\"] and recorded as [\"criterion SC2\"].",
+      "artefactPath": "scripts/webmcp-api.test.mjs",
+      "artefact": "scripts/webmcp-api.test.mjs (edge [\"E2\"] of the intent's own coverage: E2 empty criterion SC2: An app that declares no tools and an API that exposes no readable list are different states and must not render alike.; the suite carries 6 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "6 test declaration(s) in scripts/webmcp-api.test.mjs hold SC2 through the 1 empty edge row(s) the intent assigns it, [\"E2\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/webmcp-api.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "The reading is pure over what the page exposes. No network call, no DOM traversal to recover a tool, no re-registration to make a tool observable. Asserted by a poisoned-source test.",
+      "criterionCharacters": 182,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"The reading is pure over what the page exposes. No network call, no DOM traversal to recover a tool, no re-registration to make a tool observable. Asserted by a poisoned-source test.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\"] the intent itself assigns the criterion, held by [\"scripts/webmcp-audit.test.mjs\"] and recorded as [\"criterion SC3\"].",
+      "artefactPath": "scripts/webmcp-audit.test.mjs",
+      "artefact": "scripts/webmcp-audit.test.mjs (edge [\"E3\"] of the intent's own coverage: E3 boundary criterion SC3: Reading a tool must not register one; a re-registration to observe behaviour is a refusal.; the suite carries 17 test declaration(s) in 8 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "17 test declaration(s) in scripts/webmcp-audit.test.mjs hold SC3 through the 1 boundary edge row(s) the intent assigns it, [\"E3\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/webmcp-audit.test.mjs\"",
+        "npm run check"
+      ]
+    }
+  ]
+}
