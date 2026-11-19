@@ -2,10 +2,10 @@
 id: T002
 title: Await the tool list and join the rehearsal
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 89307a4728ab8e6b23ce0b2e4b3753c2e3d721d5
 worktree: null
 task_branch: null
 files:
@@ -96,3 +96,4 @@ node --test scripts/webmcp-rehearsal.test.mjs && npx prettier --check extension/
 ## Log
 
 - pending.
+- Landed paths: `extension/webmcp-rehearsal.js`, `scripts/webmcp-rehearsal.test.mjs`, `research/raw/m053-execute-tool.json` — each is read from this tree, ready.
