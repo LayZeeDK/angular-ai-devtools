@@ -17,12 +17,9 @@ const loadPanelDemo = () =>
 /**
  * The panel's surfaces, in the order their routes sit in `appRoutes` below; each name is both the route's path and its `data.surface`, so the two readings of a surface cannot drift apart.
  *
- * A list mapped over one object literal rather than twenty-one literals: the route object is eager
- * even though its component is lazy, because the table lives in the entry chunk, so every entry
- * carried its own copy of the property names and the minifier's per-entry renames; every route here
- * is lazy — installed through `loadPanelDemo`, never a surface function — so the initial bundle stays
- * inside its baseline. Every citation in this file is pinned to its line by `m047..m052`, which is
- * why `webmcp` sits between `console-read` and `components` and `what-changed` carries no comment.
+ * A list mapped over one object literal rather than twenty-one literals: the route object is eager even though its component is lazy, because the table lives in the entry chunk, so every entry carried its own copy of the property names and the minifier's per-entry renames; every route here is lazy — installed through `loadPanelDemo`, never a surface function — so the initial bundle stays inside its baseline.
+ * Every citation in this file is pinned to its line by `m047..m053`, which is why `webmcp-rehearsal` sits between `console-read` and `webmcp`, `webmcp` sits between it and `components`, and `what-changed` carries no comment: an entry added here pays for its own lines out of this paragraph, so no cited line below it moves.
+ * The M053 entry registers nothing: the page that declares its tool is `REHEARSAL_PAGE` in `panel-webmcp-rehearsal.ts`, and this route only reaches the pane that renders the join's answer.
  */
 const PANEL_SURFACES = [
   // The M028 SC4 surface: the ordered after-render chain, or the state that names its absence.
@@ -84,6 +81,9 @@ const PANEL_SURFACES = [
   // rendered it, the same with the absence a finding names still stated, or the `cannot-tell` reason
   // and nothing beside it.
   'console-read',
+  // The M053 SC1-SC3 surface: the tool the model chose, named by the awaited list, beside the result the
+  // tool returned — or the absent handle, the tool's refusal, the unreadable list, each in its own words.
+  'webmcp-rehearsal',
   // The M052 SC1-SC2 surface: each declared tool with the name and the description the API reported,
   // an empty list it answered, or the reason's code and detail verbatim.
   'webmcp',

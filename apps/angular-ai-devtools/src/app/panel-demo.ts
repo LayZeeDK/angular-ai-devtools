@@ -59,6 +59,7 @@ const LOADERS: Record<
   'dead-click': () => import('./panel-dead-click') as never,
   'what-changed': () => import('./panel-what-changed') as never,
   webmcp: () => import('./panel-webmcp') as never,
+  'webmcp-rehearsal': () => import('./panel-webmcp-rehearsal') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -641,6 +642,24 @@ export const FACTS: Record<string, unknown> = {
       },
       { name: 'count_components' },
     ],
+    reason: null,
+  },
+  // The join's own answer (`extension/webmcp-rehearsal.js`, T002) for a rehearsal that ran, on the page
+  // the demo owns: `REHEARSAL_PAGE` in `panel-webmcp-rehearsal.ts` is the document, and its one script
+  // registers exactly one tool with `document.modelContext.registerTool` — so a Tool handle exists for a
+  // caller to invoke, which is what C4's measurement says the success path needs. `panel-demo.spec.ts`
+  // runs that script against a context that records the registration, reads the list through the shipped
+  // `readTools`, calls the registered tool's own `execute` and hands all three to the shipped `rehearse`,
+  // then holds this fact to that answer field for field. So the name below is the name the registered
+  // descriptor carries and the result below is the value that tool returned — a string, so it is the same
+  // value whichever documented answer `executeTool` gives — never a value written here by hand.
+  'webmcp-rehearsal': {
+    state: 'rehearsed',
+    tool: {
+      name: 'find_components',
+      description: 'Returns the components the page rendered.',
+    },
+    result: '3 components',
     reason: null,
   },
 };
