@@ -2,10 +2,10 @@
 id: T002
 title: Read the tool list, or refuse
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 144e82caff38da58172b551af1a286da98686e6e
 worktree: null
 task_branch: null
 files:
@@ -77,3 +77,4 @@ node --test scripts/webmcp-audit.test.mjs && npx prettier --check extension/webm
 ## Log
 
 - pending.
+- Landed paths: `extension/webmcp-audit.js`, `scripts/webmcp-audit.test.mjs`, `research/raw/m052-webmcp-api.json` — each is read from this tree, ready.
