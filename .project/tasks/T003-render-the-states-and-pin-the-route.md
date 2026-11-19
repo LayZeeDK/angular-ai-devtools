@@ -2,11 +2,11 @@
 id: T003
 title: Render the states and pin the route
 wave: 3
-status: pending
+status: done
 deps:
   - T002
-agent: null
-base: null
+agent: build_T003
+base: a4d1e6e94bf94dfdb1d9dd139bd2b1fd4ccd901c
 worktree: null
 task_branch: null
 files:
