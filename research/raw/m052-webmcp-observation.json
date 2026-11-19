@@ -1,0 +1,114 @@
+{
+  "schema": "m052-webmcp-observation/v1",
+  "milestone": "M052 webmcp-audit",
+  "task": "T003",
+  "title": "Call getTools() on a page that declares no tools",
+  "question": "what does document.modelContext.getTools() return on a page that declares no tools — an empty list, a throw, or undefined?",
+  "branch": "gsd-path/M052",
+  "head": "921cc0a5ab7edf9b910cdc1eb3cac27944cfcc80",
+  "headCommands": [
+    "git rev-parse --abbrev-ref HEAD",
+    "git rev-parse HEAD"
+  ],
+  "observedAt": "2026-11-19T15:59:49.849Z",
+  "measuredAt": "live: the instance below was started by the control-ai-browsers skill, a page was opened in it, and the two expressions below were evaluated in that page. Nothing here is simulated, and nothing here is read from the tree: T001 recorded the surface statically (research/raw/m052-webmcp-api.json) and this recording is the call that record said no code in this tree had ever made.",
+  "instrument": {
+    "skill": "control-ai-browsers",
+    "instance": "chrome-beta-nano",
+    "browserVersion": "Chrome/159.0.8154.13",
+    "session": "ai-chrome-beta-nano-9333",
+    "port": 9333,
+    "backend": "gpu",
+    "features": "the instance registry features, WebMCP among them: AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4",
+    "commands": [
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano --json",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano <probe.js> --json (synchronous probe)",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano <probe.js> --json (awaited probe)"
+    ],
+    "evidence": [
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-155936/",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-155949/"
+    ]
+  },
+  "page": {
+    "url": "https://example.com/",
+    "declaresTools": false,
+    "why": "https://example.com is a plain secure page that registers no WebMCP tool at all, which is the page SC2 needs a reading for: it answered the question with no fixture, no extension relay and no app of ours in the way."
+  },
+  "observations": [
+    {
+      "id": "synchronous-call",
+      "what": "the expression readTools evaluates: the getter called with no argument and its return judged as a value",
+      "expression": "(() => {\n      const context = document.modelContext;\n      const answer = {\n        href: location.href,\n        userAgent: navigator.userAgent,\n        modelContextType: typeof context,\n        prototypeMembers: context === null || typeof context !== 'object' ? [] : Object.getOwnPropertyNames(Object.getPrototypeOf(context)),\n        getToolsType: context === null || typeof context !== 'object' ? 'no-model-context' : typeof context.getTools,\n      };\n      if (context === null || typeof context !== 'object' || typeof context.getTools !== 'function') {\n        answer.outcome = 'no-getter';\n        return answer;\n      }\n      try {\n        const listed = context.getTools();\n        answer.outcome = 'returned';\n        answer.isArray = Array.isArray(listed);\n        answer.length = Array.isArray(listed) ? listed.length : null;\n        answer.json = JSON.stringify(listed);\n        answer.constructorName = listed !== null && typeof listed === 'object' ? listed.constructor?.name ?? null : null;\n      } catch (error) {\n        answer.outcome = 'threw';\n        answer.errorName = error !== null && typeof error === 'object' ? String(error.name) : typeof error;\n        answer.errorMessage = error !== null && typeof error === 'object' ? String(error.message) : String(error);\n      }\n      return answer;\n    })()",
+      "result": {
+        "outcome": "returned",
+        "isArray": false,
+        "length": null,
+        "json": "{}",
+        "constructorName": "Promise",
+        "errorName": null,
+        "errorMessage": null,
+        "prototypeMembers": [
+          "ontoolchange",
+          "ontoolactivated",
+          "ontoolcancel",
+          "executeTool",
+          "getTools",
+          "registerTool",
+          "constructor"
+        ],
+        "modelContextType": "object",
+        "getToolsType": "function",
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36"
+      }
+    },
+    {
+      "id": "awaited-call",
+      "what": "the same page, the getter awaited, to see what the promise the synchronous call answered resolves to",
+      "expression": "(async () => {\n      const context = document.modelContext;\n      const answer = {\n        href: location.href,\n        userAgent: navigator.userAgent,\n        modelContextType: typeof context,\n        getToolsType: context === null || typeof context !== 'object' ? 'no-model-context' : typeof context.getTools,\n      };\n      if (context === null || typeof context !== 'object' || typeof context.getTools !== 'function') {\n        answer.outcome = 'no-getter';\n        return answer;\n      }\n      try {\n        const listed = await context.getTools();\n        answer.outcome = 'resolved';\n        answer.isArray = Array.isArray(listed);\n        answer.length = Array.isArray(listed) ? listed.length : null;\n        answer.json = JSON.stringify(listed);\n        answer.constructorName = listed !== null && typeof listed === 'object' ? listed.constructor?.name ?? null : null;\n      } catch (error) {\n        answer.outcome = 'rejected';\n        answer.errorName = error !== null && typeof error === 'object' ? String(error.name) : typeof error;\n        answer.errorMessage = error !== null && typeof error === 'object' ? String(error.message) : String(error);\n      }\n      return answer;\n    })()",
+      "result": {
+        "outcome": "resolved",
+        "isArray": true,
+        "length": 0,
+        "json": "[]",
+        "constructorName": "Array",
+        "errorName": null,
+        "errorMessage": null,
+        "prototypeMembers": null,
+        "modelContextType": "object",
+        "getToolsType": "function",
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36"
+      }
+    }
+  ],
+  "answer": {
+    "outcome": "promise-resolving-to-an-empty-list",
+    "statement": "On this instance and browser version, document.modelContext is an object whose prototype carries getTools (beside registerTool, executeTool, ontoolchange, ontoolactivated and ontoolcancel, which T001 recorded statically). getTools() does not return the list: it returns a Promise. Awaited on a page that declares no tools, that promise resolves to an empty array — the JSON of the resolved value is [], its constructor is Array and its length is 0. So the answer to the question this task was asked to measure is: neither an empty list returned synchronously, nor a throw, nor undefined — an asynchronously resolved empty list.",
+    "effectOnTheReader": {
+      "module": "extension/webmcp-audit.js",
+      "judgement": "Array.isArray on the getter’s synchronous return",
+      "citations": [
+        {
+          "at": "extension/webmcp-audit.js:199",
+          "lineText": "listed = getter.call(context);"
+        },
+        {
+          "at": "extension/webmcp-audit.js:209",
+          "lineText": "if (!Array.isArray(listed)) {"
+        }
+      ],
+      "stateForTheMeasuredApi": "cannot-tell",
+      "reasonCode": "unreadable-list",
+      "reasonDetail": "the list getter answered an object rather than a list: the tool list is not readable",
+      "statement": "The reader calls the getter once, with no argument, and judges the value it returned with Array.isArray. A Promise is an object rather than a list, so the measured API answers the reader cannot-tell with code unreadable-list and the detail above — not empty, even though the promise resolves to []. The units agree on the fact and disagree on the shape: the page declared no tools and the API said so, but not through a value the reader can read synchronously. Whether readTools should await the getter is not this task’s to change (extension/webmcp-audit.js is T002’s file), and this recording states the observation rather than editing the reader."
+    }
+  },
+  "notClaimed": [
+    "Nothing here claims getTools() is synchronous on any other browser version or instance: one instance (chrome-beta-nano, Chrome/159.0.8154.13) and one page were measured, and research/raw/m052-webmcp-api.json’s unknowns[member-list-still-current] is why the version is recorded beside the result.",
+    "Nothing here claims a page that declares a tool lists it: the page measured declares none, so the only value observed is the empty resolution. A tool descriptor’s fields are T001’s documented shape and T002’s fixture, never an observation of this page.",
+    "Nothing here claims the panel reads a live page’s tool list: the panel renders the reading it is handed (apps/angular-ai-devtools/src/app/panel-webmcp.ts), and no code in this tree relays getTools() from an inspected tab.",
+    "Nothing here re-measures the prototype member list beyond the names this run printed: the members recorded above are the ones this browser version answered with, which is a re-measurement of T001’s 2026-10-11 reading rather than a copy of it."
+  ]
+}

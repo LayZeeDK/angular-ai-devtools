@@ -58,6 +58,7 @@ const LOADERS: Record<
   'interaction-story': () => import('./panel-interaction-story') as never,
   'dead-click': () => import('./panel-dead-click') as never,
   'what-changed': () => import('./panel-what-changed') as never,
+  webmcp: () => import('./panel-webmcp') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -616,6 +617,29 @@ export const FACTS: Record<string, unknown> = {
       'boundary',
       'stability',
       'checks',
+    ],
+    reason: null,
+  },
+  // The reader's own answer (`extension/webmcp-audit.js`, T002) for a source whose model context
+  // exposes `getTools`, which answers two descriptors: one carrying a name and a description, and one
+  // carrying a name alone. `panel-demo.spec.ts` rebuilds that source, runs the shipped `readTools`
+  // over it and holds this fact to the answer field for field, so a fact that drifted from the reader
+  // reddens there. The two names and the one description are sample data, and this fact is not a
+  // claim about any page: the milestone's browser measurement (`research/raw/m052-webmcp-observation.json`)
+  // found `getTools` answers a **Promise** that resolves to `[]` on a page declaring no tools, and
+  // `readTools` judges the getter's synchronous return with `Array.isArray` — so a live page at this
+  // browser version earns the pane's `cannot-tell` with `code: unreadable-list`, not this state. The
+  // pane renders whichever state the reading carries; the sample below is the shape a readable list
+  // has when one is read, including the description-less descriptor E4 is written about.
+  webmcp: {
+    state: 'tools',
+    tools: [
+      {
+        name: 'find_components',
+        description:
+          'Returns the components the page rendered for a CSS selector.',
+      },
+      { name: 'count_components' },
     ],
     reason: null,
   },
