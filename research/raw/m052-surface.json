@@ -77,63 +77,63 @@
     "resolvedBy": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 698,
+        "line": 717,
         "lineText": "const loader = LOADERS[name];",
         "holds": "LOADERS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 704,
+        "line": 723,
         "lineText": "void loader().then((mod) => {",
         "holds": "loader()"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 705,
+        "line": 724,
         "lineText": "const surface = mod.default(FACTS[name]);",
         "holds": "FACTS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 706,
+        "line": 725,
         "lineText": "this.state.set(surface.state);",
         "holds": "surface.state"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 707,
+        "line": 726,
         "lineText": "this.lines.set(surface.lines);",
         "holds": "surface.lines"
       }
     ],
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 634,
+      "line": 635,
       "lineText": "webmcp: {",
       "holds": "webmcp: {"
     },
     "sampleFactAnswer": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 635,
+        "line": 636,
         "lineText": "state: 'tools',",
         "holds": "state: 'tools',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 636,
+        "line": 637,
         "lineText": "tools: [",
         "holds": "tools: ["
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 638,
+        "line": 639,
         "lineText": "name: 'find_components',",
         "holds": "name: 'find_components',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 642,
+        "line": 643,
         "lineText": "{ name: 'count_components' },",
         "holds": "{ name: 'count_components' }"
       }
@@ -141,18 +141,18 @@
     "sampleFactComment": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 623,
+        "line": 624,
         "lineText": "// The reader's own answer (`extension/webmcp-audit.js`, T002) for a source whose model context",
         "holds": "webmcp-audit.js"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 629,
+        "line": 630,
         "lineText": "// found `getTools` answers a **Promise** that resolves to `[]` on a page declaring no tools, and",
         "holds": "Promise"
       }
     ],
-    "statement": "the `webmcp` key is the last key `LOADERS` carries (:61) and it is the only path to `panel-webmcp.ts`: the demo looks the key up by the name the route’s `data.surface` states (:698), awaits the dynamic import (:704), calls the module’s default export with the sample fact (:705), and sets the state (:706) and the lines (:707) the module answers. The fact it is handed (:634-:645) is the reading T002’s `readTools` answers for a source whose model context exposes `getTools` with two descriptors — one carrying a name and a description, one carrying a name alone — so the pane is handed a readable `tools` reading and the description-less descriptor E4 is written about. The fact is sample data and not a claim about any page: the comment above it (:623-:633) states what the milestone’s browser observation found, and `panel-demo.spec.ts` rebuilds the source, runs the shipped reader over it and holds this fact to the answer field for field."
+    "statement": "the `webmcp` key is the last key `LOADERS` carries (:61) and it is the only path to `panel-webmcp.ts`: the demo looks the key up by the name the route’s `data.surface` states (:717), awaits the dynamic import (:723), calls the module’s default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact it is handed (:635-:646) is the reading T002’s `readTools` answers for a source whose model context exposes `getTools` with two descriptors — one carrying a name and a description, one carrying a name alone — so the pane is handed a readable `tools` reading and the description-less descriptor E4 is written about. The fact is sample data and not a claim about any page: the comment above it (:624-:634) states what the milestone’s browser observation found, and `panel-demo.spec.ts` rebuilds the source, runs the shipped reader over it and holds this fact to the answer field for field."
   },
   "answer": {
     "fields": [
@@ -475,7 +475,7 @@
     "The record does not measure what the pane looks like. The lines each state writes are held by `panel-demo.spec.ts` over the shipped reader and its sample fact, and this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
     "Nothing here claims the panel reads a live page’s tool list: no code in this tree relays `getTools()` from an inspected tab, and the pane renders the reading it is handed. The route, the loader key and the states are the path a caller would use, not a claim that one exists.",
     "The route table’s total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
-    "The sample fact at `panel-demo.ts:634-:645` is fixture data `panel-demo.spec.ts` rebuilds from a source it writes itself, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what any page recorded."
+    "The sample fact at `panel-demo.ts:635-:646` is fixture data `panel-demo.spec.ts` rebuilds from a source it writes itself, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what any page recorded."
   ],
-  "verdict": "measured: `/webmcp` is one lazy route — the `PANEL_SURFACES` entry at :89, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `webmcp` key of `panel-demo.ts`’s `LOADERS` (:61), and that key is the only path to `panel-webmcp.ts`: the demo looks it up (:698), awaits the import (:704), calls the module’s default export with the sample fact (:705) and sets the state (:706) and the lines (:707). The surface renders the reader’s three states and adds none of its own: `tools` reads `state` and the `tools` list, rendering each tool with the name and only the description the descriptor carried; `empty` reads `state` and the list and states that the API answered one holding no tool; and `cannot-tell` reads `reason.code` and `reason.detail` and no list at all. The reading the measured API actually answers is the third of those (plan Correction C3): `getTools()` returns a Promise, `readTools` judges the synchronous return, and a live page at this browser version earns `cannot-tell` with `unreadable-list` rather than `empty`."
+  "verdict": "measured: `/webmcp` is one lazy route — the `PANEL_SURFACES` entry at :89, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `webmcp` key of `panel-demo.ts`’s `LOADERS` (:61), and that key is the only path to `panel-webmcp.ts`: the demo looks it up (:717), awaits the import (:723), calls the module’s default export with the sample fact (:724) and sets the state (:725) and the lines (:726). The surface renders the reader’s three states and adds none of its own: `tools` reads `state` and the `tools` list, rendering each tool with the name and only the description the descriptor carried; `empty` reads `state` and the list and states that the API answered one holding no tool; and `cannot-tell` reads `reason.code` and `reason.detail` and no list at all. The reading the measured API actually answers is the third of those (plan Correction C3): `getTools()` returns a Promise, `readTools` judges the synchronous return, and a live page at this browser version earns `cannot-tell` with `unreadable-list` rather than `empty`."
 }

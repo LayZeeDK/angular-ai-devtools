@@ -2280,9 +2280,19 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
 // digest needed no new row for it. The same pass re-read the three `panel-demo.ts` citations and the one
 // `panel-demo.spec.ts` citation the M052 T003 commit moved.
 //
+// M053's T003 shipped `panel-webmcp-rehearsal.ts` as the twenty-fifth surface, so T004 re-measured the
+// record over all twenty-five — every citation re-read, the twenty-fifth surface's ten registry
+// sentences and eleven labels cited — and authored seven more digest rows from that module's own
+// `PANE_SENTENCES`. Three of its sentences (`no-tool-name`, `no-reason-code`, `no-reason-detail`) are
+// byte for byte strings `panel-webmcp.ts` already declares, so those needed no new row; its `no-reason`
+// is **not** that shared text — this pane says the record carries no reason rather than that the answer
+// reported cannot-tell without one — so it is one of the seven rows. The same pass re-read the
+// `panel-demo.ts` citations the M053 T003 commit moved (the template's `h2` and `state` lines, the
+// loader resolution block, and the no-such-surface line) and the one `panel-demo.spec.ts` import line.
+//
 // Two facts the pins below state rather than assume:
 //
-//   * the digest holds one row per distinct sentence text, so 169 rows explain 174 sentences: the
+//   * the digest holds one row per distinct sentence text, so 176 rows explain 184 sentences: the
 //     `no-reason` sentence `panel-copy-check.ts:128`, `panel-interaction-story.ts:150`,
 //     `panel-dead-click.ts:202`, `panel-what-changed.ts:154` and `panel-webmcp.ts:138` declare is byte
 //     for byte the one `panel-components.ts:147` declares, and the one row explains all six;
@@ -2300,7 +2310,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
 
   assert.equal(
     record.counts.surfaces,
-    24,
+    25,
     `the record measures every panel-*.ts surface the tree carries, and it measures ${record.counts.surfaces}`,
   );
   assert.equal(
@@ -2374,8 +2384,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   const all = recordSentenceRows();
   assert.equal(
     shippedDigest.entries.length,
-    169,
-    `the digest carries ${shippedDigest.entries.length} rows and the record carries 169 distinct sentence texts`,
+    176,
+    `the digest carries ${shippedDigest.entries.length} rows and the record carries 176 distinct sentence texts`,
   );
   assert.equal(
     shippedDigest.entries.length,
@@ -2384,8 +2394,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     all.length,
-    174,
-    `the record carries ${all.length} sentences: 140 declared in a map or a constant and 34 written inline`,
+    184,
+    `the record carries ${all.length} sentences: 150 declared in a map or a constant and 34 written inline`,
   );
 
   // The one repeated sentence: six surfaces declare it, the digest holds one row for it, and the
@@ -2717,6 +2727,113 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
       `the digest's row ${entry.key} is "${entry.text}", which the record does not carry under that key`,
     );
 
+  // The twenty-fifth surface, measured the same way at this head: ten registry sentences in the order
+  // the registry states them, eleven inline labels and no inline sentence, and its own row clean over
+  // ten compared strings. The seven digest rows filed under it are its own sentences — the other three
+  // are the `no-tool-name`, `no-reason-code` and `no-reason-detail` strings the webmcp pane already
+  // declares, explained by that pane's rows. Its `no-reason` is a different text, which is why it is
+  // one of the seven rather than one more use of the shared row.
+  const rehearsal = surfaceOf('webmcp-rehearsal');
+  assert.equal(
+    rehearsal.file,
+    `${APP}/panel-webmcp-rehearsal.ts`,
+    'the twenty-fifth surface is the webmcp-rehearsal pane',
+  );
+  assert.equal(
+    rehearsal.declares,
+    'map',
+    'the pane declares its copy in a registry rather than inline',
+  );
+  assert.equal(
+    rehearsal.declaration?.name,
+    'PANE_SENTENCES',
+    'and the registry is the one its declaration names',
+  );
+  const rehearsalSentences = recordSentences(rehearsal);
+  assert.deepEqual(
+    rehearsalSentences.map((row) => row.key),
+    [
+      'state-rehearsed',
+      'state-no-tool',
+      'state-refused',
+      'state-unavailable',
+      'no-rehearsal-record',
+      'no-tool-name',
+      'no-result-value',
+      'no-reason',
+      'no-reason-code',
+      'no-reason-detail',
+    ],
+    'the pane declares the four state sentences and the six absences, in the order its registry states them',
+  );
+  assert.equal(
+    rehearsalSentences.length,
+    10,
+    `the pane declares ${rehearsalSentences.length} sentences and its registry carries ten`,
+  );
+  assert.equal(
+    rehearsal.inline.length,
+    11,
+    `the pane builds ${rehearsal.inline.length} distinct labels inline and the record carries eleven`,
+  );
+  for (const line of rehearsal.inline) {
+    assert.equal(
+      line.kind,
+      'label',
+      `the pane writes "${line.text}" inline and it is a label of the join’s own field or the reason’s`,
+    );
+    assert.equal(
+      line.interpolated,
+      true,
+      `"${line.text}" is built from a value, so it is interpolated`,
+    );
+  }
+  assert.equal(
+    rehearsal.inline.filter((line) => line.kind === 'sentence').length,
+    0,
+    'no sentence is written inline on this pane, which is why no inline entry of it is digested',
+  );
+  const rehearsalRow = copyOf(
+    api.copyCheck(copyOf([rehearsal]), copyOf(shippedDigest)),
+  );
+  assert.deepEqual(
+    rehearsalRow,
+    { state: 'clean', unexplained: [], checked: 10 },
+    `the webmcp-rehearsal pane's own row answers ${JSON.stringify(rehearsalRow)} rather than clean over ten compared sentences`,
+  );
+  const rehearsalRows = shippedDigest.entries.filter(
+    (/** @type {{surface: string}} */ entry) =>
+      entry.surface === 'webmcp-rehearsal',
+  );
+  assert.equal(
+    rehearsalRows.length,
+    7,
+    `the digest files ${rehearsalRows.length} row(s) under the twenty-fifth surface: its seven new sentences, and none for the three the webmcp pane declares`,
+  );
+  for (const entry of rehearsalRows)
+    assert.ok(
+      rehearsalSentences.some(
+        (/** @type {{key: string|null, text: string}} */ candidate) =>
+          candidate.key === entry.key && candidate.text === entry.text,
+      ),
+      `the digest's row ${entry.key} is "${entry.text}", which the record does not carry under that key`,
+    );
+  // The measured difference: this pane's `no-reason` is not the shared text, so the digest needed a
+  // row for it, and the one row under `webmcp` does not explain it.
+  const rehearsalNoReason = recordSentenceText('webmcp-rehearsal', 'no-reason');
+  assert.notEqual(
+    rehearsalNoReason,
+    shared,
+    'the twenty-fifth surface states a `no-reason` of its own rather than the shared one',
+  );
+  assert.ok(
+    rehearsalRows.some(
+      (/** @type {{key: string|null, text: string}} */ entry) =>
+        entry.key === 'no-reason' && entry.text === rehearsalNoReason,
+    ),
+    'the digest files that distinct sentence under its own row',
+  );
+
   // The whole record, at the counts this milestone re-measured.
   const whole = copyOf(
     api.copyCheck(copyOf(record.surfaces), copyOf(shippedDigest)),
@@ -2728,7 +2845,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     whole.checked,
-    174,
+    184,
     `every sentence the record declares is compared, the shared one at all six surfaces, and ${whole.checked} were`,
   );
   assert.equal(
@@ -2743,7 +2860,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   console.log(
     `T004 surface: copy-check declares ${sentences.length} sentences and builds ${copyCheck.inline.length} labels; ` +
-      `the digest holds ${shippedDigest.entries.length} rows for ${whole.checked} sentences, five of them one text`,
+      `the digest holds ${shippedDigest.entries.length} rows for ${whole.checked} sentences, eight of them one text`,
   );
 });
 

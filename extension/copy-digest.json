@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m051+t003",
+  "version": "m053+t004",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -847,6 +847,41 @@
       "surface": "webmcp",
       "key": "no-reason-detail",
       "text": "no-reason-detail: the reason arrived carrying no detail, so no detail is stated and the absence is named as the reason’s own gap"
+    },
+    {
+      "surface": "webmcp-rehearsal",
+      "key": "state-rehearsed",
+      "text": "rehearsed: the model chose a tool the awaited list reported and the call resolved, so the tool below is that list’s own entry for the choice — named exactly as the list reported it, with only the description it reported — and the result below is what the call answered, carried through unchanged"
+    },
+    {
+      "surface": "webmcp-rehearsal",
+      "key": "state-no-tool",
+      "text": "no-tool: no tool handle existed for the call — the awaited list reported no tool, reported none by the name the model chose, or no choice was made — so no tool is named, nothing was invoked and no result is rendered; the reason below is the refusal the call was answered with, in its own words"
+    },
+    {
+      "surface": "webmcp-rehearsal",
+      "key": "state-refused",
+      "text": "refused: a tool the awaited list reported was named and the call answered no result, so the reason below is the refusal’s own words and nothing stands in the result’s place — not a paraphrase, not an empty value and not a placeholder"
+    },
+    {
+      "surface": "webmcp-rehearsal",
+      "key": "state-unavailable",
+      "text": "unavailable: the tool list could not be read, so no rehearsal was attempted and the reason below is the reading’s own reason, echoed unchanged, from a list nobody read"
+    },
+    {
+      "surface": "webmcp-rehearsal",
+      "key": "no-rehearsal-record",
+      "text": "no-rehearsal-record: no rehearsal record was handed over, so no state, no tool, no result and no reason are reported"
+    },
+    {
+      "surface": "webmcp-rehearsal",
+      "key": "no-result-value",
+      "text": "no-result-value: the call resolved to a value this pane cannot print, so no result is printed rather than a stand-in for one"
+    },
+    {
+      "surface": "webmcp-rehearsal",
+      "key": "no-reason",
+      "text": "no-reason: the record carries no reason, so none is stated and nothing is written in its place"
     }
   ]
 }

@@ -1,0 +1,558 @@
+{
+  "schema": "m053-surface/v1",
+  "milestone": "M053 webmcp-rehearsal",
+  "task": "T004",
+  "title": "Record the rehearsal route, its loader key and the states each one reads",
+  "question": "which route reaches the webmcp-rehearsal surface, which LOADERS key resolves it, and what does each of its four states read off the record the join answered?",
+  "head": "0e0eba55d22cc1a9a639dd03c777b374f3400a56",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: every citation below was read out of the file it names at the head above with a script that resolves each quoted line to the one line of that file carrying it (the script is kept in the session scratchpad and not checked in), and `scripts/copy-check.test.mjs` re-reads every one of them on every run. The two readings this record describes are the join `extension/webmcp-rehearsal.js` (T002) and the surface `panel-webmcp-rehearsal.ts` (T003); the measurement the join’s refusals rest on is `research/raw/m053-execute-tool.json`, taken by T001 in a live Chrome Beta 159.0.8154.13 instance and quoted here as the record that produced plan Correction C4. No browser was opened for this record, no page was read, no build and no test of the app was run.",
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+    "join": "extension/webmcp-rehearsal.js",
+    "reader": "extension/webmcp-audit.js",
+    "measurement": "research/raw/m053-execute-tool.json"
+  },
+  "route": {
+    "name": "webmcp-rehearsal",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 86,
+      "lineText": "'webmcp-rehearsal',",
+      "holds": "webmcp-rehearsal"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadComponent: loadPanelDemo,"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "data: { surface },"
+    },
+    "table": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "export const appRoutes: Route[] = ["
+    },
+    "closure": [
+      {
+        "name": "loadPanelDemo",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "const loadPanelDemo = () =>"
+      },
+      {
+        "name": "PanelDemoComponent",
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "import('./panel-demo').then((m) => m.PanelDemoComponent);"
+      }
+    ],
+    "statement": "one entry of the `PANEL_SURFACES` list (:86), spread into the `appRoutes` table (:113) by the one mapped literal the table ends with (:144-:148), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:147) as every demo-backed route does. It sits between `console-read` and `webmcp` in the list, which is the order the table spreads; the total is not pinned here, because a later milestone appends to the list on purpose. The route registers nothing: the page that declares the tool is `REHEARSAL_PAGE` in `panel-webmcp-rehearsal.ts` (T003), and this route only reaches the pane that renders the join’s answer."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "const LOADERS: Record<"
+    },
+    "key": "webmcp-rehearsal",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 62,
+      "lineText": "'webmcp-rehearsal': () => import('./panel-webmcp-rehearsal') as never,",
+      "holds": "'./panel-webmcp-rehearsal'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 717,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 723,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 724,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 725,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 726,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 656,
+      "lineText": "'webmcp-rehearsal': {",
+      "holds": "'webmcp-rehearsal': {"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 657,
+        "lineText": "state: 'rehearsed',",
+        "holds": "state: 'rehearsed',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 658,
+        "lineText": "tool: {",
+        "holds": "tool: {"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 659,
+        "lineText": "name: 'find_components',",
+        "holds": "name: 'find_components',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 660,
+        "lineText": "description: 'Returns the components the page rendered.',",
+        "holds": "Returns the components the page rendered."
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 662,
+        "lineText": "result: '3 components',",
+        "holds": "result: '3 components',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 663,
+        "lineText": "reason: null,",
+        "holds": "reason: null,"
+      }
+    ],
+    "sampleFactComment": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 647,
+        "lineText": "// The join's own answer (`extension/webmcp-rehearsal.js`, T002) for a rehearsal that ran, on the page",
+        "holds": "webmcp-rehearsal.js"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 650,
+        "lineText": "// caller to invoke, which is what C4's measurement says the success path needs. `panel-demo.spec.ts`",
+        "holds": "C4's measurement"
+      }
+    ],
+    "statement": "the `webmcp-rehearsal` key is the last key `LOADERS` carries (:62) and it is the only path to `panel-webmcp-rehearsal.ts`: the demo looks the key up by the name the route’s `data.surface` states (:717), awaits the dynamic import (:723), calls the module’s default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact it is handed (:656-:663) is the join’s `rehearsed` answer for the page the demo owns: `REHEARSAL_PAGE`’s one script registers one descriptor through `document.modelContext.registerTool`, the list is read through the shipped `readTools`, the registered tool’s own `execute` is called and the three are handed to the shipped `rehearse`. The name is the name that descriptor carries and the result is the value that tool returned — a string, so it is the same value whichever documented answer `executeTool` gives — never a value written here by hand. `panel-demo.spec.ts` runs that script against a context that records the registration and holds this fact to the join’s answer field for field."
+  },
+  "answer": {
+    "fields": [
+      {
+        "field": "state",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 334,
+          "lineText": "const stateWord = nonEmptyString(record['state']);",
+          "holds": "record['state']"
+        },
+        "note": "the word the join answered, and the only field that decides which of the four states renders."
+      },
+      {
+        "field": "tool",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 379,
+          "lineText": "...toolLines(record['tool']),",
+          "holds": "record['tool']"
+        },
+        "note": "the reading’s own entry for the tool the model chose: its `name` (:291) and its `description` only where the descriptor carried one (:294), never a name from anywhere else."
+      },
+      {
+        "field": "result",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 375,
+          "lineText": "const result = printable(record['result']);",
+          "holds": "record['result']"
+        },
+        "note": "what the call resolved to, carried unchanged; a value the pane cannot print states `no-result-value` rather than a stand-in."
+      },
+      {
+        "field": "reason",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 351,
+          "lineText": "...reasonLines(record['reason']),",
+          "holds": "record['reason']"
+        },
+        "note": "the refusal’s own words where a rehearsal did not run, read as its `code` (:316) and its `detail` (:317) and never as a paraphrase, an empty value or a remedy."
+      }
+    ],
+    "statement": "the join answers exactly `{ state, tool, result, reason }` (T002’s contract), and the pane reads those four and nothing else: `state` decides the state (:334), `tool` is the reading’s own entry rendered by name and by the description it carried (:291, :294), `result` is the value the call resolved to (:375), and `reason` is the absence a refusal recorded (:351, :316, :317). No field of a descriptor beyond `name` and `description` is read, so the pane cannot print an `inputSchema`, an `origin` or a `window` the reading never carried, and no field is invented where the join carried none."
+  },
+  "states": [
+    {
+      "id": "rehearsed",
+      "word": "rehearsed",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+        "line": 95,
+        "lineText": "export const REHEARSED = 'rehearsed';",
+        "holds": "export const REHEARSED = 'rehearsed';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 124,
+          "lineText": "text: 'rehearsed: the model chose a tool the awaited list reported and the call resolved, so the tool below is that list’s own entry for the choice — named exactly as the list reported it, with only the description it reported — and the result below is what the call answered, carried through unchanged',",
+          "holds": "rehearsed: the model chose a tool"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 318,
+          "lineText": "state: REHEARSED,",
+          "holds": "state: REHEARSED"
+        },
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 320,
+          "lineText": "result: invocation.value,",
+          "holds": "invocation.value"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 334,
+            "lineText": "const stateWord = nonEmptyString(record['state']);",
+            "holds": "record['state']"
+          }
+        },
+        {
+          "field": "tool.name",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 291,
+            "lineText": "const name = nonEmptyString(tool['name']);",
+            "holds": "tool['name']"
+          }
+        },
+        {
+          "field": "tool.description",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 294,
+            "lineText": "Object.prototype.hasOwnProperty.call(tool, 'description') &&",
+            "holds": "hasOwnProperty.call(tool, 'description')"
+          }
+        },
+        {
+          "field": "result",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 375,
+            "lineText": "const result = printable(record['result']);",
+            "holds": "record['result']"
+          }
+        }
+      ],
+      "statement": "the tool the model chose, named by the name the awaited list reported, then the result the call answered exactly as it answered it: a string printed as that string and any other value as its JSON (:271-:279), with no reason line because a rehearsal that ran recorded none. A descriptor that carried no description renders no description line at all — no defaulted sentence and no stand-in — because an invented description reads as the page’s own words and is not (E1, N1, E4). A name the awaited list did not report cannot reach this state: the join returns `no-tool` for it (:294-:304)."
+    },
+    {
+      "id": "no-tool",
+      "word": "no-tool",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+        "line": 96,
+        "lineText": "export const NO_TOOL = 'no-tool';",
+        "holds": "export const NO_TOOL = 'no-tool';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 129,
+          "lineText": "text: 'no-tool: no tool handle existed for the call — the awaited list reported no tool, reported none by the name the model chose, or no choice was made — so no tool is named, nothing was invoked and no result is rendered; the reason below is the refusal the call was answered with, in its own words',",
+          "holds": "no-tool: no tool handle existed"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 299,
+          "lineText": "state: NO_TOOL,",
+          "holds": "state: NO_TOOL"
+        },
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 302,
+          "lineText": "reason: refusalOf(invocation),",
+          "holds": "refusalOf(invocation)"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 334,
+            "lineText": "const stateWord = nonEmptyString(record['state']);",
+            "holds": "record['state']"
+          }
+        },
+        {
+          "field": "reason",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 360,
+            "lineText": "...reasonLines(record['reason']),",
+            "holds": "record['reason']"
+          }
+        },
+        {
+          "field": "reason.detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 317,
+            "lineText": "const detail = nonEmptyString(reason['detail']);",
+            "holds": "reason['detail']"
+          }
+        }
+      ],
+      "statement": "no handle existed, so no tool is named and nothing was invoked: the awaited list reported no tool, reported none by the name the model chose, or no choice was made (:294-:304). The pane states that in its own sentence and echoes the refusal the call was answered with, verbatim — on the measured page, `parameter 1 is not of type 'Tool'` (`research/raw/m053-execute-tool.json`, `measurement.arguments`) — and renders no `tool:` line and no `result:` line in any form. The state is keyed on the absent handle, never on a missing model (plan Correction C4): the launch without the AI feature switches removed `document.modelContext` while `LanguageModel.availability()` still answered `available`, so the no-model state was never observed and this pane carries no branch that could render one."
+    },
+    {
+      "id": "refused",
+      "word": "refused",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+        "line": 97,
+        "lineText": "export const REFUSED = 'refused';",
+        "holds": "export const REFUSED = 'refused';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 134,
+          "lineText": "text: 'refused: a tool the awaited list reported was named and the call answered no result, so the reason below is the refusal’s own words and nothing stands in the result’s place — not a paraphrase, not an empty value and not a placeholder',",
+          "holds": "refused: a tool the awaited list reported"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 310,
+          "lineText": "state: REFUSED,",
+          "holds": "state: REFUSED"
+        },
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 313,
+          "lineText": "reason: refusalOf(invocation),",
+          "holds": "refusalOf(invocation)"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 334,
+            "lineText": "const stateWord = nonEmptyString(record['state']);",
+            "holds": "record['state']"
+          }
+        },
+        {
+          "field": "tool",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 369,
+            "lineText": "...toolLines(record['tool']),",
+            "holds": "record['tool']"
+          }
+        },
+        {
+          "field": "reason.code",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 316,
+            "lineText": "const code = nonEmptyString(reason['code']);",
+            "holds": "reason['code']"
+          }
+        },
+        {
+          "field": "reason.detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 317,
+            "lineText": "const detail = nonEmptyString(reason['detail']);",
+            "holds": "reason['detail']"
+          }
+        }
+      ],
+      "statement": "a tool the awaited list reported was named and no result came back (:306-:314). The pane’s own sentence says so, the block names that tool as the list reported it, and the reason is the refusal’s own words: its `code` and its `detail` on their own labelled lines, and a named absence in place of either one the reason does not carry (`no-reason-code`, `no-reason-detail`). No paraphrase, no empty value and no placeholder stands in the result’s place (SC2, N3). A caller that recorded no reason at all states that absence rather than a reason it did not read."
+    },
+    {
+      "id": "unavailable",
+      "word": "unavailable",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+        "line": 98,
+        "lineText": "export const UNAVAILABLE = 'unavailable';",
+        "holds": "export const UNAVAILABLE = 'unavailable';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 139,
+          "lineText": "text: 'unavailable: the tool list could not be read, so no rehearsal was attempted and the reason below is the reading’s own reason, echoed unchanged, from a list nobody read',",
+          "holds": "unavailable: the tool list could not be read"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 286,
+          "lineText": "state: UNAVAILABLE,",
+          "holds": "state: UNAVAILABLE"
+        },
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 284,
+          "lineText": "if (state !== TOOLS && state !== EMPTY) {",
+          "holds": "state !== TOOLS && state !== EMPTY"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 334,
+            "lineText": "const stateWord = nonEmptyString(record['state']);",
+            "holds": "record['state']"
+          }
+        },
+        {
+          "field": "reason.code",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 316,
+            "lineText": "const code = nonEmptyString(reason['code']);",
+            "holds": "reason['code']"
+          }
+        },
+        {
+          "field": "reason.detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+            "line": 317,
+            "lineText": "const detail = nonEmptyString(reason['detail']);",
+            "holds": "reason['detail']"
+          }
+        }
+      ],
+      "statement": "the awaited tool list could not be read — `cannot-tell`, in any one of the shipped reader’s absences — so no rehearsal was attempted and the reason is the reading’s own, echoed unchanged from `reasonOf(reading)` (:216-:219). No tool block and no count is offered in its place, because a list nobody read is not a list of zero tools, and an empty reading of a page declaring none is a different state from this one (E2, SC2)."
+    }
+  ],
+  "stateWords": {
+    "join": {
+      "words": [
+        "rehearsed",
+        "no-tool",
+        "refused",
+        "unavailable"
+      ],
+      "at": {
+        "file": "extension/webmcp-rehearsal.js",
+        "line": 74,
+        "lineText": "const REHEARSED = 'rehearsed';",
+        "holds": "const REHEARSED = 'rehearsed';"
+      },
+      "alsoAt": [
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 75,
+          "lineText": "const NO_TOOL = 'no-tool';",
+          "holds": "const NO_TOOL = 'no-tool';"
+        },
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 76,
+          "lineText": "const REFUSED = 'refused';",
+          "holds": "const REFUSED = 'refused';"
+        },
+        {
+          "file": "extension/webmcp-rehearsal.js",
+          "line": 77,
+          "lineText": "const UNAVAILABLE = 'unavailable';",
+          "holds": "const UNAVAILABLE = 'unavailable';"
+        }
+      ],
+      "note": "the join publishes the four words as four constants inside its own scope rather than as one exported list, and `rehearse` answers no fifth state: the reading’s two readable states (`tools`, `empty`) decide between `no-tool`, `refused` and `rehearsed`, and every other reading is `unavailable` — there is deliberately no `no-model` word, because T001 could not measure one (plan Correction C4)."
+    },
+    "surface": {
+      "words": [
+        "rehearsed",
+        "no-tool",
+        "refused",
+        "unavailable"
+      ],
+      "at": {
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+        "line": 101,
+        "lineText": "export const STATES = [REHEARSED, NO_TOOL, REFUSED, UNAVAILABLE] as const;",
+        "holds": "export const STATES = [REHEARSED, NO_TOOL, REFUSED, UNAVAILABLE] as const;"
+      }
+    },
+    "statement": "the surface renders the join’s four words and adds none: `STATES` (:101) holds `REHEARSED` (:95), `NO_TOOL` (:96), `REFUSED` (:97) and `UNAVAILABLE` (:98) in the order the pane states them, and a state word the pane was not written for — `no-model` among them — is rendered as the word it was given (:344) rather than as a sentence it does not have. The lookup is an own-property one (`Object.hasOwn`, :337), so a word that collides with an `Object.prototype` key is a word and not a sentence."
+  },
+  "notDigested": {
+    "added": [],
+    "sentencesAt": {
+      "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+      "line": 121,
+      "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = [",
+      "holds": "export const PANE_SENTENCES: readonly PanelSentence[] = ["
+    },
+    "scopeAt": {
+      "file": "extension/copy-check.js",
+      "line": 97,
+      "lineText": "const SCOPE = Object.freeze({",
+      "holds": "SCOPE"
+    },
+    "statement": "nothing this pane renders is composed at render, so T004 added no decision to `NOT_DIGESTED`: all ten of its registry entries are sentences whose text is the string the pane renders whole, and T004 authored a digest row for the seven that are not texts another surface already declares (`no-tool-name`, `no-reason-code` and `no-reason-detail` are byte for byte the sentences `panel-webmcp.ts` declares, so the one row under that surface explains them). Its eleven interpolated literals are labels around a value the join or the reason carries (`state:`, `name:`, `description:`, `result:`, `reason:`, `code:`, `detail:`), which `SCOPE` (:97) reads past by kind. The one `Error` the module throws (:192) is developer-facing and never rendered, so it is not a sentence and not an entry."
+  },
+  "notCaptured": [
+    "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture. The one browser measurement it quotes is T001’s, recorded in `research/raw/m053-execute-tool.json` and cited rather than re-run.",
+    "The record does not measure what the pane looks like. The lines each state writes are held by `panel-demo.spec.ts` over the shipped join and its sample fact, and this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
+    "Nothing here claims the panel reads a live page’s tool list or invokes a live tool: no panel runtime loads `REHEARSAL_PAGE` in this tree yet, no browser was launched for this record, and no rehearsal is claimed to have run anywhere but in the demo’s own sample fact and the suite that rebuilds it. That is T003’s stated limit and it is carried into this milestone’s Log rather than closed here.",
+    "The route table’s total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
+    "The sample fact at `panel-demo.ts:656-:663` is fixture data `panel-demo.spec.ts` rebuilds from the page T003 ships, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what any page recorded."
+  ],
+  "verdict": "measured: `/webmcp-rehearsal` is one lazy route — the `PANEL_SURFACES` entry at :86, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `webmcp-rehearsal` key of `panel-demo.ts`’s `LOADERS` (:62), and that key is the only path to `panel-webmcp-rehearsal.ts`: the demo looks it up (:717), awaits the import (:723), calls the module’s default export with the sample fact (:724) and sets the state (:725) and the lines (:726). The surface renders the join’s four states and adds none of its own: `rehearsed` reads `state`, the chosen `tool` (its `name` and only the description the descriptor carried) and the `result` the call answered; `no-tool` reads `state` and the call’s refusal verbatim and renders no tool and no result; `refused` reads `state`, the named `tool` and `reason.code`/`reason.detail` and renders nothing in the result’s place; and `unavailable` reads `state` and the reading’s own reason and attempts no rehearsal. There is no `no-model` state: T001 could not measure one, and plan Correction C4 keys the measured absences on the absent Tool handle and the unreadable list instead."
+}
