@@ -1,0 +1,21 @@
+candidates (pageSnapshot): record:false checks:false router-entry:false boundary:false stability:false state:false di-graph:false picked:false error-capture:false
+✔ the record is a measurement of candidates, an identity answer, a two-moments answer and its absences (16.0729ms)
+✔ every cited path and line is the one the record read (1.8786ms)
+✔ the field list is the list both dispatch blocks assign, and the order the tree pins (0.2372ms)
+✔ every candidate is the shape its cited block assigns, and none is a page snapshot (0.8416ms)
+✔ no field the record carries is a page identity, and the tree holds no reader for one (3.3939ms)
+✔ the record publishes no page snapshot at two moments: two dispatch sites, one frame and one install (2.6101ms)
+✔ the record states what it does not carry, and each absence quotes the line that states it (0.173ms)
+✔ a doctored record reddens the check it violates (21.3249ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1442.156
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/what-changed.test.mjs

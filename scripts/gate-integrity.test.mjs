@@ -5649,4 +5649,6 @@ Object.assign(SUITE_DIFF_REASONS, {
     'wholly added at this head: M049 T001 measures the three arrival-ordered streams in `research/raw/m049-streams.json` and T002 pins the narration `extension/interaction-story.js` over the interleaved order, the one-empty and all-empty refusals, the equal-`at` instant and the unreadable record, a reading the measured commit carries no file to edit',
   'scripts/dead-click.test.mjs':
     'wholly added at this head: M050 T001 measures the three consequence chains in `research/raw/m050-chains.json` and T002 pins the judgement `extension/dead-click.js` over the router chain, the two refused chains, the unbounded and empty records and the four mutants, a reading the measured commit carries no file to edit',
+  'scripts/what-changed.test.mjs':
+    'wholly added at this head: M051 T001 measures what a recorded snapshot carries and what binds two of them in `research/raw/m051-snapshots.json`, and T002 pins the judgement `extension/what-changed.js` over the differing pair, the added and removed field, the unmeasured key, the unbound pair, the absent snapshot, the two refused shapes and the five mutants, a reading the measured commit carries no file to edit',
 });

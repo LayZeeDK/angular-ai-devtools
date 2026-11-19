@@ -1,0 +1,3000 @@
+{
+  "schema": "m051-snapshots/v1",
+  "milestone": "M051 what-changed",
+  "task": "T001",
+  "title": "Measure what a recorded snapshot carries and what binds two of them",
+  "question": "does the published record carry any structure that stands for a snapshot of a page, which fields such a structure carries, whether any of those fields binds two records to one page, and whether the record publishes anything at two moments at all?",
+  "head": "7c34b8e090e8840aa4c2a6416b874aa9f9de7b22",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: extension/agent-main.js, extension/agent-main.test.mjs and extension/background.js were read line by line at the head above; every `lineText` below was printed from its file with leading and trailing whitespace trimmed and then re-read by scripts/what-changed.test.mjs. The count and listing measurements quote the exact commands beside them. No page was read, no browser was opened, nothing was rendered, no build was run and no comparison was written; the only commands executed were the counting and listing commands recorded in `measurements` and the verify suite.",
+  "lineTextConvention": "every `lineText` is the cited line with its leading and trailing whitespace trimmed and nothing else removed; `line` is 1-indexed. The suite re-reads every cited line and requires trimmed equality with `lineText`, so a citation that slides off its line fails. Every field list in `blocks` is re-parsed from the block its opener and closer name and must equal the recorded list, in order and with no extra field.",
+  "measurements": [
+    {
+      "id": "two-record-publication-sites",
+      "claims": "the record is dispatched at exactly two sites: the frame closer and the one initial record; the frame close is one microtask queued from the frame opener",
+      "command": "node -e \"const l=require('fs').readFileSync('extension/agent-main.js','utf8').split(/\\r?\\n/);l.forEach((t,i)=>{if(t.includes('dispatch(RECORD_EVENT')||t.includes('dispatchInitialRecord')||t.includes('queueMicrotask(closeCycle)'))console.log((i+1)+': '+t.trim())})\"",
+      "output": [
+        "566: globalThis.setTimeout(dispatchInitialRecord, 500);",
+        "568: dispatchInitialRecord();",
+        "747: globalThis.queueMicrotask(closeCycle);",
+        "1059: dispatch(RECORD_EVENT, facts);",
+        "1418: function dispatchInitialRecord() {",
+        "1432: dispatch(RECORD_EVENT, {"
+      ],
+      "note": "two `dispatch(RECORD_EVENT` sites and no third; `dispatchInitialRecord` appears three times, as the definition, the 500 ms timer and the try/catch fallback that runs when the timer cannot be armed, so the initial record is published once per install on either path."
+    },
+    {
+      "id": "record-key-list",
+      "claims": "the record carries nine keys, in the same order at both dispatch sites",
+      "command": "node -e \"const l=require('fs').readFileSync('extension/agent-main.js','utf8').split(/\\r?\\n/);const keys=(a,b)=>l.slice(a-1,b).filter(x=>/^ {6}\\w+:/.test(x)).map(x=>x.trim().split(':')[0]);console.log('frame',keys(1042,1054).join(','));console.log('install',l.slice(1431,1444).filter(x=>/^ {8}\\w+:/.test(x)).map(x=>x.trim().split(':')[0]).join(','));\"",
+      "output": [
+        "frame cycleId,startedAt,trigger,zoneMode,events,routerEvents,boundary,stability,checks",
+        "install cycleId,startedAt,trigger,zoneMode,events,routerEvents,boundary,stability,checks"
+      ],
+      "note": "recomputed by the suite from the same two blocks, and compared with the key order extension/agent-main.test.mjs pins."
+    },
+    {
+      "id": "no-page-identity-reader",
+      "claims": "the recorder reads no page address and carries no tab or page key: the record has no field a page identity could even be taken from",
+      "command": "node -e \"const fs=require('fs');for(const f of ['extension/agent-main.js','extension/background.js','extension/relay.js']){const s=fs.readFileSync(f,'utf8');const c=t=>s.split(t).length-1;console.log(f,'location',c('location'),'document.URL',c('document.URL'),'href',c('href'),'document.title',c('document.title'),'tabId',c('tabId'),'pageId',c('pageId'))}\"",
+      "output": [
+        "extension/agent-main.js location 0 document.URL 0 href 0 document.title 0 tabId 0 pageId 0",
+        "extension/background.js location 0 document.URL 0 href 0 document.title 0 tabId 14 pageId 0",
+        "extension/relay.js location 0 document.URL 0 href 0 document.title 0 tabId 0 pageId 0"
+      ],
+      "note": "the recorder reads no `location`, no `document.URL`, no `href` and no `document.title` at all, and carries no `tabId` and no `pageId`; `tabId` exists only in extension/background.js, where it is spread onto the runtime message beside the payload rather than into it (extension/background.js:23)."
+    },
+    {
+      "id": "snapshot-word-sites",
+      "claims": "the word \"snapshot\" names the router state snapshot and the install record only; no dispatched structure is a snapshot of a page",
+      "command": "node -e \"const l=require('fs').readFileSync('extension/agent-main.js','utf8').split(/\\r?\\n/);const hits=[];l.forEach((t,i)=>{if(t.toLowerCase().includes('snapshot'))hits.push((i+1)+': '+t.trim())});console.log('count',hits.length);console.log(hits.join('\\n'))\"",
+      "output": [
+        "count 17",
+        "1437: // The snapshot carries the same list a frame carries, empty.",
+        "1464: // boundary — a routed snapshot contributes its own route-config path strings, an error its own name",
+        "1472: var ROUTER_CHAIN_LIMIT = 32; // route-config paths read from one snapshot",
+        "1539: // The route-tree snapshot an event carried: a router state snapshot answers its own `root`, and an",
+        "1540: // activation event carries the activated snapshot itself. Anything else carries none, and a payload",
+        "1541: // this read cannot follow is no snapshot rather than an error.",
+        "1542: function routerSnapshotOf(event) {",
+        "1553: var snapshot = routerFieldOf(event, 'snapshot');",
+        "1554: return snapshot !== null && typeof snapshot === 'object' ? snapshot : null;",
+        "1557: // One config path from one snapshot: the route's own `path`, '' for a componentless route and",
+        "1558: // `null` where the snapshot carries no route configuration at all. T001 measured the portal's",
+        "1560: function routerSnapshotPathOf(snapshot) {",
+        "1563: config = snapshot.routeConfig;",
+        "1577: // The primary chain's own config paths, in order, and nothing else: no snapshot object, no URL tree",
+        "1578: // and no component reference crosses the boundary. An event with no route-tree snapshot contributes",
+        "1582: var node = routerSnapshotOf(event);",
+        "1585: paths.push(routerSnapshotPathOf(node));"
+      ],
+      "note": "16 of the 17 mentions are the router read between :1464 and :1585 and its limit; the seventeenth is the install record's own comment at :1437, which calls a record a snapshot of the frame's empty list."
+    },
+    {
+      "id": "identity-and-frame-counters",
+      "claims": "the record's counters are a per-record increment and an install reading; the router snapshot reader has one call site; the frame's checks are only ever created from the frame opener",
+      "command": "node -e \"const fs=require('fs');const s=fs.readFileSync('extension/agent-main.js','utf8');const c=t=>s.split(t).length-1;for(const t of ['++cycleId','openCycle(','queueMicrotask(closeCycle)','dispatch(RECORD_EVENT','setTimeout(dispatchInitialRecord, 500)','routerSnapshotOf(','routerSnapshotPathOf(','getOrCreateCheck(','stabilityAttachAt =','tabId','pageId'])console.log(t,c(t))\"",
+      "output": [
+        "++cycleId 2",
+        "openCycle( 2",
+        "queueMicrotask(closeCycle) 1",
+        "dispatch(RECORD_EVENT 2",
+        "setTimeout(dispatchInitialRecord, 500) 1",
+        "routerSnapshotOf( 2",
+        "routerSnapshotPathOf( 2",
+        "getOrCreateCheck( 2",
+        "stabilityAttachAt = 4",
+        "tabId 0",
+        "pageId 0"
+      ],
+      "note": "`++cycleId` twice is the two increments (the frame opener :740 and the install record :1433), so `cycleId` is distinct in every record; `routerSnapshotOf(` and `routerSnapshotPathOf(` appear once each plus their definitions, so the snapshot reader has one call and it is inside `routerMatchedPathsOf`; `getOrCreateCheck(` once plus its definition, so a check exists only for an instance the frame reported; `stabilityAttachAt =` four times is the declaration, the one `nowMs()` reading at subscribe and the two resets that clear it."
+    }
+  ],
+  "record": {
+    "publisher": {
+      "dispatch": {
+        "file": "extension/agent-main.js",
+        "line": 12,
+        "lineText": "var RECORD_EVENT = NS + ':record';"
+      },
+      "relay": {
+        "file": "extension/relay.js",
+        "line": 14,
+        "lineText": "window.addEventListener('angular-ai:record', (/** @type {CustomEvent} */ e) => {"
+      },
+      "envelope": {
+        "file": "extension/background.js",
+        "line": 23,
+        "lineText": "chrome.runtime.sendMessage({ ...msg, tabId: sender.tab?.id });"
+      },
+      "envelopeNote": "the background re-broadcasts the message with the sender's tab id beside the payload: `{ ...msg, tabId: sender.tab?.id }` keeps `cycle` untouched, so the tab id is the transport's, never the record's."
+    },
+    "dispatchSites": [
+      {
+        "id": "frame",
+        "what": "one record per change-detection frame",
+        "functionSite": {
+          "file": "extension/agent-main.js",
+          "line": 1038,
+          "lineText": "function closeCycle() {"
+        },
+        "opener": {
+          "file": "extension/agent-main.js",
+          "line": 1042,
+          "lineText": "var facts = {"
+        },
+        "closer": {
+          "file": "extension/agent-main.js",
+          "line": 1054,
+          "lineText": "};"
+        },
+        "dispatch": {
+          "file": "extension/agent-main.js",
+          "line": 1059,
+          "lineText": "dispatch(RECORD_EVENT, facts);"
+        },
+        "openedBy": {
+          "file": "extension/agent-main.js",
+          "line": 600,
+          "lineText": "if (!cycle) openCycle();"
+        },
+        "closedBy": {
+          "file": "extension/agent-main.js",
+          "line": 747,
+          "lineText": "globalThis.queueMicrotask(closeCycle);"
+        },
+        "note": "the frame is opened by a TemplateUpdateStart and closed by the microtask `closeCycle`, so this record is the frame's own work and never a reading of the page at rest."
+      },
+      {
+        "id": "install",
+        "what": "one record per install, 500 ms after it",
+        "functionSite": {
+          "file": "extension/agent-main.js",
+          "line": 1418,
+          "lineText": "function dispatchInitialRecord() {"
+        },
+        "opener": {
+          "file": "extension/agent-main.js",
+          "line": 1432,
+          "lineText": "dispatch(RECORD_EVENT, {"
+        },
+        "closer": {
+          "file": "extension/agent-main.js",
+          "line": 1444,
+          "lineText": "});"
+        },
+        "dispatch": {
+          "file": "extension/agent-main.js",
+          "line": 1432,
+          "lineText": "dispatch(RECORD_EVENT, {"
+        },
+        "timer": {
+          "file": "extension/agent-main.js",
+          "line": 566,
+          "lineText": "globalThis.setTimeout(dispatchInitialRecord, 500);"
+        },
+        "note": "the only record not produced by a frame: one publication per install, built from the enumerated component nodes with `events: []`."
+      }
+    ],
+    "keyOrder": [
+      "cycleId",
+      "startedAt",
+      "trigger",
+      "zoneMode",
+      "events",
+      "routerEvents",
+      "boundary",
+      "stability",
+      "checks"
+    ],
+    "fields": [
+      {
+        "name": "cycleId",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1043,
+          "lineText": "cycleId: c.cycleId,"
+        },
+        "also": {
+          "file": "extension/agent-main.js",
+          "line": 1433,
+          "lineText": "cycleId: ++cycleId,"
+        }
+      },
+      {
+        "name": "startedAt",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1044,
+          "lineText": "startedAt: c.startedAt,"
+        },
+        "also": {
+          "file": "extension/agent-main.js",
+          "line": 1434,
+          "lineText": "startedAt: nowMs(),"
+        }
+      },
+      {
+        "name": "trigger",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1045,
+          "lineText": "trigger: c.trigger,"
+        },
+        "also": {
+          "file": "extension/agent-main.js",
+          "line": 1435,
+          "lineText": "trigger: { kind: 'unknown', listenerName: null },"
+        }
+      },
+      {
+        "name": "zoneMode",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1046,
+          "lineText": "zoneMode: zoneMode,"
+        },
+        "also": {
+          "file": "extension/agent-main.js",
+          "line": 1436,
+          "lineText": "zoneMode: zoneMode,"
+        }
+      },
+      {
+        "name": "events",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1048,
+          "lineText": "events: c.events.slice(),"
+        },
+        "also": {
+          "file": "extension/agent-main.js",
+          "line": 1438,
+          "lineText": "events: [],"
+        }
+      },
+      {
+        "name": "routerEvents",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1050,
+          "lineText": "routerEvents: routerEventList(),"
+        },
+        "also": {
+          "file": "extension/agent-main.js",
+          "line": 1440,
+          "lineText": "routerEvents: routerEventList(),"
+        }
+      },
+      {
+        "name": "boundary",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1051,
+          "lineText": "boundary: boundaryField(),"
+        },
+        "also": {
+          "file": "extension/agent-main.js",
+          "line": 1441,
+          "lineText": "boundary: boundaryField(),"
+        }
+      },
+      {
+        "name": "stability",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1052,
+          "lineText": "stability: stabilityField(),"
+        },
+        "also": {
+          "file": "extension/agent-main.js",
+          "line": 1442,
+          "lineText": "stability: stabilityField(),"
+        }
+      },
+      {
+        "name": "checks",
+        "site": {
+          "file": "extension/agent-main.js",
+          "line": 1053,
+          "lineText": "checks: [],"
+        },
+        "also": {
+          "file": "extension/agent-main.js",
+          "line": 1443,
+          "lineText": "checks: [check],"
+        }
+      }
+    ],
+    "pinnedKeyOrder": {
+      "what": "the key order extension/agent-main.test.mjs already pins for the initial record",
+      "conditions": [
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2569,
+          "lineText": "Object.keys(detail),"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2571,
+          "lineText": "'cycleId',"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2572,
+          "lineText": "'startedAt',"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2573,
+          "lineText": "'trigger',"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2574,
+          "lineText": "'zoneMode',"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2575,
+          "lineText": "'events',"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2576,
+          "lineText": "'routerEvents',"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2586,
+          "lineText": "'boundary',"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2587,
+          "lineText": "'stability',"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2588,
+          "lineText": "'checks',"
+        },
+        {
+          "file": "extension/agent-main.test.mjs",
+          "line": 2590,
+          "lineText": "'and each additive field sits in the same position in both records — the router list is the second, the boundary record the third, and `checks` stays last',"
+        }
+      ]
+    },
+    "moment": {
+      "frame": {
+        "file": "extension/agent-main.js",
+        "line": 1047,
+        "lineText": "// The frame's own work, in arrival order; the per-check `events` below keeps the bare numbers."
+      },
+      "arrivals": {
+        "file": "extension/agent-main.js",
+        "line": 1049,
+        "lineText": "// The router's arrivals (T002) and the boundary record (T003): neither is frame-scoped."
+      },
+      "emptyList": {
+        "file": "extension/agent-main.js",
+        "line": 1437,
+        "lineText": "// The snapshot carries the same list a frame carries, empty."
+      },
+      "arrivalsAgain": {
+        "file": "extension/agent-main.js",
+        "line": 1439,
+        "lineText": "// The router list and the boundary record are not frame-scoped: they carry the arrivals."
+      },
+      "statement": "each record is one change-detection frame: its `startedAt` is the frame's opening reading, its `events` is that frame's work, its `checks` is the components that frame reported, and its `routerEvents`/`boundary` are cumulative arrivals that are not frame-scoped. The install record carries the same nine keys with `events: []` and one check built from the enumerated nodes."
+    }
+  },
+  "candidates": [
+    {
+      "id": "record",
+      "name": "the record itself (angular-ai:record)",
+      "publishedBy": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 12,
+          "lineText": "var RECORD_EVENT = NS + ':record';"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1059,
+          "lineText": "dispatch(RECORD_EVENT, facts);"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1432,
+          "lineText": "dispatch(RECORD_EVENT, {"
+        }
+      ],
+      "blocks": [
+        {
+          "what": "the frame record `closeCycle` dispatches",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 1042,
+            "lineText": "var facts = {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 1054,
+            "lineText": "};"
+          },
+          "fields": [
+            {
+              "name": "cycleId",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1043,
+                "lineText": "cycleId: c.cycleId,"
+              },
+              "also": {
+                "file": "extension/agent-main.js",
+                "line": 1433,
+                "lineText": "cycleId: ++cycleId,"
+              }
+            },
+            {
+              "name": "startedAt",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1044,
+                "lineText": "startedAt: c.startedAt,"
+              },
+              "also": {
+                "file": "extension/agent-main.js",
+                "line": 1434,
+                "lineText": "startedAt: nowMs(),"
+              }
+            },
+            {
+              "name": "trigger",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1045,
+                "lineText": "trigger: c.trigger,"
+              },
+              "also": {
+                "file": "extension/agent-main.js",
+                "line": 1435,
+                "lineText": "trigger: { kind: 'unknown', listenerName: null },"
+              }
+            },
+            {
+              "name": "zoneMode",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1046,
+                "lineText": "zoneMode: zoneMode,"
+              },
+              "also": {
+                "file": "extension/agent-main.js",
+                "line": 1436,
+                "lineText": "zoneMode: zoneMode,"
+              }
+            },
+            {
+              "name": "events",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1048,
+                "lineText": "events: c.events.slice(),"
+              },
+              "also": {
+                "file": "extension/agent-main.js",
+                "line": 1438,
+                "lineText": "events: [],"
+              }
+            },
+            {
+              "name": "routerEvents",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1050,
+                "lineText": "routerEvents: routerEventList(),"
+              },
+              "also": {
+                "file": "extension/agent-main.js",
+                "line": 1440,
+                "lineText": "routerEvents: routerEventList(),"
+              }
+            },
+            {
+              "name": "boundary",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1051,
+                "lineText": "boundary: boundaryField(),"
+              },
+              "also": {
+                "file": "extension/agent-main.js",
+                "line": 1441,
+                "lineText": "boundary: boundaryField(),"
+              }
+            },
+            {
+              "name": "stability",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1052,
+                "lineText": "stability: stabilityField(),"
+              },
+              "also": {
+                "file": "extension/agent-main.js",
+                "line": 1442,
+                "lineText": "stability: stabilityField(),"
+              }
+            },
+            {
+              "name": "checks",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1053,
+                "lineText": "checks: [],"
+              },
+              "also": {
+                "file": "extension/agent-main.js",
+                "line": 1443,
+                "lineText": "checks: [check],"
+              }
+            }
+          ]
+        },
+        {
+          "what": "the install record `dispatchInitialRecord` dispatches",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 1432,
+            "lineText": "dispatch(RECORD_EVENT, {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 1444,
+            "lineText": "});"
+          },
+          "fields": [
+            {
+              "name": "cycleId",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1433,
+                "lineText": "cycleId: ++cycleId,"
+              }
+            },
+            {
+              "name": "startedAt",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1434,
+                "lineText": "startedAt: nowMs(),"
+              }
+            },
+            {
+              "name": "trigger",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1435,
+                "lineText": "trigger: { kind: 'unknown', listenerName: null },"
+              }
+            },
+            {
+              "name": "zoneMode",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1436,
+                "lineText": "zoneMode: zoneMode,"
+              }
+            },
+            {
+              "name": "events",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1438,
+                "lineText": "events: [],"
+              }
+            },
+            {
+              "name": "routerEvents",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1440,
+                "lineText": "routerEvents: routerEventList(),"
+              }
+            },
+            {
+              "name": "boundary",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1441,
+                "lineText": "boundary: boundaryField(),"
+              }
+            },
+            {
+              "name": "stability",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1442,
+                "lineText": "stability: stabilityField(),"
+              }
+            },
+            {
+              "name": "checks",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1443,
+                "lineText": "checks: [check],"
+              }
+            }
+          ]
+        }
+      ],
+      "quoted": [
+        {
+          "what": "the install record's one check is built from the enumerated nodes alone",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1420,
+            "lineText": "var nodes = enumerateComponentNodes();"
+          }
+        },
+        {
+          "what": "the install record carries the frame's list, empty",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1437,
+            "lineText": "// The snapshot carries the same list a frame carries, empty."
+          }
+        }
+      ],
+      "pageSnapshot": false,
+      "whyNotAPageSnapshot": "It is dispatched from the frame closer and from the install timer, and nothing else. Its page-shaped keys are not a reading of a page at a moment: `events` is the frame's own work, `checks` holds only the components the frame reported, `routerEvents` and `boundary.entries` are cumulative arrival copies repeated in every later record, and `stability`'s `attachAt` is the install reading rather than a current one.",
+      "identity": {
+        "statement": "the four frame keys are a frame counter, a clock reading, the frame's trigger and the zone mode; none of them names a page.",
+        "fields": [
+          {
+            "name": "cycleId",
+            "path": "cycleId",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1043,
+              "lineText": "cycleId: c.cycleId,"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "incremented at both dispatch sites (`cycleId: ++cycleId`), so two records never carry the same value: it orders records and cannot bind them."
+          },
+          {
+            "name": "startedAt",
+            "path": "startedAt",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1044,
+              "lineText": "startedAt: c.startedAt,"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the frame's opening `nowMs()` reading, so it differs in every record and is a clock, not an identity."
+          },
+          {
+            "name": "trigger",
+            "path": "trigger",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1045,
+              "lineText": "trigger: c.trigger,"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the frame's trigger, or `{ kind: 'unknown', listenerName: null }` when the profiler named none (:742): it describes what opened the frame."
+          },
+          {
+            "name": "zoneMode",
+            "path": "zoneMode",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1046,
+              "lineText": "zoneMode: zoneMode,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "constant for an install (the zone path is refused before install at :547–:553), so it is the same string in every record of every zoneless page and distinguishes nothing."
+          }
+        ]
+      }
+    },
+    {
+      "id": "checks",
+      "name": "the frame's per-component `checks` (and the install record's one check)",
+      "publishedBy": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1053,
+          "lineText": "checks: [],"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1443,
+          "lineText": "checks: [check],"
+        }
+      ],
+      "blocks": [
+        {
+          "what": "one per-check entry, built by `serializeCheck`",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 1065,
+            "lineText": "return {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 1072,
+            "lineText": "};"
+          },
+          "fields": [
+            {
+              "name": "componentName",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1066,
+                "lineText": "componentName: check.componentName,"
+              }
+            },
+            {
+              "name": "className",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1067,
+                "lineText": "className: classNameFor(instance),"
+              }
+            },
+            {
+              "name": "changeDetection",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1068,
+                "lineText": "changeDetection: changeDetectionFor(instance),"
+              }
+            },
+            {
+              "name": "events",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1069,
+                "lineText": "events: check.events.slice(),"
+              }
+            },
+            {
+              "name": "graph",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1070,
+                "lineText": "graph: serializeGraph(graph),"
+              }
+            },
+            {
+              "name": "changedNodeIds",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1071,
+                "lineText": "changedNodeIds: changedNodeIds,"
+              }
+            }
+          ]
+        },
+        {
+          "what": "the install record's one check",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 1422,
+            "lineText": "var check = {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 1431,
+            "lineText": "};"
+          },
+          "fields": [
+            {
+              "name": "componentName",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1423,
+                "lineText": "componentName: nodes[0].component,"
+              }
+            },
+            {
+              "name": "className",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1424,
+                "lineText": "className: nodes[0].component,"
+              }
+            },
+            {
+              "name": "changeDetection",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1427,
+                "lineText": "changeDetection: null,"
+              }
+            },
+            {
+              "name": "events",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1428,
+                "lineText": "events: [],"
+              }
+            },
+            {
+              "name": "graph",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1429,
+                "lineText": "graph: { nodes: nodes, edges: [] },"
+              }
+            },
+            {
+              "name": "changedNodeIds",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1430,
+                "lineText": "changedNodeIds: [],"
+              }
+            }
+          ]
+        },
+        {
+          "what": "one signal-graph node `serializeGraph` pushes",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 957,
+            "lineText": "var pushedNode = {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 969,
+            "lineText": "};"
+          },
+          "fields": [
+            {
+              "name": "id",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 958,
+                "lineText": "id: String(n.id),"
+              }
+            },
+            {
+              "name": "kind",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 959,
+                "lineText": "kind: n.kind,"
+              }
+            },
+            {
+              "name": "label",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 960,
+                "lineText": "label: n.label != null ? String(n.label) : null,"
+              }
+            },
+            {
+              "name": "epoch",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 961,
+                "lineText": "epoch: n.epoch != null ? n.epoch : null,"
+              }
+            },
+            {
+              "name": "debuggableFn",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 962,
+                "lineText": "debuggableFn:"
+              }
+            },
+            {
+              "name": "debuggableFnSource",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 964,
+                "lineText": "debuggableFnSource: n.debuggableFn"
+              }
+            }
+          ]
+        },
+        {
+          "what": "one enumerated component node, pushed into the same `graph.nodes`",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 896,
+            "lineText": "out.push({"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 907,
+            "lineText": "});"
+          },
+          "fields": [
+            {
+              "name": "id",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 897,
+                "lineText": "id: 'cmp:' + cls,"
+              }
+            },
+            {
+              "name": "kind",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 898,
+                "lineText": "kind: 'template',"
+              }
+            },
+            {
+              "name": "label",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 899,
+                "lineText": "label:"
+              }
+            },
+            {
+              "name": "epoch",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 903,
+                "lineText": "epoch: null,"
+              }
+            },
+            {
+              "name": "debuggableFn",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 904,
+                "lineText": "debuggableFn: cls,"
+              }
+            },
+            {
+              "name": "debuggableFnSource",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 905,
+                "lineText": "debuggableFnSource: src,"
+              }
+            },
+            {
+              "name": "component",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 906,
+                "lineText": "component: cls,"
+              }
+            }
+          ]
+        }
+      ],
+      "quoted": [
+        {
+          "what": "the graph object, with `unavailable` added only where no template node was read",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1013,
+            "lineText": "var result = { nodes: nodes, edges: edges };"
+          }
+        },
+        {
+          "what": "`unavailable` is conditional, not a key of the graph literal",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1014,
+            "lineText": "if (!hasTemplate) result.unavailable = true;"
+          }
+        },
+        {
+          "what": "a node `value` is attached only when a summary could be read",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 970,
+            "lineText": "if (valueSummary !== undefined) pushedNode.value = valueSummary;"
+          }
+        },
+        {
+          "what": "a check is created only from the frame the profiler opened",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 601,
+            "lineText": "getOrCreateCheck(instance).events.push(event);"
+          }
+        },
+        {
+          "what": "the install check's change detection is the null of an unread path",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1425,
+            "lineText": "// Nothing here read a strategy: this record is built from the enumerated nodes alone, so"
+          }
+        }
+      ],
+      "pageSnapshot": false,
+      "whyNotAPageSnapshot": "This is the closest structure to a page snapshot and it is a frame's own components: `getOrCreateCheck` is called from one site, inside the frame a TemplateUpdateStart opens (:600–:601), so a record carries only the components the profiler reported in that frame. The install record's one check is built from `enumerateComponentNodes()` and reads no strategy at all (:1425–:1427). Neither is a complete page, and the two are not the same structure: one has `events` from the frame and the other an empty list.",
+      "identity": {
+        "statement": "the check's names are class or host-tag names and its node ids are runtime node ids or class-derived `cmp:<Class>` ids; no line states that any of them is stable across records or distinguishes one page from another.",
+        "fields": [
+          {
+            "name": "componentName",
+            "path": "checks[].componentName",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1066,
+              "lineText": "componentName: check.componentName,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the host tag lowercased, else the class name lowercased, else the fallback `'component'` (:763): the same component on two different pages answers the same name, so it names a component and not a page."
+          },
+          {
+            "name": "className",
+            "path": "checks[].className",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1067,
+              "lineText": "className: classNameFor(instance),"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the constructor name (:796–:804): a class name, shared by every instance of that class on any page."
+          },
+          {
+            "name": "id",
+            "path": "checks[].graph.nodes[].id",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 958,
+              "lineText": "id: String(n.id),"
+            },
+            "stableAcrossTwoRecords": "not-established",
+            "identifiesAPage": false,
+            "statement": "`String(n.id)` of a signal-graph node, or `'cmp:' + cls` for an enumerated component (:897). No line states the runtime node id is stable across records, and the enumerated id is the class name, which two pages share."
+          },
+          {
+            "name": "label",
+            "path": "checks[].graph.nodes[].label",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 960,
+              "lineText": "label: n.label != null ? String(n.label) : null,"
+            },
+            "stableAcrossTwoRecords": "not-established",
+            "identifiesAPage": false,
+            "statement": "a display label: the node's own label, or the host tag / class name for an enumerated component (:899–:902)."
+          },
+          {
+            "name": "epoch",
+            "path": "checks[].graph.nodes[].epoch",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 961,
+              "lineText": "epoch: n.epoch != null ? n.epoch : null,"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the node's change epoch, compared between records by `diffEpochs` to answer `changedNodeIds`: it changes exactly when the value changes, so it is the difference and not an identity."
+          }
+        ]
+      }
+    },
+    {
+      "id": "router-entry",
+      "name": "one router arrival, the entry that carries a router state snapshot reduced to path strings",
+      "publishedBy": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1635,
+          "lineText": "function recordRouterEvent(event) {"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1636,
+          "lineText": "var entry = {"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1648,
+          "lineText": "};"
+        }
+      ],
+      "blocks": [
+        {
+          "what": "one router event entry",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 1636,
+            "lineText": "var entry = {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 1648,
+            "lineText": "};"
+          },
+          "fields": [
+            {
+              "name": "type",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1637,
+                "lineText": "type: routerClassNameOf(event),"
+              }
+            },
+            {
+              "name": "at",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1638,
+                "lineText": "at: nowMs(),"
+              }
+            },
+            {
+              "name": "id",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1639,
+                "lineText": "id: routerPrimitiveOf(event, 'id'),"
+              }
+            },
+            {
+              "name": "url",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1640,
+                "lineText": "url: routerPrimitiveOf(event, 'url'),"
+              }
+            },
+            {
+              "name": "urlAfterRedirects",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1641,
+                "lineText": "urlAfterRedirects: routerPrimitiveOf(event, 'urlAfterRedirects'),"
+              }
+            },
+            {
+              "name": "route",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1642,
+                "lineText": "route: routerRoutePathOf(event),"
+              }
+            },
+            {
+              "name": "reason",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1643,
+                "lineText": "reason: routerPrimitiveOf(event, 'reason'),"
+              }
+            },
+            {
+              "name": "code",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1644,
+                "lineText": "code: routerPrimitiveOf(event, 'code'),"
+              }
+            },
+            {
+              "name": "error",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1645,
+                "lineText": "error: routerErrorOf(event),"
+              }
+            },
+            {
+              "name": "shouldActivate",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1646,
+                "lineText": "shouldActivate: routerPrimitiveOf(event, 'shouldActivate'),"
+              }
+            },
+            {
+              "name": "matchedPaths",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1647,
+                "lineText": "matchedPaths: routerMatchedPathsOf(event),"
+              }
+            }
+          ]
+        }
+      ],
+      "quoted": [
+        {
+          "what": "the error is reduced to its own name and message",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1628,
+            "lineText": "return { name: name, message: message };"
+          }
+        },
+        {
+          "what": "the snapshot reader: `state.root`, else `snapshot`",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1542,
+            "lineText": "function routerSnapshotOf(event) {"
+          }
+        },
+        {
+          "what": "one config path from one snapshot",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1560,
+            "lineText": "function routerSnapshotPathOf(snapshot) {"
+          }
+        },
+        {
+          "what": "the chain walk that produces `matchedPaths`",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1580,
+            "lineText": "function routerMatchedPathsOf(event) {"
+          }
+        },
+        {
+          "what": "the chain bound of 32 paths from one snapshot",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1472,
+            "lineText": "var ROUTER_CHAIN_LIMIT = 32; // route-config paths read from one snapshot"
+          }
+        },
+        {
+          "what": "no snapshot object, no URL tree and no component reference crosses",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1577,
+            "lineText": "// The primary chain's own config paths, in order, and nothing else: no snapshot object, no URL tree"
+          }
+        },
+        {
+          "what": "an event with no route-tree snapshot contributes an empty list",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1579,
+            "lineText": "// an empty list rather than a guess."
+          }
+        },
+        {
+          "what": "the list is cumulative: the reader answers a copy of every arrival",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1672,
+            "lineText": "return routerEvents.slice();"
+          }
+        }
+      ],
+      "pageSnapshot": false,
+      "whyNotAPageSnapshot": "The router state snapshot is read, not published. `routerSnapshotOf` answers `event.state.root` or `event.snapshot` (:1542–:1555); `routerSnapshotPathOf` reads only `snapshot.routeConfig.path` (:1560–:1575); `routerMatchedPathsOf` walks `firstChild` up to ROUTER_CHAIN_LIMIT and pushes one path string per node (:1580–:1596). What crosses is `matchedPaths`, a list of route-config path strings, inside one event's entry — never the snapshot object, the URL tree or a component reference (:1577–:1578). The `routerEvents` list is the cumulative copy of every arrival, not the current route.",
+      "identity": {
+        "statement": "the entry's candidate binders are a navigation id, the event's own url fields, its own route path and the route chain; each is scoped to the event that carried it, and the list holding them is cumulative.",
+        "fields": [
+          {
+            "name": "id",
+            "path": "routerEvents[].id",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1639,
+              "lineText": "id: routerPrimitiveOf(event, 'id'),"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the router's own navigation id, carried only by the events that have one (the two route-config classes carry none): it identifies a navigation, and a later record repeats it rather than replacing it."
+          },
+          {
+            "name": "url",
+            "path": "routerEvents[].url",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1640,
+              "lineText": "url: routerPrimitiveOf(event, 'url'),"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the event's own primitive url, `null` where the event carries none (:1462): a per-event address, and the record carries one per arrival rather than one for the record."
+          },
+          {
+            "name": "urlAfterRedirects",
+            "path": "routerEvents[].urlAfterRedirects",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1641,
+              "lineText": "urlAfterRedirects: routerPrimitiveOf(event, 'urlAfterRedirects'),"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the same per-event address after redirects, `null` where the event carries none."
+          },
+          {
+            "name": "route",
+            "path": "routerEvents[].route",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1642,
+              "lineText": "route: routerRoutePathOf(event),"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the route config's own path string carried by the route-config events (:1527–:1537): a path, shared by every page on that route."
+          },
+          {
+            "name": "matchedPaths",
+            "path": "routerEvents[].matchedPaths",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1647,
+              "lineText": "matchedPaths: routerMatchedPathsOf(event),"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the route-config chain of the snapshot the event carried (:1580–:1596): a list of path strings, so two different pages on the same route answer the same list, and an event with no snapshot answers `[]`."
+          },
+          {
+            "name": "at",
+            "path": "routerEvents[].at",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1638,
+              "lineText": "at: nowMs(),"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the page's own clock read at receipt, so it differs per arrival."
+          }
+        ]
+      }
+    },
+    {
+      "id": "boundary",
+      "name": "the `boundary` section",
+      "publishedBy": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1051,
+          "lineText": "boundary: boundaryField(),"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1441,
+          "lineText": "boundary: boundaryField(),"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 2248,
+          "lineText": "function boundaryField() {"
+        }
+      ],
+      "blocks": [
+        {
+          "what": "the section `boundaryField` returns",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 2249,
+            "lineText": "return {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 2257,
+            "lineText": "};"
+          },
+          "fields": [
+            {
+              "name": "state",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2250,
+                "lineText": "state: boundaryInstalled ? 'installed' : 'cannot-tell',"
+              }
+            },
+            {
+              "name": "absence",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2251,
+                "lineText": "absence: boundaryInstalled ? null : boundaryAbsence,"
+              }
+            },
+            {
+              "name": "chained",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2252,
+                "lineText": "chained: boundaryPriorHook !== null,"
+              }
+            },
+            {
+              "name": "globalListeners",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2253,
+                "lineText": "globalListeners: boundaryListeners(),"
+              }
+            },
+            {
+              "name": "version",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2254,
+                "lineText": "version: BOUNDARY_VERSION,"
+              }
+            },
+            {
+              "name": "coreVersion",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2255,
+                "lineText": "coreVersion: angularVersionString(ngObj || readNg()),"
+              }
+            },
+            {
+              "name": "entries",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2256,
+                "lineText": "entries: boundaryEntries.slice(),"
+              }
+            }
+          ]
+        },
+        {
+          "what": "one arrival entry",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 2051,
+            "lineText": "var entry = {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 2074,
+            "lineText": "};"
+          },
+          "fields": [
+            {
+              "name": "route",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2052,
+                "lineText": "route: carried ? 'hook' : 'handler',"
+              }
+            },
+            {
+              "name": "error",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2053,
+                "lineText": "error: boundaryErrorOf(error),"
+              }
+            },
+            {
+              "name": "details",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2054,
+                "lineText": "details: {"
+              }
+            },
+            {
+              "name": "at",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2073,
+                "lineText": "at: nowMs(),"
+              }
+            }
+          ]
+        },
+        {
+          "what": "the `details` object one arrival carries",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 2054,
+            "lineText": "details: {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 2072,
+            "lineText": "},"
+          },
+          "fields": [
+            {
+              "name": "declarationType",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2055,
+                "lineText": "declarationType: boundaryTypeNameOf("
+              }
+            },
+            {
+              "name": "declarationInstanceName",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2058,
+                "lineText": "declarationInstanceName: instanceNameFor("
+              }
+            },
+            {
+              "name": "caughtBy",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2065,
+                "lineText": "caughtBy: typeof caughtBy === 'function' ? true : null,"
+              }
+            },
+            {
+              "name": "boundaryType",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2066,
+                "lineText": "boundaryType: hasBoundary"
+              }
+            },
+            {
+              "name": "boundaryReset",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2069,
+                "lineText": "boundaryReset: hasBoundary"
+              }
+            }
+          ]
+        }
+      ],
+      "quoted": [
+        {
+          "what": "every arrival is pushed on the cumulative list",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 2075,
+            "lineText": "boundaryEntries.push(entry);"
+          }
+        },
+        {
+          "what": "the section publishes a copy of the whole list",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 2256,
+            "lineText": "entries: boundaryEntries.slice(),"
+          }
+        },
+        {
+          "what": "the version is a constant of this surface",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1938,
+            "lineText": "var BOUNDARY_VERSION = '22.2.2'; // the @angular/core this surface is measured against (T001)"
+          }
+        },
+        {
+          "what": "the arrival bound of 128",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1939,
+            "lineText": "var BOUNDARY_ENTRY_LIMIT = 128; // arrivals kept: a page-health guard, not a curation"
+          }
+        }
+      ],
+      "pageSnapshot": false,
+      "whyNotAPageSnapshot": "It is the install answer (or its named absence) plus every error arrival in arrival order, published as a copy of the whole list. The arrivals are events; the install answer is one reading taken when the hook was armed, repeated unchanged in every later record.",
+      "identity": {
+        "statement": "the section's stable values are the install answer, the hook's chained bit, the listener answer and two version strings; the constant version is the same in every record of every page, and the page's framework version is shared by every page of that build.",
+        "fields": [
+          {
+            "name": "state",
+            "path": "boundary.state",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2250,
+              "lineText": "state: boundaryInstalled ? 'installed' : 'cannot-tell',"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "`installed` or `cannot-tell`: a two-value install answer that any two pages can share."
+          },
+          {
+            "name": "absence",
+            "path": "boundary.absence",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2251,
+              "lineText": "absence: boundaryInstalled ? null : boundaryAbsence,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the named absence when the hook could not be installed, `null` when it was: an install fact, not a page identity."
+          },
+          {
+            "name": "chained",
+            "path": "boundary.chained",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2252,
+              "lineText": "chained: boundaryPriorHook !== null,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "whether an app-declared hook was chained onto: a boolean two pages share."
+          },
+          {
+            "name": "globalListeners",
+            "path": "boundary.globalListeners",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2253,
+              "lineText": "globalListeners: boundaryListeners(),"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the memoised answer for the browser-global-listener provider (`declared` / `no-global-error-listeners` / `null`), a provider fact any two apps can share."
+          },
+          {
+            "name": "version",
+            "path": "boundary.version",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2254,
+              "lineText": "version: BOUNDARY_VERSION,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the literal `'22.2.2'` this surface is measured against (:1938): identical in every record of every page, so it carries no identity at all."
+          },
+          {
+            "name": "coreVersion",
+            "path": "boundary.coreVersion",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2255,
+              "lineText": "coreVersion: angularVersionString(ngObj || readNg()),"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the page's own Angular version string (:480–:495), shared by every page built with that version."
+          },
+          {
+            "name": "entries",
+            "path": "boundary.entries",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2256,
+              "lineText": "entries: boundaryEntries.slice(),"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "a cumulative copy of every arrival, bounded at 128: each later record repeats the earlier arrivals, so the list grows rather than describing the page now."
+          },
+          {
+            "name": "route",
+            "path": "boundary.entries[].route",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2052,
+              "lineText": "route: carried ? 'hook' : 'handler',"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "which path the error arrived by (`hook` or `handler`), per arrival."
+          },
+          {
+            "name": "at",
+            "path": "boundary.entries[].at",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2073,
+              "lineText": "at: nowMs(),"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the page's clock at receipt, per arrival."
+          }
+        ]
+      }
+    },
+    {
+      "id": "stability",
+      "name": "the `stability` section",
+      "publishedBy": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1052,
+          "lineText": "stability: stabilityField(),"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 1442,
+          "lineText": "stability: stabilityField(),"
+        },
+        {
+          "file": "extension/agent-main.js",
+          "line": 2443,
+          "lineText": "function stabilityField() {"
+        }
+      ],
+      "blocks": [
+        {
+          "what": "the section `stabilityField` returns",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 2444,
+            "lineText": "return {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 2452,
+            "lineText": "};"
+          },
+          "fields": [
+            {
+              "name": "reachedBy",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2445,
+                "lineText": "reachedBy: stabilityReachedBy,"
+              }
+            },
+            {
+              "name": "absence",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2446,
+                "lineText": "absence: stabilityAbsence,"
+              }
+            },
+            {
+              "name": "attachAt",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2447,
+                "lineText": "attachAt: stabilityAttachAt,"
+              }
+            },
+            {
+              "name": "reading",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2448,
+                "lineText": "reading: stabilityReading,"
+              }
+            },
+            {
+              "name": "settle",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2449,
+                "lineText": "settle: stabilitySettle || { state: 'no-settle-observed' },"
+              }
+            },
+            {
+              "name": "version",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2450,
+                "lineText": "version: STABILITY_VERSION,"
+              }
+            },
+            {
+              "name": "coreVersion",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2451,
+                "lineText": "coreVersion: angularVersionString(ngObj || readNg()),"
+              }
+            }
+          ]
+        }
+      ],
+      "quoted": [
+        {
+          "what": "the attach reading is taken once, when the stream is subscribed",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 2393,
+            "lineText": "stabilityAttachAt = nowMs();"
+          }
+        },
+        {
+          "what": "the reset path clears it",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 2429,
+            "lineText": "stabilityAttachAt = null;"
+          }
+        },
+        {
+          "what": "the token name the walk resolved",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 2405,
+            "lineText": "stabilityReachedBy = routerTokenNameOf(found.token);"
+          }
+        },
+        {
+          "what": "the absence before any observable answers",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 2290,
+            "lineText": "var stabilityAbsence = 'no-stability-observable'; // cleared only where an observable answered"
+          }
+        },
+        {
+          "what": "the getter is read once and subscribed once, not re-read per record",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 2265,
+            "lineText": "// `BehaviorSubject`: a subscriber is handed the current value at subscribe and every later"
+          }
+        }
+      ],
+      "pageSnapshot": false,
+      "whyNotAPageSnapshot": "It is a section of the current stability state: the token the injector walk resolved, its named absence, the install reading, the last emission, the settle reading and two version strings. It reads one BehaviourSubject, so it describes the page's pending-task state at the record's moment and nothing structural about the page.",
+      "identity": {
+        "statement": "`attachAt` is the one value in the whole record that repeats across records of one page session: assigned once at subscribe and republished unchanged. It is a clock reading the tree never calls an identity and the reset path clears to null, so binding on it would be an invention. Every other value here is a constant, a two-value state or the latest emission.",
+        "fields": [
+          {
+            "name": "reachedBy",
+            "path": "stability.reachedBy",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2445,
+              "lineText": "reachedBy: stabilityReachedBy,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the constant token name `'ApplicationRef'` the walk resolved (:2405, :2285): the same string for every page this read reaches."
+          },
+          {
+            "name": "absence",
+            "path": "stability.absence",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2446,
+              "lineText": "absence: stabilityAbsence,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "`no-stability-observable` until an observable answers, then `null`: a reachability fact two pages share."
+          },
+          {
+            "name": "attachAt",
+            "path": "stability.attachAt",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2447,
+              "lineText": "attachAt: stabilityAttachAt,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the page's own `performance.now()` read once at subscribe (:2393) and republished in every later record, cleared to null by the reset path (:2429). Stable across records of one subscribe, but a clock reading with no line stating it identifies anything; two pages can read the same value, and a reinstall starts a new one."
+          },
+          {
+            "name": "reading",
+            "path": "stability.reading",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2448,
+              "lineText": "reading: stabilityReading,"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the last `isStable` emission and its reading, which change with the page's pending work."
+          },
+          {
+            "name": "settle",
+            "path": "stability.settle",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2449,
+              "lineText": "settle: stabilitySettle || { state: 'no-settle-observed' },"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the settle reading or the named `no-settle-observed`, per page activity."
+          },
+          {
+            "name": "version",
+            "path": "stability.version",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2450,
+              "lineText": "version: STABILITY_VERSION,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the literal `'22.2.2'` constant (:2286): identical in every record of every page."
+          },
+          {
+            "name": "coreVersion",
+            "path": "stability.coreVersion",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2451,
+              "lineText": "coreVersion: angularVersionString(ngObj || readNg()),"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the page's Angular version string, shared by every page built with that version."
+          }
+        ]
+      }
+    },
+    {
+      "id": "state",
+      "name": "the `angular-ai:state` announcement",
+      "publishedBy": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 470,
+          "lineText": "dispatch(STATE_EVENT, {"
+        }
+      ],
+      "blocks": [
+        {
+          "what": "the state payload `announceState` dispatches",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 470,
+            "lineText": "dispatch(STATE_EVENT, {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 476,
+            "lineText": "});"
+          },
+          "fields": [
+            {
+              "name": "supported",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 471,
+                "lineText": "supported: supported,"
+              }
+            },
+            {
+              "name": "reason",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 472,
+                "lineText": "reason: reason || null,"
+              }
+            },
+            {
+              "name": "zoneMode",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 473,
+                "lineText": "zoneMode: zoneMode,"
+              }
+            },
+            {
+              "name": "features",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 474,
+                "lineText": "features: featuresOf(ng),"
+              }
+            },
+            {
+              "name": "companion",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 475,
+                "lineText": "companion: companion,"
+              }
+            }
+          ]
+        }
+      ],
+      "quoted": [
+        {
+          "what": "the announcement is re-armed after a companion recheck",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 457,
+            "lineText": "if (lastState) announceState(lastState.supported, lastState.reason);"
+          }
+        }
+      ],
+      "pageSnapshot": false,
+      "whyNotAPageSnapshot": "It describes whether this page can be recorded at all — the support answer, its reason, the zone mode, the feature booleans and the companion state. It is announced once per install and again only when the companion probe changes, and it carries no page structure.",
+      "identity": {
+        "statement": "every field is a capability of the build or of the realm, so two pages satisfying the same feature set answer identically.",
+        "fields": [
+          {
+            "name": "supported",
+            "path": "state.supported",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 471,
+              "lineText": "supported: supported,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "a boolean support answer that every supported page shares."
+          },
+          {
+            "name": "reason",
+            "path": "state.reason",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 472,
+              "lineText": "reason: reason || null,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the refusal reason or null: a build fact."
+          },
+          {
+            "name": "zoneMode",
+            "path": "state.zoneMode",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 473,
+              "lineText": "zoneMode: zoneMode,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the zone mode, the same string for every install that records."
+          },
+          {
+            "name": "features",
+            "path": "state.features",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 474,
+              "lineText": "features: featuresOf(ng),"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the booleans `featuresOf` reads off the page's `ng` global: a build capability set."
+          },
+          {
+            "name": "companion",
+            "path": "state.companion",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 475,
+              "lineText": "companion: companion,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the companion-extension probe answer, which is a realm fact rather than a page's."
+          }
+        ]
+      }
+    },
+    {
+      "id": "di-graph",
+      "name": "the `angular-ai:di-graph` resolution path",
+      "publishedBy": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1242,
+          "lineText": "dispatch(DI_GRAPH_EVENT, {"
+        }
+      ],
+      "blocks": [
+        {
+          "what": "the `resolutionPath` object it dispatches",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 1244,
+            "lineText": "resolutionPath: {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 1249,
+            "lineText": "},"
+          },
+          "fields": [
+            {
+              "name": "component",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1245,
+                "lineText": "component: componentName,"
+              }
+            },
+            {
+              "name": "elementTag",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1246,
+                "lineText": "elementTag: elementTag,"
+              }
+            },
+            {
+              "name": "path",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1247,
+                "lineText": "path: path,"
+              }
+            },
+            {
+              "name": "available",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1248,
+                "lineText": "available: true,"
+              }
+            }
+          ]
+        },
+        {
+          "what": "one resolution-path entry",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 1236,
+            "lineText": "path.push({"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 1240,
+            "lineText": "});"
+          },
+          "fields": [
+            {
+              "name": "id",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1237,
+                "lineText": "id: i,"
+              }
+            },
+            {
+              "name": "metadata",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1238,
+                "lineText": "metadata: { type: metaType, source: String(injectorName) },"
+              }
+            },
+            {
+              "name": "providers",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1239,
+                "lineText": "providers: provs,"
+              }
+            }
+          ]
+        }
+      ],
+      "quoted": [
+        {
+          "what": "the payload is built inside the query handler",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1075,
+            "lineText": "function handleDiQuery(e) {"
+          }
+        },
+        {
+          "what": "the handler is registered on the query event",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 2484,
+            "lineText": "globalThis.addEventListener(DI_QUERY_EVENT, handleDiQuery);"
+          }
+        }
+      ],
+      "pageSnapshot": false,
+      "whyNotAPageSnapshot": "It is a page structure — the injector resolution path with each entry's providers — but it is published only in answer to an `angular-ai:di-query`, one per query, and it is not part of the record. Its `id` is the entry's index in the walk.",
+      "identity": {
+        "statement": "the names are a component name and a tag, the `id` is a position, and the metadata source is an injector description; none of them is stated to be stable across two queries or to distinguish one page from another.",
+        "fields": [
+          {
+            "name": "component",
+            "path": "diGraph.resolutionPath.component",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1245,
+              "lineText": "component: componentName,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the component name the query asked about, or the tag it resolved: a name two pages share."
+          },
+          {
+            "name": "elementTag",
+            "path": "diGraph.resolutionPath.elementTag",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1246,
+              "lineText": "elementTag: elementTag,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the host tag the query resolved, a name rather than an instance identity."
+          },
+          {
+            "name": "id",
+            "path": "diGraph.resolutionPath.path[].id",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1237,
+              "lineText": "id: i,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the entry's index in the resolution path (`id: i`): a position, stable only while the path is unchanged."
+          },
+          {
+            "name": "metadata",
+            "path": "diGraph.resolutionPath.path[].metadata",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1238,
+              "lineText": "metadata: { type: metaType, source: String(injectorName) },"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the injector's type and a source string (the tag or `Environment Injector`): an injector description any two pages can share."
+          }
+        ]
+      }
+    },
+    {
+      "id": "picked",
+      "name": "the `angular-ai:picked` descriptor",
+      "publishedBy": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 1391,
+          "lineText": "if (descriptor) dispatch(PICKED_EVENT, descriptor);"
+        }
+      ],
+      "blocks": [
+        {
+          "what": "the resolved pick descriptor",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 1375,
+            "lineText": "return {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 1381,
+            "lineText": "};"
+          },
+          "fields": [
+            {
+              "name": "status",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1376,
+                "lineText": "status: 'resolved',"
+              }
+            },
+            {
+              "name": "elementTag",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1377,
+                "lineText": "elementTag: lowerTagName(el),"
+              }
+            },
+            {
+              "name": "componentName",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1378,
+                "lineText": "componentName: pickComponentName(walk.owning, ng),"
+              }
+            },
+            {
+              "name": "className",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1379,
+                "lineText": "className: classNameFor(walk.owning),"
+              }
+            },
+            {
+              "name": "componentPath",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 1380,
+                "lineText": "componentPath: walk.path,"
+              }
+            }
+          ]
+        }
+      ],
+      "quoted": [
+        {
+          "what": "the two named non-resolutions the picker answers instead",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1364,
+            "lineText": "if (!getOwning) return { status: 'no-dev-api', reason: PICK_NO_API_REASON };"
+          }
+        },
+        {
+          "what": "the answer is plain data: no instance, element or function is carried",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 1268,
+            "lineText": "// JSON (N2). No instance, element or function is carried, and `__ngContext__` is read as a"
+          }
+        }
+      ],
+      "pageSnapshot": false,
+      "whyNotAPageSnapshot": "It describes one picked element: a status, the element's tag, the owning component's name and class and the distinct class names from that element upward. It is published per pick, and no instance or element crosses (:1267–:1268).",
+      "identity": {
+        "statement": "the descriptor names a place in the document and the component at it; the path is a list of class names, so two pages with the same component tree answer the same descriptor.",
+        "fields": [
+          {
+            "name": "status",
+            "path": "picked.status",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1376,
+              "lineText": "status: 'resolved',"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the three-value outcome of one pick, which names the outcome rather than the page."
+          },
+          {
+            "name": "elementTag",
+            "path": "picked.elementTag",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1377,
+              "lineText": "elementTag: lowerTagName(el),"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the picked element's tag lowercased: a name."
+          },
+          {
+            "name": "componentName",
+            "path": "picked.componentName",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1378,
+              "lineText": "componentName: pickComponentName(walk.owning, ng),"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the owning component's host tag or class name: a name."
+          },
+          {
+            "name": "className",
+            "path": "picked.className",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1379,
+              "lineText": "className: classNameFor(walk.owning),"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the owning component's constructor name."
+          },
+          {
+            "name": "componentPath",
+            "path": "picked.componentPath",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 1380,
+              "lineText": "componentPath: walk.path,"
+            },
+            "stableAcrossTwoRecords": true,
+            "identifiesAPage": false,
+            "statement": "the distinct class names from the picked element upward, bounded by PICK_MAX_ANCESTORS: a path of names, not an identity."
+          }
+        ]
+      }
+    },
+    {
+      "id": "error-capture",
+      "name": "the `angular-ai:error-capture` payload",
+      "publishedBy": [
+        {
+          "file": "extension/agent-main.js",
+          "line": 2522,
+          "lineText": "dispatch(ERROR_CAPTURE_EVENT, {"
+        }
+      ],
+      "blocks": [
+        {
+          "what": "the captured-error payload",
+          "opener": {
+            "file": "extension/agent-main.js",
+            "line": 2522,
+            "lineText": "dispatch(ERROR_CAPTURE_EVENT, {"
+          },
+          "closer": {
+            "file": "extension/agent-main.js",
+            "line": 2527,
+            "lineText": "});"
+          },
+          "fields": [
+            {
+              "name": "code",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2523,
+                "lineText": "code: code,"
+              }
+            },
+            {
+              "name": "message",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2524,
+                "lineText": "message: text,"
+              }
+            },
+            {
+              "name": "component",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2525,
+                "lineText": "component: component,"
+              }
+            },
+            {
+              "name": "timestamp",
+              "site": {
+                "file": "extension/agent-main.js",
+                "line": 2526,
+                "lineText": "timestamp: typeof Date !== 'undefined' ? Date.now() : 0,"
+              }
+            }
+          ]
+        }
+      ],
+      "quoted": [
+        {
+          "what": "the timestamp is the realm's `Date.now()`, not the page clock",
+          "site": {
+            "file": "extension/agent-main.js",
+            "line": 2526,
+            "lineText": "timestamp: typeof Date !== 'undefined' ? Date.now() : 0,"
+          }
+        }
+      ],
+      "pageSnapshot": false,
+      "whyNotAPageSnapshot": "It is an event, listed here so its exclusion is measured rather than assumed: a `console.error`/`window.onerror`/`unhandledrejection` capture with a code, a message, a component name and a wall-clock reading. It describes an error, not a page.",
+      "identity": {
+        "statement": "every field belongs to the error or its moment; nothing here names a page.",
+        "fields": [
+          {
+            "name": "code",
+            "path": "errorCapture.code",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2523,
+              "lineText": "code: code,"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the `NG0xxx` code found in the message, per error."
+          },
+          {
+            "name": "message",
+            "path": "errorCapture.message",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2524,
+              "lineText": "message: text,"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the error text as captured, per error, and never a summary of the page."
+          },
+          {
+            "name": "component",
+            "path": "errorCapture.component",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2525,
+              "lineText": "component: component,"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "the owning component's class name at the moment of the error."
+          },
+          {
+            "name": "timestamp",
+            "path": "errorCapture.timestamp",
+            "site": {
+              "file": "extension/agent-main.js",
+              "line": 2526,
+              "lineText": "timestamp: typeof Date !== 'undefined' ? Date.now() : 0,"
+            },
+            "stableAcrossTwoRecords": false,
+            "identifiesAPage": false,
+            "statement": "`Date.now()` at capture, per error, and not the page clock the rest of the record uses."
+          }
+        ]
+      }
+    }
+  ],
+  "identity": {
+    "bindingField": null,
+    "definition": "a field binds two records to one page when the record itself carries it, its value is stable across two records of the same page, its value differs between two different pages, and the tree states that meaning for it. A value that merely repeats (a constant, a mode, a version) fails the third condition; a value that changes per record fails the second; a value with no stated meaning fails the fourth.",
+    "statement": "No field the record carries is a stable identity of a page. The record's own nine keys are the nine measured above and none is a url, a document key, a tab or a page id; extension/agent-main.js reads no `location`, no `document.URL`, no `href` and no `document.title` at all. The nearest thing is `stability.attachAt`: the one value that repeats across every record of one subscribe, taken once at attach and cleared by the reset path, which the tree never calls an identity. Everything else either increments per record (`cycleId`, `startedAt`), is scoped to one arrival (`routerEvents[].id`, `url`, `matchedPaths`, `boundary.entries[].at`) or is a constant two pages can share (`zoneMode`, `boundary.version`, `stability.version`, both `coreVersion`s, `stability.reachedBy`).",
+    "claimants": 0,
+    "nearest": {
+      "path": "stability.attachAt",
+      "site": {
+        "file": "extension/agent-main.js",
+        "line": 2393,
+        "lineText": "stabilityAttachAt = nowMs();"
+      },
+      "cleared": {
+        "file": "extension/agent-main.js",
+        "line": 2429,
+        "lineText": "stabilityAttachAt = null;"
+      },
+      "statement": "stable across records of one subscribe, but a clock reading with no stated identity meaning, cleared to null by the reset path, and coincident between two pages: binding on it would be an invention the tree does not support."
+    },
+    "whatARefusalCanName": [
+      {
+        "claim": "there is no url on the record, only per-event `url` and `urlAfterRedirects` that are null where the event carried none",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1640,
+            "lineText": "url: routerPrimitiveOf(event, 'url'),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1641,
+            "lineText": "urlAfterRedirects: routerPrimitiveOf(event, 'urlAfterRedirects'),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1462,
+            "lineText": "// surface branches on a number; every field the event did not carry is `null` and is never filled in"
+          }
+        ]
+      },
+      {
+        "claim": "there is no tab or page key on the record; the envelope's tab id is added by the background, not by the recorder",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1042,
+            "lineText": "var facts = {"
+          },
+          {
+            "file": "extension/background.js",
+            "line": 23,
+            "lineText": "chrome.runtime.sendMessage({ ...msg, tabId: sender.tab?.id });"
+          }
+        ]
+      },
+      {
+        "claim": "there is no install or session identifier on the record, only `cycleId` which increments and `stability.attachAt` which the reset path clears",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1043,
+            "lineText": "cycleId: c.cycleId,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2393,
+            "lineText": "stabilityAttachAt = nowMs();"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2429,
+            "lineText": "stabilityAttachAt = null;"
+          }
+        ]
+      },
+      {
+        "claim": "the only version the record carries is the Angular version, which two pages of the same build share",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2255,
+            "lineText": "coreVersion: angularVersionString(ngObj || readNg()),"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2451,
+            "lineText": "coreVersion: angularVersionString(ngObj || readNg()),"
+          }
+        ]
+      }
+    ]
+  },
+  "twoMoments": {
+    "publishesPageSnapshotsAtTwoMoments": false,
+    "publishesRecordsAtManyMoments": true,
+    "answer": "no",
+    "statement": "No. The record is published at two sites and only two: `closeCycle` (one per change-detection frame, queued as a microtask from the frame a TemplateUpdateStart opens) and `dispatchInitialRecord` (once per install, 500 ms after it). Nothing it publishes is a snapshot of a page at a moment. The frame record carries the frame's own work and the components that frame reported in `checks`; the install record carries the same keys with `events: []` and one check built from the enumerated nodes. The page-shaped parts that repeat across records are cumulative arrival copies (`routerEvents`, `boundary.entries`), which repeat earlier arrivals rather than describe the page now, and the one router state snapshot the code reads is consumed inside a single event entry and reduced to its route-config path strings, never published as a snapshot.",
+    "evidence": [
+      {
+        "file": "extension/agent-main.js",
+        "line": 1038,
+        "lineText": "function closeCycle() {"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1042,
+        "lineText": "var facts = {"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1059,
+        "lineText": "dispatch(RECORD_EVENT, facts);"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 747,
+        "lineText": "globalThis.queueMicrotask(closeCycle);"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 600,
+        "lineText": "if (!cycle) openCycle();"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1418,
+        "lineText": "function dispatchInitialRecord() {"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1432,
+        "lineText": "dispatch(RECORD_EVENT, {"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1437,
+        "lineText": "// The snapshot carries the same list a frame carries, empty."
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1438,
+        "lineText": "events: [],"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1439,
+        "lineText": "// The router list and the boundary record are not frame-scoped: they carry the arrivals."
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 566,
+        "lineText": "globalThis.setTimeout(dispatchInitialRecord, 500);"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1672,
+        "lineText": "return routerEvents.slice();"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 2256,
+        "lineText": "entries: boundaryEntries.slice(),"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1577,
+        "lineText": "// The primary chain's own config paths, in order, and nothing else: no snapshot object, no URL tree"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1542,
+        "lineText": "function routerSnapshotOf(event) {"
+      },
+      {
+        "file": "extension/agent-main.js",
+        "line": 1580,
+        "lineText": "function routerMatchedPathsOf(event) {"
+      }
+    ],
+    "counts": [
+      {
+        "token": "dispatch(RECORD_EVENT",
+        "count": 2
+      },
+      {
+        "token": "setTimeout(dispatchInitialRecord, 500)",
+        "count": 1
+      },
+      {
+        "token": "queueMicrotask(closeCycle)",
+        "count": 1
+      },
+      {
+        "token": "openCycle(",
+        "count": 2
+      },
+      {
+        "token": "getOrCreateCheck(",
+        "count": 2
+      },
+      {
+        "token": "routerSnapshotOf(",
+        "count": 2
+      }
+    ],
+    "decides": "SC1 as the roadmap states it — two recorded snapshots of the same page compared field by field — has no input in this record: the record publishes no page snapshot at all, at one moment or at two. What it publishes at many moments is a frame record whose page-shaped keys are partial (the frame's components), cumulative (the arrival lists) or install-time (the boundary and stability answers). SC2 is therefore the normal case rather than an edge: no field of the record binds two records to one page, so a pair of records cannot be established as the same page from the record's own fields."
+  },
+  "verdict": "Measured, and the measurement refuses the roadmap's premise: this record publishes no page snapshot at any moment, so it publishes none at two. The structures it carries that could be mistaken for one — the frame's `checks`, the router entry that reduces a router state snapshot to `matchedPaths`, and the `boundary`/`stability` sections — are a frame's own components, one event's fields and cumulative arrival lists. No field of the record binds two of its records to one page: the only value that repeats across records of one page session is `stability.attachAt`, a clock reading the tree never calls an identity and the reset path clears. SC1 therefore has no input in this record and SC2 is the normal case rather than an edge.",
+  "absentFields": {
+    "statement": "what the record states about fields it does not carry, so a refusal can name an absence instead of guessing. Every entry quotes the line that says it; `mustContain` is the phrase the suite requires that line to hold.",
+    "stated": [
+      {
+        "id": "event-field-not-carried-is-null",
+        "claim": "a router field the event did not carry is recorded as `null` and is never filled in from the last navigation, the navigation in flight or a previous entry; an own field worth `undefined` is `null` too",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1462,
+            "lineText": "// surface branches on a number; every field the event did not carry is `null` and is never filled in"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1485,
+            "lineText": "// `undefined` is recorded as `null` too, because the boundary is serialized and `undefined` does not"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1486,
+            "lineText": "// cross it — a reader never has to tell \"unknown\" from \"not applicable\"."
+          }
+        ],
+        "mustContain": "every field the event did not carry is `null`"
+      },
+      {
+        "id": "no-instance-element-function-or-url-tree",
+        "claim": "a field crosses only as a number, string or boolean: no instance, element, function or URL tree is ever recorded as a field value",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1498,
+            "lineText": "// A field that crosses the boundary as it stands, or `null`. Numbers, strings and booleans only, so"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1499,
+            "lineText": "// no instance, element, function or URL tree is ever recorded as a field value."
+          }
+        ],
+        "mustContain": "no instance, element, function or URL tree is ever recorded as a field value"
+      },
+      {
+        "id": "unreadable-payload-is-no-snapshot",
+        "claim": "a payload the snapshot read cannot follow is no snapshot rather than an error, and an event with no route-tree snapshot contributes an empty list rather than a guess",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1540,
+            "lineText": "// activation event carries the activated snapshot itself. Anything else carries none, and a payload"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1541,
+            "lineText": "// this read cannot follow is no snapshot rather than an error."
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1578,
+            "lineText": "// and no component reference crosses the boundary. An event with no route-tree snapshot contributes"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1579,
+            "lineText": "// an empty list rather than a guess."
+          }
+        ],
+        "mustContain": "this read cannot follow is no snapshot rather than an error"
+      },
+      {
+        "id": "no-counterpart-field",
+        "claim": "a field with no counterpart in the entry is absent rather than null, so nothing records a null for the value the measurement found undefined",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1599,
+            "lineText": "// boundary. A `NavigationError`'s `target` field has no counterpart in the entry at all, so nothing"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1600,
+            "lineText": "// can record a `null` for the value T001 measured as `undefined`: the absence is the absent field."
+          }
+        ],
+        "mustContain": "the absence is the absent field"
+      },
+      {
+        "id": "boundary-absent-field-is-null-never-borrowed",
+        "claim": "a boundary detail the payload omits is recorded as `null` and is never borrowed from the other shape, from a neighbouring arrival or from a derived value",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1914,
+            "lineText": "// the other omits: an absent field is `null`, never borrowed from the other shape, from a"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2063,
+            "lineText": "// construction shape omits the field, and that absence is recorded as `null`: it is never"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2064,
+            "lineText": "// filled in from `boundary.type` or from the arrival before this one."
+          }
+        ],
+        "mustContain": "an absent field is `null`, never borrowed from the other shape"
+      },
+      {
+        "id": "boundary-replaced-subtree-unobtainable",
+        "claim": "the replaced subtree is unobtainable and nothing in the read reaches for it",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1920,
+            "lineText": "// replaced subtree is unobtainable (`LBoundary` holds `hostLView` and `error` only) and nothing"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1921,
+            "lineText": "// here reaches for it."
+          }
+        ],
+        "mustContain": "replaced subtree is unobtainable"
+      },
+      {
+        "id": "version-is-a-proxy-not-a-claim",
+        "claim": "the boundary version is a proxy for the build, never a version claim and never evidence that a boundary exists",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1933,
+            "lineText": "// 22.1.8 does not, so its absence answers `cannot-tell` with a named absence. It is a proxy for"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1934,
+            "lineText": "// the build, never a version claim, and never evidence that a boundary exists."
+          }
+        ],
+        "mustContain": "never a version claim, and never evidence that a boundary exists"
+      },
+      {
+        "id": "stability-records-no-reason",
+        "claim": "the stability getter carries no reason, so no reason is recorded and a named cause would be invented",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2278,
+            "lineText": "// that never moved. The getter carries no reason - the tracker holds task ids and nothing else - so"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2279,
+            "lineText": "// no reason is recorded, and a surface that named a cause would be inventing one."
+          }
+        ],
+        "mustContain": "no reason is recorded"
+      }
+    ],
+    "notCarriedAtAll": [
+      {
+        "id": "no-page-address-key",
+        "claim": "the record carries no url, href, location, document, title, page or tab key: its nine keys are the nine measured, and the recorder reads no page address at all",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1042,
+            "lineText": "var facts = {"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1054,
+            "lineText": "};"
+          }
+        ],
+        "mustContain": "var facts = {",
+        "evidence": "no-page-identity-reader"
+      },
+      {
+        "id": "no-snapshot-structure",
+        "claim": "no dispatched structure is a snapshot of the page: the word `snapshot` names the router state snapshot the entry reduces and the install record's comment, and no recorded key is `snapshot`",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1577,
+            "lineText": "// The primary chain's own config paths, in order, and nothing else: no snapshot object, no URL tree"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1636,
+            "lineText": "var entry = {"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1648,
+            "lineText": "};"
+          }
+        ],
+        "mustContain": "no snapshot object, no URL tree",
+        "evidence": "snapshot-word-sites"
+      },
+      {
+        "id": "no-route-tree-object",
+        "claim": "the primary chain's config paths are all that crosses from a router snapshot: no snapshot object, no URL tree and no component reference",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 1577,
+            "lineText": "// The primary chain's own config paths, in order, and nothing else: no snapshot object, no URL tree"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 1578,
+            "lineText": "// and no component reference crosses the boundary. An event with no route-tree snapshot contributes"
+          }
+        ],
+        "mustContain": "no component reference crosses the boundary"
+      },
+      {
+        "id": "no-record-level-absence-vocabulary",
+        "claim": "the record states no absence for a page identity because it carries no page-identity field to be absent: the only named absences it publishes are the boundary hook's and the stability observable's",
+        "citations": [
+          {
+            "file": "extension/agent-main.js",
+            "line": 2251,
+            "lineText": "absence: boundaryInstalled ? null : boundaryAbsence,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2446,
+            "lineText": "absence: stabilityAbsence,"
+          },
+          {
+            "file": "extension/agent-main.js",
+            "line": 2290,
+            "lineText": "var stabilityAbsence = 'no-stability-observable'; // cleared only where an observable answered"
+          }
+        ],
+        "mustContain": "absence: boundaryInstalled ? null : boundaryAbsence,"
+      }
+    ]
+  },
+  "consequences": [
+    "SC2 is the normal case: no field of the record binds two of its records to one page, so a pair that a surface cannot bind is every pair.",
+    "SC1 as written — two recorded page snapshots compared field by field — has no input in this record. The record publishes records at many moments and page snapshots at none; a comparison over a \"page snapshot\" would be a comparison over a shape the record does not publish.",
+    "What repeats across records is not a snapshot: `routerEvents` and `boundary.entries` are cumulative arrival copies (the same earlier arrivals reappear in every later record), and `checks` is the frame's own components.",
+    "The nearest per-page value is `stability.attachAt`: stable across every record of one subscribe, cleared to null by the reset path, and never stated to identify a page. Treating it as a page identity would be an invention, not a measurement.",
+    "A refusal can name what is missing, because the record states its absences: no url on the record (only per-event `url`/`urlAfterRedirects`, null where the event carried none), no tab or page key (the envelope's `tabId` is added by the background), no install identifier (only the incrementing `cycleId` and the clearable `attachAt`), and only the Angular version, which two pages of one build share."
+  ],
+  "notClaimed": [
+    "no page was read and no browser was opened: every citation is a line of the tree.",
+    "nothing was rendered and no build was run.",
+    "no comparison was written, no surface was built and no production code was changed.",
+    "no recorder was invented: the record measured here is the one extension/agent-main.js already publishes.",
+    "no claim is made about what changed between two moments, because this measurement found no structure that stands for a page at one."
+  ]
+}

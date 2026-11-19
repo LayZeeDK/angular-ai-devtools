@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m050+t004",
+  "version": "m051+t003",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -757,6 +757,56 @@
       "surface": "dead-click",
       "key": "no-refused-reason",
       "text": "no-refused-reason: a refused entry arrived naming no reason, so no reason is rendered for it"
+    },
+    {
+      "surface": "what-changed",
+      "key": "state-changes",
+      "text": "changes: the two records disagree on at least one measured field, and each finding below names the field it concerns with the kind of difference the judgement stated — before and after for a changed value, and the one value that exists, with no counterpart invented, for a field only one record carries"
+    },
+    {
+      "surface": "what-changed",
+      "key": "state-unchanged",
+      "text": "unchanged: the two records agree on every field the judgement compared, and the count below states how many fields that was, so no change is never read as no comparison"
+    },
+    {
+      "surface": "what-changed",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the pair was refused and nothing was compared, because the record carries no page identity — no url, no tab and no page key — and the pair is bound by the panel’s inspected tab rather than by a field of the record, so the reason below is the judgement’s own words"
+    },
+    {
+      "surface": "what-changed",
+      "key": "bound-by-the-panel",
+      "text": "bound-by-the-panel: the record carries no page identity, so the two records this answer compared are one pair because the panel’s inspected tab binds them, and no field of either record says so"
+    },
+    {
+      "surface": "what-changed",
+      "key": "no-what-changed-answer",
+      "text": "no-what-changed-answer: no what-changed answer was handed over, so no state, no finding, no count and no reason are reported"
+    },
+    {
+      "surface": "what-changed",
+      "key": "no-changes-list",
+      "text": "no-changes-list: the answer reported changes without a list of them, so no finding is rendered"
+    },
+    {
+      "surface": "what-changed",
+      "key": "no-finding-field",
+      "text": "no-finding-field: a finding arrived naming no field, so no field is rendered for it"
+    },
+    {
+      "surface": "what-changed",
+      "key": "no-finding-kind",
+      "text": "no-finding-kind: a finding arrived naming no kind, so it is rendered as the values it carries and not as a change of value, an addition or a removal"
+    },
+    {
+      "surface": "what-changed",
+      "key": "no-finding-value",
+      "text": "no-finding-value: a finding arrived carrying neither a before nor an after value, so no value is rendered for it"
+    },
+    {
+      "surface": "what-changed",
+      "key": "no-compared",
+      "text": "no-compared: the answer states no list of the fields it compared, so no count is rendered and this surface claims no comparison was made"
     }
   ]
 }

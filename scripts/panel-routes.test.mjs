@@ -38,6 +38,7 @@ const surfaces = [
   'copy-check',
   'interaction-story',
   'dead-click',
+  'what-changed',
 ];
 
 /** The identifier every panel-demo route installs. */
@@ -497,6 +498,23 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
       String(err.message).includes('route dead-click must exist'),
     'a table without the dead-click route must fail naming the missing surface',
   );
+
+  // Mutant: the M051 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the pair of records, so the per-surface half must name it rather than pass on the
+  // older surfaces alone.
+  const withoutWhatChanged = source.replace("  'what-changed',\n", '');
+  assert.notEqual(
+    withoutWhatChanged,
+    source,
+    'the removed-what-changed-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutWhatChanged),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route what-changed must exist'),
+    'a table without the what-changed route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -519,6 +537,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'copy-check': ['panel-copy-check', 'copyCheckPanel'],
     'interaction-story': ['panel-interaction-story', 'interactionStoryPanel'],
     'dead-click': ['panel-dead-click', 'deadClickPanel'],
+    'what-changed': ['panel-what-changed', 'whatChangedPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -563,6 +582,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'copyCheckPanel(',
     'interactionStoryPanel(',
     'deadClickPanel(',
+    'whatChangedPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -933,5 +953,31 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: dead-click'),
     'removing the dead-click loader must fail naming the missing surface dead-click',
+  );
+
+  // Mutant: remove the what-changed key from LOADERS. The M051 route is the one this task adds, so
+  // the check must name it when its loader is gone rather than pass on the surfaces before it. It is
+  // a quoted key whose import is the only reference to `panel-what-changed.ts`, so a route that
+  // dropped it would leave the pair surface unreachable while every earlier surface still loaded.
+  // The assertion reads the failure's whole message: the missing-key sentence and the surface it
+  // names.
+  const withoutWhatChanged = demoSource.replace(
+    "  'what-changed': () => import('./panel-what-changed') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutWhatChanged,
+    demoSource,
+    'the what-changed mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutWhatChanged),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: what-changed'),
+    'removing the what-changed loader must fail naming the missing surface what-changed',
   );
 });

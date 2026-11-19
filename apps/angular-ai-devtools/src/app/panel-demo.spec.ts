@@ -141,6 +141,18 @@ import {
   STATE_TEXTS as DEAD_STATE_TEXTS,
   deadClickPanel,
 } from './panel-dead-click';
+import {
+  BOUND_BY_THE_PANEL_TEXT,
+  CANNOT_TELL as CHANGED_CANNOT_TELL,
+  CHANGES as CHANGED_CHANGES,
+  NO_ANSWER_TEXT as CHANGED_NO_ANSWER_TEXT,
+  NO_CHANGES_LIST_TEXT,
+  NO_COMPARED_TEXT,
+  NO_FINDING_VALUE_TEXT,
+  NO_REASON_TEXT as CHANGED_NO_REASON_TEXT,
+  UNCHANGED as CHANGED_UNCHANGED,
+  whatChangedPanel,
+} from './panel-what-changed';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -1572,6 +1584,114 @@ function deadClickJoin(): DeadClickJoin {
   return join;
 }
 
+/** One finding of the what-changed judgement's answer, for the fields this spec reads. */
+interface WhatChangedFinding {
+  field: string;
+  kind: string;
+  before?: unknown;
+  after?: unknown;
+}
+
+/** The what-changed judgement's answer: the four contract fields. */
+interface WhatChangedAnswer {
+  state: string;
+  changes: WhatChangedFinding[];
+  compared: string[];
+  reason?: string | null;
+}
+
+/** The page's own judgement namespace, as `extension/what-changed.js` publishes it. */
+interface WhatChangedJoin {
+  whatChanged(
+    before: unknown,
+    after: unknown,
+    binding: unknown,
+  ): WhatChangedAnswer;
+  FIELDS: string[];
+  CHANGES: string;
+  UNCHANGED: string;
+  CANNOT_TELL: string;
+  CHANGED: string;
+  ADDED: string;
+  REMOVED: string;
+  NO_BINDING_REASON: string;
+}
+
+/**
+ * The judgement `extension/what-changed.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `what-changed` fact is held to the judgement's answer for the pair this
+ * spec builds — and to the judgement's own `NO_BINDING_REASON` — rather than to a copy of either
+ * written here. The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function whatChangedJoin(): WhatChangedJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/what-changed.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/what-changed.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as { angularAiWhatChanged?: WhatChangedJoin }
+  ).angularAiWhatChanged;
+  if (join === undefined || typeof join.whatChanged !== 'function') {
+    throw new Error('extension/what-changed.js published no whatChanged');
+  }
+  return join;
+}
+
+/**
+ * The pair the demo's `what-changed` fact is the judgement's answer for: two records of one counter
+ * carrying the nine fields T001 measured (`research/raw/m051-snapshots.json`, `record.keyOrder`), in
+ * that order, with the values the record's own builders publish. `cycleId` and `startedAt` moved
+ * between the two frames, the earlier record carries `stability` and the later one `checks`, and the
+ * other five measured fields agree — so the answer names two changes with both values, one removal
+ * and one addition with the one value that exists, and counts the nine fields it compared.
+ */
+const WHAT_CHANGED_BEFORE: Readonly<Record<string, unknown>> = {
+  cycleId: 41,
+  startedAt: 1000,
+  trigger: { kind: 'output', listenerName: 'click' },
+  zoneMode: 'task',
+  events: [1, 2],
+  routerEvents: [],
+  boundary: { state: 'installed', absence: null, entries: [] },
+  stability: {
+    reachedBy: 'getter',
+    absence: null,
+    attachAt: 1001,
+    reading: { value: true, at: 1008 },
+    settle: { state: 'settled', at: 1008, sinceAttachMs: 7 },
+  },
+};
+
+const WHAT_CHANGED_AFTER: Readonly<Record<string, unknown>> = {
+  cycleId: 42,
+  startedAt: 1016,
+  trigger: { kind: 'output', listenerName: 'click' },
+  zoneMode: 'task',
+  events: [1, 2],
+  routerEvents: [],
+  boundary: { state: 'installed', absence: null, entries: [] },
+  checks: [
+    {
+      componentName: 'app-counter',
+      className: 'Counter',
+      changeDetection: 0,
+      events: [2, 3],
+      changedNodeIds: ['1'],
+    },
+  ],
+};
+
 /**
  * The values each entry of the rebuilt record carries, keyed by the stream the record names. The
  * arrival readings (10, 11, 20, 30, 40) are this spec's own spine, and the ids are what the
@@ -2513,7 +2633,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — thirty paths, the same ordered list
+    // The whole table, in order and to the count — thirty-one paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -2548,8 +2668,9 @@ describe('the panel demo', () => {
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
+      'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(30);
+    expect(appRoutes).toHaveLength(31);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -3052,19 +3173,19 @@ describe('the panel demo', () => {
 
     // The measured record's answer: every string it declares is explained, and the count is the
     // join's own comparison — not a count written in this spec or in the demo fact. The count is
-    // larger than the digest's row count because one sentence is declared by four surfaces and an
-    // explanation of one string is still one row: 154 sentences compared, 151 distinct rows.
+    // larger than the digest's row count because one sentence is declared by five surfaces and an
+    // explanation of one string is still one row: 165 sentences compared, 161 distinct rows.
     expect(answer).toEqual({
       state: COPY_CLEAN,
       unexplained: [],
-      checked: 154,
+      checked: 165,
     });
     expect(answer.checked).toBe(
       recording.counts.declaredSentences + recording.counts.inlineSentences,
     );
     expect(digest.entries.length).toBeLessThan(answer.checked);
     expect(recording.counts.surfaces).toBe(recording.surfaces.length);
-    expect(recording.counts.surfaces).toBe(22);
+    expect(recording.counts.surfaces).toBe(23);
 
     // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
     // with its own reason, while the record stays clean. Both answers are the join's.
@@ -3737,6 +3858,206 @@ describe('the panel demo', () => {
 
     // N4, N1: the pane adds no DOM and writes no cause, element, remedy, handler or rule identity
     // of its own. Every line is a labelled field of the answer or one of the pane's sentences.
+    expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
+    for (const label of [
+      'cause: ',
+      'element: ',
+      'remedy: ',
+      'rule: ',
+      'handler: ',
+      'component: ',
+    ]) {
+      expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
+    }
+  });
+
+  /**
+   * The M051 half — SC1 and SC2 on the surface. The route is reached through its own entry, and the
+   * fact it renders is the shipped judgement's answer for the pair of records built above, with the
+   * panel's own inspected tab as the binding. `changes` prints each field the two records disagree
+   * on with its kind and the before and after the records carry — and, for a field only one record
+   * carries, the one value that exists and no counterpart at all, neither a `null` nor the other
+   * record's value (E1, N1) — beside the count the answer compared; `unchanged` states the count and
+   * no finding; and `cannot-tell` echoes the judgement's reason verbatim, naming both that the
+   * record carries no page identity and that the binding is the panel's inspected tab. The pane
+   * states that binding in every state, because the plan's Correction 2 requires the surface to say
+   * it rather than leave a reader thinking a field of the record proved the pair was one page.
+   */
+  it('renders each differing field with its before and after, invents no counterpart, and states the binding in every state', async () => {
+    const join = whatChangedJoin();
+    const answer = join.whatChanged(WHAT_CHANGED_BEFORE, WHAT_CHANGED_AFTER, {
+      tabId: 1,
+    });
+
+    // The fact the demo is handed is the judgement's own answer for this pair, field for field.
+    expect(FACTS['what-changed']).toEqual(answer);
+    expect(answer.state).toBe(join.CHANGES);
+    expect(answer.compared).toEqual(join.FIELDS);
+    expect(
+      answer.changes.map((finding) => [finding.field, finding.kind]),
+    ).toEqual([
+      ['cycleId', join.CHANGED],
+      ['startedAt', join.CHANGED],
+      ['stability', join.REMOVED],
+      ['checks', join.ADDED],
+    ]);
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'what-changed',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the what-changed surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the what-changed route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('what-changed');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'what-changed'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(CHANGED_CHANGES);
+    const pane = whatChangedPanel(FACTS['what-changed']);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+
+    // `changes`: its own word and sentence, the count the answer states, then the four findings.
+    expect(pane.lines[0]).toBe(`state: ${CHANGED_CHANGES}`);
+    expect(pane.lines).toContain(`compared: ${join.FIELDS.length}`);
+    for (const finding of answer.changes) {
+      expect(pane.lines).toContain(`field: ${finding.field}`);
+      expect(pane.lines).toContain(`kind: ${finding.kind}`);
+    }
+    // E1 and N1: a value that exists on one side is printed and the absent side is not printed at
+    // all — no `before: null`, no dash and no copy of the other record's value.
+    const removedBlock = pane.lines.slice(
+      pane.lines.indexOf(`field: stability`),
+      pane.lines.indexOf(`field: checks`),
+    );
+    expect(removedBlock).toContain(
+      `before: ${JSON.stringify(answer.changes[2]?.before)}`,
+    );
+    expect(removedBlock.some((line) => line.startsWith('after: '))).toBe(false);
+    const addedBlock = pane.lines.slice(pane.lines.indexOf(`field: checks`));
+    expect(addedBlock).toContain(
+      `after: ${JSON.stringify(answer.changes[3]?.after)}`,
+    );
+    expect(addedBlock.some((line) => line.startsWith('before: '))).toBe(false);
+    expect(pane.lines).not.toContain('before: null');
+    expect(pane.lines).not.toContain('after: null');
+    expect(pane.lines.some((line) => /^before: [-—–]$/.test(line))).toBe(false);
+
+    // `unchanged`: the count compared, and no finding rendered in its place.
+    const unchangedAnswer = join.whatChanged(
+      WHAT_CHANGED_BEFORE,
+      { ...WHAT_CHANGED_BEFORE },
+      { tabId: 1 },
+    );
+    expect(unchangedAnswer.state).toBe(join.UNCHANGED);
+    const unchangedPane = whatChangedPanel(unchangedAnswer);
+    expect(unchangedPane.state).toBe(CHANGED_UNCHANGED);
+    expect(unchangedPane.lines).toContain(
+      `compared: ${unchangedAnswer.compared.length}`,
+    );
+    expect(
+      unchangedPane.lines.some((line) => line.startsWith('finding: ')),
+    ).toBe(false);
+    // A count nobody stated is its own named absence, never a zero.
+    expect(
+      whatChangedPanel({ state: CHANGED_UNCHANGED, changes: [] }).lines,
+    ).toContain(NO_COMPARED_TEXT);
+
+    // `cannot-tell`: the judgement's own reason verbatim, naming both facts the plan requires.
+    const unbound = join.whatChanged(
+      WHAT_CHANGED_BEFORE,
+      WHAT_CHANGED_AFTER,
+      undefined,
+    );
+    expect(unbound.state).toBe(join.CANNOT_TELL);
+    expect(unbound.reason).toBe(join.NO_BINDING_REASON);
+    const cannotPane = whatChangedPanel(unbound);
+    expect(cannotPane.state).toBe(CHANGED_CANNOT_TELL);
+    expect(cannotPane.lines).toContain(`reason: ${join.NO_BINDING_REASON}`);
+    expect(join.NO_BINDING_REASON).toContain('no page identity');
+    expect(join.NO_BINDING_REASON).toContain(
+      "the pair is bound by the panel's inspected tab",
+    );
+    // Nothing is compared, so no finding and no count is offered in the reason's place.
+    expect(cannotPane.lines.some((line) => line.startsWith('finding: '))).toBe(
+      false,
+    );
+    expect(cannotPane.lines.some((line) => line.startsWith('compared: '))).toBe(
+      false,
+    );
+    // A pair with a snapshot the caller does not have is refused the same way, naming which one.
+    const halfPair = join.whatChanged(WHAT_CHANGED_BEFORE, undefined, {
+      tabId: 1,
+    });
+    expect(halfPair.state).toBe(join.CANNOT_TELL);
+    expect(whatChangedPanel(halfPair).lines).toContain(
+      `reason: ${halfPair.reason}`,
+    );
+    // A `cannot-tell` answer that names no reason says so rather than rendering a state it lacks.
+    expect(whatChangedPanel({ state: CHANGED_CANNOT_TELL }).lines).toContain(
+      CHANGED_NO_REASON_TEXT,
+    );
+
+    // The binding statement is rendered in every state this pane has: the record carries no page
+    // identity and the panel's inspected tab binds the pair.
+    for (const rendered of [pane, unchangedPane, cannotPane]) {
+      expect(rendered.lines).toContain(BOUND_BY_THE_PANEL_TEXT);
+      expect(rendered.lines.join('\n')).toMatch(/no page identity/);
+      expect(rendered.lines.join('\n')).toMatch(/panel’s inspected tab/);
+    }
+
+    // The three states never collapse into fewer than three words and three sentences.
+    expect(
+      new Set([pane.state, unchangedPane.state, cannotPane.state]).size,
+    ).toBe(3);
+    expect(
+      new Set([pane.lines[1], unchangedPane.lines[1], cannotPane.lines[1]])
+        .size,
+    ).toBe(3);
+
+    // An answer nobody gave is its own named absence; a state word outside the registry renders as
+    // the word alone; an answer reporting changes without a list states that absence.
+    expect(whatChangedPanel(undefined).lines).toEqual([CHANGED_NO_ANSWER_TEXT]);
+    expect(whatChangedPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+    expect(
+      whatChangedPanel({
+        state: CHANGED_CHANGES,
+        changes: [],
+        compared: join.FIELDS,
+      }).lines,
+    ).not.toContain(NO_CHANGES_LIST_TEXT);
+    expect(whatChangedPanel({ state: CHANGED_CHANGES }).lines).toContain(
+      NO_CHANGES_LIST_TEXT,
+    );
+    // A finding that carries neither side states that absence rather than borrowing a value.
+    expect(
+      whatChangedPanel({
+        state: CHANGED_CHANGES,
+        changes: [{ field: 'cycleId', kind: join.CHANGED }],
+        compared: ['cycleId'],
+      }).lines,
+    ).toContain(NO_FINDING_VALUE_TEXT);
+
+    // Idempotency: the same fact renders the same lines in the same order, twice.
+    expect(whatChangedPanel(FACTS['what-changed'])).toEqual(
+      whatChangedPanel(FACTS['what-changed']),
+    );
+
+    // The pane adds no DOM and writes no cause, element, remedy, rule identity or handler of its
+    // own: every line is a labelled field of the answer or one of the pane's sentences.
     expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
     for (const label of [
       'cause: ',

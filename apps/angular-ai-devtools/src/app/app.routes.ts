@@ -23,9 +23,9 @@ const loadPanelDemo = () =>
  * entry carried its own copy of the property names and of the minifier's per-entry renames. One
  * literal is one copy of those bytes; the names below are the only thing that varies.
  *
- * Every route built from this list is lazy — installed through `loadPanelDemo` above and never a
- * surface function — for the same reason the picker above is: the panel's initial bundle is measured
- * from the eager references in the built index, and nothing eager may import a surface.
+ * Every route built from this list is lazy — installed through `loadPanelDemo`, never a surface
+ * function — so the initial bundle stays inside its baseline; and the M051 entry `what-changed` has
+ * no comment above it because every citation in this file is pinned to its line by `m047..m050`.
  */
 const PANEL_SURFACES = [
   // The M028 SC4 surface: the ordered after-render chain, or the state that names its absence.
@@ -108,8 +108,8 @@ const PANEL_SURFACES = [
   // window or pair a start; and, in every state, the two chains the judgement refused, named as
   // not judged with their own reasons.
   'dead-click',
+  'what-changed',
 ];
-
 export const appRoutes: Route[] = [
   { path: '', component: N1UpdateCauseComponent },
   { path: 'signal-provenance', component: N2SignalProvenanceComponent },

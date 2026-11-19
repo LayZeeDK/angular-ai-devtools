@@ -2266,12 +2266,19 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
 // `no-reason`, is byte for byte the string three surfaces already declare, so the digest needed no new
 // row for it.
 //
+// M051's T003 shipped `panel-what-changed.ts` as the twenty-third surface and re-measured the record
+// over all twenty-three, authoring ten more digest rows from that module's own `PANE_SENTENCES` — read
+// out of the source, never out of a rendered pane. Its eleventh sentence, `no-reason`, is byte for byte
+// the string four surfaces already declare, so the digest needed no new row for it. The same pass
+// re-read the three `panel-demo.ts` citations the new loader key and sample fact moved, in this record
+// and in the three route records `scripts/copy-check.test.mjs` re-reads.
+//
 // Two facts the pins below state rather than assume:
 //
-//   * the digest holds one row per distinct sentence text, so 151 rows explain 154 sentences: the
-//     `no-reason` sentence `panel-copy-check.ts:128`, `panel-interaction-story.ts:150` and
-//     `panel-dead-click.ts:202` declare is byte for byte the one `panel-components.ts:147` declares,
-//     and the one row explains all four;
+//   * the digest holds one row per distinct sentence text, so 161 rows explain 165 sentences: the
+//     `no-reason` sentence `panel-copy-check.ts:128`, `panel-interaction-story.ts:150`,
+//     `panel-dead-click.ts:202` and `panel-what-changed.ts:154` declare is byte for byte the one
+//     `panel-components.ts:147` declares, and the one row explains all five;
 //   * no sentence is written inline on the copy-check pane. Its seven inline entries are labels
 //     (`state:`, `string:`, `surface:`, `checked:`, `reason:`), the answer's own fields, so every one
 //     of them is a kind the join reads past and none of them is a row the digest could hold. The
@@ -2286,7 +2293,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
 
   assert.equal(
     record.counts.surfaces,
-    22,
+    23,
     `the record measures every panel-*.ts surface the tree carries, and it measures ${record.counts.surfaces}`,
   );
   assert.equal(
@@ -2360,8 +2367,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   const all = recordSentenceRows();
   assert.equal(
     shippedDigest.entries.length,
-    151,
-    `the digest carries ${shippedDigest.entries.length} rows and the record carries 151 distinct sentence texts`,
+    161,
+    `the digest carries ${shippedDigest.entries.length} rows and the record carries 161 distinct sentence texts`,
   );
   assert.equal(
     shippedDigest.entries.length,
@@ -2370,11 +2377,11 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     all.length,
-    154,
-    `the record carries ${all.length} sentences: 120 declared in a map or a constant and 34 written inline`,
+    165,
+    `the record carries ${all.length} sentences: 131 declared in a map or a constant and 34 written inline`,
   );
 
-  // The one repeated sentence: four surfaces declare it, the digest holds one row for it, and the
+  // The one repeated sentence: five surfaces declare it, the digest holds one row for it, and the
   // row is filed under the surface that declared it first.
   const shared = recordSentenceText('copy-check', 'no-reason');
   assert.equal(
@@ -2391,6 +2398,11 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
     shared,
     recordSentenceText('dead-click', 'no-reason'),
     'the twenty-second surface declares the same `no-reason` sentence too, byte for byte',
+  );
+  assert.equal(
+    shared,
+    recordSentenceText('what-changed', 'no-reason'),
+    'the twenty-third surface declares the same `no-reason` sentence too, byte for byte',
   );
   const sharedRows = shippedDigest.entries.filter(
     (/** @type {{text: string}} */ entry) => entry.text === shared,
@@ -2616,8 +2628,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     whole.checked,
-    154,
-    `every sentence the record declares is compared, the shared one at all four surfaces, and ${whole.checked} were`,
+    165,
+    `every sentence the record declares is compared, the shared one at all five surfaces, and ${whole.checked} were`,
   );
   assert.equal(
     whole.checked,

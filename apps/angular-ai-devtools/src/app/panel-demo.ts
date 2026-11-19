@@ -57,6 +57,7 @@ const LOADERS: Record<
   'copy-check': () => import('./panel-copy-check') as never,
   'interaction-story': () => import('./panel-interaction-story') as never,
   'dead-click': () => import('./panel-dead-click') as never,
+  'what-changed': () => import('./panel-what-changed') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -438,13 +439,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 154 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 165 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
   // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
   // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 154 },
+  'copy-check': { state: 'clean', unexplained: [], checked: 165 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the
@@ -561,6 +562,62 @@ export const FACTS: Record<string, unknown> = {
         reason: 'boundary-chain-unjudgeable',
       },
     ],
+  },
+  // The judgement's own answer (`extension/what-changed.js`, T002) for a pair of records this demo
+  // writes in the shape T001 measured (`research/raw/m051-snapshots.json`, `record.keyOrder`: the
+  // nine keys both dispatch sites assign) and `panel-demo.spec.ts` rebuilds and runs the shipped
+  // judgement over, holding this fact to its answer field for field. The two records are two frames
+  // of one counter: `cycleId` and `startedAt` moved, `stability` is carried by the earlier record
+  // only and `checks` by the later one only, and the other five measured fields agree — so the
+  // answer names the two changes with both values, the removed field with the value that exists and
+  // no invented counterpart, the added field the same way, and counts the nine fields it compared.
+  // The values are sample data, not a recording: T001 measured the record's keys and its two
+  // publication sites, never a page's values, and one value per field is the whole of what this
+  // surface needs to render. The binding is the panel's inspected tab, so the answer is the
+  // judgement's own `changes` answer for a pair a caller bound — no field of either record supplies
+  // it, which is what the pane states in every state.
+  'what-changed': {
+    state: 'changes',
+    changes: [
+      { field: 'cycleId', kind: 'changed', before: 41, after: 42 },
+      { field: 'startedAt', kind: 'changed', before: 1000, after: 1016 },
+      {
+        field: 'stability',
+        kind: 'removed',
+        before: {
+          reachedBy: 'getter',
+          absence: null,
+          attachAt: 1001,
+          reading: { value: true, at: 1008 },
+          settle: { state: 'settled', at: 1008, sinceAttachMs: 7 },
+        },
+      },
+      {
+        field: 'checks',
+        kind: 'added',
+        after: [
+          {
+            componentName: 'app-counter',
+            className: 'Counter',
+            changeDetection: 0,
+            events: [2, 3],
+            changedNodeIds: ['1'],
+          },
+        ],
+      },
+    ],
+    compared: [
+      'cycleId',
+      'startedAt',
+      'trigger',
+      'zoneMode',
+      'events',
+      'routerEvents',
+      'boundary',
+      'stability',
+      'checks',
+    ],
+    reason: null,
   },
 };
 
