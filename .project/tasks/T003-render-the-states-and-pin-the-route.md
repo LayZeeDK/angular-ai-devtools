@@ -24,7 +24,6 @@ files:
   - tests/held-out/fixture-explainers-unchanged.test.mjs
   - research/raw/m051-verdict-claims.json
   - research/raw/m051-surface.json
-  - research/raw/m051-verdict-claims.json
   - research/raw/m048-surface-copy.json
   - extension/copy-digest.json
   - research/raw/m048-surface.json
@@ -65,38 +64,6 @@ None
 
 ## Files
 
-  - apps/angular-ai-devtools/src/app/panel-what-changed.ts
-  - apps/angular-ai-devtools/src/app/panel-demo.ts
-  - apps/angular-ai-devtools/src/app/app.routes.ts
-  - apps/angular-ai-devtools/src/app/app.spec.ts
-  - apps/angular-ai-devtools/src/app/page-picker.component.spec.ts
-  - apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
-  - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
-  - scripts/panel-routes.test.mjs
-  - scripts/component-search.test.mjs
-  - scripts/gate-integrity.test.mjs
-  - scripts/gate-integrity-default-tasks.test.mjs
-  - tests/held-out/fixture-explainers-unchanged.test.mjs
-  - research/raw/m051-surface.json
-  - research/raw/m051-verdict-claims.json
-  - research/raw/m048-surface-copy.json
-  - extension/copy-digest.json
-  - research/raw/m048-surface.json
-  - research/raw/m049-surface.json
-  - research/raw/m050-surface.json
-  - AGENTS.md
-  - research/raw/m056-gate-stability.json
-  - research/raw/m044-gate-shapes.json
-  - scripts/copy-check.test.mjs
-  - scripts/navigation-blocking.test.mjs
-  - scripts/overlay-verdict-claims.test.mjs
-  - scripts/gate-stability-record.test.mjs
-  - scripts/held-out-corpus.test.mjs
-  - scripts/console-panel-record.test.mjs
-  - scripts/console-panel-render.test.mjs
-  - scripts/error-boundary-capture.test.mjs
-  - scripts/stability-capture.test.mjs
-  - extension/panel/index.html
 
 ## Acceptance criteria
 
