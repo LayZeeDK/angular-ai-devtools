@@ -2,10 +2,10 @@
 id: T001
 title: Measure what executeTool answers before anything calls it
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: ce5935cef8c5a2b5112bed0a01827283b31cd687
 worktree: null
 task_branch: null
 files:
@@ -75,3 +75,4 @@ node --test scripts/webmcp-execute-tool.test.mjs && npx prettier --check scripts
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m053-execute-tool.json`, `scripts/webmcp-execute-tool.test.mjs` — each is read from this tree, ready.
