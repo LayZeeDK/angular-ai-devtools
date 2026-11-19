@@ -21,6 +21,8 @@ without refreshing the timestamp that assertion reads.
 1. The milestone reports a tool list, not API presence, which is already a canary (`control.mjs:1953`).
 2. "Whether each tool can be called" is out of scope: it needs a model turn and mutates the page.
 
+- C3 2026-11-19: T003 measured `getTools()` in a live Chrome Beta 159 instance (`research/raw/m052-webmcp-observation.json`): it answers a Promise that resolves to `[]` on a page declaring no tools, not an array. `readTools` judges the synchronous return, so the measured API lands in `cannot-tell`/`unreadable-list`. The reader stays pure and synchronous; the page-world caller awaits and hands the resolved array in. Wiring that await is carried as a residual of this milestone, recorded here rather than silently widening T002 or T003 after they landed.
+
 ## Intent coverage
 
 | Criterion | Task |
