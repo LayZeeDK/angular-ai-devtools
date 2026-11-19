@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: webmcp-audit
-phase: shipped
+milestone: webmcp-rehearsal
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
-branch: gsd-path/M052
-archive: .project/archive/052-webmcp-audit
+status: active
+branch: gsd-path/M053
+archive: null
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1095,3 +1095,8 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-19 — build — build completed
 - 2026-11-19 — ship — build done; final review pending
 - 2026-11-19 — shipped — archive preflight passed; shipment recorded
+- 2026-11-19 — inspect — next milestone bound at the integrate sha
+- 2026-11-19 — inspect — inspection completed
+- 2026-11-19 — define — milestone define started
+- 2026-11-19 — define — milestone intent approved
+- 2026-11-19 — plan — planning started
