@@ -2,10 +2,10 @@
 id: T001
 title: Measure what the records carry and what only a mapping can answer
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: b450c28b3a4497e5e6cba106a6c8618981ffca87
 worktree: null
 task_branch: null
 files:
@@ -98,3 +98,4 @@ node --experimental-strip-types --test scripts/tutor-record-shapes.test.mjs && n
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m055-record-shapes.json`, `scripts/tutor-record-shapes.test.mjs` — each is read from this tree, ready.
