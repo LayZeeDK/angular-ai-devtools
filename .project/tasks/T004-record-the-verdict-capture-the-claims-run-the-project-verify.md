@@ -2,10 +2,10 @@
 id: T004
 title: Record the surface, capture the portal-first verdict, run the project verify
 wave: 4
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T004
+base: 5ba0300250513747fcaebc8eea2e43b50c14dce8
 worktree: null
 task_branch: null
 files:
