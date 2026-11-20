@@ -1,0 +1,668 @@
+{
+  "schema": "m055-surface/v1",
+  "milestone": "M055 tutor-foundations",
+  "task": "T004",
+  "title": "Record the tutor-foundations route, its loader key and the states each one reads",
+  "question": "which route reaches the tutor-foundations surface, which LOADERS key resolves it, and what does each of its states read off the answer the shipped join gave?",
+  "head": "aa90dcd0b344d0a7bdd3b1a4d7ae87f5fd772030",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: every citation below was read out of the file it names at the head above, and every one was then re-resolved by searching its file for the exact line it quotes rather than by trusting a typed number (the script is kept in the session scratchpad and not checked in). The three readings this record describes are the join `extension/tutor-foundations.js` (T002), the authored mapping `extension/tutor-index.js` (T002) and the surface `panel-tutor-foundations.ts` (T003); the measurement every answer rests on is `research/raw/m055-record-shapes.json` (T001), which measured the field map across all 34 verdict-claims records and the negative measurement that decides the design. No browser was opened for this record, no page was read, no build and no test of the app was run: the answer the surface renders was derived node-side by `panel-demo.spec.ts` on every test run, and this record cites the lines that derivation runs over.",
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+    "join": "extension/tutor-foundations.js",
+    "index": "extension/tutor-index.js",
+    "shapes": "research/raw/m055-record-shapes.json"
+  },
+  "route": {
+    "name": "tutor-foundations",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 83,
+      "lineText": "'tutor-foundations',",
+      "holds": "tutor-foundations"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },"
+    },
+    "table": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = ["
+    },
+    "closure": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);"
+      }
+    ],
+    "statement": "one entry of the `PANEL_SURFACES` list (:83), spread into the `appRoutes` table by the one mapped literal the table ends with, lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:147) as every demo-backed route does. It sits between `visual-qa` (:81) and `webmcp-rehearsal` (:86) rather than after `what-changed`, and the list's own note (:18) says why: every citation of `m047`..`m055` is pinned to its line, so an entry added after `what-changed` would move the `appRoutes` declaration every one of them quotes. The entry pays for its own two lines out of the two the list's paragraph gave up, which is why `console-read` (:78) and the three entries `scripts/copy-check.test.mjs` re-reads keep their numbers. The route registers nothing and measures nothing: it reaches the pane that renders the join's answer, and that answer is the shipped join's own for the records on disk."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<"
+    },
+    "key": "tutor-foundations",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 64,
+      "lineText": "'tutor-foundations': () => import('./panel-tutor-foundations') as never,",
+      "holds": "'./panel-tutor-foundations'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 717,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 723,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 724,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 725,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 726,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 794,
+      "lineText": "FACTS['tutor-foundations'] = {",
+      "holds": "FACTS['tutor-foundations']"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 795,
+        "lineText": "state: 'answered',",
+        "holds": "state: 'answered'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 796,
+        "lineText": "question:",
+        "holds": "question:"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 798,
+        "lineText": "milestone: 'M054',",
+        "holds": "milestone: 'M054'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 799,
+        "lineText": "criterion: 'SC1',",
+        "holds": "criterion: 'SC1'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 800,
+        "lineText": "artefactPaths: ['scripts/visual-qa-style-read.test.mjs'],",
+        "holds": "'scripts/visual-qa-style-read.test.mjs'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 801,
+        "lineText": "detail:",
+        "holds": "detail:"
+      }
+    ],
+    "sampleFactComment": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 779,
+        "lineText": "// The join's own answer (`extension/tutor-foundations.js`, T002) for the real verdict-claims records",
+        "holds": "extension/tutor-foundations.js"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 784,
+        "lineText": "// The question is the one row of the authored mapping (`extension/tutor-index.js`) that names M054's",
+        "holds": "extension/tutor-index.js"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 786,
+        "lineText": "// `milestone: 'M054'`, a claim whose `criterion` is `SC1` and whose own `artefactPath` is the suite",
+        "holds": "claims[].artefactPath"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 790,
+        "lineText": "// reddens there rather than shipping. Nothing the derivation writes as prose is here: no `reason`, no",
+        "holds": "Nothing the derivation writes as prose is here"
+      }
+    ],
+    "statement": "the `tutor-foundations` key is the last entry of the `LOADERS` map (:35+), and it is the only path to `panel-tutor-foundations.ts`: the demo looks the key up by the name the route's `data.surface` states (:717), awaits the dynamic import (:723), calls the module's default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact is entered after the component (:794) rather than inside the `FACTS` literal, because every cited line of that literal is pinned by `m048`..`m054` and a fact added up there would move them; the comment above it says so (:779-:793). The fact is the join's own `answered` answer for the real records: the question is the one row of `extension/tutor-index.js` that names M054's SC1, the milestone is the answering record's own `milestone` field, the criterion its own `claims[].criterion`, and the path its own `claims[].artefactPath` — read out of `research/raw/m054-verdict-claims.json` and never composed here. `panel-demo.spec.ts` re-reads that record, evaluates the shipped index and the shipped join, answers the question with a reader built from the files this build read, and holds this fact to that answer field for field, so the presence read is re-checked on every test run."
+  },
+  "answer": {
+    "shape": "{ state, question, milestone, criterion, artefactPaths, detail }",
+    "joinAt": {
+      "file": "extension/tutor-foundations.js",
+      "line": 232,
+      "lineText": "function tutorAnswer(question, sources) {"
+    },
+    "reads": {
+      "milestone": "the record’s own `milestone` field",
+      "criterion": "the record’s own `claims[].criterion`",
+      "artefactPath": "the record’s own `claims[].artefactPath`"
+    },
+    "fields": [
+      {
+        "field": "state",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 290,
+          "lineText": "const stateWord = writtenString(answer['state']);",
+          "holds": "answer['state']"
+        },
+        "note": "the word the join answered, and the only field that decides which state renders; a word this pane was not written for renders the word alone (:299) rather than borrowing a state’s sentence."
+      },
+      {
+        "field": "question",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 237,
+          "lineText": "const question = writtenString(answer['question']);",
+          "holds": "answer['question']"
+        },
+        "note": "the question asked, trimmed, echoed into every state by the join; a blank renders no `question:` line."
+      },
+      {
+        "field": "milestone",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 243,
+          "lineText": "const milestone = writtenString(answer['milestone']);",
+          "holds": "answer['milestone']"
+        },
+        "note": "the answering record’s own `milestone` field, printed as the record spells it (SC1, N1); `null` where no record was named, and then no line is rendered."
+      },
+      {
+        "field": "criterion",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 249,
+          "lineText": "const criterion = writtenString(answer['criterion']);",
+          "holds": "answer['criterion']"
+        },
+        "note": "the record’s own `claims[].criterion` (SC1, N4); `null` for the two absences that hold before a record is named, and then no line is rendered."
+      },
+      {
+        "field": "artefactPaths",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 266,
+          "lineText": "const listed = answer['artefactPaths'];",
+          "holds": "answer['artefactPaths']"
+        },
+        "note": "every path the record states for the criterion, as the record spells it — never re-rooted, normalised or shortened (E1, E2) — printed under the `artefact` label on `answered` and under `missing-artefact` on the dead-path state (N3)."
+      },
+      {
+        "field": "artefactPaths[]",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 270,
+          "lineText": "const path = writtenString(entry);",
+          "holds": "writtenString(entry)"
+        },
+        "note": "one path, printed verbatim; a blank or a non-string is no line, because a path the answer does not state is never filled in (N3)."
+      },
+      {
+        "field": "detail",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 278,
+          "lineText": "const detail = writtenString(answer['detail']);",
+          "holds": "answer['detail']"
+        },
+        "note": "the join’s own sentence about what it read or which absence holds, echoed unchanged under its own label — never a record field, and never composed by the pane."
+      }
+    ],
+    "statement": "the pane is the display half and reads only these fields: it reads no record, stats no file, asks no question of a page, dispatches no message and imports nothing at runtime (N6, PLAN C1). Every rendered value is one the join carried from a record’s own field, and a field the answer left empty renders no line rather than a default (N3, N4)."
+  },
+  "states": [
+    {
+      "id": "answered",
+      "word": "answered",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+        "line": 90,
+        "lineText": "export const ANSWERED = 'answered';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 132,
+          "lineText": "text: 'answered: the record states an artefact path for the criterion the question maps to and the injected reader reported every stated path present where the record says it lives, so the milestone, the criterion and every path below are the record’s own field values as it spells them, and none of the three is composed from a file name, a path convention or the record’s prose',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/tutor-foundations.js",
+          "line": 359,
+          "lineText": "ANSWERED,",
+          "holds": "ANSWERED,"
+        },
+        {
+          "file": "extension/tutor-foundations.js",
+          "line": 332,
+          "lineText": "const present = exists(path) === true;",
+          "holds": "exists(path) === true"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 290,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 237,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "milestone",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 243,
+            "lineText": "const milestone = writtenString(answer['milestone']);",
+            "holds": "answer['milestone']"
+          }
+        },
+        {
+          "field": "criterion",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 249,
+            "lineText": "const criterion = writtenString(answer['criterion']);",
+            "holds": "answer['criterion']"
+          }
+        },
+        {
+          "field": "artefactPaths[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 270,
+            "lineText": "const path = writtenString(entry);",
+            "holds": "writtenString(entry)"
+          }
+        }
+      ],
+      "statement": "the record states at least one artefact path for the criterion the question maps to, and the injected reader reported every one of them present where the record says it lives (:329-:334, :357-:370). The pane names the state, the question, the milestone, the criterion and every path, each as the record spells it, and echoes the join’s own `detail` — nothing is composed from a file name, a path convention or the derivation’s prose (N1, N3, N4). A second answer names the same three fields (E5)."
+    },
+    {
+      "id": "no-matching-criterion",
+      "word": "no-matching-criterion",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+        "line": 91,
+        "lineText": "export const NO_MATCHING_CRITERION = 'no-matching-criterion';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 137,
+          "lineText": "text: 'no-matching-criterion: no criterion matches the question — no row of the authored mapping carries it, or the milestone the row names has no readable record whose claims carry the criterion — so no artefact path is reported and whatever milestone and criterion the join named are printed below as it named them',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/tutor-foundations.js",
+          "line": 276,
+          "lineText": "NO_MATCHING_CRITERION,",
+          "holds": "NO_MATCHING_CRITERION,"
+        },
+        {
+          "file": "extension/tutor-foundations.js",
+          "line": 273,
+          "lineText": "const row = findRow(rowsOf(supplied.index), asked);",
+          "holds": "findRow("
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 290,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 237,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "milestone",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 243,
+            "lineText": "const milestone = writtenString(answer['milestone']);",
+            "holds": "answer['milestone']"
+          }
+        },
+        {
+          "field": "criterion",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 249,
+            "lineText": "const criterion = writtenString(answer['criterion']);",
+            "holds": "answer['criterion']"
+          }
+        }
+      ],
+      "statement": "the first absence: no row of the authored mapping carries the question (:271-:283), or the row names a milestone no readable record belongs to carrying the criterion (:288-:305). The pane states it in its own sentence and renders no artefact line; where the row is what failed the join names the milestone and the criterion it read from the row, and the pane prints them as the join reported them (N2). It is distinct from `no-artefact-named` and from `records-unreadable`, each in its own sentence (E3, N2)."
+    },
+    {
+      "id": "no-artefact-named",
+      "word": "no-artefact-named",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+        "line": 92,
+        "lineText": "export const NO_ARTEFACT_NAMED = 'no-artefact-named';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 142,
+          "lineText": "text: 'no-artefact-named: a readable record carries the criterion the question maps to and no claim of it states an artefact path, so that record names no artefact file and none is composed for it from a prose field or from its own name',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/tutor-foundations.js",
+          "line": 312,
+          "lineText": "NO_ARTEFACT_NAMED,",
+          "holds": "NO_ARTEFACT_NAMED,"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 290,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 237,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "milestone",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 243,
+            "lineText": "const milestone = writtenString(answer['milestone']);",
+            "holds": "answer['milestone']"
+          }
+        },
+        {
+          "field": "criterion",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 249,
+            "lineText": "const criterion = writtenString(answer['criterion']);",
+            "holds": "answer['criterion']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 278,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "statement": "the second absence: a readable record carries the criterion and no claim of it states `claims[].artefactPath` (:307-:325) — the shape T001 measured in 22 of the 34 verdict-claims records (C4). The pane states it in its own sentence and renders no artefact line: the record names no artefact file and none is composed for it from a prose field or from its own name (N2, N3). Held-out E4 does not reach this state, and this state is not the dead-path one."
+    },
+    {
+      "id": "records-unreadable",
+      "word": "records-unreadable",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+        "line": 93,
+        "lineText": "export const RECORDS_UNREADABLE = 'records-unreadable';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 147,
+          "lineText": "text: 'records-unreadable: nothing could be read — no record was supplied, none supplied was a parsed record, or no reader was injected to read presence with — so no criterion can be matched and no artefact named, and this absence is not an unanswered question',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/tutor-foundations.js",
+          "line": 242,
+          "lineText": "RECORDS_UNREADABLE,",
+          "holds": "RECORDS_UNREADABLE,"
+        },
+        {
+          "file": "extension/tutor-foundations.js",
+          "line": 258,
+          "lineText": "RECORDS_UNREADABLE,",
+          "holds": "RECORDS_UNREADABLE,"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 290,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 237,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 278,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "statement": "the third absence: no reader was injected (:237-:249), or none of the supplied records is a parsed record with a path (:251-:269). The pane states that in its own sentence, names no milestone, no criterion and no artefact, and echoes the join’s detail; nothing is named beside the absence because there is nothing to name (E3, N2). A record that cannot be read never answers with a composed path, which is why the absence is stated rather than fallen back from."
+    },
+    {
+      "id": "missing-artefact",
+      "word": "missing-artefact",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+        "line": 94,
+        "lineText": "export const MISSING_ARTEFACT = 'missing-artefact';"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 152,
+          "lineText": "text: 'missing-artefact: the record states an artefact path for the criterion and the injected reader reported it absent where the record says it lives, so the record and the missing path are named beside the absence and the question is not unanswered',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/tutor-foundations.js",
+          "line": 340,
+          "lineText": "MISSING_ARTEFACT,",
+          "holds": "MISSING_ARTEFACT,"
+        },
+        {
+          "file": "extension/tutor-foundations.js",
+          "line": 338,
+          "lineText": "if (missing.length > 0) {",
+          "holds": "missing.length > 0"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 290,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 237,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "milestone",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 243,
+            "lineText": "const milestone = writtenString(answer['milestone']);",
+            "holds": "answer['milestone']"
+          }
+        },
+        {
+          "field": "criterion",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 249,
+            "lineText": "const criterion = writtenString(answer['criterion']);",
+            "holds": "answer['criterion']"
+          }
+        },
+        {
+          "field": "artefactPaths[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 270,
+            "lineText": "const path = writtenString(entry);",
+            "holds": "writtenString(entry)"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+            "line": 278,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "statement": "the record states a path for the criterion and the injected reader reported it absent where the record says it lives (:336-:355). The pane states the absence in its own sentence, prints the missing paths under the `missing-artefact` label — never the one a present path carries (:303-:304) — and repeats the join’s `detail`, which names the record and the missing path. Held-out E4’s state: a gone file is not an unanswered question, and this state never collapses into `no-matching-criterion` (E4, N3)."
+    },
+    {
+      "id": "no-tutor-answer",
+      "word": "no-tutor-answer",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+        "line": 156,
+        "lineText": "id: 'no-tutor-answer',"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 157,
+          "lineText": "text: 'no-tutor-answer: no tutor answer was handed over, so no state, no question, no milestone, no criterion and no artefact path are reported',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts",
+          "line": 232,
+          "lineText": "return surface('no-tutor-answer', [NO_ANSWER_TEXT]);",
+          "holds": "surface('no-tutor-answer'"
+        }
+      ],
+      "reads": [],
+      "statement": "the pane’s own absence, not one of the join’s five: no answer was handed to it at all, or the value it was handed is no object or carries no `state` word (:288-:291). It reads no field — there is none to read — and states the absence in its own sentence, which is why a surface handed nothing renders a sentence rather than a blank pane (N2). It is enumerated here because the pane can render it; the join never answers it."
+    }
+  ],
+  "notCaptured": [
+    "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture.",
+    "No portal route produced this record’s answer and none could: the artefact the verdict names is this repository’s own `research/raw/*-verdict-claims.json` records and the files their `claims[].artefactPath` fields name, which is a reading of this repository’s gate and not a reading of any page. The Insurance Portal is named rather than dodged: `research/raw/m055-verdict-claims.json` rules each of the milestone’s three criteria `not-required` and states the portal clause and why no route of any page can produce the fact, and this record’s verdict states the route tried and the artefact the portal lacks.",
+    "The record does not measure what the pane looks like. The lines each state writes are enumerated in `panel-tutor-foundations.ts`’s `PANE_SENTENCES` and measured for copy in `research/raw/m048-surface-copy.json`, and this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
+    "The pane does not stat a file at render time. It renders the join’s answer as the demo’s sample fact, and `panel-demo.spec.ts` re-derives that answer over the real records with a real reader on every test run, which is where SC3’s presence read happens (PLAN C1). That is the deviation the plan states, carried into the milestone Log rather than closed here.",
+    "Held-out E4 has no live instance at this head: all 44 `claims[].artefactPath` values in the 34 verdict-claims records resolve where the records say they live (T001, `research/raw/m055-record-shapes.json`), so the dead-path state is pinned by a constructed input in `scripts/tutor-answer.test.mjs` and is not reachable from the records on disk. This record states the state and the field it reads; it does not manufacture a missing file to photograph it.",
+    "The route table’s total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route."
+  ],
+  "verdict": "measured: `/tutor-foundations` is one lazy route — the `PANEL_SURFACES` entry at :83, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `tutor-foundations` key of `panel-demo.ts`’s `LOADERS` (:64), and that key is the only path to `panel-tutor-foundations.ts`: the demo looks it up (:717), awaits the import (:723), calls the module’s default export with the sample fact (:724) and sets the state (:725) and the lines (:726). The surface renders the join’s five states and adds one absence of its own: `answered` reads `state`, `question`, `milestone`, `criterion`, every `artefactPaths[]` member and `detail`; `no-matching-criterion` reads `state`, `question` and, where a row is what failed, the row’s own milestone and criterion; `no-artefact-named` reads `state`, `question`, `milestone`, `criterion` and `detail`; `records-unreadable` reads `state`, `question` and `detail`; `missing-artefact` reads everything `answered` does, with the absent paths under their own label; and `no-tutor-answer` reads no field at all. The verdict the milestone owes is portal-first and lives in the claims record: the Insurance Portal’s route /home was the route tried, and the artefact that route lacks — this repository’s own verdict-claims records and the files they name, which no route of any page renders — is the one the answer carries, so no page-side route produces it and no fixture stands in for it.",
+  "revision": {
+    "author": "T004",
+    "head": "aa90dcd0b344d0a7bdd3b1a4d7ae87f5fd772030",
+    "why": "M055’s T003 shipped the twenty-seventh panel surface, `panel-tutor-foundations.ts`, with its route, loader key and sample fact, and this milestone’s verdict is a traceability claim about this repository’s own records",
+    "what": "the route, the loader key, the join’s five states and the pane’s own absence with the answer field each reads, the copy record re-measured over the surface, the digest rows authored for its sentences, and the eight surface records re-cited at this head"
+  }
+}

@@ -58,6 +58,7 @@ replay restores its recorded output without refreshing the timestamp that assert
 | SC1 | T002 | AC1, AC2, AC3, AC6 |
 | SC1 | T003 | AC1 |
 | SC1 | T004 | AC1 |
+| SC2 | T002 | AC4 |
 | SC2 | T001 | AC3 |
 | SC2 | T002 | AC4 |
 | SC2 | T003 | AC2 |

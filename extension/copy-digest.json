@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m054+t004",
+  "version": "m055+t004",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -907,6 +907,36 @@
       "surface": "visual-qa",
       "key": "no-style-report",
       "text": "no-style-report: no style report was handed over, so no state, no element and no property row are reported"
+    },
+    {
+      "surface": "tutor-foundations",
+      "key": "state-answered",
+      "text": "answered: the record states an artefact path for the criterion the question maps to and the injected reader reported every stated path present where the record says it lives, so the milestone, the criterion and every path below are the record’s own field values as it spells them, and none of the three is composed from a file name, a path convention or the record’s prose"
+    },
+    {
+      "surface": "tutor-foundations",
+      "key": "state-no-matching-criterion",
+      "text": "no-matching-criterion: no criterion matches the question — no row of the authored mapping carries it, or the milestone the row names has no readable record whose claims carry the criterion — so no artefact path is reported and whatever milestone and criterion the join named are printed below as it named them"
+    },
+    {
+      "surface": "tutor-foundations",
+      "key": "state-no-artefact-named",
+      "text": "no-artefact-named: a readable record carries the criterion the question maps to and no claim of it states an artefact path, so that record names no artefact file and none is composed for it from a prose field or from its own name"
+    },
+    {
+      "surface": "tutor-foundations",
+      "key": "state-records-unreadable",
+      "text": "records-unreadable: nothing could be read — no record was supplied, none supplied was a parsed record, or no reader was injected to read presence with — so no criterion can be matched and no artefact named, and this absence is not an unanswered question"
+    },
+    {
+      "surface": "tutor-foundations",
+      "key": "state-missing-artefact",
+      "text": "missing-artefact: the record states an artefact path for the criterion and the injected reader reported it absent where the record says it lives, so the record and the missing path are named beside the absence and the question is not unanswered"
+    },
+    {
+      "surface": "tutor-foundations",
+      "key": "no-tutor-answer",
+      "text": "no-tutor-answer: no tutor answer was handed over, so no state, no question, no milestone, no criterion and no artefact path are reported"
     }
   ]
 }

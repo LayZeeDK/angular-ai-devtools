@@ -4,7 +4,7 @@
   "task": "T003",
   "title": "Render the states and pin the route",
   "question": "which route renders the what-changed surface, which LOADERS key serves it, which three states does the surface render, which field of the judgement's answer does each state read, and how does the surface say that the pair is bound by the panel's own inspected tab rather than by a field of either record?",
-  "head": "21e5d5544f120580dfe5dd7ea7f3d9f83a280376",
+  "head": "aa90dcd0b344d0a7bdd3b1a4d7ae87f5fd772030",
   "headCommand": "git rev-parse HEAD",
   "measuredAt": "static: the files the `sources` block names were read line by line at the head above, and every citation below is that read. No browser was opened, no page was read and no build was run; the only commands executed against these files are the suite that re-reads this record and the join it loads in a bare `node:vm` context.",
   "sources": {
