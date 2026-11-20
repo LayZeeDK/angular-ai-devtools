@@ -2,10 +2,10 @@
 id: T003
 title: Render the style-report surface and pin the route
 wave: 3
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: f5d6a41c1f67420c88e083f4d2b930a7fb2a0601
 worktree: null
 task_branch: null
 files:
@@ -130,3 +130,29 @@ npx nx run angular-ai-devtools:build-extension --skip-nx-cache && node --experim
 ## Log
 
 - pending.
+- 2026-11-20 - C5's fix landed, measured first as the correction did. The panel target's own options
+  now carry `optimization: { scripts: true, styles: { minify: true, inlineCritical: false }, fonts: true }`
+  (`apps/angular-ai-devtools/project.json:79-86`), which changes the emitted linking line from
+  `<style>…</style><link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'"><noscript>…</noscript>`
+  to `<link rel="stylesheet" href="styles.css"></head>` at `extension/panel/index.html:9` — the plain link,
+  with no media condition and no inline handler for the extension CSP to refuse.
+- 2026-11-20 - Re-cited T001's recording for what the rebuild moved: `research/raw/m054-style-read.json` L4's
+  `extension/panel/index.html:9` citation now quotes `<link rel="stylesheet" href="styles.css"></head>` (it quoted
+  `<link rel="stylesheet" href="styles.css" />`, the pre-fix emit), L4's statement and note name this head's
+  artefact as the fresh build, L5's note names the fix, and `capture.head` is this head
+  (`f5d6a41c1f67420c88e083f4d2b930a7fb2a0601`) because every citation was re-read at it. `node --test
+  scripts/visual-qa-style-read.test.mjs`: 13 tests, 13 pass, 0 fail, including the five mutants.
+- 2026-11-20 - Proved it live against the rebuilt panel, the way C5's measurement did: `control-ai-browsers up
+  chrome-beta-nano` (Chrome/159.0.8154.13, extension `mgkfgkdgobahfcgkdlokpoehblpbkfok`, cdp 9333) with
+  `control-angular-dev-app up --target portal` (Insurance Portal, `http://localhost:4507/home`); the panel document
+  `chrome-extension://mgkfgkdgobahfcgkdlokpoehblpbkfok/panel/visual-qa` reported the baseline sheet with `media: ""`
+  and 16 rules, no CSP entry on reload, and every hook read its declared value (`h2` padding `8px 0px 6px`, color
+  `rgb(16, 21, 27)`, fontSize `15px`, borderTopWidth `1.71429px` for the declared `2px` at devicePixelRatio 1.75;
+  `section.panel-demo` padding `16px 18px 18px`, backgroundColor `rgb(251, 252, 253)`; `p.state` padding `4px 10px`,
+  backgroundColor `rgb(238, 241, 245)`; `p.line` padding `5px 10px`, borderTopWidth `0.571429px` for the declared
+  `1px`), and the pane rendered its `measured` state in the same document. Both instances closed with their own
+  `down`.
+- 2026-11-20 - The rebuilt artefact is staged before landing, because this task's Verify ends with
+  `git checkout -- extension/panel/index.html`: that restores from the index, so a staged build survives the Verify
+  and the head that ships holds the build the fix produces rather than the pre-fix emit.
+- Landed paths: `apps/angular-ai-devtools/project.json`, `apps/angular-ai-devtools/src/app/panel-visual-qa.ts`, `research/raw/m054-style-read.json`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/component-search.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `tests/held-out/fixture-explainers-unchanged.test.mjs`, `extension/panel/index.html` — each is read from this tree, ready.
