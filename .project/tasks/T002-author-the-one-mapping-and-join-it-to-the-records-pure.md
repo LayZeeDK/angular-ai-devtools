@@ -2,10 +2,10 @@
 id: T002
 title: Author the one mapping and join it to the records pure
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: ee89e9cf996c8c60615956a67d246477588bb941
 worktree: null
 task_branch: null
 files:
@@ -132,3 +132,4 @@ node --test scripts/tutor-answer.test.mjs && npx prettier --check extension/tuto
 ## Log
 
 - pending.
+- Landed paths: `extension/tutor-index.js`, `extension/tutor-foundations.js`, `scripts/tutor-answer.test.mjs`, `research/raw/m055-record-shapes.json` — each is read from this tree, ready.
