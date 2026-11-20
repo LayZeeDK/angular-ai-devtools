@@ -1,0 +1,58 @@
+head: b450c28b3a4497e5e6cba106a6c8618981ffca87 at 2026-11-20T07:48:56.678Z
+mutant: doctored citation -> records[research/raw/m023-verdict-claims.json].fields.criterionText (claim F3): cites research/raw/m023-verdict-claims.json:7 and searching the file for the quoted line finds it at 6 — the number is not where the line it quotes sits
+mutant: invented field -> records[research/raw/m023-verdict-claims.json].fields.artefactPath (claim F4): count is 4 and this head measures 0
+mutant: hidden field -> records[research/raw/m054-verdict-claims.json].fields.criterionText (claim F3): count is 0 and this head measures 3
+mutant: unmeasured record -> the table carries one entry per record present and no entry for a record that is not there
+✔ the recording is the shape map this head measures (139.8783ms)
+ℹ 43 record(s), 602 citation(s), 44 artefact path(s)
+ℹ the map: milestone 34/34+9/9, criterion 34/34+0/9, criterionText 34/34+0/9, artefactPath 12/34+0/9, recordings 11/34+0/9, suitePath 11/34+0/9, captureRecords 12/34+0/9
+✔ every citation is the line its own number names, found by searching the file it quotes (13.5389ms)
+ℹ 602 citation(s) re-resolved by search; the longest line quoted is in research/raw/m056-verdict-claims.json
+✔ every record present is measured and every record measured is present (0.6486ms)
+ℹ 34 verdict-claims and 9 surface record(s) present, all measured; 2 named outside the map for T004
+✔ the per-file per-field table states its own absences, and they are the absences this head holds (4.9338ms)
+ℹ artefactPath: absent from 31 record(s), each one stating the shape it uses instead
+ℹ recordings: absent from 32 record(s), each one stating the shape it uses instead
+ℹ suitePath: absent from 32 record(s), each one stating the shape it uses instead
+ℹ captureRecords: absent from 31 record(s), each one stating the shape it uses instead
+ℹ criterion: absent from 9 record(s), each one stating the shape it uses instead
+ℹ criterionText: absent from 9 record(s), each one stating the shape it uses instead
+✔ every artefact path a record names resolves at this head, and the recording states which do not (5.7508ms)
+ℹ 44 of 44 artefact path(s) resolve over 18 distinct file(s); 0 do not
+ℹ the missing-artefact state E4 renders has no live instance among them, and the index may never paper over a path that stops resolving
+ℹ m022-verdict-claims.json SC1 names .project/build/verify/sc1-overlay-rect/verdict.json, which is not there: verdictPath, not an artefact path
+ℹ m022-verdict-claims.json SC2 names .project/build/verify/sc2-picker-descriptor/verdict.json, which is not there: verdictPath, not an artefact path
+✔ no record carries an end-user question mapped to a criterion (14.5008ms)
+ℹ 34 verdict-claims record(s) carry 0 question-shaped key(s)
+ℹ m046-surface.json asks which surfaces the panel declares, which loader serves each one, and what the hand-off join states
+ℹ m047-surface.json asks which route renders the components surface, which LOADERS key serves it, which four states it renders, and which record field each state reads
+ℹ m048-surface.json asks which route renders the copy-check surface, its LOADERS key, its three states, and which answer field each state reads
+ℹ m049-surface.json asks which route renders the interaction-story surface, its two states, and the fifth answer field beside the four the contract names
+ℹ m050-surface.json asks which route renders the dead-click surface, its three states, and the fifth answer field beside the four the contract names
+ℹ m051-surface.json asks which route renders the what-changed surface, its three states, and how the pair is bound by the inspected tab rather than by a field of either record
+ℹ m052-surface.json asks which route reaches the webmcp surface, which LOADERS key resolves it, and what each of its three states reads off the reading the model context answered
+ℹ m053-surface.json asks which route reaches the webmcp-rehearsal surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+ℹ m054-surface.json asks which route reaches the visual-qa surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+✔ the C3 trap is quoted as a ruling, not repaired (13.5905ms)
+ℹ reason: 38 row(s) in 11 record(s), 1 template
+ℹ proves/capture: 46 row(s) in 13 record(s) cite scripts/navigation-blocking.test.mjs, and 0 record(s) name it in evidence.suites
+ℹ rulings: 2 required, 154 not-required
+✔ a doctored citation reddens naming the claim it belongs to (99.4477ms)
+✔ a record that claims a field it does not carry reddens naming the claim (80.5901ms)
+✔ a record that hides a field it carries reddens naming the claim (114.0028ms)
+✔ a record the map does not measure reddens naming the record (90.1629ms)
+✔ the recording is a read: it names its head and nothing here writes (72.422ms)
+ℹ head b450c28b is a commit this checkout carries, and the suite resolves it through git rev-parse HEAD
+✔ git was reachable, so the head check above measured something (31.2229ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 848.3948
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/tutor-record-shapes.test.mjs
