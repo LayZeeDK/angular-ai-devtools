@@ -1,0 +1,70 @@
+head: 89307a4728ab8e6b23ce0b2e4b3753c2e3d721d5 at 2026-11-19T22:33:04.889Z
+webmcp-rehearsal purity: 6 readings and 3 joins answer identically with document, fetch and Date armed as traps
+webmcp-rehearsal M1 (un-awaited synchronous return) -> {"code":"unreadable-list","detail":"the list getter answered an object rather than a list: the tool list is not readable"}
+  reddened: SC1 awaited-caller-reads-the-list: a page whose getTools resolved a list is the tools state, not an unreadable one
+webmcp-rehearsal M2 (a fixture list stands in for the answer) -> [{"name":"search-products","description":"Search the catalogue."}]
+  reddened: SC1 name-is-the-APIs-string: each tool carries the name and the description the API reported, in the order it reported them
+webmcp-rehearsal M3 (tool name out of a DOM label) -> tool {"name":"Search products"}
+  reddened: SC2 the-tool-is-the-readings: the tool is named by the entry the reading reported, and by nothing else
+webmcp-rehearsal M4 (a join that refuses every input survives no surface) -> {"state":"unavailable","tool":null,"result":null,"reason":null}
+  reddened: SC2 rehearsed-is-a-rehearsal-that-ran: a handle existed and the call resolved
+webmcp-rehearsal M5 (no-tool rendered as unavailable) -> {"state":"unavailable","tool":null,"result":null,"reason":"TypeError: Failed to execute 'executeTool' on 'ModelContext': parameter 1 is not of type 'Tool'."}
+  reddened: SC2 no-tool-is-not-unavailable: a page that resolved no tool has no handle, which is not an unreadable list
+webmcp-rehearsal M6 (a result invented for a call that never ran) -> result "no result"
+  reddened: SC3 no-result-for-a-call-that-never-ran: an absent call renders no result and no placeholder in its place
+webmcp-rehearsal M7 (a result rendered where the state is refused) -> result "TypeError: the tool answered an error"
+  reddened: SC2 refused-renders-no-result: a refusal is not a result, and no paraphrase stands in one
+webmcp-rehearsal M8 (a model turn invented) -> tool {"name":"search-products","description":"Search the catalogue."}
+  reddened: SC2 no-tool-when-no-tool-was-chosen: null is not a choice this join can name a tool from
+webmcp-rehearsal M9 (a re-registration makes a tool observable) -> registered 1
+  reddened: SC3 no-registration-to-observe: neither the caller nor the join registers a tool to make one observable
+webmcp-rehearsal purity: 6 readings and 3 joins answer identically with document, fetch and Date armed as traps
+webmcp-rehearsal M10 (a network call inside the join) -> reddened: SC3 poisoned-globals-change-nothing: the module reached for fetch
+▶ the recording the join answers to
+  ✔ measured the handle argument, and the join carries its refusal verbatim (0.6809ms)
+  ✔ states that no launch observed a missing model, which is why no state is rendered for it (0.9801ms)
+✔ the recording the join answers to (2.5356ms)
+▶ webmcp-rehearsal.js reads through the shipped reader
+  ✔ publishes two functions and nothing else, and is safe to run twice (1.5382ms)
+  ✔ does not fork the reader: the shipped one is looked up and required (1.102ms)
+  ✔ holds no DOM read, no clock and no network call in its code (0.3947ms)
+✔ webmcp-rehearsal.js reads through the shipped reader (3.2775ms)
+▶ SC1 — the tool list, read through an awaited caller
+  ✔ SC1 — awaits getTools() and reports the names the API reported (1.8811ms)
+  ✔ SC1 — answers empty for a resolved empty list and cannot-tell for every absence (1.5735ms)
+✔ SC1 — the tool list, read through an awaited caller (3.6791ms)
+▶ E4 — a name with no description gets no invented one
+  ✔ E4 — reports each tool with its name and no description the API did not report (0.7057ms)
+✔ E4 — a name with no description gets no invented one (1.716ms)
+▶ SC2 — a rehearsal reports what the tool returned, or refuses naming why
+  ✔ SC2 — rehearsed, refused, no-tool and unavailable are four distinct records (1.1442ms)
+  ✔ SC2 — the vocabulary is closed at four states, and no-model is not one of them (0.7058ms)
+✔ SC2 — a rehearsal reports what the tool returned, or refuses naming why (1.9393ms)
+▶ SC3 — the join is pure over what it is given
+  ✔ SC3 — the same record answers identically twice, registers nothing and invokes nothing (0.6183ms)
+  ✔ SC3 — both functions answer identically with document, fetch and Date armed as traps (5.5911ms)
+✔ SC3 — the join is pure over what it is given (6.2915ms)
+▶ mutants redden by name
+  ✔ reddens by name: the un-awaited synchronous return, judged as a list (1.986ms)
+  ✔ reddens by name: an un-awaited caller fed a fixture list instead of the answer (2.1055ms)
+  ✔ reddens by name: a tool name taken from a DOM label (1.5195ms)
+  ✔ reddens by name: a join that refuses every input (1.4322ms)
+  ✔ reddens by name: a no-tool rendered as an unreadable list (1.4924ms)
+  ✔ reddens by name: an invented result for a call that never ran (1.7473ms)
+  ✔ reddens by name: a result rendered where the state is refused (1.4167ms)
+  ✔ reddens by name: a model turn invented where none was made (1.3777ms)
+  ✔ reddens by name: a re-registration used to make a tool observable (1.5864ms)
+  ✔ reddens by name: a network call inside the join (10.6979ms)
+✔ mutants redden by name (25.7352ms)
+ℹ tests 22
+ℹ suites 7
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 181.9248
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/webmcp-rehearsal.js scripts/webmcp-rehearsal.test.mjs

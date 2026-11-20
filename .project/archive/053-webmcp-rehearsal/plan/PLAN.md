@@ -39,8 +39,11 @@ without refreshing the timestamp that assertion reads.
 |-----------|------|------------|
 | SC1 | T002 | AC1, AC2 |
 | SC1 | T003 | AC1 |
+| SC1 | T004 | AC1, AC2 |
+| SC2 | T001 | AC1, AC2 |
 | SC2 | T002 | AC3 |
 | SC2 | T003 | AC2 |
+| SC2 | T004 | AC1, AC2 |
 | SC3 | T002 | AC4 |
 | SC3 | T003 | AC3 |
 
