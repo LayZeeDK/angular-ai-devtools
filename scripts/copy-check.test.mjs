@@ -2292,7 +2292,7 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
 //
 // Two facts the pins below state rather than assume:
 //
-//   * the digest holds one row per distinct sentence text, so 176 rows explain 184 sentences: the
+//   * the digest holds one row per distinct sentence text, so 181 rows explain 189 sentences: the
 //     `no-reason` sentence `panel-copy-check.ts:128`, `panel-interaction-story.ts:150`,
 //     `panel-dead-click.ts:202`, `panel-what-changed.ts:154` and `panel-webmcp.ts:138` declare is byte
 //     for byte the one `panel-components.ts:147` declares, and the one row explains all six;
@@ -2310,7 +2310,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
 
   assert.equal(
     record.counts.surfaces,
-    25,
+    26,
     `the record measures every panel-*.ts surface the tree carries, and it measures ${record.counts.surfaces}`,
   );
   assert.equal(
@@ -2384,8 +2384,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   const all = recordSentenceRows();
   assert.equal(
     shippedDigest.entries.length,
-    176,
-    `the digest carries ${shippedDigest.entries.length} rows and the record carries 176 distinct sentence texts`,
+    181,
+    `the digest carries ${shippedDigest.entries.length} rows and the record carries 181 distinct sentence texts`,
   );
   assert.equal(
     shippedDigest.entries.length,
@@ -2394,8 +2394,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     all.length,
-    184,
-    `the record carries ${all.length} sentences: 150 declared in a map or a constant and 34 written inline`,
+    189,
+    `the record carries ${all.length} sentences: 155 declared in a map or a constant and 34 written inline`,
   );
 
   // The one repeated sentence: six surfaces declare it, the digest holds one row for it, and the
@@ -2845,7 +2845,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     whole.checked,
-    184,
+    189,
     `every sentence the record declares is compared, the shared one at all six surfaces, and ${whole.checked} were`,
   );
   assert.equal(

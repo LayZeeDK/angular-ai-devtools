@@ -1,0 +1,597 @@
+{
+  "schema": "m054-surface/v1",
+  "milestone": "M054 visual-qa",
+  "task": "T004",
+  "title": "Record the visual-qa route, its loader key and the states each one reads",
+  "question": "which route reaches the visual-qa surface, which LOADERS key resolves it, and what does each of its four states read off the record the join answered?",
+  "head": "21e5d5544f120580dfe5dd7ea7f3d9f83a280376",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: every citation below was read out of the file it names at the head above, and every one was then re-resolved by searching its file for the exact line it quotes rather than by trusting a typed number (the script is kept in the session scratchpad and not checked in); `scripts/copy-check.test.mjs` re-reads the copy record’s citations on every run. The two readings this record describes are the join `extension/visual-qa.js` (T002) and the surface `panel-visual-qa.ts` (T003); the measurement the join’s refusals and the demo’s fact rest on is `research/raw/m054-style-read.json`, taken by T001 in a live Chrome Beta 159.0.8154.13 instance against the Insurance Portal at route /home and quoted here rather than re-run. No browser was opened for this record, no page was read, no build and no test of the app was run.",
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+    "join": "extension/visual-qa.js",
+    "measurement": "research/raw/m054-style-read.json"
+  },
+  "route": {
+    "name": "visual-qa",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 83,
+      "lineText": "'visual-qa',",
+      "holds": "visual-qa"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadComponent: loadPanelDemo"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "data: { surface }"
+    },
+    "table": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "export const appRoutes: Route[] = ["
+    },
+    "closure": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "const loadPanelDemo = () =>"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "import('./panel-demo').then((m) => m.PanelDemoComponent);"
+      }
+    ],
+    "statement": "one entry of the `PANEL_SURFACES` list (:83), spread into the `appRoutes` table (:113) by the one mapped literal the table ends with (:144-:148), lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:147) as every demo-backed route does. It sits between `console-read` (:80) and `webmcp-rehearsal` (:86) rather than after `what-changed`, and the list’s own note (:19) says why: every route-table citation of `m047`..`m053` is pinned to its line, and an append after `what-changed` would move the `appRoutes` declaration every one of them quotes by the entry’s own lines. The total is not pinned here, because a later milestone appends to the list on purpose. The route registers nothing and measures nothing: it reaches the pane that renders the join’s answer, and the reading it renders is T001’s (`research/raw/m054-style-read.json`), taken in the panel’s own `chrome-extension://` document against the baseline stylesheet `apps/angular-ai-devtools/src/styles.css`."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "const LOADERS: Record<"
+    },
+    "key": "visual-qa",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 63,
+      "lineText": "'visual-qa': () => import('./panel-visual-qa') as never,",
+      "holds": "'./panel-visual-qa'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 717,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 723,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 724,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 725,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 726,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 753,
+      "lineText": "FACTS['visual-qa'] = {",
+      "holds": "FACTS['visual-qa']"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 754,
+        "lineText": "state: 'measured',",
+        "holds": "state: 'measured',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 755,
+        "lineText": "element: 'h2',",
+        "holds": "element: 'h2',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 756,
+        "lineText": "rows: [",
+        "holds": "rows: ["
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 757,
+        "lineText": "{ property: 'padding', computed: '8px 0px 6px', baseline: '8px 0px 6px' },",
+        "holds": "'padding'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 758,
+        "lineText": "{ property: 'borderTopWidth', computed: '1.71429px', baseline: '2px' },",
+        "holds": "'borderTopWidth'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 769,
+        "lineText": "{ property: 'fontSize', computed: '15px', baseline: '15px' },",
+        "holds": "'fontSize'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 776,
+        "lineText": "reason: null,",
+        "holds": "reason: null,"
+      }
+    ],
+    "sampleFactComment": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 734,
+        "lineText": "// The join's own answer (`extension/visual-qa.js`, T002) for the measurement T001 recorded",
+        "holds": "extension/visual-qa.js"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 741,
+        "lineText": "// The measurement is the panel's own `h2`, the element the baseline stylesheet declares all six",
+        "holds": "The measurement is the panel"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 749,
+        "lineText": "// that drifted from the recording reddens there rather than shipping. `borderTopWidth` is the one",
+        "holds": "borderTopWidth"
+      }
+    ],
+    "statement": "the `visual-qa` key sits between `webmcp-rehearsal` (:62) and the map’s close, and it is the only path to `panel-visual-qa.ts`: the demo looks the key up by the name the route’s `data.surface` states (:717), awaits the dynamic import (:723), calls the module’s default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact is entered after the component (:753) rather than inside the `FACTS` literal, because every cited line of that literal is pinned by `m048`..`m053` and a fact added up there would move them; the comment above it says so (:734-:752). The fact is the join’s own `measured` answer for the measurement T001 recorded: the element is the panel’s own `h2` — the one element the baseline stylesheet declares all six measured properties for — the property list is the recording’s (`properties[].name`, PLAN C2), and every computed value is one the recording’s `hooks.h2.computed.values` carries for that property while every baseline value is one the recording’s own declared rules carry. `borderTopWidth` is the one pair that differs and is not normalised: the sheet declares `2px` and the browser serialises `1.71429px` at the measured devicePixelRatio 1.75 (E2). `panel-demo.spec.ts` builds that measurement from the recording, runs the shipped `styleReport` over it and holds this fact to the join’s answer field for field."
+  },
+  "answer": {
+    "shape": "{ state, element, rows, reason }",
+    "joinAt": {
+      "file": "extension/visual-qa.js",
+      "line": 257,
+      "lineText": "function styleReport(measurement) {",
+      "holds": "function styleReport(measurement) {"
+    },
+    "fields": [
+      {
+        "field": "state",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 309,
+          "lineText": "const stateWord = writtenString(report['state']);",
+          "holds": "report['state']"
+        },
+        "note": "the word the join answered, and the only field that decides which of the four states renders; a word this pane was not written for renders the word alone (:319) rather than borrowing a state’s sentence."
+      },
+      {
+        "field": "element",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 298,
+          "lineText": "const element = writtenString(report['element']);",
+          "holds": "report['element']"
+        },
+        "note": "the name the measurement asked for, printed as the report wrote it; a report naming none renders no `element:` line."
+      },
+      {
+        "field": "rows",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 322,
+          "lineText": "const rows = rowsOf(report);",
+          "holds": "const rows = rowsOf(report);"
+        },
+        "note": "the property rows the join carried, in the join’s own order, read through `rowsOf` (:244) so a non-list is no row rather than a crash."
+      },
+      {
+        "field": "rows[].property",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 227,
+          "lineText": "const property = writtenString(row['property']);",
+          "holds": "row['property']"
+        },
+        "note": "the property named exactly as the measurement wrote it (E1); nothing is folded, trimmed or prefix-matched."
+      },
+      {
+        "field": "rows[].computed",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 228,
+          "lineText": "const computed = writtenString(row['computed']);",
+          "holds": "row['computed']"
+        },
+        "note": "the element’s own measurement, printed under the computed label and never into the baseline column (N2)."
+      },
+      {
+        "field": "rows[].baseline",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 229,
+          "lineText": "const baseline = writtenString(row['baseline']);",
+          "holds": "row['baseline']"
+        },
+        "note": "the stylesheet’s declared value, printed under the baseline label; a row that carries a computed reading and no baseline is the baseline absence rather than a one-sided row (:388-:397)."
+      },
+      {
+        "field": "reason",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 321,
+          "lineText": "const reason = report['reason'];",
+          "holds": "report['reason']"
+        },
+        "note": "the absence the state names, read from the join and never composed here."
+      },
+      {
+        "field": "reason.document",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 279,
+          "lineText": "const document = reason['document'];",
+          "holds": "reason['document']"
+        },
+        "note": "the reading that located the document — `documentUrl` (:281) and its optional `documentClass` (:284) — carried beside `no-such-element` and `no-baseline` (E4). A report that names no document reading renders no line here."
+      },
+      {
+        "field": "reason.property",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 349,
+          "lineText": "const named = isObject(reason) ? writtenString(reason['property']) : null;",
+          "holds": "reason['property']"
+        },
+        "note": "the property the baseline absence names, with every listed property beside it (:350-:355), so the absence names what it is about."
+      }
+    ],
+    "statement": "the pane is the display half and reads only these fields: it performs no measurement, calls no `getComputedStyle`, reads no stylesheet and dispatches no message (N1). Every rendered value is one the join carried from T001’s measurement, and a value the report did not carry renders no line rather than a default (N4)."
+  },
+  "states": [
+    {
+      "id": "measured",
+      "word": "measured",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+        "line": 82,
+        "lineText": "export const MEASURED = 'measured';",
+        "holds": "export const MEASURED = 'measured';"
+      },
+      "sentenceAt": [
+        {
+          "key": "state-measured",
+          "text": "measured: the panel read every property below from the element it names in its own document, and the baseline stylesheet declares a value for each one, so every row carries the element’s computed measurement under its own label and the stylesheet’s declared value beside it under the other — each value is the one its own side reported, and neither is reported as the other",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 122,
+          "lineText": "text: 'measured: the panel read every property below from the element it names in its own document, and the baseline stylesheet declares a value for each one, so every row carries the element’s computed measurement under its own label and the stylesheet’s declared value beside it under the other — each value is the one its own side reported, and neither is reported as the other',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/visual-qa.js",
+          "line": 293,
+          "lineText": "return { state: MEASURED, element, rows, reason: null };",
+          "holds": "state: MEASURED"
+        },
+        {
+          "file": "extension/visual-qa.js",
+          "line": 244,
+          "lineText": "return { property, computed, baseline };",
+          "holds": "return { property, computed, baseline };"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 309,
+            "lineText": "const stateWord = writtenString(report['state']);",
+            "holds": "report['state']"
+          }
+        },
+        {
+          "field": "element",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 298,
+            "lineText": "const element = writtenString(report['element']);",
+            "holds": "report['element']"
+          }
+        },
+        {
+          "field": "rows[].property",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 227,
+            "lineText": "const property = writtenString(row['property']);",
+            "holds": "row['property']"
+          }
+        },
+        {
+          "field": "rows[].computed",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 228,
+            "lineText": "const computed = writtenString(row['computed']);",
+            "holds": "row['computed']"
+          }
+        },
+        {
+          "field": "rows[].baseline",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 229,
+            "lineText": "const baseline = writtenString(row['baseline']);",
+            "holds": "row['baseline']"
+          }
+        }
+      ],
+      "statement": "one row per property the join carried, in the join’s own order (:376-:404): the property as the measurement wrote it, then its computed value under the element’s-measurement label and its baseline value under the stylesheet’s-declaration label (:235-:239), each as its own side reported it. A row with no computed reading is no row at all, and a row with a computed reading and no baseline turns the whole report into `no-baseline` rather than a row with one side blank (:388-:397) — an absence never renders as a row of matching readings (N3, N4), and a run that measured nothing renders no row (SC3, E5)."
+    },
+    {
+      "id": "no-such-element",
+      "word": "no-such-element",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+        "line": 83,
+        "lineText": "export const NO_SUCH_ELEMENT = 'no-such-element';",
+        "holds": "export const NO_SUCH_ELEMENT = 'no-such-element';"
+      },
+      "sentenceAt": [
+        {
+          "key": "state-no-such-element",
+          "text": "no-such-element: the reading reached a document and that document renders no element under the requested name, so no property was measured and no row is rendered — an element nobody found is not an element measured as unchanged or matching",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 127,
+          "lineText": "text: 'no-such-element: the reading reached a document and that document renders no element under the requested name, so no property was measured and no row is rendered — an element nobody found is not an element measured as unchanged or matching',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/visual-qa.js",
+          "line": 268,
+          "lineText": "if (measurement.found !== true) return refuseElement(element, located);",
+          "holds": "return refuseElement(element, located);"
+        },
+        {
+          "file": "extension/visual-qa.js",
+          "line": 165,
+          "lineText": "state: NO_SUCH_ELEMENT,",
+          "holds": "state: NO_SUCH_ELEMENT"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 309,
+            "lineText": "const stateWord = writtenString(report['state']);",
+            "holds": "report['state']"
+          }
+        },
+        {
+          "field": "element",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 298,
+            "lineText": "const element = writtenString(report['element']);",
+            "holds": "report['element']"
+          }
+        },
+        {
+          "field": "reason.document",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 279,
+            "lineText": "const document = reason['document'];",
+            "holds": "reason['document']"
+          }
+        },
+        {
+          "field": "reason.detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 292,
+            "lineText": "const detail = writtenString(reason['detail']);",
+            "holds": "reason['detail']"
+          }
+        }
+      ],
+      "statement": "the document the reading reached rendered no element under the requested name. The pane states that in its own sentence, names the document the reading located — its `documentUrl` and, where it carried one, its `documentClass`, copied from the report (:277-:287) — and echoes the join’s own `detail` (:290-:294), which is where the reading that located the document is named (E4). No property row is rendered, and the state is never `measured`, unchanged or matching (N3). It is not `no-document`: the join answers this one only where a document reading exists (:263-:268)."
+    },
+    {
+      "id": "no-document",
+      "word": "no-document",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+        "line": 84,
+        "lineText": "export const NO_DOCUMENT = 'no-document';",
+        "holds": "export const NO_DOCUMENT = 'no-document';"
+      },
+      "sentenceAt": [
+        {
+          "key": "state-no-document",
+          "text": "no-document: no document the panel could read reached this report, so there is no element to name, no reading to state beside the absence and no property row to render",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 132,
+          "lineText": "text: 'no-document: no document the panel could read reached this report, so there is no element to name, no reading to state beside the absence and no property row to render',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/visual-qa.js",
+          "line": 263,
+          "lineText": "if (located === null) return refuseDocument(element);",
+          "holds": "return refuseDocument(element);"
+        },
+        {
+          "file": "extension/visual-qa.js",
+          "line": 140,
+          "lineText": "state: NO_DOCUMENT,",
+          "holds": "state: NO_DOCUMENT"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 309,
+            "lineText": "const stateWord = writtenString(report['state']);",
+            "holds": "report['state']"
+          }
+        },
+        {
+          "field": "element",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 298,
+            "lineText": "const element = writtenString(report['element']);",
+            "holds": "report['element']"
+          }
+        },
+        {
+          "field": "reason.detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 292,
+            "lineText": "const detail = writtenString(reason['detail']);",
+            "holds": "reason['detail']"
+          }
+        }
+      ],
+      "statement": "no document the panel could read reached the report (:326-:332). Nothing is named beside the absence, because there is no document reading to name, and no property row is rendered (SC2, N3). It is the absence a measure-less run answers, and it is distinct from the reached-but-empty document above (E3, E4)."
+    },
+    {
+      "id": "no-baseline",
+      "word": "no-baseline",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+        "line": 85,
+        "lineText": "export const NO_BASELINE = 'no-baseline';",
+        "holds": "export const NO_BASELINE = 'no-baseline';"
+      },
+      "sentenceAt": [
+        {
+          "key": "state-no-baseline",
+          "text": "no-baseline: the measurement read the properties below on the element, and the baseline stylesheet declares no value for at least one of them, so the element’s own value is not printed where the baseline belongs and no property row is rendered",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+          "line": 137,
+          "lineText": "text: 'no-baseline: the measurement read the properties below on the element, and the baseline stylesheet declares no value for at least one of them, so the element’s own value is not printed where the baseline belongs and no property row is rendered',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/visual-qa.js",
+          "line": 291,
+          "lineText": "if (missing.length > 0) return refuseBaseline(element, located, missing);",
+          "holds": "return refuseBaseline(element, located, missing);"
+        },
+        {
+          "file": "extension/visual-qa.js",
+          "line": 192,
+          "lineText": "state: NO_BASELINE,",
+          "holds": "state: NO_BASELINE"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 309,
+            "lineText": "const stateWord = writtenString(report['state']);",
+            "holds": "report['state']"
+          }
+        },
+        {
+          "field": "element",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 298,
+            "lineText": "const element = writtenString(report['element']);",
+            "holds": "report['element']"
+          }
+        },
+        {
+          "field": "reason.property",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 349,
+            "lineText": "const named = isObject(reason) ? writtenString(reason['property']) : null;",
+            "holds": "reason['property']"
+          }
+        },
+        {
+          "field": "reason.properties",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 350,
+            "lineText": "const listed = propertyNames(",
+            "holds": "propertyNames("
+          }
+        },
+        {
+          "field": "reason.document",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-visual-qa.ts",
+            "line": 279,
+            "lineText": "const document = reason['document'];",
+            "holds": "reason['document']"
+          }
+        }
+      ],
+      "statement": "the measurement read the element and the baseline stylesheet declares nothing for at least one of the properties it read (:348-:369). The pane names the property the report names and every property it lists, in the report’s own order (:350-:355), states the absence in its own sentence, and renders no row: a baseline the panel does not have is never replaced by the element’s own value standing beside it (N4). A report whose rows carry a computed reading and no baseline reaches the same state through the `measured` branch (:388-:397), so neither path can print a one-sided row."
+    }
+  ],
+  "notCaptured": [
+    "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture. The two browser measurements it quotes are T001’s (`research/raw/m054-style-read.json`, the style read in the panel’s own document) and T003’s own second proof-run against the rebuilt panel, both cited rather than re-run.",
+    "The record does not measure what the pane looks like. The lines each state writes are enumerated in `panel-visual-qa.ts`’s `PANE_SENTENCES` and measured for copy in `research/raw/m048-surface-copy.json`, and this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
+    "No shipped surface calls `getComputedStyle` at render time: this pane renders the join’s answer for T001’s recorded measurement, and the measurement is not re-taken per route. That is T003’s stated deviation from the plan’s wave-3 wording, carried into the milestone Log rather than closed here.",
+    "The route table’s total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
+    "The sample fact at `panel-demo.ts:753-:777` is the join’s answer for T001’s recording, held field for field by `panel-demo.spec.ts`; this record cites the lines the fact sits on and does not claim to have re-measured what the panel read."
+  ],
+  "verdict": "measured: `/visual-qa` is one lazy route — the `PANEL_SURFACES` entry at :83, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `visual-qa` key of `panel-demo.ts`’s `LOADERS` (:63), and that key is the only path to `panel-visual-qa.ts`: the demo looks it up (:717), awaits the import (:723), calls the module’s default export with the sample fact (:724) and sets the state (:725) and the lines (:726). The surface renders the join’s four states and adds none of its own: `measured` reads `state`, `element` and every row’s `property`, `computed` and `baseline`, each value under its own side label; `no-such-element` reads `state`, `element` and the located document with the join’s own detail, and renders no row; `no-document` reads `state`, `element` and the join’s detail and names nothing beside the absence; and `no-baseline` reads `state`, `element`, the property the report names and every property it lists, and renders no row. The verdict the milestone owes is portal-first and lives in the measurement: the Insurance Portal’s route /home was tried and served, and the artefact that route lacks — the panel’s own rendered `chrome-extension://` document holding both the measured hooks and the baseline stylesheet — is what the panel runtime supplied (T001, `portalArtefact`).",
+  "revision": {
+    "author": "T004",
+    "head": "21e5d5544f120580dfe5dd7ea7f3d9f83a280376",
+    "why": "M054’s T003 shipped the twenty-sixth panel surface, `panel-visual-qa.ts`, with its route, loader key and sample fact",
+    "what": "the route, the loader key, the four states with the report field each reads, the copy record re-measured over the surface, the digest rows authored for its sentences, and the seven surface records re-cited at this head"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m053+t004",
+  "version": "m054+t004",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -882,6 +882,31 @@
       "surface": "webmcp-rehearsal",
       "key": "no-reason",
       "text": "no-reason: the record carries no reason, so none is stated and nothing is written in its place"
+    },
+    {
+      "surface": "visual-qa",
+      "key": "state-measured",
+      "text": "measured: the panel read every property below from the element it names in its own document, and the baseline stylesheet declares a value for each one, so every row carries the element’s computed measurement under its own label and the stylesheet’s declared value beside it under the other — each value is the one its own side reported, and neither is reported as the other"
+    },
+    {
+      "surface": "visual-qa",
+      "key": "state-no-such-element",
+      "text": "no-such-element: the reading reached a document and that document renders no element under the requested name, so no property was measured and no row is rendered — an element nobody found is not an element measured as unchanged or matching"
+    },
+    {
+      "surface": "visual-qa",
+      "key": "state-no-document",
+      "text": "no-document: no document the panel could read reached this report, so there is no element to name, no reading to state beside the absence and no property row to render"
+    },
+    {
+      "surface": "visual-qa",
+      "key": "state-no-baseline",
+      "text": "no-baseline: the measurement read the properties below on the element, and the baseline stylesheet declares no value for at least one of them, so the element’s own value is not printed where the baseline belongs and no property row is rendered"
+    },
+    {
+      "surface": "visual-qa",
+      "key": "no-style-report",
+      "text": "no-style-report: no style report was handed over, so no state, no element and no property row are reported"
     }
   ]
 }
