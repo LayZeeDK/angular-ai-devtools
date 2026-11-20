@@ -177,6 +177,24 @@ questions, answered in the panel, on the developer's machine.
 ## Corrections
 
 <!-- Verbatim user rulings that amend this charter. Append-only. -->
+- 2026-11-20: programme 2 · Generation 3 remainder admission. The twelve Generation 3
+  entries the 2026-11-14 Correction carried are admitted as the next generation, and
+  enter `Full scope: in`: `M057 tutor-signals`, `M058 tutor-routing`, `M059
+  teardown-leak`, `M060 error-routing`, `M061 locale-correctness`, `M062
+  outlet-explainer`, `M063 guard-phase`, `M064 lazy-chunk-failure`, `M065
+  title-input-binding`, `M066 schema-disabled-hidden`, `M067 formfield-binder`, `M068
+  head-state`. This is the `angular/components`, blocks and tutor work A5 kept out of
+  the core programme: the entries read the Material, CDK and Signal Forms surfaces as
+  their subject, and no panel surface adopts those packages here. Numbering continues
+  from M056 and never restarts (backlog §2). The backlog's remaining Generation 3
+  milestone, `error-channel-map`, carries to the next generation, again by the
+  twelve-entry cap — the Generation 3 tail was thirteen entries, not twelve.
+
+  **Consequence recorded, not decided.** A10 places the design system immediately
+  after the `angular/components` work. That work now ends with `M068 head-state`, so
+  the design-system generation follows this one unless the next roadmap approval
+  reorders it. This Correction does not move A10; it records where the cap has put it.
+
 - 2026-11-14: programme 2 · Generation 3 admission. Generation 2 (M032-M043) is
   closed with all twelve entries shipped, integrated, tagged and archived, and a
   two-arm `lars-review` panel has reviewed each of the twelve individually.
