@@ -48,6 +48,8 @@ replay restores its recorded output without refreshing the timestamp that assert
    never `reason`, `artefact` or `reading`; whether the derivation itself is repaired is not this
    milestone's scope.
 
+- C4 2026-11-20: T001 measured the field map across every record, not the two sampled in define, and it breaks on two thirds of them. There are 34 verdict-claims records and 9 surface records. `claims[].artefactPath` is carried by **12 of 34** and `evidence.recordings` / `evidence.suites` by 11 of 34, while the 22 records from M022 to M043 carry none of them and use four different shapes instead: M022 a portal-verdict block; M023–M037 four keys with the file named only inside `reason`, and 0 of m023's 4 rows names a file at all; M038–M040 add `criterionCharacters`; M041–M043 carry `artefact` prose plus `proves` as a string. Two further corrections to the intent's reading: the surface records spell `milestone` with a title ("M046 copy-to-agent") while the verdict-claims records use a bare id, and all 44 `artefactPath` values resolve at this head — so E4's dead-path state has no live instance, and the recording says so rather than manufacturing one. Consequence for T002: the join answers from records that carry the fields and reports a record that cannot answer as SC2's third absence, exactly, rather than falling back to prose. The 22 shape-differing records are not a defect of the surface; they are the reason it must name what it cannot read. The authored index stays two facts per row (question text to criterion id and milestone) and must not acquire a third to paper over a record that cannot answer.
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
