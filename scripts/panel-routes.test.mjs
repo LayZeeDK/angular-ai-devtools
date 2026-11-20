@@ -34,6 +34,7 @@ const surfaces = [
   'stability',
   'console',
   'console-read',
+  'visual-qa',
   'webmcp-rehearsal',
   'webmcp',
   'components',
@@ -551,6 +552,24 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
       String(err.message).includes('route what-changed must exist'),
     'a table without the what-changed route must fail naming the missing surface',
   );
+
+  // Mutant: the M054 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the style report — each measured property's computed value beside the baseline
+  // declaration, or the three absences named apart — so the per-surface half must name it rather than
+  // pass on the older surfaces alone.
+  const withoutVisualQa = source.replace("  'visual-qa',\n", '');
+  assert.notEqual(
+    withoutVisualQa,
+    source,
+    'the removed-visual-qa-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutVisualQa),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route visual-qa must exist'),
+    'a table without the visual-qa route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -576,6 +595,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'interaction-story': ['panel-interaction-story', 'interactionStoryPanel'],
     'dead-click': ['panel-dead-click', 'deadClickPanel'],
     'what-changed': ['panel-what-changed', 'whatChangedPanel'],
+    'visual-qa': ['panel-visual-qa', 'visualQaPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -623,6 +643,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'interactionStoryPanel(',
     'deadClickPanel(',
     'whatChangedPanel(',
+    'visualQaPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -1070,5 +1091,30 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: what-changed'),
     'removing the what-changed loader must fail naming the missing surface what-changed',
+  );
+
+  // Mutant: remove the visual-qa key from LOADERS. The M054 route is the one this task adds, so the
+  // check must name it when its loader is gone rather than pass on the surfaces before it. It is a
+  // quoted key whose import is the only reference to `panel-visual-qa.ts`, so a route that dropped it
+  // would leave the style-report surface unreachable while every earlier surface still loaded. The
+  // assertion reads the failure's whole message: the missing-key sentence and the surface it names.
+  const withoutVisualQa = demoSource.replace(
+    "  'visual-qa': () => import('./panel-visual-qa') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutVisualQa,
+    demoSource,
+    'the visual-qa loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutVisualQa),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: visual-qa'),
+    'removing the visual-qa loader must fail naming the missing surface visual-qa',
   );
 });

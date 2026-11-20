@@ -60,10 +60,10 @@ const LOADERS: Record<
   'what-changed': () => import('./panel-what-changed') as never,
   webmcp: () => import('./panel-webmcp') as never,
   'webmcp-rehearsal': () => import('./panel-webmcp-rehearsal') as never,
+  'visual-qa': () => import('./panel-visual-qa') as never,
 };
 
-// The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
-// to the recording it came from, rather than only the line the pane derived from it.
+// The sample facts each surface renders; the spec holds each one to the recording it came from.
 export const FACTS: Record<string, unknown> = {
   // The join's own field answer for the cross-field case (extension/field-state.js): every field
   // valid, while the root carries its own error kind. The submit state is the recording's, not a
@@ -441,13 +441,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 184 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 189 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
   // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
   // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 184 },
+  'copy-check': { state: 'clean', unexplained: [], checked: 189 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the
@@ -730,3 +730,48 @@ export class PanelDemoComponent implements OnInit {
 }
 
 export default PanelDemoComponent;
+
+// The join's own answer (`extension/visual-qa.js`, T002) for the measurement T001 recorded
+// (`research/raw/m054-style-read.json`), entered here rather than in the literal above because every
+// cited line of this file is pinned where it sits: the surface, loader and fact entries the earlier
+// milestones added are cited by `research/raw/m048-surface.json`, `m048-surface-copy.json`,
+// `m049-surface.json` and `m050-surface.json`, and a fact added up there would move the template and
+// the loader resolution those records quote. A statement after the component pays for nothing.
+//
+// The measurement is the panel's own `h2`, the element the baseline stylesheet declares all six
+// measured properties for, read in the panel's own `chrome-extension://` document at the artefact at
+// head — its `h2` rule plus the `body` font the hooks inherit. The property list is the recording's
+// (`properties[].name`, PLAN C2) and nothing beside it is written here: every `computed` value below
+// is one the recording's `hooks.h2.computed.values` carries for that property, every `baseline`
+// value is one the recording's own `declared` rules (or, for `fontFamily`, the `body` declaration it
+// cites) carries, and `panel-demo.spec.ts` builds that measurement from the recording, runs the
+// shipped `styleReport` over it and holds this fact to the join's answer field for field — so a fact
+// that drifted from the recording reddens there rather than shipping. `borderTopWidth` is the one
+// pair that differs, and it is the interesting case: the sheet declares `2px` and the browser
+// serialises the used value as `1.71429px` at the measured devicePixelRatio 1.75, so the two sides
+// read differently and neither is normalised into the other (E2).
+FACTS['visual-qa'] = {
+  state: 'measured',
+  element: 'h2',
+  rows: [
+    { property: 'padding', computed: '8px 0px 6px', baseline: '8px 0px 6px' },
+    { property: 'borderTopWidth', computed: '1.71429px', baseline: '2px' },
+    {
+      property: 'backgroundColor',
+      computed: 'rgb(246, 248, 250)',
+      baseline: 'rgb(246, 248, 250)',
+    },
+    {
+      property: 'color',
+      computed: 'rgb(16, 21, 27)',
+      baseline: 'rgb(16, 21, 27)',
+    },
+    { property: 'fontSize', computed: '15px', baseline: '15px' },
+    {
+      property: 'fontFamily',
+      computed: 'system-ui, sans-serif',
+      baseline: 'system-ui, sans-serif',
+    },
+  ],
+  reason: null,
+};

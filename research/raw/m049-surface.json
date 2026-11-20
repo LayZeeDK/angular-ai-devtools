@@ -4,7 +4,7 @@
   "task": "T004",
   "title": "Record the surface and run the project verify",
   "question": "which route renders the interaction-story surface, which LOADERS key serves it, which two states does the surface render, which field of the narration's answer does each state read, and what is the fifth field the answer carries beside the four the contract names?",
-  "head": "72d6f7de22d89d2a523f20b56610093fed982c4a",
+  "head": "21e5d5544f120580dfe5dd7ea7f3d9f83a280376",
   "headCommand": "git rev-parse HEAD",
   "measuredAt": "static: the files the `sources` block names were read line by line at the head above, and every citation below is that read. No browser was opened, no page was read and no build was run; the only commands executed against these files are the suite that re-reads this record and the join it loads in a bare `node:vm` context.",
   "sources": {

@@ -4,7 +4,7 @@
   "task": "T004",
   "title": "Record the rehearsal route, its loader key and the states each one reads",
   "question": "which route reaches the webmcp-rehearsal surface, which LOADERS key resolves it, and what does each of its four states read off the record the join answered?",
-  "head": "0e0eba55d22cc1a9a639dd03c777b374f3400a56",
+  "head": "21e5d5544f120580dfe5dd7ea7f3d9f83a280376",
   "headCommand": "git rev-parse HEAD",
   "measuredAt": "static: every citation below was read out of the file it names at the head above with a script that resolves each quoted line to the one line of that file carrying it (the script is kept in the session scratchpad and not checked in), and `scripts/copy-check.test.mjs` re-reads every one of them on every run. The two readings this record describes are the join `extension/webmcp-rehearsal.js` (T002) and the surface `panel-webmcp-rehearsal.ts` (T003); the measurement the join’s refusals rest on is `research/raw/m053-execute-tool.json`, taken by T001 in a live Chrome Beta 159.0.8154.13 instance and quoted here as the record that produced plan Correction C4. No browser was opened for this record, no page was read, no build and no test of the app was run.",
   "sources": {

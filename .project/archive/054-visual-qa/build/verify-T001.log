@@ -1,0 +1,26 @@
+head: c255d2cb33a8306f10dbf28181ffa5eefa4d178e at 2026-11-20T01:56:09.417Z
+✔ the recording parses, names itself and declares the questions this task settles (2.0374ms)
+✔ every citation in the recording still names the line it quotes (13.0638ms)
+✔ every claim is cited, names its kind, and does not report an unwitnessed record as observed (0.3311ms)
+✔ the relay ruling is stated, with the citations that support it (0.2035ms)
+✔ the property list is the one the measured expression carried, each with its own declarations (0.2153ms)
+✔ the reading is instrumented, and every hook carries a value for every declared property (0.2866ms)
+✔ the two artefacts measured read differently, and the recording says which is which (0.1032ms)
+✔ the recording states its own absences, and names the artefact the portal lacks (0.188ms)
+✔ mutant D1 a citation quotes a line it no longer sits on: the pin names what it broke (9.2428ms)
+✔ mutant D2 a citation slides one line off its text: the pin names what it broke (10.2926ms)
+✔ mutant D3 a citation names a file this tree does not hold: the pin names what it broke (9.8757ms)
+✔ mutant D4 the declared property list drops one the expression measured: the pin names what it broke (0.8496ms)
+✔ mutant D5 a record this task did not witness is reported as observed here: the pin names what it broke (0.7918ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 162.8228
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/visual-qa-style-read.test.mjs

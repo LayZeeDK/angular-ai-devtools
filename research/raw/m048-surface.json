@@ -4,7 +4,7 @@
   "task": "T004",
   "title": "Record the surface and run the project verify",
   "question": "which route renders the copy-check surface, which LOADERS key serves it, which three states does the surface render, and which field of the join’s answer does each state read?",
-  "head": "72d6f7de22d89d2a523f20b56610093fed982c4a",
+  "head": "21e5d5544f120580dfe5dd7ea7f3d9f83a280376",
   "headCommand": "git rev-parse HEAD",
   "measuredAt": "static: the files the `sources` block names were read line by line at the head above, and every citation below is that read. T004’s first reading of this route was taken at b428f068; this is the same record re-read at 72d6f7de, where M049’s T003 appended the `interaction-story` loader key and sample fact above the demo’s resolution lines, so the five `resolvedBy` citations, the sample fact and the comment above it were re-read rather than shifted. No browser was opened, no page was read and no build was run; the only command executed against these files is the suite that re-reads this record.",
   "sources": {
@@ -110,8 +110,8 @@
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
       "line": 450,
-      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 184 },",
-      "holds": "checked: 184"
+      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 189 },",
+      "holds": "checked: 189"
     },
     "sampleFactComment": [
       {
@@ -123,11 +123,11 @@
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
         "line": 444,
-        "lineText": "// (`extension/copy-digest.json`): all 184 compared strings are explained, so the record reads",
-        "holds": "184"
+        "lineText": "// (`extension/copy-digest.json`): all 189 compared strings are explained, so the record reads",
+        "holds": "189"
       }
     ],
-    "statement": "the `copy-check` key is a `LOADERS` key (:57) and no longer the last one — M049’s T003 appended `interaction-story` after it (:58) and M051’s T003 appended `what-changed` (:60), which is what moved the resolution lines below — and this key is the only path to `panel-copy-check.ts`: the demo looks the key up by the name the route’s `data.surface` states (:717), awaits the dynamic import (:723), calls the module’s default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact it is handed (:450) is `{ state: 'clean', unexplained: [], checked: 184 }` — the join’s answer over the twenty-five-surface record this head measures and the 176-row digest authored from it — and the comment above it (:444) states the same count, so the fact and the record agree at this head."
+    "statement": "the `copy-check` key is a `LOADERS` key (:57) and no longer the last one — M049’s T003 appended `interaction-story` after it (:58) and M051’s T003 appended `what-changed` (:60), which is what moved the resolution lines below — and this key is the only path to `panel-copy-check.ts`: the demo looks the key up by the name the route’s `data.surface` states (:717), awaits the dynamic import (:723), calls the module’s default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact it is handed (:450) is `{ state: 'clean', unexplained: [], checked: 189 }` — the join’s answer over the twenty-six-surface record this head measures and the 181-row digest authored from it — and the comment above it (:444) states the same count, so the fact and the record agree at this head."
   },
   "answer": {
     "shape": "{ state, unexplained, checked, reason }",
@@ -265,7 +265,7 @@
           }
         }
       ],
-      "statement": "every string the surfaces declare is explained, so the pane renders the state word, its sentence and the count the answer states — `checked: 184` over the twenty-five-surface record T004 authored at this head, and the demo’s sample fact (:450) states the same count. A count the answer does not state renders `no-checked` (:108) rather than a number the pane made up."
+      "statement": "every string the surfaces declare is explained, so the pane renders the state word, its sentence and the count the answer states — `checked: 189` over the twenty-six-surface record T004 authored at this head, and the demo’s sample fact (:450) states the same count. A count the answer does not state renders `no-checked` (:108) rather than a number the pane made up."
     },
     {
       "id": "unexplained",
@@ -535,7 +535,7 @@
   },
   "notCaptured": [
     "Nothing here was rendered, clicked or measured in a browser: every value is a static read of the files the `sources` block names, at the head above, and the record carries no clock, no timing and no capture.",
-    "The sample fact at `panel-demo.ts:450` carries `checked: 184`, the count the join answers over the twenty-five-surface copy record this head measures, and the comment above it (:444) states the same count. Both were re-read at this head rather than left where M050 found them, and the `panel-demo.spec.ts` pin that compares the fact to the join’s answer holds the two together.",
+    "The sample fact at `panel-demo.ts:450` carries `checked: 189`, the count the join answers over the twenty-six-surface copy record this head measures, and the comment above it (:444) states the same count. Both were re-read at this head rather than left where M050 found them, and the `panel-demo.spec.ts` pin that compares the fact to the join’s answer holds the two together.",
     "The record does not measure what the pane looks like: the lines each state writes are enumerated in `panel-copy-check.ts`’s `PANE_SENTENCES` and held by `panel-demo.spec.ts`, and this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
     "The counts in the sample fact are fixture data, not measurements: the 122 is the join’s answer for a record and a digest that no longer match it, and repairing the fact is a change to `panel-demo.ts`, not a measurement this record could take.",
     "The route table’s total is not pinned here. A sibling task in a later milestone adds a route on purpose, and a total recorded in this file would go stale without changing what the record says about `copy-check`."
