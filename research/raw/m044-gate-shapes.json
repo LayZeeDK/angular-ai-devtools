@@ -1819,7 +1819,8 @@
           ".project/archive/052-webmcp-audit/research/SYNTHESIS.md",
           ".project/archive/053-webmcp-rehearsal/research/SYNTHESIS.md",
           ".project/archive/054-visual-qa/research/SYNTHESIS.md",
-          ".project/archive/056-gate-phase-stability/research/SYNTHESIS.md"
+          ".project/archive/056-gate-phase-stability/research/SYNTHESIS.md",
+          "research/SYNTHESIS.md"
         ],
         "presentInTheTree": true
       }
@@ -2836,6 +2837,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-20T09:47:12.213Z"
+    "at": "2026-11-20T12:17:13.362Z"
   }
 }
