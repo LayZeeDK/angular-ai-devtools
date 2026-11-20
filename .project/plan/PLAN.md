@@ -51,6 +51,8 @@ replay restores its recorded output without refreshing the timestamp that assert
    `chrome-extension://` document at runtime, against the same hooks the baseline stylesheet names
    (`apps/angular-ai-devtools/src/styles.css:49,54,62,87`).
 
+- C5 2026-11-20: T001 measured a defect in the milestone's own subject. The committed `extension/panel/index.html:9` carries a plain `<link rel="stylesheet" href="styles.css" />` and every hook computes its declared value; a fresh `--skip-nx-cache` build instead emits `media="print" onload="this.media='all'"`, the extension CSP refuses the inline handler (`script-src 'self'`), the sheet stays print-only, and every hook reads UA defaults (`padding 0px`, `border-top 0px`, transparent background). So the panels are styled in devtools for the committed artefact and unstyled for anything built from source — the exact claim this milestone was to verify. Cause: Angular's critical-CSS inlining (`optimization.styles.inlineCritical`) injects the inline onload handler; `apps/angular-ai-devtools/project.json` sets `optimization: false` at :46 but the panel target does not. T003 must fix it in the panel build (inlineCritical off, or a CSP hash) and pin it, because a surface that renders only in the artefact nobody rebuilds is not verified.
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
