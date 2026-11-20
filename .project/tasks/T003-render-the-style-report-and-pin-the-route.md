@@ -9,7 +9,9 @@ base: null
 worktree: null
 task_branch: null
 files:
+  - apps/angular-ai-devtools/project.json
   - apps/angular-ai-devtools/src/app/panel-visual-qa.ts
+  - research/raw/m054-style-read.json
   - apps/angular-ai-devtools/src/app/app.routes.ts
   - apps/angular-ai-devtools/src/app/panel-demo.ts
   - apps/angular-ai-devtools/src/app/app.spec.ts
@@ -87,7 +89,9 @@ the built artifact. The file changes only through
 
 ## Files
 
+  - apps/angular-ai-devtools/project.json
   - apps/angular-ai-devtools/src/app/panel-visual-qa.ts
+  - research/raw/m054-style-read.json
   - apps/angular-ai-devtools/src/app/app.routes.ts
   - apps/angular-ai-devtools/src/app/panel-demo.ts
   - apps/angular-ai-devtools/src/app/app.spec.ts
