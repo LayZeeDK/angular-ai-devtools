@@ -1,0 +1,52 @@
+head: ce5935cef8c5a2b5112bed0a01827283b31cd687 at 2026-11-19T22:23:12.335Z
+✔ the recording answers the four questions the milestone rests on (13.4292ms)
+✔ every cited path and line is the one the record read (8.9314ms)
+✔ the static half records what the tree says, and nothing it does not (0.2611ms)
+✔ the live half names one instance, one page and eight verbatim expressions (0.1237ms)
+✔ the recording states its own absences, and refuses to fill them in (0.1101ms)
+✔ a doctored citation reddens naming the claim it breaks (10.9097ms)
+ℹ mutant slid-citation: measurement.arguments.static.citations[0] quotes research/00-browser-probe.md:122 as "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`.", and that line reads "- `LanguageModel.availability()` is `available` in both after the restart."
++ actual - expected
+
++ "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+- '- `LanguageModel.availability()` is `available` in both after the restart.'
+
+ℹ mutant requoted-citation: measurement.invocation.static.citations[1] quotes research/01-built-in-ai-apis.md:187 as "The prototype has no such member, and this line says so.", and that line reads "- [measured, W1] Page API: `document.modelContext.registerTool({ name, description, inputSchema, execute }, { signal, exposedTo })`; unregister by aborting the signal. Tool result shape `{ content: [{ type: "text", text }] }` (MCP-like)."
++ actual - expected
+
++ 'The prototype has no such member, and this line says so.'
+- '- [measured, W1] Page API: `document.modelContext.registerTool({ name, description, inputSchema, execute }, { signal, exposedTo })`; unregister by aborting the signal. Tool result shape `{ content: [{ type: "text", text }] }` (MCP-like).'
+
+ℹ mutant invented-file: unknowns[0].citations[0] cites research/99-not-here.md:1 and the tree holds no file research/99-not-here.md
+✔ a recording that fills in the absences reddens naming the claim (9.3062ms)
+ℹ mutant observed-the-unobserved: measurement.noModel.observedHere states that the no-model answer was not observed here
+
+true !== false
+
+ℹ mutant claimed-the-invocation: answer.canAToolBeInvokedOnAPageThatDeclaresNone states that a tool cannot be invoked on a page that declares none
+
+true !== false
+
+ℹ mutant claimed-a-resolution: measurement.answerShape.resolvedValueObserved states that no resolved value was seen
+
+true !== false
+
+ℹ mutant metadata-dropped: observations[0].browserVersion is the instrument’s version
++ actual - expected
+
++ undefined
+- 'Chrome/159.0.8154.13'
+
+ℹ mutant dangling-observation: measurement.invocation names observation not-recorded, and the live half records it
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191.6476
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/webmcp-execute-tool.test.mjs

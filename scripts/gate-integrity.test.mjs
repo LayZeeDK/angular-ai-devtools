@@ -5658,3 +5658,14 @@ Object.assign(SUITE_DIFF_REASONS, {
   'scripts/user-scope-autonomy.test.mjs':
     'one assertion line re-pinned, one added and one removed, none deleted: the P3 check_handoffs behavioural assertion named the reason string `Intent coverage row is unreadable`, which `git log -S` over every branch of the upstream source shows check_handoffs.py never emitted in any revision and no copy carries today, so the test side was wrong and the pin was re-pointed at the reason the code actually raises for a dropped coverage row, `PLAN.md Intent coverage has no rows` (check_handoffs.py:1056, measured exit 1 over a three-cell row); the readable-row exit-0 half of the same assertion and every other assertion in the file are untouched',
 });
+
+// The reason for the two suites M053's first two waves added. They travel here, appended after the last
+// line the M044 recording pins in this file, for the same reason the block above does: a row added above
+// one of those pinned references would stale it by moving it. Each is a reading of its own diff — what the
+// suite is, which recording it reads and what it refuses — rather than a name admitted to the list.
+Object.assign(SUITE_DIFF_REASONS, {
+  'scripts/webmcp-execute-tool.test.mjs':
+    'wholly added at this head: M053 T001 measured what `document.modelContext.executeTool` needs and answers — one argument of type `Tool`, a Promise in every case, a TypeError rejection rather than a synchronous throw, a `Tool` whose constructor is illegal, and a `no-model` answer the launches could not produce — in `research/raw/m053-execute-tool.json`, and the suite re-reads every `path:line` citation that recording makes against the tree, holds each `measurement` member to the observations it cites, and reddens when a citation slides off its line, when a state the recording marks unobserved is claimed as observed, or when the recording drifts from the file it names; a reading the measured commit carries no file to edit',
+  'scripts/webmcp-rehearsal.test.mjs':
+    'wholly added at this head: M053 T002 pins `extension/webmcp-rehearsal.js` — the awaited caller that hands `getTools()`’s resolved list to the shipped reader, and the pure join `rehearse(reading, chosen, invocation)` answering `rehearsed`, `no-tool`, `refused` or `unavailable` and no fifth state — over the interleaved cases and their absences, with the name taken from a fixture list, a result rendered for a rehearsal that never ran, an invented model turn, a re-registration used to observe, an un-awaited synchronous return judged as a list and a join that refuses every input each reddening the pin that names its defect, plus a token scan proving the module reads no DOM, registers nothing and invokes nothing; a reading the measured commit carries no file to edit',
+});

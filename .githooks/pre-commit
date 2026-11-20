@@ -1,0 +1,37 @@
+#!/bin/sh
+# Format gate for staged files only.
+#
+# Three milestones lost a landing to `format:check`, which is the LAST stage of
+# `npm run check` and therefore fails after several minutes of typechecking.
+# Checking just the staged files here fails in about a second, at the commit
+# that introduced the drift.
+#
+# Bypass deliberately with `git commit --no-verify` when the formatting is not
+# yours to fix; a formatter is never a reason to skip a gate silently.
+
+set -e
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+
+if [ -z "$staged" ]; then
+  exit 0
+fi
+
+checked=$(printf '%s\n' "$staged" | grep -E '\.(md|mjs|cjs|js|ts|tsx|json|html|css|scss|yml|yaml)$' || true)
+
+if [ -z "$checked" ]; then
+  exit 0
+fi
+
+if ! command -v npx >/dev/null 2>&1; then
+  echo "pre-commit: npx not found; skipping the format gate" >&2
+  exit 0
+fi
+
+if ! printf '%s\n' "$checked" | xargs npx prettier --check 2>&1; then
+  echo "" >&2
+  echo "pre-commit: the files above are not formatted." >&2
+  echo "  Fix with: npx prettier --write <file>" >&2
+  echo "  Or, if the formatting is not yours: git commit --no-verify" >&2
+  exit 1
+fi

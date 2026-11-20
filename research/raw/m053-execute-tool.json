@@ -1,0 +1,773 @@
+{
+  "schema": "m053-execute-tool/v1",
+  "milestone": "M053 webmcp-rehearsal",
+  "task": "T001",
+  "title": "Measure what executeTool answers before anything calls it",
+  "question": "what does document.modelContext.executeTool need, what does it answer and through which shape, what does it answer where no model is available, and can a tool be invoked at all on a page that declares none?",
+  "branch": "gsd-path/M053",
+  "head": "ce5935cef8c5a2b5112bed0a01827283b31cd687",
+  "headCommands": [
+    "git rev-parse --abbrev-ref HEAD",
+    "git rev-parse HEAD"
+  ],
+  "headOutput": [
+    "gsd-path/M053",
+    "ce5935cef8c5a2b5112bed0a01827283b31cd687"
+  ],
+  "observedAt": "2026-11-19T22:11:21.196Z",
+  "measuredAt": "two halves, both recorded here. Static: every line cited under `static` and under each `measurement` member was read from the working tree at the head named above, and every `lineText` is that line with its leading and trailing whitespace trimmed and nothing else changed. Live: the instance named under `instrument` was started by the control-ai-browsers skill after `npx nx run angular-ai-devtools:build-extension --skip-nx-cache` exited 0, a page was opened in it, and the eight expressions under `observations` were evaluated in that page, one question each; each expression and answer is copied from that run’s evidence file, not retyped. Nothing here is simulated, and nothing here is read from the tree to answer what the browser answered.",
+  "citationConvention": "every citation is `{ \"at\": \"path:line\", \"lineText\": ... }`: `at` is a repository-relative posix path and a 1-indexed line, and `lineText` is that line with its leading and trailing whitespace trimmed and nothing else changed. scripts/webmcp-execute-tool.test.mjs re-reads every cited line from the working tree and requires trimmed equality, so a citation that slid onto a neighbouring line fails there rather than in review.",
+  "instrument": {
+    "skill": "control-ai-browsers",
+    "instance": "chrome-beta-nano",
+    "browserVersion": "Chrome/159.0.8154.13",
+    "browserVersionSource": "reported by `up chrome-beta-nano --json` as `browserVersion` on every launch, and repeated inside every expression as navigator.userAgent (Chrome/159.0.0.0)",
+    "session": "ai-chrome-beta-nano-9333",
+    "port": 9333,
+    "backend": "gpu",
+    "features": "AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams:compatible_on_device_performance_classes/2%2C3%2C4%2C5%2C6/compatible_low_tier_on_device_performance_classes/2%2C3%2C4%2C5%2C6",
+    "page": {
+      "url": "https://example.com/",
+      "declaresTools": false,
+      "why": "https://example.com is the plain secure page M052 measured, and it registers no WebMCP tool — exactly the page this question needs: what does executeTool answer where the page offers no tool to invoke. That it declares none is not assumed here: the empty-handle observation asked the page’s own getTools() and read [] back."
+    },
+    "launches": [
+      {
+        "id": "registry",
+        "what": "up chrome-beta-nano (registry features: AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams)",
+        "why": "seven of the eight expressions, the model-availability one and the Tool-interface one among them"
+      },
+      {
+        "id": "no-ai-features",
+        "what": "up chrome-beta-nano --no-ai-features (no --enable-features switch at all: WebMCP and every AI feature switch absent)",
+        "why": "the one expression that asks what a profile without the AI features answers"
+      }
+    ],
+    "commands": [
+      "npx nx run angular-ai-devtools:build-extension --skip-nx-cache",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs instances",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano --json",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano <probe.js> --json (eight times, one expression each)",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs down chrome-beta-nano --json",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano --no-ai-features --json",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs up chrome-beta-nano --json (registry features restored, then the restore-check expression)",
+      "node .commandcode/skills/control-ai-browsers/scripts/control.mjs instances (last, proving all five instances stopped)"
+    ],
+    "evidence": [
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221004/ (instances, before)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221108/ (up, registry features)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221121/ (shape)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221130/ (no arguments)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221137/ (empty handle)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221144/ (fabricated handles)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221224/ (model availability)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221235/ (down)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221243/ (up, --no-ai-features)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221257/ (no AI features)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221312/ (down)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221321/ (up, registry features restored)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221332/ (restore check)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221338/ (down)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221514/ (up, registry features)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221523/ (Tool interface)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221537/ (down)",
+      ".commandcode/worktrees/tmp/control-ai-browsers/evidence/20261119-221550/ (instances, after: all five stopped)"
+    ],
+    "notes": "One expression was superseded rather than recorded: the first version of the model-availability probe (evidence 20261119-221152/) set its own outcome label from a flag it read after the call, so the label was wrong for a call that rejected; it was re-run with the label taken from the branch that actually ran (evidence 20261119-221224/) and only the re-run is recorded. Every launch ended with `down`; the last `instances` run reported chrome-beta-nano, chrome-beta-gemma4, edge-dev-aion, edge-phi4mini and chrome-stable-nano each as `stopped`, and every `down` reported its CDP port free."
+  },
+  "observations": [
+    {
+      "id": "shape",
+      "question": "what is executeTool, where does it live, and what does its own shape say it needs?",
+      "expression": "(() => {\n  const context = document.modelContext;\n  const answer = {\n    href: location.href,\n    userAgent: navigator.userAgent,\n    userActivationActive: navigator.userActivation ? navigator.userActivation.isActive : null,\n    modelContextType: typeof context,\n  };\n  if (context === null || typeof context !== 'object') {\n    answer.outcome = 'no-model-context';\n    return answer;\n  }\n  answer.executeToolType = typeof context.executeTool;\n  answer.prototypeMembers = Object.getOwnPropertyNames(Object.getPrototypeOf(context));\n  if (typeof context.executeTool !== 'function') {\n    answer.outcome = 'no-execute-tool';\n    return answer;\n  }\n  const fn = context.executeTool;\n  let holder = context;\n  let descriptor = null;\n  while (holder !== null) {\n    const found = Object.getOwnPropertyDescriptor(holder, 'executeTool');\n    if (found) {\n      descriptor = {\n        own: holder === context,\n        kind: typeof found.get === 'function' ? 'accessor' : 'data',\n        writable: found.writable ?? null,\n        enumerable: found.enumerable,\n        configurable: found.configurable,\n      };\n      break;\n    }\n    holder = Object.getPrototypeOf(holder);\n  }\n  answer.executeToolDescriptor = descriptor;\n  answer.executeToolName = fn.name;\n  answer.executeToolArity = fn.length;\n  answer.executeToolSource = (() => {\n    try { return fn.toString(); } catch (error) { return 'unavailable: ' + String(error && error.name); }\n  })();\n  answer.output = 'unobserved-here';\n  answer.outcome = 'read';\n  return answer;\n})()",
+      "answer": {
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+        "userActivationActive": true,
+        "modelContextType": "object",
+        "executeToolType": "function",
+        "prototypeMembers": [
+          "ontoolchange",
+          "ontoolactivated",
+          "ontoolcancel",
+          "executeTool",
+          "getTools",
+          "registerTool",
+          "constructor"
+        ],
+        "executeToolDescriptor": {
+          "own": false,
+          "kind": "data",
+          "writable": true,
+          "enumerable": true,
+          "configurable": true
+        },
+        "executeToolName": "executeTool",
+        "executeToolArity": 1,
+        "executeToolSource": "function executeTool() { [native code] }",
+        "output": "unobserved-here",
+        "outcome": "read"
+      },
+      "instance": "chrome-beta-nano",
+      "browserVersion": "Chrome/159.0.8154.13",
+      "session": "ai-chrome-beta-nano-9333",
+      "launch": "up chrome-beta-nano (registry features: AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams)",
+      "page": "https://example.com/",
+      "at": "2026-11-19T22:11:21.196Z",
+      "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano probe1-shape.js --json",
+      "probe": "a probe file in the session scratchpad (probe1-shape.js) holding `async page => {...}`, run once; the expression below is that run’s own text, copied from its evidence file rather than retyped",
+      "evidence": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\evidence\\20261119-221121\\chrome-beta-nano-run-1795126286055.json"
+    },
+    {
+      "id": "no-arguments",
+      "question": "what does executeTool answer when it is called with no arguments at all?",
+      "expression": "(async () => {\n  const context = document.modelContext;\n  const answer = {\n    href: location.href,\n    userAgent: navigator.userAgent,\n    userActivationActive: navigator.userActivation ? navigator.userActivation.isActive : null,\n  };\n  if (context === null || typeof context !== 'object' || typeof context.executeTool !== 'function') {\n    answer.outcome = 'no-execute-tool';\n    return answer;\n  }\n  answer.call = 'context.executeTool()';\n  let returned;\n  try {\n    returned = context.executeTool();\n    answer.threwSynchronously = false;\n    answer.returnedType = typeof returned;\n    answer.returnedConstructor = returned !== null && typeof returned === 'object' ? (returned.constructor ? returned.constructor.name : null) : null;\n    answer.thenable = returned !== null && typeof returned === 'object' && typeof returned.then === 'function';\n  } catch (error) {\n    answer.threwSynchronously = true;\n    answer.outcome = 'threw-synchronously';\n    answer.errorName = String(error && error.name !== undefined ? error.name : typeof error);\n    answer.errorMessage = String(error && error.message !== undefined ? error.message : error);\n    return answer;\n  }\n  if (!answer.thenable) {\n    answer.outcome = 'returned-a-value';\n    answer.returnedJson = (() => { try { return JSON.stringify(returned); } catch (error) { return 'unserialisable'; } })();\n    return answer;\n  }\n  try {\n    const resolved = await returned;\n    answer.outcome = 'resolved';\n    answer.resolvedType = typeof resolved;\n    answer.resolvedConstructor = resolved !== null && typeof resolved === 'object' ? (resolved.constructor ? resolved.constructor.name : null) : null;\n    answer.resolvedJson = (() => { try { return JSON.stringify(resolved); } catch (error) { return 'unserialisable'; } })();\n  } catch (error) {\n    answer.outcome = 'rejected';\n    answer.errorName = String(error && error.name !== undefined ? error.name : typeof error);\n    answer.errorMessage = String(error && error.message !== undefined ? error.message : error);\n    answer.errorCode = error && typeof error.code !== 'undefined' ? String(error.code) : null;\n    answer.errorConstructor = error !== null && typeof error === 'object' ? (error.constructor ? error.constructor.name : null) : null;\n  }\n  return answer;\n})()",
+      "answer": {
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+        "userActivationActive": true,
+        "call": "context.executeTool()",
+        "threwSynchronously": false,
+        "returnedType": "object",
+        "returnedConstructor": "Promise",
+        "thenable": true,
+        "outcome": "rejected",
+        "errorName": "TypeError",
+        "errorMessage": "Failed to execute 'executeTool' on 'ModelContext': 1 argument required, but only 0 present.",
+        "errorCode": null,
+        "errorConstructor": "TypeError"
+      },
+      "instance": "chrome-beta-nano",
+      "browserVersion": "Chrome/159.0.8154.13",
+      "session": "ai-chrome-beta-nano-9333",
+      "launch": "up chrome-beta-nano (registry features: AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams)",
+      "page": "https://example.com/",
+      "at": "2026-11-19T22:11:30.778Z",
+      "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano probe2-noargs.js --json",
+      "probe": "a probe file in the session scratchpad (probe2-noargs.js) holding `async page => {...}`, run once; the expression below is that run’s own text, copied from its evidence file rather than retyped",
+      "evidence": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\evidence\\20261119-221130\\chrome-beta-nano-run-1795126294408.json"
+    },
+    {
+      "id": "empty-handle",
+      "question": "what does executeTool answer when it is handed the tool handle this page’s own list offers?",
+      "expression": "(async () => {\n  const context = document.modelContext;\n  const answer = {\n    href: location.href,\n    userAgent: navigator.userAgent,\n    userActivationActive: navigator.userActivation ? navigator.userActivation.isActive : null,\n  };\n  if (context === null || typeof context !== 'object' || typeof context.executeTool !== 'function') {\n    answer.outcome = 'no-execute-tool';\n    return answer;\n  }\n  const listed = await context.getTools();\n  const tools = Array.isArray(listed) ? listed : [];\n  answer.toolsIsArray = Array.isArray(listed);\n  answer.toolsLength = tools.length;\n  answer.handle = typeof tools[0];\n  answer.handleJson = (() => { try { return JSON.stringify(tools[0]); } catch (error) { return 'no-value'; } })();\n  answer.call = 'context.executeTool(tools[0], {}, {})';\n  try {\n    const returned = context.executeTool(tools[0], {}, {});\n    answer.threwSynchronously = false;\n    answer.returnedType = typeof returned;\n    answer.thenable = returned !== null && typeof returned === 'object' && typeof returned.then === 'function';\n    if (!answer.thenable) {\n      answer.outcome = 'returned-a-value';\n      answer.returnedJson = (() => { try { return JSON.stringify(returned); } catch (error) { return 'unserialisable'; } })();\n      return answer;\n    }\n    const resolved = await returned;\n    answer.outcome = 'resolved';\n    answer.resolvedType = typeof resolved;\n    answer.resolvedJson = (() => { try { return JSON.stringify(resolved); } catch (error) { return 'unserialisable'; } })();\n  } catch (error) {\n    answer.outcome = answer.threwSynchronously === false ? 'rejected' : 'threw-synchronously';\n    answer.errorName = String(error && error.name !== undefined ? error.name : typeof error);\n    answer.errorMessage = String(error && error.message !== undefined ? error.message : error);\n    answer.errorConstructor = error !== null && typeof error === 'object' ? (error.constructor ? error.constructor.name : null) : null;\n  }\n  return answer;\n})()",
+      "answer": {
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+        "userActivationActive": true,
+        "toolsIsArray": true,
+        "toolsLength": 0,
+        "handle": "undefined",
+        "call": "context.executeTool(tools[0], {}, {})",
+        "threwSynchronously": false,
+        "returnedType": "object",
+        "thenable": true,
+        "outcome": "rejected",
+        "errorName": "TypeError",
+        "errorMessage": "Failed to execute 'executeTool' on 'ModelContext': parameter 1 is not of type 'Tool'.",
+        "errorConstructor": "TypeError"
+      },
+      "instance": "chrome-beta-nano",
+      "browserVersion": "Chrome/159.0.8154.13",
+      "session": "ai-chrome-beta-nano-9333",
+      "launch": "up chrome-beta-nano (registry features: AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams)",
+      "page": "https://example.com/",
+      "at": "2026-11-19T22:11:37.938Z",
+      "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano probe3-empty-handle.js --json",
+      "probe": "a probe file in the session scratchpad (probe3-empty-handle.js) holding `async page => {...}`, run once; the expression below is that run’s own text, copied from its evidence file rather than retyped",
+      "evidence": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\evidence\\20261119-221137\\chrome-beta-nano-run-1795126301517.json"
+    },
+    {
+      "id": "fabricated-handles",
+      "question": "can a handle this page never declared be invoked: a descriptor-shaped object, a name string, or an object carrying only a name?",
+      "expression": "(async () => {\n  const context = document.modelContext;\n  const answer = {\n    href: location.href,\n    userAgent: navigator.userAgent,\n    userActivationActive: navigator.userActivation ? navigator.userActivation.isActive : null,\n    registeredNothing: 'this page declares no tool and this probe registers none',\n  };\n  if (context === null || typeof context !== 'object' || typeof context.executeTool !== 'function') {\n    answer.outcome = 'no-execute-tool';\n    return answer;\n  }\n  const fabricated = {\n    name: 'm053-fabricated-probe',\n    description: 'A descriptor this page never registered; it exists only in this expression.',\n    inputSchema: { type: 'object', properties: {}, required: [] },\n    execute: () => ({ content: [{ type: 'text', text: 'fabricated' }] }),\n  };\n  async function attempt(label, args) {\n    const record = { label };\n    try {\n      const returned = context.executeTool.apply(context, args);\n      record.threwSynchronously = false;\n      record.returnedType = typeof returned;\n      record.thenable = returned !== null && typeof returned === 'object' && typeof returned.then === 'function';\n      if (!record.thenable) {\n        record.outcome = 'returned-a-value';\n        record.returnedJson = (() => { try { return JSON.stringify(returned); } catch (error) { return 'unserialisable'; } })();\n        return record;\n      }\n      const resolved = await returned;\n      record.outcome = 'resolved';\n      record.resolvedType = typeof resolved;\n      record.resolvedJson = (() => { try { return JSON.stringify(resolved); } catch (error) { return 'unserialisable'; } })();\n    } catch (error) {\n      record.outcome = record.threwSynchronously === false ? 'rejected' : 'threw-synchronously';\n      record.errorName = String(error && error.name !== undefined ? error.name : typeof error);\n      record.errorMessage = String(error && error.message !== undefined ? error.message : error);\n      record.errorConstructor = error !== null && typeof error === 'object' ? (error.constructor ? error.constructor.name : null) : null;\n    }\n    return record;\n  }\n  answer.attempts = [];\n  answer.attempts.push(await attempt('executeTool(fabricatedDescriptor, {}, {})', [fabricated, {}, {}]));\n  answer.attempts.push(await attempt('executeTool(\"m053-fabricated-probe\", {}, {})', ['m053-fabricated-probe', {}, {}]));\n  answer.attempts.push(await attempt('executeTool({ name: \"m053-fabricated-probe\" })', [{ name: 'm053-fabricated-probe' }]));\n  answer.outcome = 'attempted';\n  return answer;\n})()",
+      "answer": {
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+        "userActivationActive": true,
+        "registeredNothing": "this page declares no tool and this probe registers none",
+        "attempts": [
+          {
+            "label": "executeTool(fabricatedDescriptor, {}, {})",
+            "threwSynchronously": false,
+            "returnedType": "object",
+            "thenable": true,
+            "outcome": "rejected",
+            "errorName": "TypeError",
+            "errorMessage": "Failed to execute 'executeTool' on 'ModelContext': parameter 1 is not of type 'Tool'.",
+            "errorConstructor": "TypeError"
+          },
+          {
+            "label": "executeTool(\"m053-fabricated-probe\", {}, {})",
+            "threwSynchronously": false,
+            "returnedType": "object",
+            "thenable": true,
+            "outcome": "rejected",
+            "errorName": "TypeError",
+            "errorMessage": "Failed to execute 'executeTool' on 'ModelContext': parameter 1 is not of type 'Tool'.",
+            "errorConstructor": "TypeError"
+          },
+          {
+            "label": "executeTool({ name: \"m053-fabricated-probe\" })",
+            "threwSynchronously": false,
+            "returnedType": "object",
+            "thenable": true,
+            "outcome": "rejected",
+            "errorName": "TypeError",
+            "errorMessage": "Failed to execute 'executeTool' on 'ModelContext': parameter 1 is not of type 'Tool'.",
+            "errorConstructor": "TypeError"
+          }
+        ],
+        "outcome": "attempted"
+      },
+      "instance": "chrome-beta-nano",
+      "browserVersion": "Chrome/159.0.8154.13",
+      "session": "ai-chrome-beta-nano-9333",
+      "launch": "up chrome-beta-nano (registry features: AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams)",
+      "page": "https://example.com/",
+      "at": "2026-11-19T22:11:44.381Z",
+      "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano probe4-fabricated.js --json",
+      "probe": "a probe file in the session scratchpad (probe4-fabricated.js) holding `async page => {...}`, run once; the expression below is that run’s own text, copied from its evidence file rather than retyped",
+      "evidence": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\evidence\\20261119-221144\\chrome-beta-nano-run-1795126307612.json"
+    },
+    {
+      "id": "model-availability",
+      "question": "is a model available in this instance, and does an executeTool answer mention one?",
+      "expression": "(async () => {\n  const context = document.modelContext;\n  const answer = {\n    href: location.href,\n    userAgent: navigator.userAgent,\n    userActivationActive: navigator.userActivation ? navigator.userActivation.isActive : null,\n    languageModelType: typeof LanguageModel,\n    modelContextType: typeof context,\n  };\n  if (typeof LanguageModel === 'undefined') {\n    answer.availability = 'no-LanguageModel';\n  } else {\n    answer.availabilityType = typeof LanguageModel.availability;\n    answer.createType = typeof LanguageModel.create;\n    try {\n      answer.availability = await LanguageModel.availability();\n    } catch (error) {\n      answer.availability = 'threw: ' + String(error && error.name) + ': ' + String(error && error.message);\n    }\n  }\n  if (context === null || typeof context !== 'object' || typeof context.executeTool !== 'function') {\n    answer.executeToolOutcome = 'no-execute-tool';\n    return answer;\n  }\n  answer.executeToolSourceMentionsModel = String(context.executeTool).toLowerCase().includes('model');\n  const fabricated = {\n    name: 'm053-fabricated-probe',\n    description: 'A descriptor this page never registered; it exists only in this expression.',\n    inputSchema: { type: 'object', properties: {}, required: [] },\n    execute: () => ({ content: [{ type: 'text', text: 'fabricated' }] }),\n  };\n  const record = {};\n  try {\n    const returned = context.executeTool(fabricated, {}, {});\n    record.thenable = returned !== null && typeof returned === 'object' && typeof returned.then === 'function';\n    const resolved = await returned;\n    record.outcome = 'resolved';\n    record.resolvedJson = (() => { try { return JSON.stringify(resolved); } catch (error) { return 'unserialisable'; } })();\n  } catch (error) {\n    record.threwSynchronously = false;\n    record.outcome = 'rejected';\n    record.errorName = String(error && error.name !== undefined ? error.name : typeof error);\n    record.errorMessage = String(error && error.message !== undefined ? error.message : error);\n    record.errorConstructor = error !== null && typeof error === 'object' ? (error.constructor ? error.constructor.name : null) : null;\n  }\n  answer.executeToolCall = record;\n  answer.executeToolMentionsModel = JSON.stringify(record).toLowerCase().includes('model');\n  return answer;\n})()",
+      "answer": {
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+        "userActivationActive": true,
+        "languageModelType": "function",
+        "modelContextType": "object",
+        "availabilityType": "function",
+        "createType": "function",
+        "availability": "available",
+        "executeToolSourceMentionsModel": false,
+        "executeToolCall": {
+          "thenable": true,
+          "threwSynchronously": false,
+          "outcome": "rejected",
+          "errorName": "TypeError",
+          "errorMessage": "Failed to execute 'executeTool' on 'ModelContext': parameter 1 is not of type 'Tool'.",
+          "errorConstructor": "TypeError"
+        },
+        "executeToolMentionsModel": true
+      },
+      "instance": "chrome-beta-nano",
+      "browserVersion": "Chrome/159.0.8154.13",
+      "session": "ai-chrome-beta-nano-9333",
+      "launch": "up chrome-beta-nano (registry features: AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams)",
+      "page": "https://example.com/",
+      "at": "2026-11-19T22:12:24.401Z",
+      "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano probe5b-model.js --json",
+      "probe": "a probe file in the session scratchpad (probe5b-model.js) holding `async page => {...}`, run once; the expression below is that run’s own text, copied from its evidence file rather than retyped",
+      "evidence": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\evidence\\20261119-221224\\chrome-beta-nano-run-1795126347635.json"
+    },
+    {
+      "id": "no-ai-features",
+      "question": "what does the same page answer where the instance is started without the AI feature switches?",
+      "expression": "(async () => {\n  const context = document.modelContext;\n  const answer = {\n    href: location.href,\n    userAgent: navigator.userAgent,\n    userActivationActive: navigator.userActivation ? navigator.userActivation.isActive : null,\n    modelContextType: typeof context,\n    languageModelType: typeof LanguageModel,\n  };\n  if (typeof LanguageModel === 'undefined') {\n    answer.availability = 'no-LanguageModel';\n  } else if (typeof LanguageModel.availability === 'function') {\n    try {\n      answer.availability = await LanguageModel.availability();\n    } catch (error) {\n      answer.availability = 'threw: ' + String(error && error.name) + ': ' + String(error && error.message);\n    }\n  } else {\n    answer.availability = 'no-availability-api';\n  }\n  if (context === null || typeof context !== 'object') {\n    answer.outcome = 'no-model-context';\n    answer.executeToolType = 'no-model-context';\n    return answer;\n  }\n  answer.executeToolType = typeof context.executeTool;\n  answer.prototypeMembers = Object.getOwnPropertyNames(Object.getPrototypeOf(context));\n  if (typeof context.executeTool !== 'function') {\n    answer.outcome = 'no-execute-tool';\n    return answer;\n  }\n  try {\n    const returned = context.executeTool({ name: 'm053-fabricated-probe' }, {}, {});\n    const resolved = await returned;\n    answer.outcome = 'resolved';\n    answer.resolvedJson = (() => { try { return JSON.stringify(resolved); } catch (error) { return 'unserialisable'; } })();\n  } catch (error) {\n    answer.outcome = 'rejected';\n    answer.errorName = String(error && error.name !== undefined ? error.name : typeof error);\n    answer.errorMessage = String(error && error.message !== undefined ? error.message : error);\n  }\n  return answer;\n})()",
+      "answer": {
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+        "userActivationActive": true,
+        "modelContextType": "undefined",
+        "languageModelType": "function",
+        "availability": "available",
+        "outcome": "no-model-context",
+        "executeToolType": "no-model-context"
+      },
+      "instance": "chrome-beta-nano",
+      "browserVersion": "Chrome/159.0.8154.13",
+      "session": "ai-chrome-beta-nano-9333",
+      "launch": "up chrome-beta-nano --no-ai-features (no --enable-features switch at all: WebMCP and every AI feature switch absent)",
+      "page": "https://example.com/",
+      "at": "2026-11-19T22:12:57.545Z",
+      "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano probe6-no-ai-features.js --json",
+      "probe": "a probe file in the session scratchpad (probe6-no-ai-features.js) holding `async page => {...}`, run once; the expression below is that run’s own text, copied from its evidence file rather than retyped",
+      "evidence": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\evidence\\20261119-221257\\chrome-beta-nano-run-1795126380766.json"
+    },
+    {
+      "id": "restore-check",
+      "question": "after the registry launch was restored, is the surface the same one the first expression read?",
+      "expression": "(() => {\n  const context = document.modelContext;\n  const answer = {\n    href: location.href,\n    userAgent: navigator.userAgent,\n    userActivationActive: navigator.userActivation ? navigator.userActivation.isActive : null,\n    modelContextType: typeof context,\n  };\n  if (context === null || typeof context !== 'object') {\n    answer.outcome = 'no-model-context';\n    return answer;\n  }\n  answer.executeToolType = typeof context.executeTool;\n  answer.prototypeMembers = Object.getOwnPropertyNames(Object.getPrototypeOf(context));\n  if (typeof context.executeTool !== 'function') {\n    answer.outcome = 'no-execute-tool';\n    return answer;\n  }\n  const fn = context.executeTool;\n  let holder = context;\n  let descriptor = null;\n  while (holder !== null) {\n    const found = Object.getOwnPropertyDescriptor(holder, 'executeTool');\n    if (found) {\n      descriptor = {\n        own: holder === context,\n        kind: typeof found.get === 'function' ? 'accessor' : 'data',\n        writable: found.writable ?? null,\n        enumerable: found.enumerable,\n        configurable: found.configurable,\n      };\n      break;\n    }\n    holder = Object.getPrototypeOf(holder);\n  }\n  answer.executeToolDescriptor = descriptor;\n  answer.executeToolName = fn.name;\n  answer.executeToolArity = fn.length;\n  answer.executeToolSource = (() => {\n    try { return fn.toString(); } catch (error) { return 'unavailable: ' + String(error && error.name); }\n  })();\n  answer.output = 'unobserved-here';\n  answer.outcome = 'read';\n  return answer;\n})()",
+      "answer": {
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+        "userActivationActive": true,
+        "modelContextType": "object",
+        "executeToolType": "function",
+        "prototypeMembers": [
+          "ontoolchange",
+          "ontoolactivated",
+          "ontoolcancel",
+          "executeTool",
+          "getTools",
+          "registerTool",
+          "constructor"
+        ],
+        "executeToolDescriptor": {
+          "own": false,
+          "kind": "data",
+          "writable": true,
+          "enumerable": true,
+          "configurable": true
+        },
+        "executeToolName": "executeTool",
+        "executeToolArity": 1,
+        "executeToolSource": "function executeTool() { [native code] }",
+        "output": "unobserved-here",
+        "outcome": "read"
+      },
+      "instance": "chrome-beta-nano",
+      "browserVersion": "Chrome/159.0.8154.13",
+      "session": "ai-chrome-beta-nano-9333",
+      "launch": "up chrome-beta-nano (registry features: AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams)",
+      "page": "https://example.com/",
+      "at": "2026-11-19T22:13:32.474Z",
+      "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano probe1-shape.js --json",
+      "probe": "a probe file in the session scratchpad (probe1-shape.js) holding `async page => {...}`, run once; the expression below is that run’s own text, copied from its evidence file rather than retyped",
+      "evidence": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\evidence\\20261119-221332\\chrome-beta-nano-run-1795126415678.json"
+    },
+    {
+      "id": "tool-interface",
+      "question": "can a caller make a Tool of its own — is the Tool interface constructible — and what does Tool.prototype carry?",
+      "expression": "(async () => {\n  const context = document.modelContext;\n  const answer = {\n    href: location.href,\n    userAgent: navigator.userAgent,\n    userActivationActive: navigator.userActivation ? navigator.userActivation.isActive : null,\n    modelContextType: typeof context,\n  };\n  const names = ['Tool', 'ModelContext', 'ModelContextTool'];\n  answer.interfaces = {};\n  for (const name of names) {\n    const value = globalThis[name];\n    const record = { type: typeof value };\n    if (typeof value === 'function') {\n      record.hasPrototype = typeof value.prototype === 'object' && value.prototype !== null;\n      record.prototypeMembers = record.hasPrototype ? Object.getOwnPropertyNames(value.prototype) : null;\n      record.arity = value.length;\n      record.name = value.name;\n      try {\n        const constructed = new value();\n        record.construct = 'constructed';\n        record.constructedJson = (() => { try { return JSON.stringify(constructed); } catch (error) { return 'unserialisable'; } })();\n      } catch (error) {\n        record.construct = 'threw';\n        record.constructErrorName = String(error && error.name !== undefined ? error.name : typeof error);\n        record.constructErrorMessage = String(error && error.message !== undefined ? error.message : error);\n      }\n    }\n    answer.interfaces[name] = record;\n  }\n  if (typeof context === 'object' && context !== null && typeof context.executeTool === 'function' && answer.interfaces.Tool && answer.interfaces.Tool.construct === 'constructed') {\n    try {\n      const returned = context.executeTool(new globalThis.Tool(), {}, {});\n      const resolved = await returned;\n      answer.executeToolOutcome = 'resolved';\n      answer.executeToolResolvedJson = (() => { try { return JSON.stringify(resolved); } catch (error) { return 'unserialisable'; } })();\n    } catch (error) {\n      answer.executeToolOutcome = 'rejected';\n      answer.executeToolErrorName = String(error && error.name !== undefined ? error.name : typeof error);\n      answer.executeToolErrorMessage = String(error && error.message !== undefined ? error.message : error);\n    }\n  } else {\n    answer.executeToolOutcome = 'not-attempted: no constructible Tool';\n  }\n  return answer;\n})()",
+      "answer": {
+        "href": "https://example.com/",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+        "userActivationActive": true,
+        "modelContextType": "object",
+        "interfaces": {
+          "Tool": {
+            "type": "function",
+            "hasPrototype": true,
+            "prototypeMembers": [
+              "name",
+              "description",
+              "title",
+              "window",
+              "origin",
+              "inputSchema",
+              "outputSchema",
+              "annotations",
+              "constructor"
+            ],
+            "arity": 0,
+            "name": "Tool",
+            "construct": "threw",
+            "constructErrorName": "TypeError",
+            "constructErrorMessage": "Failed to construct 'Tool': Illegal constructor"
+          },
+          "ModelContext": {
+            "type": "function",
+            "hasPrototype": true,
+            "prototypeMembers": [
+              "ontoolchange",
+              "ontoolactivated",
+              "ontoolcancel",
+              "executeTool",
+              "getTools",
+              "registerTool",
+              "constructor"
+            ],
+            "arity": 0,
+            "name": "ModelContext",
+            "construct": "threw",
+            "constructErrorName": "TypeError",
+            "constructErrorMessage": "Failed to construct 'ModelContext': Illegal constructor"
+          },
+          "ModelContextTool": {
+            "type": "undefined"
+          }
+        },
+        "executeToolOutcome": "not-attempted: no constructible Tool"
+      },
+      "instance": "chrome-beta-nano",
+      "browserVersion": "Chrome/159.0.8154.13",
+      "session": "ai-chrome-beta-nano-9333",
+      "launch": "up chrome-beta-nano (registry features: AIPromptAPI,OnDeviceAiDefaultEnabled,AIPromptAPIToolUse,AIPromptAPIMultimodalInput,AISummarizationAPI,AIWriterAPI,AIRewriterAPI,WebMCP,OnDeviceModelPerformanceParams)",
+      "page": "https://example.com/",
+      "at": "2026-11-19T22:15:23.606Z",
+      "command": "node .commandcode/skills/control-ai-browsers/scripts/control.mjs run chrome-beta-nano probe7-tool-interface.js --json",
+      "probe": "a probe file in the session scratchpad (probe7-tool-interface.js) holding `async page => {...}`, run once; the expression below is that run’s own text, copied from its evidence file rather than retyped",
+      "evidence": "D:\\projects\\sandbox\\angular-ai-devtools\\.commandcode\\worktrees\\tmp\\control-ai-browsers\\evidence\\20261119-221523\\chrome-beta-nano-run-1795126527313.json"
+    }
+  ],
+  "measurement": {
+    "arguments": {
+      "id": "arguments",
+      "question": "what arguments does executeTool need?",
+      "observedHere": true,
+      "statement": "One required argument, and it must be a Tool: the browser says so twice. The method declares an arity of 1 (Function.length of a native method is its required-argument count), and a call with nothing at all answers a Promise rejected as TypeError: Failed to execute 'executeTool' on 'ModelContext': 1 argument required, but only 0 present. Passing undefined, a descriptor-shaped plain object, a name string, or an object carrying only a name each answers a Promise rejected as TypeError: Failed to execute 'executeTool' on 'ModelContext': parameter 1 is not of type 'Tool'. The tree’s prose gives the call as executeTool(tool, args, { signal }) — three arguments — but the input object and the signal are optional in this binding: the first argument’s type is rejected before they can matter, and no call measured here ever reached them.",
+      "requiredArguments": 1,
+      "handleArgument": "Tool",
+      "handleArgumentBasis": "the WebIDL refusal text names the interface (\"parameter 1 is not of type 'Tool'\"), and the same interface is a global whose prototype lists name, description, title, window, origin, inputSchema, outputSchema and annotations",
+      "inputAndSignalObserved": false,
+      "observations": [
+        "shape",
+        "no-arguments",
+        "empty-handle",
+        "fabricated-handles"
+      ],
+      "static": {
+        "observedHere": false,
+        "statement": "The prototype record says executeTool is a member of document.modelContext’s prototype, the tree’s prose gives it the signature executeTool(tool, args, { signal }) and executeTool(tool, input, {signal}), and `tool` is a descriptor from the array getTools() answers. No line in this tree records a call, so the arity above is the browser’s answer and not the tree’s.",
+        "citations": [
+          {
+            "at": "research/00-browser-probe.md:121",
+            "lineText": "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+          },
+          {
+            "at": "research/01-built-in-ai-apis.md:188",
+            "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+          },
+          {
+            "at": "research/14-ai-devtools-prior-art.md:327",
+            "lineText": "- The API is `document.modelContext` with `registerTool`, `getTools({fromOrigins})` and `executeTool(tool, input, {signal})`, plus `toolchange`, `toolactivated` and `toolcancel` events; `executeTool` resolves to the JSON-stringified return value of `execute`, whatever its shape, so the MCP `{content: [...]}` array is a convention, not a rule **[measured, `index.bs`]**. 00 measured the same members on `document.modelContext` in both browsers."
+          },
+          {
+            "at": "research/raw/m052-webmcp-observation.json:55",
+            "lineText": "\"executeTool\","
+          }
+        ]
+      }
+    },
+    "answerShape": {
+      "id": "answerShape",
+      "question": "what does executeTool answer, and through which shape?",
+      "observedHere": true,
+      "statement": "A Promise — including when the call is wrong. No call measured here threw synchronously: each returned a thenable object whose constructor is Promise and reported its refusal as a rejection of that promise, so a caller that does not await gets an unhandled rejection and never an exception at the call site. No call resolved: every answer recorded here is a rejection, and each is a TypeError raised by the binding before the tool could run. What a successful call resolves to is therefore unobserved here; the tree’s documented answer — the JSON-stringified return value of the tool’s execute, whatever its shape — is a citation, not an observation.",
+      "returns": "Promise",
+      "synchronousThrowObserved": false,
+      "resolvedValueObserved": false,
+      "refusalShape": "a rejected promise carrying a TypeError (constructor TypeError, name TypeError, no DOMException code)",
+      "observations": [
+        "no-arguments",
+        "empty-handle",
+        "fabricated-handles"
+      ],
+      "static": {
+        "observedHere": false,
+        "statement": "The tree records the success shape twice: executeTool(tool, args, { signal }) \"runs the tool in the owner’s context\", and the spec reading says executeTool resolves to the JSON-stringified return value of execute, whatever its shape, so an MCP-shaped { content: [...] } result is a convention rather than a rule.",
+        "citations": [
+          {
+            "at": "research/01-built-in-ai-apis.md:188",
+            "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+          },
+          {
+            "at": "research/14-ai-devtools-prior-art.md:327",
+            "lineText": "- The API is `document.modelContext` with `registerTool`, `getTools({fromOrigins})` and `executeTool(tool, input, {signal})`, plus `toolchange`, `toolactivated` and `toolcancel` events; `executeTool` resolves to the JSON-stringified return value of `execute`, whatever its shape, so the MCP `{content: [...]}` array is a convention, not a rule **[measured, `index.bs`]**. 00 measured the same members on `document.modelContext` in both browsers."
+          }
+        ]
+      }
+    },
+    "noModel": {
+      "id": "noModel",
+      "question": "what does executeTool answer where no model is available?",
+      "observedHere": false,
+      "statement": "Not observed, and this recording will not state it as if it were: no launch produced a page with the surface present and the model unavailable. The instance’s on-device model is installed and LanguageModel.availability() answered \"available\" in both launches, and nothing this task may do — clearing a multi-gigabyte model another session shares, or inventing an answer — can produce the missing state. What the two launches did establish is that the model and the surface are separate facts, which is what SC2 needs in order to render no-model distinctly from unavailable.",
+      "why": "the model is a disk component of the shared chrome-beta-nano profile, LanguageModel.availability() reads it, and this task neither clears it nor starts an instance without it. The --no-ai-features launch removes the feature switches, not the model: it answers the surface question, not the model question.",
+      "observedInstead": {
+        "observedHere": true,
+        "statement": "Two facts were measured, and neither is a no-model answer for executeTool. (a) With the registry features on, a model was available (LanguageModel.availability() answered \"available\") and executeTool’s refusal named the type of its first argument, never a model; the method’s own source is [native code] and the string \"model\" appears in it only as part of the interface’s name. (b) With --no-ai-features, document.modelContext was undefined — the surface was absent, so there was no method to answer with — while LanguageModel was still present and still answered \"available\". So a missing model is not what makes executeTool refuse and a missing surface is what makes it unreachable: on this API the model is needed to choose a tool, not to invoke one.",
+        "facts": {
+          "availabilityWithRegistryFeatures": "available",
+          "availabilityWithNoAiFeatures": "available",
+          "modelContextTypeWithRegistryFeatures": "object",
+          "modelContextTypeWithNoAiFeatures": "undefined",
+          "executeToolRefusalNamesAModel": false,
+          "executeToolSourceMentionsModel": false
+        },
+        "observations": [
+          "model-availability",
+          "no-ai-features"
+        ]
+      },
+      "observations": [
+        "model-availability",
+        "no-ai-features"
+      ],
+      "static": {
+        "observedHere": false,
+        "statement": "No line in this tree ties executeTool to a model: the prose describes it as running the tool in the owner’s context and resolving to the tool’s own return value, and the model appears only as the agent that chooses which tool to call.",
+        "citations": [
+          {
+            "at": "research/01-built-in-ai-apis.md:188",
+            "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+          },
+          {
+            "at": "research/14-ai-devtools-prior-art.md:327",
+            "lineText": "- The API is `document.modelContext` with `registerTool`, `getTools({fromOrigins})` and `executeTool(tool, input, {signal})`, plus `toolchange`, `toolactivated` and `toolcancel` events; `executeTool` resolves to the JSON-stringified return value of `execute`, whatever its shape, so the MCP `{content: [...]}` array is a convention, not a rule **[measured, `index.bs`]**. 00 measured the same members on `document.modelContext` in both browsers."
+          }
+        ]
+      }
+    },
+    "invocation": {
+      "id": "invocation",
+      "question": "can a tool be invoked at all on a page that declares none?",
+      "observedHere": true,
+      "statement": "No. The one required argument is a Tool the browser owns, and this page owns none: its own awaited getTools() resolved to [], so getTools()[0] is undefined and executeTool(undefined, {}, {}) answers a Promise rejected as TypeError: Failed to execute 'executeTool' on 'ModelContext': parameter 1 is not of type 'Tool'. A caller cannot make the handle itself either: Tool is a global interface whose constructor is illegal — new Tool() throws TypeError: Failed to construct 'Tool': Illegal constructor — so a descriptor-shaped object, a name string and a new Tool() are all refused identically, as parameter 1 not being of type Tool. Tool.prototype carries name, description, title, window, origin, inputSchema, outputSchema and annotations: a Tool exists only as a value the browser produced, and registerTool is the only way this tree records for a page to put one there — which prohibition N4 forbids this milestone from using to make an invocation observable.",
+      "toolsListedOnThePage": 0,
+      "handleAvailable": false,
+      "handleConstructible": false,
+      "refusals": [
+        "TypeError: Failed to execute 'executeTool' on 'ModelContext': parameter 1 is not of type 'Tool'.",
+        "TypeError: Failed to construct 'Tool': Illegal constructor"
+      ],
+      "toolPrototypeMembers": [
+        "name",
+        "description",
+        "title",
+        "window",
+        "origin",
+        "inputSchema",
+        "outputSchema",
+        "annotations"
+      ],
+      "observations": [
+        "empty-handle",
+        "fabricated-handles",
+        "tool-interface"
+      ],
+      "static": {
+        "observedHere": false,
+        "statement": "The tree records both halves of this: a tool comes into existence through registerTool({ name, description, inputSchema, execute }, { signal, exposedTo }), and the tool list is read through getTools({ fromOrigins }), whose array of { name, description, inputSchema, origin, window } is where a descriptor comes from. Nothing in the tree records a call of either.",
+        "citations": [
+          {
+            "at": "research/00-browser-probe.md:121",
+            "lineText": "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+          },
+          {
+            "at": "research/01-built-in-ai-apis.md:187",
+            "lineText": "- [measured, W1] Page API: `document.modelContext.registerTool({ name, description, inputSchema, execute }, { signal, exposedTo })`; unregister by aborting the signal. Tool result shape `{ content: [{ type: \"text\", text }] }` (MCP-like)."
+          },
+          {
+            "at": "research/01-built-in-ai-apis.md:188",
+            "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+          },
+          {
+            "at": "research/raw/m052-webmcp-observation.json:55",
+            "lineText": "\"executeTool\","
+          }
+        ]
+      }
+    }
+  },
+  "static": {
+    "measuredAt": "static: every command below was run against the working tree at the head named above, and each `output` entry is that command’s own stdout, trimmed.",
+    "measurements": [
+      {
+        "id": "head",
+        "claims": "the recording was taken at the head it names",
+        "commands": [
+          "git rev-parse --abbrev-ref HEAD",
+          "git rev-parse HEAD"
+        ],
+        "output": [
+          "gsd-path/M053",
+          "ce5935cef8c5a2b5112bed0a01827283b31cd687"
+        ]
+      },
+      {
+        "id": "no-call-site",
+        "claims": "nothing in the tree calls executeTool: the only occurrences in .ts/.js/.mjs/.html are three string literals inside test suites, none of them a call",
+        "commands": [
+          "git grep -n -E \"executeTool\" -- \"*.ts\" \"*.js\" \"*.mjs\" \"*.html\""
+        ],
+        "output": [
+          "scripts/webmcp-api.test.mjs:496:    'executeTool',",
+          "scripts/webmcp-audit.test.mjs:379:    'executeTool' in declared.context,",
+          "scripts/webmcp-audit.test.mjs:601:      ['a tool invocation', /\\bexecuteTool\\b/],"
+        ],
+        "note": "line 496 is a list item in M052’s prototype-member assertion, 379 is a property-presence check over a declared context, and 601 is a word-match inside a prohibition assertion: three names, three comparisons, zero calls. No occurrence in extension/ at all (`git grep -l -i -E \"executeTool\" -- extension` printed no line and exited 1).",
+        "citations": [
+          {
+            "at": "scripts/webmcp-api.test.mjs:496",
+            "lineText": "'executeTool',"
+          },
+          {
+            "at": "scripts/webmcp-audit.test.mjs:379",
+            "lineText": "'executeTool' in declared.context,"
+          },
+          {
+            "at": "scripts/webmcp-audit.test.mjs:601",
+            "lineText": "['a tool invocation', /\\bexecuteTool\\b/],"
+          }
+        ]
+      },
+      {
+        "id": "no-type-declaration",
+        "claims": "no type declaration of the surface exists in the tree: no .d.ts mentions executeTool or modelContext, and no .ts or .d.ts declares a ModelContext interface",
+        "commands": [
+          "git grep -n -E \"executeTool\" -- \"*.d.ts\"",
+          "git grep -n -E \"modelContext\" -- \"*.d.ts\"",
+          "git grep -n -E \"interface ModelContext|ModelContextTool|declare (const|var|class) .*modelContext\" -- \"*.d.ts\" \"*.ts\""
+        ],
+        "output": [
+          "(no matches)",
+          "(no matches)",
+          "(no matches)"
+        ],
+        "note": "each command printed no line; `git grep` prints nothing and exits 1 when no line matches, and each was run with `|| echo \"(no matches)\"` so the absence is a recorded word rather than a blank. M052 measured the same absence and its note says so, cited below.",
+        "citations": [
+          {
+            "at": "research/raw/m052-webmcp-api.json:55",
+            "lineText": "\"note\": \"there is no `.d.ts`, no ambient declaration and no interface for `modelContext` in the tree. The two probe lines are `modelContext: typeof navigator.modelContext` (spikes/probes/probe3.js:5 and spikes/probes/probe4.js:5), the superseded spelling.\""
+          }
+        ]
+      },
+      {
+        "id": "prototype-record",
+        "claims": "the prototype record M052 shipped lists executeTool as a member of document.modelContext’s prototype beside getTools and registerTool, and M052’s live observation printed the same member list in this instance and version",
+        "citations": [
+          {
+            "at": "research/00-browser-probe.md:121",
+            "lineText": "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+          },
+          {
+            "at": "research/raw/m052-webmcp-api.json:55",
+            "lineText": "\"note\": \"there is no `.d.ts`, no ambient declaration and no interface for `modelContext` in the tree. The two probe lines are `modelContext: typeof navigator.modelContext` (spikes/probes/probe3.js:5 and spikes/probes/probe4.js:5), the superseded spelling.\""
+          },
+          {
+            "at": "research/raw/m052-webmcp-observation.json:55",
+            "lineText": "\"executeTool\","
+          }
+        ],
+        "note": "research/00-browser-probe.md:121 is the 2026-10-11 browser measurement of the prototype member list; research/raw/m052-webmcp-observation.json:55 is the `executeTool` entry of the member list M052’s live run printed in chrome-beta-nano on Chrome/159.0.8154.13. Both say the member exists; neither says what it does, which is why this task measured it."
+      },
+      {
+        "id": "only-presence-is-executable",
+        "claims": "the tree’s only executable knowledge of the surface is a typeof test that answers presence, not invocation",
+        "commands": [
+          "git grep -n -E \"modelContext\" -- \".commandcode/skills/control-ai-browsers/scripts/control.mjs\""
+        ],
+        "output": [
+          "116|/** @typedef {{ contextWindow?: number, structured?: CanaryPart, tools?: CanaryPart, webmcp?: CanaryPart, createMs?: number }} Canary */",
+          "1886|o.webmcp = { documentModelContext: typeof document.modelContext, navigatorModelContext: typeof navigator.modelContext };",
+          "1953|o.webmcp = { pass: typeof document.modelContext === 'object', documentModelContext: typeof document.modelContext };",
+          "3570|'canary.webmcp',",
+          "3606|add('canary.webmcp', canary.webmcp?.pass === true, canary.webmcp);"
+        ],
+        "note": "five lines: the typedef, two typeof computations, the skip list and the verdict gate. None calls executeTool, so the canary cannot answer this task’s question and was neither changed nor asked to.",
+        "citations": [
+          {
+            "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:1953",
+            "lineText": "o.webmcp = { pass: typeof document.modelContext === 'object', documentModelContext: typeof document.modelContext };"
+          },
+          {
+            "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:1886",
+            "lineText": "o.webmcp = { documentModelContext: typeof document.modelContext, navigatorModelContext: typeof navigator.modelContext };"
+          },
+          {
+            "at": ".commandcode/skills/control-ai-browsers/scripts/control.mjs:3606",
+            "lineText": "add('canary.webmcp', canary.webmcp?.pass === true, canary.webmcp);"
+          }
+        ]
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "restore-check",
+      "observedHere": true,
+      "observation": "restore-check",
+      "question": "is the surface this recording measured the one the instance reports after the no-features launch was closed?",
+      "what": "The no-features launch was closed and the instance restarted with its registry switches; the expression that opened the measurement was then run again unchanged. It answered the same shape: document.modelContext an object, executeTool a native function of arity 1 on the prototype, and the same seven prototype members. This is a control, not an answer to the question — it says the registry launch whose answers are recorded above is the launch the instance reports by default."
+    }
+  ],
+  "answer": {
+    "outcome": "invocable-in-shape-refused-in-practice",
+    "statement": "On chrome-beta-nano, Chrome/159.0.8154.13, and https://example.com/: document.modelContext.executeTool is a native data property of ModelContext.prototype with an arity of 1; it always answers a Promise and refuses with a TypeError, never throwing at the call site. What it needs is one argument of type Tool — not a model, and not an arguments object, which no measured call ever reached — and where the page declares no tool there is no such Tool: getTools() resolved to [], and Tool is a global interface with an illegal constructor, so a caller cannot fabricate the handle either. So on the measured API a tool cannot be invoked at all on a page that declares none: the answer is a rejection naming its argument’s type, and that refusal is the state SC2 must render rather than a result.",
+    "canAToolBeInvokedOnAPageThatDeclaresNone": false,
+    "needs": "one argument of type Tool: a handle the browser produced",
+    "doesItNeedAModel": false,
+    "doesItNeedAModelBasis": "no measured answer mentions a model, the method’s source names none, and the one launch that removed the AI features still reported the model as available while removing the surface — so the model is needed to choose a tool, not to call one",
+    "answers": "a Promise in every case measured: rejections carrying TypeError text from the binding; no synchronous throw, and no resolved value observed",
+    "whereNoModelIsAvailable": "unobserved, and recorded as unobserved: the model was available in both launches, and the state that could be produced instead (features off) removes the surface rather than the model",
+    "effectOnTheMilestone": "SC2’s refusal states are the reachable ones on this page, and the surface must carry the API’s own refusal text as its reason with no result beside it; a rehearsal needs a page that declares a tool before any invocation can succeed, which is Wave 2’s and Wave 3’s problem and not this recording’s claim."
+  },
+  "notClaimed": [
+    "Nothing here claims what executeTool answers when it succeeds: no page that declares a tool was measured, so no Tool handle ever existed, every measured call was refused before the tool could run, and the documented resolution (the JSON-stringified return value of the tool’s execute, research/14-ai-devtools-prior-art.md:327) is a citation rather than an observation here.",
+    "Nothing here registers a tool to make an invocation observable: the fabricated descriptors in the live expressions were passed as arguments and never handed to registerTool, so no observation in this recording depends on a registration, and none can say what the API does for a tool a page really owns.",
+    "Nothing here claims a second browser, channel, version or page: one instance (chrome-beta-nano, Chrome/159.0.8154.13) and one page (https://example.com/) were measured, and the two other launches recorded above are the same instance on the same version with different feature switches.",
+    "Nothing here claims what executeTool answers where no model is available: the instance’s on-device model is installed and LanguageModel.availability() answered \"available\" in both launches, so `measurement.noModel.observedHere` is false and the state is named as unobserved rather than inferred. The launch without the AI feature switches removes the surface, not the model, and left the model reporting available.",
+    "Nothing here claims user activation, the `tools` permissions policy or an origin-exposure rule changes the answer: navigator.userActivation.isActive read true in every expression, so a page without activation was never among the measured states.",
+    "Nothing here claims the recording is complete for the API: the seven prototype members printed, the eight Tool.prototype member names read, and the two DOMException-free TypeErrors recorded are what this one instance and version answered, and no other member, event or argument was exercised.",
+    "Nothing here renders, registers or relays: no caller, no join, no panel surface and no route was written by this task, and the extension build that ran before the measurement only produced the panel bundle the instance loads."
+  ],
+  "unknowns": [
+    {
+      "id": "resolved-value-shape",
+      "question": "what does a successful executeTool resolve to — a string, an object, or the tool’s own return value?",
+      "statement": "Unobserved: every measured call was refused at the binding, so the promise never resolved. The tree documents a JSON-stringified return value of the tool’s execute, whatever its shape, which is the only answer available here and is not a measurement.",
+      "citations": [
+        {
+          "at": "research/14-ai-devtools-prior-art.md:327",
+          "lineText": "- The API is `document.modelContext` with `registerTool`, `getTools({fromOrigins})` and `executeTool(tool, input, {signal})`, plus `toolchange`, `toolactivated` and `toolcancel` events; `executeTool` resolves to the JSON-stringified return value of `execute`, whatever its shape, so the MCP `{content: [...]}` array is a convention, not a rule **[measured, `index.bs`]**. 00 measured the same members on `document.modelContext` in both browsers."
+        },
+        {
+          "at": "research/01-built-in-ai-apis.md:188",
+          "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+        }
+      ]
+    },
+    {
+      "id": "tool-handle-provenance",
+      "question": "is getTools() the only source of a Tool handle, or can one arrive some other way?",
+      "statement": "Unobserved: no Tool value was ever in hand. Tool is a global interface, its constructor is illegal, and the four fabrications measured were all refused as not being of type Tool, so the only provenance this recording can name is the array getTools() answers — and that array was empty on the measured page. Whether a Tool can be obtained from an event, a frame, or a descriptor copied out of another document is not measured.",
+      "citations": [
+        {
+          "at": "research/01-built-in-ai-apis.md:188",
+          "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+        },
+        {
+          "at": "research/raw/m052-webmcp-api.json:55",
+          "lineText": "\"note\": \"there is no `.d.ts`, no ambient declaration and no interface for `modelContext` in the tree. The two probe lines are `modelContext: typeof navigator.modelContext` (spikes/probes/probe3.js:5 and spikes/probes/probe4.js:5), the superseded spelling.\""
+        }
+      ]
+    },
+    {
+      "id": "no-model-answer",
+      "question": "what does executeTool answer on a page where the surface is present but no model is available?",
+      "statement": "Unobserved, and it is the state SC2 renders as no-model: the shared instance has its model installed, and clearing it would destroy a multi-gigabyte asset other sessions use. What is measured is narrower and points away from a model dependency: the refusal names its argument’s type, the method’s source names no model, and removing the AI features removed the surface while availability still read available.",
+      "citations": [
+        {
+          "at": "research/01-built-in-ai-apis.md:188",
+          "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+        },
+        {
+          "at": "research/14-ai-devtools-prior-art.md:327",
+          "lineText": "- The API is `document.modelContext` with `registerTool`, `getTools({fromOrigins})` and `executeTool(tool, input, {signal})`, plus `toolchange`, `toolactivated` and `toolcancel` events; `executeTool` resolves to the JSON-stringified return value of `execute`, whatever its shape, so the MCP `{content: [...]}` array is a convention, not a rule **[measured, `index.bs`]**. 00 measured the same members on `document.modelContext` in both browsers."
+        }
+      ]
+    },
+    {
+      "id": "tool-argument-fields",
+      "question": "what do the Tool members this instance printed — title, outputSchema, annotations, window, origin — carry, and which are required before invocation?",
+      "statement": "Unobserved beyond their names: Tool.prototype listed name, description, title, window, origin, inputSchema, outputSchema and annotations, but no Tool value existed to read them from. The tree’s documented descriptor shape names five of the eight and neither title nor outputSchema nor annotations, so the documented shape is narrower than the interface this version exposes.",
+      "citations": [
+        {
+          "at": "research/01-built-in-ai-apis.md:188",
+          "lineText": "- [measured, W1] **Agent-side API (what an extension needs):** `document.modelContext.getTools({ fromOrigins })` -> array of `{ name, description, inputSchema, origin, window }`; `document.modelContext.executeTool(tool, args, { signal })` runs the tool in the owner's context; `toolchange` event when tools are added/removed."
+        },
+        {
+          "at": "research/00-browser-probe.md:121",
+          "lineText": "- **WebMCP is live in both browsers:** `typeof document.modelContext === 'object'` (`navigator.modelContext` is `undefined`). The prototype has `registerTool`, `getTools`, `executeTool`, `ontoolchange`, `ontoolactivated` and `ontoolcancel`."
+        }
+      ]
+    },
+    {
+      "id": "other-versions",
+      "question": "does another Chrome channel, version or instance answer arity, refusal text or interface members the same way?",
+      "statement": "Unobserved: one instance on one version was used, and M052’s own unknowns already record that the prototype member list is a measurement from 2026-10-11 that nothing re-measures per version. The arity of 1 and the TypeErrors recorded here are this version’s.",
+      "citations": [
+        {
+          "at": "research/raw/m052-webmcp-api.json:55",
+          "lineText": "\"note\": \"there is no `.d.ts`, no ambient declaration and no interface for `modelContext` in the tree. The two probe lines are `modelContext: typeof navigator.modelContext` (spikes/probes/probe3.js:5 and spikes/probes/probe4.js:5), the superseded spelling.\""
+        }
+      ]
+    }
+  ]
+}

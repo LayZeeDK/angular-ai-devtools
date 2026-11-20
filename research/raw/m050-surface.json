@@ -77,63 +77,63 @@
     "resolvedBy": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 698,
+        "line": 717,
         "lineText": "const loader = LOADERS[name];",
         "holds": "LOADERS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 704,
+        "line": 723,
         "lineText": "void loader().then((mod) => {",
         "holds": "loader()"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 705,
+        "line": 724,
         "lineText": "const surface = mod.default(FACTS[name]);",
         "holds": "FACTS[name]"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 706,
+        "line": 725,
         "lineText": "this.state.set(surface.state);",
         "holds": "surface.state"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 707,
+        "line": 726,
         "lineText": "this.lines.set(surface.lines);",
         "holds": "surface.lines"
       }
     ],
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 526,
+      "line": 527,
       "lineText": "'dead-click': {",
       "holds": "'dead-click'"
     },
     "sampleFactAnswer": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 527,
+        "line": 528,
         "lineText": "state: 'findings',",
         "holds": "state: 'findings'"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 528,
+        "line": 529,
         "lineText": "findings: [",
         "holds": "findings"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 553,
+        "line": 554,
         "lineText": "considered: 5,",
         "holds": "considered: 5"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 554,
+        "line": 555,
         "lineText": "refusals: [",
         "holds": "refusals"
       }
@@ -141,25 +141,25 @@
     "sampleFactRefusals": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 556,
+        "line": 557,
         "lineText": "chain: 'work',",
         "holds": "'work'"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 558,
+        "line": 559,
         "lineText": "reason: 'work-chain-unjudgeable',",
         "holds": "work-chain-unjudgeable"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 561,
+        "line": 562,
         "lineText": "chain: 'boundary',",
         "holds": "'boundary'"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 563,
+        "line": 564,
         "lineText": "reason: 'boundary-chain-unjudgeable',",
         "holds": "boundary-chain-unjudgeable"
       }
@@ -167,18 +167,18 @@
     "sampleFactComment": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 512,
+        "line": 513,
         "lineText": "// The join's own answer (`extension/dead-click.js`, T002) for a record this spec rebuilds from",
         "holds": "dead-click.js"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 513,
+        "line": 514,
         "lineText": "// T001's measurement (`research/raw/m050-chains.json`): each entry carries exactly the fields the",
         "holds": "m050-chains.json"
       }
     ],
-    "statement": "the `dead-click` key is no longer the last key `LOADERS` carries (:59) — M051's T003 appended `what-changed` after it (:60) — and it is the only path to `panel-dead-click.ts`: the demo looks the key up by the name the route's `data.surface` states (:698), awaits the dynamic import (:704), calls the module's default export with the sample fact (:705), and sets the state (:706) and the lines (:707) the module answers. The fact it is handed (:526-:566) is the join's own answer for a record the spec rebuilds from T001's measurement (`research/raw/m050-chains.json`): one finding naming a start with id 2 and no terminal in the window, `considered: 5`, and the join's own `REFUSALS` under `refusals` (:554-:565) — the fifth field the answer carries beside the four the contract names. The comment above the fact (:512, :513) names both the join and the recording, so the fact is annotated with the reading it came from rather than with a count."
+    "statement": "the `dead-click` key is no longer the last key `LOADERS` carries (:59) — M051's T003 appended `what-changed` after it (:60) — and it is the only path to `panel-dead-click.ts`: the demo looks the key up by the name the route's `data.surface` states (:717), awaits the dynamic import (:723), calls the module's default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact it is handed (:527-:567) is the join's own answer for a record the spec rebuilds from T001's measurement (`research/raw/m050-chains.json`): one finding naming a start with id 2 and no terminal in the window, `considered: 5`, and the join's own `REFUSALS` under `refusals` (:555-:566) — the fifth field the answer carries beside the four the contract names. The comment above the fact (:513, :514) names both the join and the recording, so the fact is annotated with the reading it came from rather than with a count."
   },
   "answer": {
     "shape": "{ state, findings, considered, reason } beside `refusals`",
@@ -274,12 +274,12 @@
           },
           {
             "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-            "line": 554,
+            "line": 555,
             "lineText": "refusals: [",
             "holds": "refusals"
           }
         ],
-        "note": "the fifth field, and the one the four-field contract does not name: the join does not put it in its answer — it exports `REFUSALS` (:100) and `panel-demo.ts` hands it over under `refusals` (:554-:565), because a panel surface may not import the join. The pane reads it in every state (:488) and renders one chain-and-reason pair per entry (:431-:443), or its own `no-refusals` sentence (:187) where the answer carries none, so a refused chain never reads as a judged clean one."
+        "note": "the fifth field, and the one the four-field contract does not name: the join does not put it in its answer — it exports `REFUSALS` (:100) and `panel-demo.ts` hands it over under `refusals` (:555-:566), because a panel surface may not import the join. The pane reads it in every state (:488) and renders one chain-and-reason pair per entry (:431-:443), or its own `no-refusals` sentence (:187) where the answer carries none, so a refused chain never reads as a judged clean one."
       }
     ],
     "statement": "the pane is handed this answer and renders it; it pairs nothing, counts nothing, reads no record and reads no page. The state is the answer's own word (:476): `findings` renders one block per finding in the answer's own order (:528-:542) plus the count the answer states (:510), `clean` renders the count and the not-final statement (:516-:523), and `cannot-tell` renders the reason verbatim (:497-:507). The fifth field `refusals` is stated beside the four rather than inside the contract, and it is the field the join's `REFUSALS` travels in — the two chains the judgement refused, named with their own reasons."
@@ -722,13 +722,13 @@
         "handedAt": [
           {
             "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-            "line": 556,
+            "line": 557,
             "lineText": "chain: 'work',",
             "holds": "'work'"
           },
           {
             "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-            "line": 558,
+            "line": 559,
             "lineText": "reason: 'work-chain-unjudgeable',",
             "holds": "work-chain-unjudgeable"
           }
@@ -751,20 +751,20 @@
         "handedAt": [
           {
             "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-            "line": 561,
+            "line": 562,
             "lineText": "chain: 'boundary',",
             "holds": "'boundary'"
           },
           {
             "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-            "line": 563,
+            "line": 564,
             "lineText": "reason: 'boundary-chain-unjudgeable',",
             "holds": "boundary-chain-unjudgeable"
           }
         ]
       }
     ],
-    "statement": "two refusals and no third, in the join's own order: the work chain and the boundary chain, each `{ chain, state: 'cannot-tell', reason }` (:100-:111). The join cannot put them in its four contract fields — its single `reason` belongs to one answer — so they are exported as `REFUSALS` and the demo hands them over under `refusals` (:554-:565). The pane renders them in every state (:431-:443), so a chain the judgement refused is named as not judged and never reads as a chain it judged clean."
+    "statement": "two refusals and no third, in the join's own order: the work chain and the boundary chain, each `{ chain, state: 'cannot-tell', reason }` (:100-:111). The join cannot put them in its four contract fields — its single `reason` belongs to one answer — so they are exported as `REFUSALS` and the demo hands them over under `refusals` (:555-:566). The pane renders them in every state (:431-:443), so a chain the judgement refused is named as not judged and never reads as a chain it judged clean."
   },
   "notDigested": {
     "added": [],
@@ -787,7 +787,7 @@
   "corrections": [
     {
       "claim": "the contract's answer is four fields — `{ state, findings, considered, reason }` — and that is the whole of what the pane is handed",
-      "measured": "it is four contract fields plus a fifth, `refusals`, at this head. The join exports `REFUSALS` (:100) as a constant rather than answering it, and `panel-demo.ts` hands it over under `refusals` (:554-:565) because a panel surface has no runtime imports and so cannot read the join's export itself. The pane reads the fifth field in every state (:488) and states its absence rather than claiming every chain was judged (:187). This is the same shape `interaction-story` carries under `bounded`.",
+      "measured": "it is four contract fields plus a fifth, `refusals`, at this head. The join exports `REFUSALS` (:100) as a constant rather than answering it, and `panel-demo.ts` hands it over under `refusals` (:555-:566) because a panel surface has no runtime imports and so cannot read the join's export itself. The pane reads the fifth field in every state (:488) and states its absence rather than claiming every chain was judged (:187). This is the same shape `interaction-story` carries under `bounded`.",
       "citations": [
         {
           "file": "extension/dead-click.js",
@@ -797,7 +797,7 @@
         },
         {
           "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-          "line": 554,
+          "line": 555,
           "lineText": "refusals: [",
           "holds": "refusals"
         },
@@ -847,7 +847,7 @@
     "The record does not measure what the pane looks like. The lines each state writes are held by `panel-demo.spec.ts` over the shipped join and its sample fact, and this record names the states and the field each reads rather than reproducing the sentences' rendering.",
     "The answer's fifth field is recorded as data and not as a contract change: `extension/dead-click.js` still answers the four fields (:186-:190, :236) and the refusals travel beside them. This record does not claim the join was changed, and it names the file that hands the refusals over (:553) because that is where the fifth field is created.",
     "The route table's total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
-    "The sample fact at `panel-demo.ts:526-:566` is fixture data the spec rebuilds from T001's measurement, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what the page recorded."
+    "The sample fact at `panel-demo.ts:527-:567` is fixture data the spec rebuilds from T001's measurement, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what the page recorded."
   ],
-  "verdict": "measured: `/dead-click` is one lazy route — the `PANEL_SURFACES` entry at :110, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `dead-click` key of `panel-demo.ts`'s `LOADERS` (:59), and that key is the only path to `panel-dead-click.ts`. The surface renders the join's three states and adds none of its own: `findings` reads `findings` in the answer's own order with each finding's `chain`, `event` and `window` beside `considered`, `clean` reads `considered`, and `cannot-tell` reads `reason` and the chain the answer's own refusals name for it. The answer carries a fifth field the four-field contract does not name — `refusals`, the join's own `REFUSALS` handed over by the demo (:554-:565) — and the pane reads and renders it in every state rather than letting a refused chain read as a judged clean one."
+  "verdict": "measured: `/dead-click` is one lazy route — the `PANEL_SURFACES` entry at :110, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `dead-click` key of `panel-demo.ts`'s `LOADERS` (:59), and that key is the only path to `panel-dead-click.ts`. The surface renders the join's three states and adds none of its own: `findings` reads `findings` in the answer's own order with each finding's `chain`, `event` and `window` beside `considered`, `clean` reads `considered`, and `cannot-tell` reads `reason` and the chain the answer's own refusals name for it. The answer carries a fifth field the four-field contract does not name — `refusals`, the join's own `REFUSALS` handed over by the demo (:555-:566) — and the pane reads and renders it in every state rather than letting a refused chain read as a judged clean one."
 }

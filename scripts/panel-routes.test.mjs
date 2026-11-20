@@ -34,6 +34,7 @@ const surfaces = [
   'stability',
   'console',
   'console-read',
+  'webmcp-rehearsal',
   'webmcp',
   'components',
   'copy-check',
@@ -429,6 +430,23 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
     'a table without the console-read route must fail naming the missing surface',
   );
 
+  // Mutant: the M053 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the rehearsal — the tool the model chose beside the result the tool returned — so the
+  // per-surface half must name it rather than pass on the older surfaces alone.
+  const withoutWebmcpRehearsal = source.replace("  'webmcp-rehearsal',\n", '');
+  assert.notEqual(
+    withoutWebmcpRehearsal,
+    source,
+    'the removed-webmcp-rehearsal-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutWebmcpRehearsal),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route webmcp-rehearsal must exist'),
+    'a table without the webmcp-rehearsal route must fail naming the missing surface',
+  );
+
   // Mutant: the M052 surface dropped from the list the factory is handed. It is the route the table
   // answers for the page's declared tool list, so the per-surface half must name it rather than pass
   // on the older surfaces alone.
@@ -551,6 +569,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'error-boundary': ['panel-error-boundary', 'errorBoundaryPanel'],
     stability: ['panel-stability', 'stabilityPanel'],
     'console-read': ['panel-copy-to-agent', 'consoleReadPanel'],
+    'webmcp-rehearsal': ['panel-webmcp-rehearsal', 'webmcpRehearsalPanel'],
     webmcp: ['panel-webmcp', 'webmcpPanel'],
     components: ['panel-components', 'componentsPanel'],
     'copy-check': ['panel-copy-check', 'copyCheckPanel'],
@@ -597,6 +616,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'errorBoundaryPanel(',
     'stabilityPanel(',
     'consoleReadPanel(',
+    'webmcpRehearsalPanel(',
     'webmcpPanel(',
     'componentsPanel(',
     'copyCheckPanel(',
@@ -871,6 +891,31 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: console-read'),
     'removing the console-read loader must fail naming the missing surface console-read',
+  );
+
+  // Mutant: remove the webmcp-rehearsal key from LOADERS. The M053 route is the one this task adds, so
+  // the check must name it when its loader is gone rather than pass on the surfaces before it. It is a
+  // quoted key whose import is the only reference to `panel-webmcp-rehearsal.ts`, so a route that
+  // dropped it would leave the rehearsal pane unreachable while every earlier surface still loaded. The
+  // assertion reads the failure's whole message: the missing-key sentence and the surface it names.
+  const withoutWebmcpRehearsal = demoSource.replace(
+    "  'webmcp-rehearsal': () => import('./panel-webmcp-rehearsal') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutWebmcpRehearsal,
+    demoSource,
+    'the webmcp-rehearsal loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutWebmcpRehearsal),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: webmcp-rehearsal'),
+    'removing the webmcp-rehearsal loader must fail naming the missing surface webmcp-rehearsal',
   );
 
   // Mutant: remove the webmcp key from LOADERS. The M052 route is the one this task adds, so the

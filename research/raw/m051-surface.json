@@ -78,93 +78,93 @@
     "resolvedBy": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 698,
+        "line": 717,
         "lineText": "const loader = LOADERS[name];",
         "holds": "const loader = LOADERS[name];"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 704,
+        "line": 723,
         "lineText": "void loader().then((mod) => {",
         "holds": "void loader().then((mod) => {"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 705,
+        "line": 724,
         "lineText": "const surface = mod.default(FACTS[name]);",
         "holds": "const surface = mod.default(FACTS[name]);"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 706,
+        "line": 725,
         "lineText": "this.state.set(surface.state);",
         "holds": "this.state.set(surface.state);"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 707,
+        "line": 726,
         "lineText": "this.lines.set(surface.lines);",
         "holds": "this.lines.set(surface.lines);"
       }
     ],
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "line": 580,
+      "line": 581,
       "lineText": "'what-changed': {",
       "holds": "'what-changed': {"
     },
     "sampleFactAnswer": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 581,
+        "line": 582,
         "lineText": "state: 'changes',",
         "holds": "state: 'changes',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 582,
+        "line": 583,
         "lineText": "changes: [",
         "holds": "changes: ["
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 583,
+        "line": 584,
         "lineText": "{ field: 'cycleId', kind: 'changed', before: 41, after: 42 },",
         "holds": "{ field: 'cycleId', kind: 'changed', before: 41, after: 42 },"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 586,
+        "line": 587,
         "lineText": "field: 'stability',",
         "holds": "field: 'stability',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 587,
+        "line": 588,
         "lineText": "kind: 'removed',",
         "holds": "kind: 'removed',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 597,
+        "line": 598,
         "lineText": "field: 'checks',",
         "holds": "field: 'checks',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 598,
+        "line": 599,
         "lineText": "kind: 'added',",
         "holds": "kind: 'added',"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 610,
+        "line": 611,
         "lineText": "compared: [",
         "holds": "compared: ["
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 621,
+        "line": 622,
         "lineText": "reason: null,",
         "holds": "reason: null,"
       }
@@ -172,24 +172,24 @@
     "sampleFactComment": [
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 567,
+        "line": 568,
         "lineText": "// The judgement's own answer (`extension/what-changed.js`, T002) for a pair of records this demo",
         "holds": "// The judgement's own answer (`extension/what-changed.js`, T002) for a pair of records this demo"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 568,
+        "line": 569,
         "lineText": "// writes in the shape T001 measured (`research/raw/m051-snapshots.json`, `record.keyOrder`: the",
         "holds": "// writes in the shape T001 measured (`research/raw/m051-snapshots.json`, `record.keyOrder`: the"
       },
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-        "line": 577,
+        "line": 578,
         "lineText": "// surface needs to render. The binding is the panel's inspected tab, so the answer is the",
         "holds": "// surface needs to render. The binding is the panel's inspected tab, so the answer is the"
       }
     ],
-    "statement": "the `what-changed` key is the last key `LOADERS` carries (:60), and it is the only path to `panel-what-changed.ts`: the demo looks the key up by the name the route's `data.surface` states (:698), awaits the dynamic import (:704), calls the module's default export with the sample fact (:705), and sets the state (:706) and the lines (:707) the module answers. The fact it is handed (:580-:622) is the judgement's own `changes` answer for a pair of records the demo writes in the shape T001 measured (`research/raw/m051-snapshots.json`): `cycleId` and `startedAt` changed with both values, `stability` removed with the value that exists and no invented counterpart, `checks` added the same way, and the nine measured keys under `compared` (:609-:619) — so the pane is handed an answer the join `extension/what-changed.js` really produces for a bound pair, and the binding is the panel's, as the comment says (:577)."
+    "statement": "the `what-changed` key is the last key `LOADERS` carries (:60), and it is the only path to `panel-what-changed.ts`: the demo looks the key up by the name the route's `data.surface` states (:717), awaits the dynamic import (:723), calls the module's default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact it is handed (:581-:623) is the judgement's own `changes` answer for a pair of records the demo writes in the shape T001 measured (`research/raw/m051-snapshots.json`): `cycleId` and `startedAt` changed with both values, `stability` removed with the value that exists and no invented counterpart, `checks` added the same way, and the nine measured keys under `compared` (:610-:620) — so the pane is handed an answer the join `extension/what-changed.js` really produces for a bound pair, and the binding is the panel's, as the comment says (:578)."
   },
   "answer": {
     "shape": "{ state, changes, compared, reason }",
@@ -727,7 +727,7 @@
     "The record does not measure what the pane looks like. The lines each state writes are held by `panel-demo.spec.ts` over the shipped join and its sample fact, and this record names the states and the field each reads rather than reproducing the sentences' rendering.",
     "The binding is recorded as the caller's and not as a contract change: `extension/what-changed.js` still answers the four fields (:174, :261) and reads no record field to establish that two records are one page. This record does not claim the join identifies a page, and it names the measurement that says no field does (`research/raw/m051-snapshots.json`).",
     "The route table's total is not pinned here, and neither is the `LOADERS` total: a later milestone appends to both on purpose, and a recorded total would go stale without changing what the record says about this route.",
-    "The sample fact at `panel-demo.ts:579-:621` is fixture data the spec rebuilds from T001's measurement, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what the page recorded."
+    "The sample fact at `panel-demo.ts:580-:622` is fixture data the spec rebuilds from T001's measurement, not a reading taken here: this record cites the lines the fact sits on and does not claim to have re-measured what the page recorded."
   ],
   "verdict": "measured: `/what-changed` is one lazy route — the `PANEL_SURFACES` entry at :111, spread into `appRoutes` by the one mapped literal at :144-:148 — whose `data.surface` names the `what-changed` key of `panel-demo.ts`'s `LOADERS` (:60), and that key is the only path to `panel-what-changed.ts`. The surface renders the join's three states and adds none of its own: `changes` reads `state`, `changes`, `compared` and each finding's `field`, `kind`, `before` and `after`; `unchanged` reads `state` and `compared`; `cannot-tell` reads `state` and `reason`. Every state renders the pane's own sentence that the record carries no page identity and that the pair is bound by the panel's inspected tab (:119), because T001 measured that no field of the record binds two records to one page (`identity.bindingField: null`, `claimants: 0`) and the plan's Correction 2 rules the binding the panel's."
 }

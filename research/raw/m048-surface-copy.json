@@ -4,9 +4,9 @@
   "task": "T004",
   "title": "Measure the copy each panel surface declares and where it declares none",
   "question": "which sentences does each panel surface declare for itself, at which path:line, which does it render from a literal nobody keeps in a map, and which surface declares none at all?",
-  "head": "2ece0b80ad8b8b78e337077a3592f663e7ab50e7",
+  "head": "0e0eba55d22cc1a9a639dd03c777b374f3400a56",
   "headCommand": "git rev-parse HEAD",
-  "measuredAt": "static: all twenty-four apps/angular-ai-devtools/src/app/panel-*.ts surfaces (the two *.spec.ts files are named in `excluded`) were read line by line at the head above, every non-comment line carrying a string literal was extracted with a throwaway script that prints `file:line|trimmed line` (kept in the session scratchpad and not checked in), and every citation below was re-read from the file when this record was re-measured. No browser was opened, no page was read, no build and no test of the app was run; the only commands executed against these files were that extraction and the verify suite named in `verify`, which re-reads all of them. T001 wrote this record over the nineteen surfaces that existed at cfdff389; T004 re-read every line over the twentieth, panel-copy-check.ts, at b428f068 and repaired the three citations in panel-demo.ts that the M048 T003 commit moved. At 72d6f7de T004 re-read every line again over the twenty-first surface, panel-interaction-story.ts, and repaired the three panel-demo.ts citations the M049 T003 commit moved a second time. At 173166b3 T004 re-read every line again over the twenty-second surface, panel-dead-click.ts, and repaired the same three panel-demo.ts citations the M050 T003 commit moved a third time. At this head T003 re-read every line again over the twenty-third surface, panel-what-changed.ts, and repaired the same three panel-demo.ts citations the M051 T003 commit moved a fourth time. At 2ece0b80 T004 re-read every line again over the twenty-fourth surface, panel-webmcp.ts, and repaired the three panel-demo.ts citations and the one panel-demo.spec.ts citation the M052 T003 commit moved a fifth time.",
+  "measuredAt": "static: all twenty-four apps/angular-ai-devtools/src/app/panel-*.ts surfaces (the two *.spec.ts files are named in `excluded`) were read line by line at the head above, every non-comment line carrying a string literal was extracted with a throwaway script that prints `file:line|trimmed line` (kept in the session scratchpad and not checked in), and every citation below was re-read from the file when this record was re-measured. No browser was opened, no page was read, no build and no test of the app was run; the only commands executed against these files were that extraction and the verify suite named in `verify`, which re-reads all of them. T001 wrote this record over the nineteen surfaces that existed at cfdff389; T004 re-read every line over the twentieth, panel-copy-check.ts, at b428f068 and repaired the three citations in panel-demo.ts that the M048 T003 commit moved. At 72d6f7de T004 re-read every line again over the twenty-first surface, panel-interaction-story.ts, and repaired the three panel-demo.ts citations the M049 T003 commit moved a second time. At 173166b3 T004 re-read every line again over the twenty-second surface, panel-dead-click.ts, and repaired the same three panel-demo.ts citations the M050 T003 commit moved a third time. At this head T003 re-read every line again over the twenty-third surface, panel-what-changed.ts, and repaired the same three panel-demo.ts citations the M051 T003 commit moved a fourth time. At 2ece0b80 T004 re-read every line again over the twenty-fourth surface, panel-webmcp.ts, and repaired the three panel-demo.ts citations and the one panel-demo.spec.ts citation the M052 T003 commit moved a fifth time. At 0e0eba55 T004 re-read every line again over the twenty-fifth surface, panel-webmcp-rehearsal.ts, and repaired the citations the M053 T003 commit moved — the panel-demo.ts template lines (:676, :677), the no-such-surface line (:720), the loader resolution block (:717-:726) and the one panel-demo.spec.ts import (:119) — so this record was last measured at the head above; the previous head was 2ece0b80ad8b8b78e337077a3592f663e7ab50e7.",
   "lineTextConvention": "every `lineText` is the cited line with its leading and trailing whitespace trimmed and nothing else removed, so a line that is a bare string literal carries its quotes and its trailing comma. `line` is 1-indexed. The suite re-reads each cited line and requires it to equal `lineText` exactly and to contain the sentence the record quotes.",
   "scope": [
     "Recorded per surface: (a) every sentence it declares in a map or a module constant, with the key it is declared under; (b) every sentence — fixed or interpolated — written inside a function body or a component template instead of being declared; (c) the label prefix of every line the surface builds from a label and a value, because that prefix is copy the surface writes; (d) the multi-word prose fragment a surface substitutes for a value it does not have.",
@@ -14,18 +14,18 @@
     "Not recorded at all: the `Error` messages `sentenceText` throws for an id the registry does not carry (panel-components.ts:170, panel-console.ts:268, panel-copy-to-agent.ts:159, panel-copy-check.ts:151, panel-dead-click.ts:225, panel-what-changed.ts:177). They are developer-facing throws and are never rendered to a reader."
   ],
   "counts": {
-    "surfaces": 24,
-    "surfacesWithMap": 11,
+    "surfaces": 25,
+    "surfacesWithMap": 12,
     "surfacesWithConstantsOnly": 11,
     "surfacesWithInlineOnly": 1,
     "surfacesWithNothing": 1,
-    "declaredSentences": 140,
+    "declaredSentences": 150,
     "declaredLabels": 3,
     "declaredWordsAndFragments": 8,
     "inlineSentences": 34,
-    "inlineLabels": 160,
+    "inlineLabels": 171,
     "inlineWords": 7,
-    "citations": 424
+    "citations": 446
   },
   "surfaces": [
     {
@@ -2488,7 +2488,7 @@
           "kind": "sentence",
           "interpolated": false,
           "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-          "line": 657,
+          "line": 676,
           "lineText": "<h2>panel surface: {{ name() }}</h2>"
         },
         {
@@ -2496,7 +2496,7 @@
           "kind": "label",
           "interpolated": false,
           "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-          "line": 658,
+          "line": 677,
           "lineText": "<p class=\"state\">state: {{ state() }}</p>"
         },
         {
@@ -2504,7 +2504,7 @@
           "kind": "sentence",
           "interpolated": false,
           "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-          "line": 701,
+          "line": 720,
           "lineText": "this.lines.set(['error: no such surface ' + name]);"
         }
       ],
@@ -3554,6 +3554,199 @@
         "The lines the pane builds are all labels: `state:`, `tool:`, `name:`, `description:`, `code:` and `detail:`, the reading’s own fields and the reason’s. No sentence is written inline, which is why this surface’s inline entries are all read past by the join’s `SCOPE` and none of them is digested.",
         "The sentence registered as `no-reason` carries the exact text panel-components.ts:147, panel-copy-check.ts:128, panel-interaction-story.ts:150, panel-dead-click.ts:202 and panel-what-changed.ts:154 already declare; `corrections` records that, because it is why the digest holds one row for the sentences that share it."
       ]
+    },
+    {
+      "id": "webmcp-rehearsal",
+      "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+      "renderer": "webmcpRehearsalPanel",
+      "declares": "map",
+      "declaration": {
+        "kind": "array-registry",
+        "name": "PANE_SENTENCES",
+        "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+        "line": 121,
+        "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = ["
+      },
+      "sentences": [
+        {
+          "key": "state-rehearsed",
+          "text": "rehearsed: the model chose a tool the awaited list reported and the call resolved, so the tool below is that list’s own entry for the choice — named exactly as the list reported it, with only the description it reported — and the result below is what the call answered, carried through unchanged",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 124,
+          "lineText": "text: 'rehearsed: the model chose a tool the awaited list reported and the call resolved, so the tool below is that list’s own entry for the choice — named exactly as the list reported it, with only the description it reported — and the result below is what the call answered, carried through unchanged',"
+        },
+        {
+          "key": "state-no-tool",
+          "text": "no-tool: no tool handle existed for the call — the awaited list reported no tool, reported none by the name the model chose, or no choice was made — so no tool is named, nothing was invoked and no result is rendered; the reason below is the refusal the call was answered with, in its own words",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 129,
+          "lineText": "text: 'no-tool: no tool handle existed for the call — the awaited list reported no tool, reported none by the name the model chose, or no choice was made — so no tool is named, nothing was invoked and no result is rendered; the reason below is the refusal the call was answered with, in its own words',"
+        },
+        {
+          "key": "state-refused",
+          "text": "refused: a tool the awaited list reported was named and the call answered no result, so the reason below is the refusal’s own words and nothing stands in the result’s place — not a paraphrase, not an empty value and not a placeholder",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 134,
+          "lineText": "text: 'refused: a tool the awaited list reported was named and the call answered no result, so the reason below is the refusal’s own words and nothing stands in the result’s place — not a paraphrase, not an empty value and not a placeholder',"
+        },
+        {
+          "key": "state-unavailable",
+          "text": "unavailable: the tool list could not be read, so no rehearsal was attempted and the reason below is the reading’s own reason, echoed unchanged, from a list nobody read",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 139,
+          "lineText": "text: 'unavailable: the tool list could not be read, so no rehearsal was attempted and the reason below is the reading’s own reason, echoed unchanged, from a list nobody read',"
+        },
+        {
+          "key": "no-rehearsal-record",
+          "text": "no-rehearsal-record: no rehearsal record was handed over, so no state, no tool, no result and no reason are reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 144,
+          "lineText": "text: 'no-rehearsal-record: no rehearsal record was handed over, so no state, no tool, no result and no reason are reported',"
+        },
+        {
+          "key": "no-tool-name",
+          "text": "no-tool-name: a tool arrived naming no name, so no name is rendered for it",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 149,
+          "lineText": "text: 'no-tool-name: a tool arrived naming no name, so no name is rendered for it',"
+        },
+        {
+          "key": "no-result-value",
+          "text": "no-result-value: the call resolved to a value this pane cannot print, so no result is printed rather than a stand-in for one",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 154,
+          "lineText": "text: 'no-result-value: the call resolved to a value this pane cannot print, so no result is printed rather than a stand-in for one',"
+        },
+        {
+          "key": "no-reason",
+          "text": "no-reason: the record carries no reason, so none is stated and nothing is written in its place",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 159,
+          "lineText": "text: 'no-reason: the record carries no reason, so none is stated and nothing is written in its place',"
+        },
+        {
+          "key": "no-reason-code",
+          "text": "no-reason-code: the reason arrived carrying no code, so no code is stated and the absence is named as the reason’s own gap",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 164,
+          "lineText": "text: 'no-reason-code: the reason arrived carrying no code, so no code is stated and the absence is named as the reason’s own gap',"
+        },
+        {
+          "key": "no-reason-detail",
+          "text": "no-reason-detail: the reason arrived carrying no detail, so no detail is stated and the absence is named as the reason’s own gap",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 169,
+          "lineText": "text: 'no-reason-detail: the reason arrived carrying no detail, so no detail is stated and the absence is named as the reason’s own gap',"
+        }
+      ],
+      "inline": [
+        {
+          "text": "name: ${name}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 292,
+          "lineText": "const lines: string[] = [name === null ? NO_TOOL_NAME_TEXT : `name: ${name}`];"
+        },
+        {
+          "text": "description: ${tool['description']}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 297,
+          "lineText": "lines.push(`description: ${tool['description']}`);"
+        },
+        {
+          "text": "reason: ${said}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 313,
+          "lineText": "return [said === null ? NO_REASON_TEXT : `reason: ${said}`];"
+        },
+        {
+          "text": "code: ${code}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 319,
+          "lineText": "code === null ? NO_REASON_CODE_TEXT : `code: ${code}`,"
+        },
+        {
+          "text": "detail: ${detail}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 320,
+          "lineText": "detail === null ? NO_REASON_DETAIL_TEXT : `detail: ${detail}`,"
+        },
+        {
+          "text": "state: ${stateWord}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 344,
+          "lineText": "return surface(stateWord, [`state: ${stateWord}`]);"
+        },
+        {
+          "text": "state: ${UNAVAILABLE}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 349,
+          "lineText": "`state: ${UNAVAILABLE}`,"
+        },
+        {
+          "text": "state: ${NO_TOOL}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 358,
+          "lineText": "`state: ${NO_TOOL}`,"
+        },
+        {
+          "text": "state: ${REFUSED}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 367,
+          "lineText": "`state: ${REFUSED}`,"
+        },
+        {
+          "text": "state: ${REHEARSED}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 377,
+          "lineText": "`state: ${REHEARSED}`,"
+        },
+        {
+          "text": "result: ${result}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-webmcp-rehearsal.ts",
+          "line": 380,
+          "lineText": "result === null ? NO_RESULT_VALUE_TEXT : `result: ${result}`,"
+        }
+      ],
+      "notes": [
+        "10 sentences in one registry and no loose constant: the four state sentences in the order `STATES` names them (:124, :129, :134, :139), then the 6 absences the pane can state about the record it was handed (:144, :149, :154, :159, :164, :169).",
+        "The four state words are module constants (:95, :96, :97, :98) and `STATES` (:101) holds them in the order the surface states them. A state word is the value of a line and not a sentence, so it is named here rather than recorded as an entry, as `scope` states for the value words of other surfaces.",
+        "Each distinct interpolated literal is one entry, cited at the first line that builds it. The doc comment’s own backticks and the one `new Error(...)` message are not rendered lines, so they are not entries.",
+        "The lines the pane builds are all labels: `state:`, `name:`, `description:`, `result:`, `reason:`, `code:` and `detail:`, the join’s own fields and the reason’s. No sentence is written inline, which is why this surface’s inline entries are all read past by the join’s `SCOPE` and none of them is digested.",
+        "The sentence registered as `no-tool-name`, `no-reason-code` and `no-reason-detail` carries the exact text panel-webmcp.ts:133, :143 and :148 already declare, so the digest holds one row for each of those texts under `webmcp` and this surface adds no second row; `no-reason` is **not** that shared text, because this pane says the record carries no reason rather than that the answer reported cannot-tell without one, so the digest holds its own row.",
+        "The page the demo owns — `REHEARSAL_PAGE` and `REHEARSAL_PAGE_SCRIPT` (:410-:471) — is a document the route does not serve and the pane does not render: its strings are page content a browser would run, not panel copy, so they are not entries here. Its one registration is why a `rehearsed` fact exists at all (plan Correction C4)."
+      ]
     }
   ],
   "absences": [
@@ -3570,7 +3763,8 @@
     "interaction-story",
     "dead-click",
     "what-changed",
-    "webmcp"
+    "webmcp",
+    "webmcp-rehearsal"
   ],
   "noMapSurfaces": [
     "navigation",
@@ -3596,7 +3790,7 @@
     },
     {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
-      "line": 105,
+      "line": 119,
       "lineText": "import { describe, expect, it, vi } from 'vitest';",
       "why": "a vitest spec for the demo host: it renders each surface and holds the sample facts to the recordings. It renders no copy of its own."
     }
@@ -3614,7 +3808,7 @@
       "what": "no panel sentence is explained by a digest: how many of this record’s sentences occur in either digest the repository ships",
       "command": "node -e \"const fs=require('fs');const r=JSON.parse(fs.readFileSync('research/raw/m048-surface-copy.json','utf8'));const d=['extension/error-digest.json','extension/image-digest.json'].map(f=>fs.readFileSync(f,'utf8')).join('\\n');let hit=0,total=0;for(const s of r.surfaces)for(const x of s.sentences){total++;if(d.includes(x.text))hit++}console.log('sentences '+total);console.log('explainedByADigest '+hit)\"",
       "output": [
-        "sentences 142",
+        "sentences 161",
         "explainedByADigest 1"
       ]
     }

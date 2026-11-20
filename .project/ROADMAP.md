@@ -1861,8 +1861,8 @@ Goal: The panel rehearses a declared WebMCP tool call through the panel's own mo
 Depends on: [M020]
 Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/053-webmcp-rehearsal
 Integrated: null
 
 Scope: in

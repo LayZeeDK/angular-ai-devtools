@@ -59,6 +59,7 @@ const LOADERS: Record<
   'dead-click': () => import('./panel-dead-click') as never,
   'what-changed': () => import('./panel-what-changed') as never,
   webmcp: () => import('./panel-webmcp') as never,
+  'webmcp-rehearsal': () => import('./panel-webmcp-rehearsal') as never,
 };
 
 // The sample facts each surface renders. Exported so the spec can hold the fact the pane is handed
@@ -440,13 +441,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 174 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 184 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
   // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
   // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 174 },
+  'copy-check': { state: 'clean', unexplained: [], checked: 184 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the
@@ -641,6 +642,24 @@ export const FACTS: Record<string, unknown> = {
       },
       { name: 'count_components' },
     ],
+    reason: null,
+  },
+  // The join's own answer (`extension/webmcp-rehearsal.js`, T002) for a rehearsal that ran, on the page
+  // the demo owns: `REHEARSAL_PAGE` in `panel-webmcp-rehearsal.ts` is the document, and its one script
+  // registers exactly one tool with `document.modelContext.registerTool` — so a Tool handle exists for a
+  // caller to invoke, which is what C4's measurement says the success path needs. `panel-demo.spec.ts`
+  // runs that script against a context that records the registration, reads the list through the shipped
+  // `readTools`, calls the registered tool's own `execute` and hands all three to the shipped `rehearse`,
+  // then holds this fact to that answer field for field. So the name below is the name the registered
+  // descriptor carries and the result below is the value that tool returned — a string, so it is the same
+  // value whichever documented answer `executeTool` gives — never a value written here by hand.
+  'webmcp-rehearsal': {
+    state: 'rehearsed',
+    tool: {
+      name: 'find_components',
+      description: 'Returns the components the page rendered.',
+    },
+    result: '3 components',
     reason: null,
   },
 };

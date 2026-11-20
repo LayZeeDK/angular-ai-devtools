@@ -99,6 +99,20 @@
  * answers a Promise resolving to `[]`, which the reader's synchronous `Array.isArray` judgement
  * reports as `cannot-tell` with `code: unreadable-list` — so the state a page earns is the reader's
  * measurement and never this pane's claim.
+ *
+ * M053 T003 extends it to the `webmcp-rehearsal` surface, and to the chain a rehearsal is: the page the
+ * demo owns (`REHEARSAL_PAGE` in `panel-webmcp-rehearsal.ts`) is run and the descriptor it registers is
+ * the one the shipped reader reads — so a Tool handle exists, which is what T001's measurement says
+ * `executeTool` requires and `Tool`'s illegal constructor forbids fabricating. The registered tool's own
+ * `execute` answers the result, the shipped `extension/webmcp-rehearsal.js` joins the reading, the choice
+ * and the call, and the demo's fact must equal that answer field for field. The four states are then held
+ * apart: `rehearsed` prints the tool the model chose by the name the awaited list reported, with only the
+ * description it reported, beside the result the tool returned as it returned it (E1, N1, N3);
+ * `no-tool` echoes the binding's own measured refusal with no tool and no result beside it; `refused`
+ * names the tool and the refusal's own words with nothing in the result's place; and `unavailable` echoes
+ * the reading's own reason. There is no `no-model` state, because T001 could not measure one
+ * (`measurement.noModel.observedHere: false`) and the surface must not render a state nobody observed
+ * (SC1-SC3; PLAN C4).
  */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -179,6 +193,23 @@ import {
   TOOLS as WEBMCP_TOOLS,
   webmcpPanel,
 } from './panel-webmcp';
+import {
+  NO_REASON_TEXT as REHEARSAL_NO_REASON_TEXT,
+  NO_RECORD_TEXT as REHEARSAL_NO_RECORD_TEXT,
+  NO_RESULT_VALUE_TEXT as REHEARSAL_NO_RESULT_VALUE_TEXT,
+  NO_TOOL as REHEARSAL_NO_TOOL,
+  NO_TOOL_NAME_TEXT as REHEARSAL_NO_TOOL_NAME_TEXT,
+  REFUSED as REHEARSAL_REFUSED,
+  REHEARSAL_PAGE,
+  REHEARSAL_PAGE_SCRIPT,
+  REHEARSAL_TOOL_DESCRIPTION,
+  REHEARSAL_TOOL_NAME,
+  REHEARSAL_TOOL_RESULT,
+  REHEARSED as REHEARSAL_REHEARSED,
+  STATE_TEXTS as REHEARSAL_STATE_TEXTS,
+  UNAVAILABLE as REHEARSAL_UNAVAILABLE,
+  rehearsalPanel,
+} from './panel-webmcp-rehearsal';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -1807,6 +1838,120 @@ function measuredWebmcpSource(): { modelContext: { getTools(): unknown } } {
   return { modelContext: { getTools: () => Promise.resolve([]) } };
 }
 
+/** One rehearsal record, as `extension/webmcp-rehearsal.js` answers it: the four contract fields. */
+interface RehearsalRecord {
+  state: string;
+  tool?: { name: string; description?: string } | null;
+  result?: unknown;
+  reason?: unknown;
+}
+
+/** The page's own rehearsal namespace, as `extension/webmcp-rehearsal.js` publishes it. */
+interface WebmcpRehearsalJoin {
+  rehearse(
+    reading: unknown,
+    chosen: unknown,
+    invocation: unknown,
+  ): RehearsalRecord;
+}
+
+/**
+ * The join `extension/webmcp-rehearsal.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `webmcp-rehearsal` fact is held to the join's answer for the reading, the
+ * choice and the call this spec builds — and to the join's own state words — rather than to a copy of
+ * any of them written here. The module is an IIFE with no imports, so running it is the whole of
+ * loading it; `rehearse` is pure and needs no reader loaded first.
+ */
+function webmcpRehearsal(): WebmcpRehearsalJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/webmcp-rehearsal.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/webmcp-rehearsal.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as { angularAiWebmcpRehearsal?: WebmcpRehearsalJoin }
+  ).angularAiWebmcpRehearsal;
+  if (join === undefined || typeof join.rehearse !== 'function') {
+    throw new Error('extension/webmcp-rehearsal.js published no rehearse');
+  }
+  return join;
+}
+
+/** The part of T001's recording this spec reads: the refusals it measured, and the state it could not. */
+interface ExecuteToolRecording {
+  measurement: {
+    invocation: { refusals: string[]; handleAvailable: boolean };
+    noModel: { observedHere: boolean };
+  };
+}
+
+/** T001's measured answer about `executeTool`, inlined from its own committed text. */
+function executeToolRecording(): ExecuteToolRecording {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m053-execute-tool.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m053-execute-tool.json was not inlined above this spec file',
+    );
+  }
+  return JSON.parse(text) as ExecuteToolRecording;
+}
+
+/** One tool descriptor the demo's own page registered, as the page's script handed it over. */
+interface RegisteredTool {
+  name: string;
+  description: string;
+  execute(): unknown;
+}
+
+/**
+ * The page the demo owns, run: `REHEARSAL_PAGE_SCRIPT` evaluated against a `document` this spec makes,
+ * so the registration the page performs is the one the demo ships and not a copy of it. The page
+ * writes what it declared into `#rehearsal`, which is the record read back here.
+ */
+function runRehearsalPage(): {
+  registered: RegisteredTool[];
+  declared: unknown;
+} {
+  const registered: RegisteredTool[] = [];
+  const shown: string[] = [];
+  const page = {
+    modelContext: {
+      registerTool: (tool: RegisteredTool) => {
+        registered.push(tool);
+      },
+    },
+    getElementById: () => ({
+      set textContent(value: string) {
+        shown.push(value);
+      },
+    }),
+  };
+  new Function('document', REHEARSAL_PAGE_SCRIPT)(page);
+  const first = shown[0];
+  return {
+    registered,
+    declared: first === undefined ? null : JSON.parse(first),
+  };
+}
+
 /**
  * The values each entry of the rebuilt record carries, keyed by the stream the record names. The
  * arrival readings (10, 11, 20, 30, 40) are this spec's own spine, and the ids are what the
@@ -2779,6 +2924,7 @@ describe('the panel demo', () => {
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
+      'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
@@ -2786,7 +2932,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(32);
+    expect(appRoutes).toHaveLength(33);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -3289,19 +3435,20 @@ describe('the panel demo', () => {
 
     // The measured record's answer: every string it declares is explained, and the count is the
     // join's own comparison — not a count written in this spec or in the demo fact. The count is
-    // larger than the digest's row count because one sentence is declared by six surfaces and an
-    // explanation of one string is still one row: 174 sentences compared, 169 distinct rows.
+    // larger than the digest's row count because one sentence is declared by six surfaces, three more
+    // by two surfaces each, and an explanation of one string is still one row: 184 sentences
+    // compared, 176 distinct rows.
     expect(answer).toEqual({
       state: COPY_CLEAN,
       unexplained: [],
-      checked: 174,
+      checked: 184,
     });
     expect(answer.checked).toBe(
       recording.counts.declaredSentences + recording.counts.inlineSentences,
     );
     expect(digest.entries.length).toBeLessThan(answer.checked);
     expect(recording.counts.surfaces).toBe(recording.surfaces.length);
-    expect(recording.counts.surfaces).toBe(24);
+    expect(recording.counts.surfaces).toBe(25);
 
     // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
     // with its own reason, while the record stays clean. Both answers are the join's.
@@ -4394,5 +4541,231 @@ describe('the panel demo', () => {
     ]) {
       expect(demo.lines().some((line) => line.startsWith(label))).toBe(false);
     }
+  });
+
+  /**
+   * The M053 half — the rehearsal: the tool the panel's model chose, named by the name the awaited list
+   * reported, beside the result the tool returned, or the three states in which no rehearsal ran. The
+   * tool is the one the demo's own page declares: `REHEARSAL_PAGE_SCRIPT` is run here against a model
+   * context that records the registration, so the descriptor the reader is handed is the one the page
+   * actually registered — plan C4's requirement that a Tool handle exists, since `executeTool` refuses
+   * anything that is not one. The shipped reader reads that list, the registered tool's own `execute`
+   * answers the result, the shipped `rehearse` joins the three, and the demo's fact must equal its
+   * answer field for field. The three refusals are then held apart — `no-tool` echoing the binding's own
+   * measured refusal with no result beside it, `refused` a named tool and nothing that stands in a
+   * result's place, `unavailable` the reading's own reason — and `no-model` is proven to be a state this
+   * pane was never written for, because T001 could not measure one (SC1, SC2, SC3; N1-N4; PLAN C4).
+   */
+  it('renders the tool the model chose beside the result the tool returned, and the three refusals apart with no model-missing state', async () => {
+    // The page the demo owns declares the tool. This is the page, not a copy of it: its own script runs.
+    const page = runRehearsalPage();
+    expect(REHEARSAL_PAGE).toContain(REHEARSAL_PAGE_SCRIPT);
+    expect(page.registered).toHaveLength(1);
+    expect(page.declared).toEqual({
+      state: 'declared',
+      page: 'webmcp-rehearsal',
+      name: REHEARSAL_TOOL_NAME,
+    });
+    const tool = page.registered[0];
+    if (tool === undefined) throw new Error('the page must register one tool');
+    expect(tool.name).toBe(REHEARSAL_TOOL_NAME);
+    expect(tool.description).toBe(REHEARSAL_TOOL_DESCRIPTION);
+    // The result the demo reports is the value this tool returned, not a value written beside it.
+    const value = tool.execute();
+    expect(value).toBe(REHEARSAL_TOOL_RESULT);
+
+    // The awaited list is read from the page's own registered descriptor, through the shipped reader.
+    const audit = webmcpAudit();
+    const reading = audit.readTools({
+      modelContext: { getTools: () => page.registered.slice() },
+    });
+    expect(reading.state).toBe(WEBMCP_TOOLS);
+    expect(reading.tools).toEqual([
+      { name: REHEARSAL_TOOL_NAME, description: REHEARSAL_TOOL_DESCRIPTION },
+    ]);
+
+    // The join's own answer for that reading, that choice and that call — and the demo's fact for it.
+    const join = webmcpRehearsal();
+    const answer = join.rehearse(reading, REHEARSAL_TOOL_NAME, {
+      resolved: true,
+      value,
+    });
+    expect(answer).toEqual({
+      state: REHEARSAL_REHEARSED,
+      tool: {
+        name: REHEARSAL_TOOL_NAME,
+        description: REHEARSAL_TOOL_DESCRIPTION,
+      },
+      result: REHEARSAL_TOOL_RESULT,
+      reason: null,
+    });
+    expect(FACTS['webmcp-rehearsal']).toEqual(answer);
+
+    // The route is the one a user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'webmcp-rehearsal',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error(
+        'the webmcp-rehearsal surface must exist and load lazily',
+      );
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    const surfaceName = route.data?.['surface'];
+    if (typeof surfaceName !== 'string') {
+      throw new Error(
+        'the webmcp-rehearsal route must name its surface in route data',
+      );
+    }
+    expect(surfaceName).toBe('webmcp-rehearsal');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'webmcp-rehearsal'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo(surfaceName);
+    expect(demo.state()).toBe(REHEARSAL_REHEARSED);
+    const pane = rehearsalPanel(FACTS['webmcp-rehearsal']);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+
+    // `rehearsed`: its own word and sentence, the name the awaited list reported, the description it
+    // reported, and the result as it returned — and no subtraction from any of them.
+    expect(pane.lines).toEqual([
+      `state: ${REHEARSAL_REHEARSED}`,
+      REHEARSAL_STATE_TEXTS[REHEARSAL_REHEARSED],
+      `name: ${REHEARSAL_TOOL_NAME}`,
+      `description: ${REHEARSAL_TOOL_DESCRIPTION}`,
+      `result: ${REHEARSAL_TOOL_RESULT}`,
+    ]);
+    expect(pane.text).not.toContain('reason:');
+
+    // `no-tool`: the binding's own measured refusal, echoed, with no tool and no result beside it. This
+    // is the state the milestone's measurement reaches on a page that declares no tool, and it is keyed
+    // on the absent handle rather than on a missing model (PLAN C4).
+    const recording = executeToolRecording();
+    expect(recording.measurement.invocation.handleAvailable).toBe(false);
+    const noHandle = recording.measurement.invocation.refusals[0] ?? '';
+    expect(noHandle).toContain("parameter 1 is not of type 'Tool'");
+    const noToolAnswer = join.rehearse(
+      audit.readTools({ modelContext: { getTools: () => [] } }),
+      REHEARSAL_TOOL_NAME,
+      { resolved: false, reason: noHandle },
+    );
+    expect(noToolAnswer.state).toBe(REHEARSAL_NO_TOOL);
+    const noToolPane = rehearsalPanel(noToolAnswer);
+    expect(noToolPane.state).toBe(REHEARSAL_NO_TOOL);
+    expect(noToolPane.lines).toEqual([
+      `state: ${REHEARSAL_NO_TOOL}`,
+      REHEARSAL_STATE_TEXTS[REHEARSAL_NO_TOOL],
+      `reason: ${noHandle}`,
+    ]);
+
+    // `refused`: a tool the awaited list reported was named and nothing came back. The refusal's own
+    // words travel; no result, no paraphrase and no empty value stands in the result's place (N3).
+    const refusedAnswer = join.rehearse(reading, REHEARSAL_TOOL_NAME, {
+      resolved: false,
+      reason: 'the tool answered no result',
+    });
+    expect(refusedAnswer.state).toBe(REHEARSAL_REFUSED);
+    const refusedPane = rehearsalPanel(refusedAnswer);
+    expect(refusedPane.lines).toEqual([
+      `state: ${REHEARSAL_REFUSED}`,
+      REHEARSAL_STATE_TEXTS[REHEARSAL_REFUSED],
+      `name: ${REHEARSAL_TOOL_NAME}`,
+      `description: ${REHEARSAL_TOOL_DESCRIPTION}`,
+      'reason: the tool answered no result',
+    ]);
+
+    // `unavailable`: the awaited list could not be read, so no rehearsal was attempted and the reader's
+    // own reason is echoed — the measured API's `unreadable-list` for a getter that answers a Promise.
+    const unavailableAnswer = join.rehearse(
+      audit.readTools(measuredWebmcpSource()),
+      REHEARSAL_TOOL_NAME,
+      undefined,
+    );
+    expect(unavailableAnswer.state).toBe(REHEARSAL_UNAVAILABLE);
+    expect(unavailableAnswer.tool).toBeNull();
+    expect(unavailableAnswer.result).toBeNull();
+    const unavailablePane = rehearsalPanel(unavailableAnswer);
+    expect(unavailablePane.lines).toEqual([
+      `state: ${REHEARSAL_UNAVAILABLE}`,
+      REHEARSAL_STATE_TEXTS[REHEARSAL_UNAVAILABLE],
+      'code: unreadable-list',
+      'detail: the list getter answered an object rather than a list: the tool list is not readable',
+    ]);
+
+    // The three refusals are three states with three sentences, and none of them renders a tool block
+    // for a handle nobody had or a result the tool never returned.
+    expect(
+      new Set([
+        pane.state,
+        noToolPane.state,
+        refusedPane.state,
+        unavailablePane.state,
+      ]).size,
+    ).toBe(4);
+    expect(
+      new Set([
+        pane.lines[1],
+        noToolPane.lines[1],
+        refusedPane.lines[1],
+        unavailablePane.lines[1],
+      ]).size,
+    ).toBe(4);
+    for (const refused of [noToolPane, unavailablePane]) {
+      expect(refused.lines.some((line) => line.startsWith('result: '))).toBe(
+        false,
+      );
+      expect(refused.lines.some((line) => line.startsWith('name: '))).toBe(
+        false,
+      );
+    }
+    expect(refusedPane.lines.some((line) => line.startsWith('result: '))).toBe(
+      false,
+    );
+
+    // There is no `no-model` state: T001 could not measure one, so this pane has no sentence for it and
+    // a record claiming it renders the bare word — no state sentence, no tool, no result, no reason.
+    expect(recording.measurement.noModel.observedHere).toBe(false);
+    expect(Object.hasOwn(REHEARSAL_STATE_TEXTS, 'no-model')).toBe(false);
+    expect(rehearsalPanel({ state: 'no-model' }).lines).toEqual([
+      'state: no-model',
+    ]);
+    expect(rehearsalPanel({ state: 'no-model' }).state).not.toBe(
+      REHEARSAL_NO_TOOL,
+    );
+
+    // A record nobody gave is its own absence; a tool with no name and a result the pane cannot print
+    // state their own absences rather than a dash, an empty value or a placeholder.
+    expect(rehearsalPanel(undefined).lines).toEqual([REHEARSAL_NO_RECORD_TEXT]);
+    expect(rehearsalPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+    expect(
+      rehearsalPanel({ state: REHEARSAL_REFUSED, tool: {}, reason: null })
+        .lines,
+    ).toContain(REHEARSAL_NO_TOOL_NAME_TEXT);
+    expect(
+      rehearsalPanel({ state: REHEARSAL_REFUSED, tool: {}, reason: null })
+        .lines,
+    ).toContain(REHEARSAL_NO_REASON_TEXT);
+    expect(
+      rehearsalPanel({
+        state: REHEARSAL_REHEARSED,
+        tool: {},
+        result: undefined,
+      }).lines,
+    ).toContain(REHEARSAL_NO_RESULT_VALUE_TEXT);
+
+    // Idempotency: the same record renders the same lines in the same order, twice — the no-tool absence
+    // included, because absence is stable rather than a placeholder for a later success (E5).
+    expect(rehearsalPanel(noToolAnswer)).toEqual(rehearsalPanel(noToolAnswer));
+    expect(rehearsalPanel(FACTS['webmcp-rehearsal'])).toEqual(
+      rehearsalPanel(FACTS['webmcp-rehearsal']),
+    );
+
+    // The pane adds no DOM and writes no field of its own.
+    expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
   });
 });
