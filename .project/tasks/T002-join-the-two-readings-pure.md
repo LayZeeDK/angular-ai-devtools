@@ -2,10 +2,10 @@
 id: T002
 title: Join the computed and baseline readings pure
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 2c6065ca41a52037a877acf0364138558d5e580f
 worktree: null
 task_branch: null
 files:
@@ -99,3 +99,4 @@ node --test scripts/visual-qa-style.test.mjs && npx prettier --check extension/v
 ## Log
 
 - pending.
+- Landed paths: `extension/visual-qa.js`, `scripts/visual-qa-style.test.mjs`, `research/raw/m054-style-read.json` — each is read from this tree, ready.
