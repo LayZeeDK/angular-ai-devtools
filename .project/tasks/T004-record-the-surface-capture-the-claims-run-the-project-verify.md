@@ -2,10 +2,10 @@
 id: T004
 title: Record the surface, capture the claims, run the project verify
 wave: 4
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T004
+base: fa1268423201341a31d99d852d7659242765770b
 worktree: null
 task_branch: null
 files:
