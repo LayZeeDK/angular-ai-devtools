@@ -41,6 +41,8 @@ describe('App', () => {
  * count moves from thirty-two to thirty-three without moving one. M054's `visual-qa` sits between
  * `console-read` and `webmcp-rehearsal` for the same reason — the route records cite the routes below
  * the list — which is why the count moves from thirty-three to thirty-four without moving a citation.
+ * M055's `tutor-foundations` follows `visual-qa` for the same reason, which is why the count moves
+ * from thirty-four to thirty-five without moving one.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -72,6 +74,7 @@ describe('the route table', () => {
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic, the unmatched code named
       'console-read', // M046 SC1-3 surface: the control that names what will be sent, the body the pane drew, and the absence or the cannot-tell reason
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
+      'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
@@ -322,6 +325,22 @@ describe('the route table', () => {
     // One entry, so the route this task appends is the only one that answers at that path.
     expect(
       appRoutes.filter((route) => route.path === 'visual-qa'),
+    ).toHaveLength(1);
+
+    const tutorFoundations = appRoutes.find(
+      (route) => route.path === 'tutor-foundations',
+    );
+    expect(tutorFoundations?.component).toBeUndefined();
+    if (tutorFoundations?.loadComponent === undefined) {
+      throw new Error('the tutor-foundations surface must load lazily');
+    }
+    expect(await tutorFoundations.loadComponent()).toBe(PanelDemoComponent);
+    expect(tutorFoundations.data?.['surface']).toBe('tutor-foundations');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(tutorFoundations.data?.['surface']).not.toBe('visual-qa');
+    // One entry, so the route this task appends is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'tutor-foundations'),
     ).toHaveLength(1);
   });
 });

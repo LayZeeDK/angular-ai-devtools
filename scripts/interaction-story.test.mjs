@@ -808,6 +808,92 @@ test('the shared field is read from one clock at every receipt', () => {
   );
 });
 
+// ------------------------------------------------------------------------------------------------
+// The recorder census: what a recorder writes, and the two files that are not recorders.
+// ------------------------------------------------------------------------------------------------
+
+// T002 adds extension/interaction-story.js: a pure reader of the record, named by the surface it
+// narrates, with no listener and no page read. The measurement counts what a recorder writes, so the
+// narration's own name is excluded from the word count; every file is still held to the listener
+// count, and the narration registers none.
+const NARRATION = 'interaction-story.js';
+
+// M055 T002 adds extension/tutor-index.js: the authored question index, which is data and not a
+// recorder. One question it authors reads 'does every step of the interaction story quote an event
+// the record carries, in the order it arrived?' (`extension/tutor-index.js:72`, first landed by
+// `f5f70284`), so the word is in the file while the file records nothing at all — an authored
+// question is not a recording, and the word count is a count of recordings. The exclusion is by file
+// name, the census is held to exactly these two names, and the mutant below puts the word into a
+// recorder to prove every other file is still measured.
+const AUTHORED_INDEX = 'tutor-index.js';
+
+/** The two files excluded from the recorder word count, and the only two. */
+const READERS = [NARRATION, AUTHORED_INDEX];
+
+/**
+ * Every `extension/*.js` file's text, by base name — the census's input, so a mutant can hand the
+ * census a tree that is not the one on disk.
+ * @returns {Map<string, string>}
+ */
+function extensionSources() {
+  /** @type {Map<string, string>} */
+  const sources = new Map();
+  for (const file of readdirSync(join(ROOT, EXTENSION)))
+    if (file.endsWith('.js'))
+      sources.set(file, sourceLines(`${EXTENSION}/${file}`).join('\n'));
+  return sources;
+}
+
+/**
+ * The recorder census: how many `extension/*.js` files are recorders, which of them write the word
+ * `interaction`, and how many click, pointer, mouse or key listeners every file registers. The two
+ * readers are excluded from the word count and from the recorder count alone; every file is still
+ * read for listeners.
+ * @param {Map<string, string>} [sources] every extension script's text, by base name; by default read
+ *   from disk
+ */
+function recorderCensus(sources = extensionSources()) {
+  /** @type {string[]} */
+  const files = [...sources.keys()].sort();
+  /** @type {string[]} */
+  const offenders = [];
+  let recorders = 0;
+  let listeners = 0;
+  for (const file of files) {
+    const source = sources.get(file) ?? '';
+    listeners += [
+      ...source.matchAll(/addEventListener\(\s*.(?:click|pointer|mouse|key)/g),
+    ].length;
+    if (READERS.includes(file)) continue;
+    recorders += 1;
+    if (source.includes('interaction')) offenders.push(file);
+  }
+  return { files, offenders, recorders, listeners, excluded: READERS };
+}
+
+/**
+ * The pin: no recorder writes the word `interaction`, whatever the two readers are named, and no
+ * extension file registers a UI listener. The offenders are named rather than counted, so a file that
+ * gains the word is the failure's own subject and not an anonymous `1 !== 0`.
+ * @param {ReturnType<typeof recorderCensus>} [census] the census, by default read from disk
+ */
+function pinNoRecordedInteraction(census = recorderCensus()) {
+  const writing =
+    census.offenders.length === 0
+      ? 'none of them'
+      : census.offenders.join(', ');
+  assert.deepEqual(
+    census.offenders,
+    [],
+    `the ${census.recorders} extension/*.js recorder files record no interaction, and the file(s) writing the word are: ${writing} (${NARRATION} is a reader and ${AUTHORED_INDEX} is the authored index — an authored question is not a recording — so both are excluded from the word count, and no third file is)`,
+  );
+  assert.equal(
+    census.listeners,
+    0,
+    'no extension file registers a click, pointer, mouse or key listener',
+  );
+}
+
 test('no stream records a user interaction, and the record says so', () => {
   const agent = sourceLines(AGENT).join('\n');
   assert.equal(
@@ -819,34 +905,13 @@ test('no stream records a user interaction, and the record says so', () => {
     file.endsWith('.js'),
   );
   assert.ok(files.length >= 1, 'the extension holds files to read');
-  // T002 adds extension/interaction-story.js: a pure reader of the record, named by the surface it
-  // narrates, with no listener and no page read. The measurement counts what a recorder writes, so
-  // the narration's own name is excluded from the word count; every file is still held to the
-  // listener count, and the narration registers none.
-  const NARRATION = 'interaction-story.js';
-  let interactions = 0;
-  let listeners = 0;
-  let recorders = 0;
-  for (const file of files) {
-    const source = sourceLines(`${EXTENSION}/${file}`).join('\n');
-    if (file !== NARRATION) {
-      recorders += 1;
-      interactions += [...source.matchAll(/interaction/g)].length;
-    }
-    listeners += [
-      ...source.matchAll(/addEventListener\(\s*.(?:click|pointer|mouse|key)/g),
-    ].length;
-  }
-  assert.equal(
-    interactions,
-    0,
-    `the ${recorders} extension/*.js recorder files record no interaction (the narration ${NARRATION} is a reader and is excluded from the word count)`,
+  const census = recorderCensus();
+  assert.deepEqual(
+    census.files,
+    files.slice().sort(),
+    'the census reads every extension/*.js file on disk, so a file added later is measured rather than skipped',
   );
-  assert.equal(
-    listeners,
-    0,
-    'no extension file registers a click, pointer, mouse or key listener',
-  );
+  pinNoRecordedInteraction(census);
   const measured = record.measurements.find(
     (measurement) => measurement.id === 'no-ui-capture',
   );
@@ -859,6 +924,50 @@ test('no stream records a user interaction, and the record says so', () => {
     measured.output.join('\n').includes('uiListenerNames 0'),
     'the record quotes a measurement of 0 UI listeners',
   );
+});
+
+test('the recorder census is narrow: a recorder that gains the word reddens it', () => {
+  const clean = recorderCensus();
+  assert.deepEqual(
+    clean.excluded,
+    [NARRATION, AUTHORED_INDEX],
+    'exactly two files are excluded from the word count: the narration and the authored index',
+  );
+  assert.equal(
+    clean.recorders,
+    clean.files.length - clean.excluded.length,
+    'every extension script that is not one of the two readers is counted as a recorder',
+  );
+
+  const recorder = 'agent-main.js';
+  const doctored = extensionSources();
+  assert.ok(
+    doctored.has(recorder),
+    `${recorder} is one of the files the census reads`,
+  );
+  doctored.set(
+    recorder,
+    `${doctored.get(recorder)}\nconst interactionStory = 'an interaction story';\n`,
+  );
+  const failure = reddens(
+    () => pinNoRecordedInteraction(recorderCensus(doctored)),
+    'a recorder that gains the word',
+  );
+  assert.match(
+    failure.message,
+    /agent-main\.js/,
+    `the enumeration names the recorder that gained the word: ${failure.message.split('\n')[0]}`,
+  );
+
+  const wordedReaders = extensionSources();
+  for (const reader of READERS)
+    wordedReaders.set(
+      reader,
+      `${wordedReaders.get(reader)}\n// the interaction story, again\n`,
+    );
+  pinNoRecordedInteraction(recorderCensus(wordedReaders));
+  pinNoRecordedInteraction(clean);
+  console.log(`recorder census mutant: ${failure.message.split('\n')[0]}`);
 });
 
 test('no stream records a cross-stream sequence number', () => {

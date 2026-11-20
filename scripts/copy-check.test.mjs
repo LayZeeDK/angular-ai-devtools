@@ -2290,9 +2290,16 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
 // `panel-demo.ts` citations the M053 T003 commit moved (the template's `h2` and `state` lines, the
 // loader resolution block, and the no-such-surface line) and the one `panel-demo.spec.ts` import line.
 //
+// M055's T003 shipped `panel-tutor-foundations.ts` as the twenty-seventh surface, so T004 re-measured
+// the record over all twenty-seven — every citation re-read, the twenty-seventh surface's six registry
+// sentences, its two reading-label constants (`ARTEFACT_LABEL`, `MISSING_ARTEFACT_LABEL`) and its six
+// labels cited — and authored six more digest rows from that module's own `PANE_SENTENCES`. None of
+// the six is a text another surface already declares, so each needed its own row, and the surface
+// writes no sentence inline: its whole prose is the six registry entries.
+//
 // Two facts the pins below state rather than assume:
 //
-//   * the digest holds one row per distinct sentence text, so 181 rows explain 189 sentences: the
+//   * the digest holds one row per distinct sentence text, so 187 rows explain 195 sentences: the
 //     `no-reason` sentence `panel-copy-check.ts:128`, `panel-interaction-story.ts:150`,
 //     `panel-dead-click.ts:202`, `panel-what-changed.ts:154` and `panel-webmcp.ts:138` declare is byte
 //     for byte the one `panel-components.ts:147` declares, and the one row explains all six;
@@ -2302,7 +2309,10 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
 //     interaction-story pane is the same shape: its nine inline literals are labels of the
 //     narration's fields, and its whole prose is the thirteen registry entries. The dead-click pane
 //     is the same shape again: its fifteen inline literals are labels of the answer's, a finding's
-//     and a window's fields, and its whole prose is the nineteen registry entries.
+//     and a window's fields, and its whole prose is the nineteen registry entries. The
+//     tutor-foundations pane is the same shape again: its six inline literals are the labels
+//     (`state:`, `question:`, `milestone:`, `criterion:`, `<the reading>: <the path>`, `detail:`) of
+//     the answer's own fields, and its whole prose is the six registry entries.
 
 test('T004 — the twentieth surface is measured, and the digest explains every sentence the record carries', () => {
   const api = loadCopy();
@@ -2310,7 +2320,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
 
   assert.equal(
     record.counts.surfaces,
-    26,
+    27,
     `the record measures every panel-*.ts surface the tree carries, and it measures ${record.counts.surfaces}`,
   );
   assert.equal(
@@ -2384,8 +2394,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   const all = recordSentenceRows();
   assert.equal(
     shippedDigest.entries.length,
-    181,
-    `the digest carries ${shippedDigest.entries.length} rows and the record carries 181 distinct sentence texts`,
+    187,
+    `the digest carries ${shippedDigest.entries.length} rows and the record carries 187 distinct sentence texts`,
   );
   assert.equal(
     shippedDigest.entries.length,
@@ -2394,8 +2404,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     all.length,
-    189,
-    `the record carries ${all.length} sentences: 155 declared in a map or a constant and 34 written inline`,
+    195,
+    `the record carries ${all.length} sentences: 161 declared in a map or a constant and 34 written inline`,
   );
 
   // The one repeated sentence: six surfaces declare it, the digest holds one row for it, and the
@@ -2845,7 +2855,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     whole.checked,
-    189,
+    195,
     `every sentence the record declares is compared, the shared one at all six surfaces, and ${whole.checked} were`,
   );
   assert.equal(

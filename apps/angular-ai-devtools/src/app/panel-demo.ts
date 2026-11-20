@@ -61,6 +61,7 @@ const LOADERS: Record<
   webmcp: () => import('./panel-webmcp') as never,
   'webmcp-rehearsal': () => import('./panel-webmcp-rehearsal') as never,
   'visual-qa': () => import('./panel-visual-qa') as never,
+  'tutor-foundations': () => import('./panel-tutor-foundations') as never,
 };
 
 // The sample facts each surface renders; the spec holds each one to the recording it came from.
@@ -70,8 +71,7 @@ export const FACTS: Record<string, unknown> = {
   // label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact
   // shape in `research/raw/m031-field-state.json` and names the element it was read off
   // (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured
-  // boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4),
-  // which is why the demo carries the measured one.
+  // boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
   fields: {
     fields: {
       name: { valid: true, invalid: false, errors: [] },
@@ -441,13 +441,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 189 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 195 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
   // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
   // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 189 },
+  'copy-check': { state: 'clean', unexplained: [], checked: 195 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the
@@ -774,4 +774,30 @@ FACTS['visual-qa'] = {
     },
   ],
   reason: null,
+};
+
+// The join's own answer (`extension/tutor-foundations.js`, T002) for the real verdict-claims records
+// with a real reader, entered here for the reason the `visual-qa` fact above is: every cited line of
+// this file is pinned where it sits, so a fact added inside the literal would move the template, the
+// loader resolution and the earlier facts those records quote.
+//
+// The question is the one row of the authored mapping (`extension/tutor-index.js`) that names M054's
+// SC1, and the answer is not written here by hand: `research/raw/m054-verdict-claims.json` carries
+// `milestone: 'M054'`, a claim whose `criterion` is `SC1` and whose own `artefactPath` is the suite
+// below, and `panel-demo.spec.ts` re-reads that record, evaluates the shipped index and the shipped
+// join, answers the question with a reader built from the files this build read, and holds this fact
+// to that answer field for field — so a fact that drifted from the record, the join or the tree
+// reddens there rather than shipping. Nothing the derivation writes as prose is here: no `reason`, no
+// `artefact` sentence and no `reading` field of a claim is copied into this fact (N1, C3), because
+// the pane renders the record's own milestone, criterion and path and that is all this answer
+// carries beside the join's own `detail`.
+FACTS['tutor-foundations'] = {
+  state: 'answered',
+  question:
+    'does the panel report the computed and the baseline value of each property it measured on its own element?',
+  milestone: 'M054',
+  criterion: 'SC1',
+  artefactPaths: ['scripts/visual-qa-style-read.test.mjs'],
+  detail:
+    'the record research/raw/m054-verdict-claims.json states "scripts/visual-qa-style-read.test.mjs" as its own claims[].artefactPath for criterion SC1, and the injected reader reported each present at answer time',
 };

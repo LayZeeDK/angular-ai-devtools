@@ -221,6 +221,18 @@ import {
   STATE_TEXTS as STYLE_STATE_TEXTS,
   stylePanel,
 } from './panel-visual-qa';
+import {
+  ANSWERED as TUTOR_ANSWERED,
+  ARTEFACT_LABEL as TUTOR_ARTEFACT_LABEL,
+  MISSING_ARTEFACT as TUTOR_MISSING_ARTEFACT,
+  MISSING_ARTEFACT_LABEL as TUTOR_MISSING_ARTEFACT_LABEL,
+  NO_ANSWER_TEXT as TUTOR_NO_ANSWER_TEXT,
+  NO_ARTEFACT_NAMED as TUTOR_NO_ARTEFACT_NAMED,
+  NO_MATCHING_CRITERION as TUTOR_NO_MATCHING_CRITERION,
+  RECORDS_UNREADABLE as TUTOR_RECORDS_UNREADABLE,
+  STATE_TEXTS as TUTOR_STATE_TEXTS,
+  tutorFoundationsPanel,
+} from './panel-tutor-foundations';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -2936,6 +2948,7 @@ describe('the panel demo', () => {
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
+      'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
@@ -2944,7 +2957,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(34);
+    expect(appRoutes).toHaveLength(35);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -3448,19 +3461,19 @@ describe('the panel demo', () => {
     // The measured record's answer: every string it declares is explained, and the count is the
     // join's own comparison — not a count written in this spec or in the demo fact. The count is
     // larger than the digest's row count because one sentence is declared by six surfaces, three more
-    // by two surfaces each, and an explanation of one string is still one row: 189 sentences
-    // compared, 181 distinct rows.
+    // by two surfaces each, and an explanation of one string is still one row: 195 sentences
+    // compared, 187 distinct rows.
     expect(answer).toEqual({
       state: COPY_CLEAN,
       unexplained: [],
-      checked: 189,
+      checked: 195,
     });
     expect(answer.checked).toBe(
       recording.counts.declaredSentences + recording.counts.inlineSentences,
     );
     expect(digest.entries.length).toBeLessThan(answer.checked);
     expect(recording.counts.surfaces).toBe(recording.surfaces.length);
-    expect(recording.counts.surfaces).toBe(26);
+    expect(recording.counts.surfaces).toBe(27);
 
     // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
     // with its own reason, while the record stays clean. Both answers are the join's.
@@ -5170,3 +5183,427 @@ function visualQaJoin(): StyleJoin {
   }
   return join;
 }
+
+// ------------------------------------------------------------------------------------------------
+// M055 T003 — the tutor-foundations surface: the shipped join's own answer, rendered state by state
+// ------------------------------------------------------------------------------------------------
+//
+// The pane this section holds is the display half of a join nothing in the panel computes: the
+// question-to-criterion side is the one authored mapping (`extension/tutor-index.js`, T002) and the
+// criterion-to-artefact side is read from the records' own fields at answer time, through a reader the
+// caller injects (`extension/tutor-foundations.js`). So both files are evaluated here from their own
+// committed text, the records are inlined from disk, and the reader is built from the files this build
+// actually read — which makes the demo's sample fact the join's answer for the real records rather
+// than a literal nobody re-derives (PLAN C1).
+
+/** One verdict-claims record handed to the join, with the path it is read from. */
+interface TutorRecord {
+  readonly path: string;
+  readonly record: TutorClaimRecord;
+}
+
+/** The part of a verdict-claims record this spec reads: the milestone and the claim rows. */
+interface TutorClaimRecord {
+  readonly milestone?: unknown;
+  readonly claims?: readonly {
+    readonly criterion?: unknown;
+    readonly artefactPath?: unknown;
+    readonly reason?: unknown;
+    readonly reading?: unknown;
+  }[];
+}
+
+/** One row of the authored mapping, as `extension/tutor-index.js` publishes it. */
+interface TutorRow {
+  readonly question: string;
+  readonly criterion: string;
+  readonly milestone: string;
+}
+
+/** The index's own namespace, as `extension/tutor-index.js` publishes it. */
+interface TutorIndex {
+  readonly rows: readonly TutorRow[];
+}
+
+/** The join's answer: the six fields every state carries. */
+interface TutorAnswer {
+  readonly state: string;
+  readonly question: string;
+  readonly milestone: string | null;
+  readonly criterion: string | null;
+  readonly artefactPaths: readonly string[];
+  readonly detail: string;
+}
+
+/** The page's own join namespace, as `extension/tutor-foundations.js` publishes it. */
+interface TutorFoundationsJoin {
+  tutorAnswer(
+    question: string,
+    sources: {
+      index?: unknown;
+      records?: unknown;
+      exists?: unknown;
+    },
+  ): TutorAnswer;
+  STATES: readonly string[];
+  ABSENCES: readonly string[];
+}
+
+/** A presence reader: the paths this build read, and the answer the join reads presence out of. */
+interface TutorReader {
+  readonly present: ReadonlySet<string>;
+  exists(path: string): boolean;
+}
+
+/**
+ * One file, inlined from disk at build time through the vite `?raw` glob, parsed as JSON, under the
+ * repository-relative path the record is handed to the join with. A file the build did not inline is
+ * a message naming it rather than an empty record.
+ */
+function tutorRecord(
+  path: string,
+  modules: Record<string, unknown>,
+): TutorRecord {
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string')
+    throw new Error(`${path} was not inlined above this spec file`);
+  return { path, record: JSON.parse(text) as TutorClaimRecord };
+}
+
+/**
+ * The verdict-claims records the demo's answer is read from: the three PLAN C1 names, and M023's,
+ * whose own claim carries the criterion the mapping names and no `claims[].artefactPath` at all — so
+ * the second absence is rendered from a real record and not only from a fixture (C4).
+ */
+const TUTOR_RECORDS: readonly TutorRecord[] = [
+  tutorRecord(
+    'research/raw/m023-verdict-claims.json',
+    (import.meta as unknown as GlobSurface).glob(
+      '../../../../research/raw/m023-verdict-claims.json',
+      { query: '?raw', import: 'default', eager: true },
+    ),
+  ),
+  tutorRecord(
+    'research/raw/m052-verdict-claims.json',
+    (import.meta as unknown as GlobSurface).glob(
+      '../../../../research/raw/m052-verdict-claims.json',
+      { query: '?raw', import: 'default', eager: true },
+    ),
+  ),
+  tutorRecord(
+    'research/raw/m053-verdict-claims.json',
+    (import.meta as unknown as GlobSurface).glob(
+      '../../../../research/raw/m053-verdict-claims.json',
+      { query: '?raw', import: 'default', eager: true },
+    ),
+  ),
+  tutorRecord(
+    'research/raw/m054-verdict-claims.json',
+    (import.meta as unknown as GlobSurface).glob(
+      '../../../../research/raw/m054-verdict-claims.json',
+      { query: '?raw', import: 'default', eager: true },
+    ),
+  ),
+];
+
+/**
+ * The module `extension/tutor-index.js` publishes on the page's global, evaluated from its own
+ * committed text: the rows the join is handed are the authored mapping itself, never a copy of it
+ * written here. The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function tutorIndex(): TutorIndex {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/tutor-index.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string')
+    throw new Error(
+      'extension/tutor-index.js was not inlined above this spec file',
+    );
+  new Function(text)();
+  const index = (globalThis as unknown as { angularAiTutorIndex?: TutorIndex })
+    .angularAiTutorIndex;
+  if (index === undefined || !Array.isArray(index.rows))
+    throw new Error('extension/tutor-index.js published no rows');
+  return index;
+}
+
+/**
+ * The join `extension/tutor-foundations.js` publishes on the page's global, evaluated from its own
+ * committed text, so every state this spec renders is the shipped join's answer rather than a copy of
+ * its rules written here. The module is an IIFE with no imports, so running it is the whole of
+ * loading it.
+ */
+function tutorFoundationsJoin(): TutorFoundationsJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/tutor-foundations.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string')
+    throw new Error(
+      'extension/tutor-foundations.js was not inlined above this spec file',
+    );
+  new Function(text)();
+  const join = (
+    globalThis as unknown as {
+      angularAiTutorFoundations?: TutorFoundationsJoin;
+    }
+  ).angularAiTutorFoundations;
+  if (join === undefined || typeof join.tutorAnswer !== 'function')
+    throw new Error('extension/tutor-foundations.js published no tutorAnswer');
+  return join;
+}
+
+/**
+ * The files this build read for the answered record's artefact family: the suites the answering
+ * record's own `evidence.suites[].path` names, inlined from disk at build time. The reader answers
+ * `true` only for a path this map carries, so a file that is gone from the tree is a path this reader
+ * reports absent — the join's `missing-artefact`, and the pin below reddens rather than passing on a
+ * bake.
+ */
+const TUTOR_ARTEFACT_FILES = (import.meta as unknown as GlobSurface).glob(
+  '../../../../scripts/visual-qa-*.test.mjs',
+  { query: '?raw', import: 'default', eager: true },
+);
+
+/** The presence reader the demo's answer is derived through, and the paths it can answer for. */
+function tutorReader(): TutorReader {
+  const present = new Set(
+    Object.keys(TUTOR_ARTEFACT_FILES).map((key) =>
+      key.replace('../../../../', ''),
+    ),
+  );
+  return { present, exists: (path: string) => present.has(path) };
+}
+
+describe('the tutor-foundations surface', () => {
+  it('names the record’s own milestone, criterion and artefact path, and renders each absence in its own sentence', async () => {
+    const index = tutorIndex();
+    const join = tutorFoundationsJoin();
+    const reader = tutorReader();
+
+    // The question is the authored mapping's own row for M054's SC1, read off the shipped index; the
+    // milestone and the criterion are the answering record's own fields, not the row's.
+    const rows = index.rows.filter((row) => row.milestone === 'M054');
+    expect(rows).toHaveLength(1);
+    const row = rows[0];
+    if (row === undefined) throw new Error('the index carries no M054 row');
+    const question = row.question;
+
+    const answer = join.tutorAnswer(question, {
+      index,
+      records: TUTOR_RECORDS,
+      exists: reader.exists,
+    });
+    // Six fields, in every state: the answer carries no fifth field and no seventh.
+    expect(Object.keys(answer).sort()).toEqual([
+      'artefactPaths',
+      'criterion',
+      'detail',
+      'milestone',
+      'question',
+      'state',
+    ]);
+    expect(answer.state).toBe(TUTOR_ANSWERED);
+    expect(answer.question).toBe(question);
+
+    // The three rendered facts are the record's own field values (SC1, N1, N4).
+    const owner = TUTOR_RECORDS.find(
+      (entry) => entry.path === 'research/raw/m054-verdict-claims.json',
+    );
+    if (owner === undefined) throw new Error('the M054 record must be inlined');
+    const claim = (owner.record.claims ?? []).find(
+      (one) => one.criterion === 'SC1',
+    );
+    if (claim === undefined)
+      throw new Error('the M054 record must carry criterion SC1');
+    expect(answer.milestone).toBe(owner.record.milestone);
+    expect(answer.criterion).toBe(claim.criterion);
+    expect(answer.artefactPaths).toEqual([claim.artefactPath]);
+    // …and the reader that reported it present answered from a file this build read, so the path is
+    // one the answer states and one that is there.
+    expect(answer.artefactPaths.length).toBeGreaterThan(0);
+    expect(reader.present.has(answer.artefactPaths[0] ?? '')).toBe(true);
+    // The derivation's template prose is in the record and in no field of the answer (N1, C3).
+    expect(String(claim.reason)).toContain('a fact about this repository');
+    expect(answer.detail).not.toContain('a fact about this repository');
+
+    // The demo's sample fact is that answer, field for field.
+    expect(FACTS['tutor-foundations']).toEqual(answer);
+
+    // The route is the one a user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'tutor-foundations',
+    );
+    if (route === undefined || route.loadComponent === undefined)
+      throw new Error(
+        'the tutor-foundations surface must exist and load lazily',
+      );
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('tutor-foundations');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'tutor-foundations'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo('tutor-foundations');
+    expect(demo.state()).toBe(TUTOR_ANSWERED);
+    const pane = tutorFoundationsPanel(FACTS['tutor-foundations']);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+
+    // `answered`: the state word, its own sentence, then the six fields — the three the record states
+    // in its own spelling, and the join's own detail. Nothing beside them.
+    expect(pane.state).toBe(TUTOR_ANSWERED);
+    expect(pane.lines).toEqual([
+      `state: ${TUTOR_ANSWERED}`,
+      TUTOR_STATE_TEXTS[TUTOR_ANSWERED],
+      `question: ${question}`,
+      `milestone: ${String(claim && owner.record.milestone)}`,
+      `criterion: ${String(claim.criterion)}`,
+      `${TUTOR_ARTEFACT_LABEL}: ${String(claim.artefactPath)}`,
+      `detail: ${answer.detail}`,
+    ]);
+    // E2: the path is printed as the record spells it, character for character.
+    expect(pane.text).toContain(String(claim.artefactPath));
+    expect(pane.text).not.toMatch(/<\/?[a-z]/i);
+
+    // `no-matching-criterion`: a question no row of the authored mapping carries.
+    const asked = 'which artefact proves a question nobody authored?';
+    const unmatched = join.tutorAnswer(asked, {
+      index,
+      records: TUTOR_RECORDS,
+      exists: reader.exists,
+    });
+    expect(unmatched.state).toBe(TUTOR_NO_MATCHING_CRITERION);
+    expect(unmatched.milestone).toBeNull();
+    expect(unmatched.criterion).toBeNull();
+    expect(unmatched.artefactPaths).toEqual([]);
+    const unmatchedPane = tutorFoundationsPanel(unmatched);
+    expect(unmatchedPane.state).toBe(TUTOR_NO_MATCHING_CRITERION);
+    // The pane renders what is present: no milestone, no criterion and no artefact line are invented
+    // for a state whose answer names none (N2, N3).
+    expect(unmatchedPane.lines).toEqual([
+      `state: ${TUTOR_NO_MATCHING_CRITERION}`,
+      TUTOR_STATE_TEXTS[TUTOR_NO_MATCHING_CRITERION],
+      `question: ${asked}`,
+      `detail: ${unmatched.detail}`,
+    ]);
+
+    // `no-artefact-named`: M023's own row, whose record carries the criterion and no artefact path —
+    // the shape C4 measured in twenty-two of the thirty-four records, rendered as SC2's absence.
+    const m023 = index.rows.filter((entry) => entry.milestone === 'M023');
+    expect(m023).toHaveLength(1);
+    const m023Row = m023[0];
+    if (m023Row === undefined) throw new Error('the index carries no M023 row');
+    const named = join.tutorAnswer(m023Row.question, {
+      index,
+      records: TUTOR_RECORDS,
+      exists: reader.exists,
+    });
+    expect(named.state).toBe(TUTOR_NO_ARTEFACT_NAMED);
+    expect(named.milestone).toBe('M023');
+    expect(named.criterion).toBe(m023Row.criterion);
+    expect(named.artefactPaths).toEqual([]);
+    const namedPane = tutorFoundationsPanel(named);
+    expect(namedPane.state).toBe(TUTOR_NO_ARTEFACT_NAMED);
+    expect(namedPane.lines).toContain(`criterion: ${m023Row.criterion}`);
+    expect(
+      namedPane.lines.filter((line) =>
+        line.startsWith(`${TUTOR_ARTEFACT_LABEL}:`),
+      ),
+    ).toEqual([]);
+    expect(namedPane.lines[1]).toBe(TUTOR_STATE_TEXTS[TUTOR_NO_ARTEFACT_NAMED]);
+
+    // `records-unreadable`: nothing was handed over to read.
+    const unreadable = join.tutorAnswer(question, {
+      index,
+      records: [],
+      exists: reader.exists,
+    });
+    expect(unreadable.state).toBe(TUTOR_RECORDS_UNREADABLE);
+    const unreadablePane = tutorFoundationsPanel(unreadable);
+    expect(unreadablePane.state).toBe(TUTOR_RECORDS_UNREADABLE);
+    expect(unreadablePane.lines).toEqual([
+      `state: ${TUTOR_RECORDS_UNREADABLE}`,
+      TUTOR_STATE_TEXTS[TUTOR_RECORDS_UNREADABLE],
+      `question: ${question}`,
+      `detail: ${unreadable.detail}`,
+    ]);
+
+    // `missing-artefact`: the same question over the same records, with the reader reporting the
+    // named path absent where the record says it lives — never the unanswered state (E4, N3).
+    const gone = answer.artefactPaths[0] ?? '';
+    const missing = join.tutorAnswer(question, {
+      index,
+      records: TUTOR_RECORDS,
+      exists: (path: string) => path !== gone && reader.exists(path),
+    });
+    expect(missing.state).toBe(TUTOR_MISSING_ARTEFACT);
+    expect(missing.artefactPaths).toEqual([gone]);
+    // The absence names the record and the missing path beside it.
+    expect(missing.detail).toContain('research/raw/m054-verdict-claims.json');
+    expect(missing.detail).toContain(gone);
+    const missingPane = tutorFoundationsPanel(missing);
+    expect(missingPane.state).toBe(TUTOR_MISSING_ARTEFACT);
+    expect(missingPane.lines).toContain(`criterion: SC1`);
+    expect(missingPane.lines).toContain(
+      `${TUTOR_MISSING_ARTEFACT_LABEL}: ${gone}`,
+    );
+    // A path the reader reported absent is not printed under the label a present one carries.
+    expect(missingPane.lines).not.toContain(`${TUTOR_ARTEFACT_LABEL}: ${gone}`);
+    expect(missingPane.state).not.toBe(TUTOR_NO_MATCHING_CRITERION);
+
+    // Four absences, four states and four sentences — never one blank state (E3, N2).
+    expect(
+      new Set([
+        unmatchedPane.state,
+        namedPane.state,
+        unreadablePane.state,
+        missingPane.state,
+      ]).size,
+    ).toBe(4);
+    expect(
+      new Set([
+        unmatchedPane.lines[1],
+        namedPane.lines[1],
+        unreadablePane.lines[1],
+        missingPane.lines[1],
+      ]).size,
+    ).toBe(4);
+
+    // E5: a second answer to the same question over the same records names the same three fields, and
+    // the pane renders the same lines.
+    expect(
+      join.tutorAnswer(question, {
+        index,
+        records: TUTOR_RECORDS,
+        exists: reader.exists,
+      }),
+    ).toEqual(answer);
+    expect(tutorFoundationsPanel(FACTS['tutor-foundations'])).toEqual(pane);
+
+    // A pane handed nothing is its own absence, and a state word this pane was not written for is
+    // rendered as the bare word it was given.
+    expect(tutorFoundationsPanel(undefined).lines).toEqual([
+      TUTOR_NO_ANSWER_TEXT,
+    ]);
+    expect(tutorFoundationsPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+  });
+});

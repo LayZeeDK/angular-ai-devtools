@@ -12,7 +12,7 @@ Alignment mode: no
 | stale | 61 |
 | aspirational | 0 |
 | unverifiable | 200 |
-| descriptive docs (no testable claims) | 0 |
+| descriptive docs (no testable claims) | 1 |
 
 ## Doc: .commandcode/pstack-models.md
 
@@ -1332,6 +1332,13 @@ Alignment mode: no
 | "generated using Angular CLI version 22.2.2" | command | unverifiable | the fixture has no `node_modules` installed (`spikes/ng222-ssr/node_modules` is absent), so the generating CLI cannot be confirmed; `package.json` declares `@angular/cli ^22.2.2` (`spikes/ng222-ssr/README.md:3`). |
 
 ## Descriptive docs
+
+- `research/SYNTHESIS.md`
+  the M055 milestone synthesis: it restates what the milestone's own records already measure
+  (`research/raw/m055-record-shapes.json`, `research/raw/m055-surface.json`,
+  `research/raw/m055-verdict-claims.json`) and carries no claim of its own that a test could
+  contradict; every number it cites is one those records pin and their suites re-derive on every
+  run.
 
 ## User rulings
 
