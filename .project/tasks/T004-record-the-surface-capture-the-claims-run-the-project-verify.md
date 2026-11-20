@@ -12,6 +12,8 @@ files:
   - research/raw/m055-surface.json
   - research/raw/m055-record-shapes.json
   - scripts/tutor-record-shapes.test.mjs
+  - scripts/tutor-answer.test.mjs
+  - scripts/interaction-story.test.mjs
   - research/raw/m055-verdict-claims.json
   - research/raw/m054-surface.json
   - research/raw/m053-surface.json
@@ -103,6 +105,8 @@ the built artifact. The file changes only through
   - research/raw/m055-surface.json
   - research/raw/m055-record-shapes.json
   - scripts/tutor-record-shapes.test.mjs
+  - scripts/tutor-answer.test.mjs
+  - scripts/interaction-story.test.mjs
   - research/raw/m055-verdict-claims.json
   - research/raw/m054-surface.json
   - research/raw/m053-surface.json
@@ -238,3 +242,113 @@ npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm run check 
 
 - **Not established:** the AC1 verdict record, the two gate captures, and therefore the project verify —
   all four wait on the two fixes named above.
+
+- **Second pass, re-dispatched at `7a056be6` with both fixes in place.** The map's `outsideTheMap` is now
+  honoured rather than only checked, the claims record exists and was written by its own command, and one
+  blocker remains — measured here for the first time, because it could only appear once the 35th record
+  existed.
+
+- **The suite fix, at blocker 2's cause.** `validateInventory` in `scripts/tutor-record-shapes.test.mjs`
+  held `inventory.surface.paths` and `inventory.verdictClaims.paths` against every record present and
+  never subtracted the paths the recording itself names in `inventory.outsideTheMap`. It now does, through
+  one `mappedRecords(candidate, present = presentRecords())` helper that `validateFindings` reads too, so
+  the negative measurement and the C3 trap are held over the same 34 + 9 records the map measured. The
+  named-outside set is pinned to exactly the two records this milestone captures
+  (`m055-surface.json`, `m055-verdict-claims.json`), so a later record cannot be excused by naming it
+  there, and every other path is strict in both directions: a present record the table does not measure,
+  and a table entry for a record that is not there. New mutant: a record present and not named outside the
+  map is passed in a synthetic present list and must redden naming it —
+  `mutant: new unlisted record -> the map measures every surface record present, the records named outside
+  it excepted: the tree holds 11, and 2 are named outside the map`. Totals:
+  `node --experimental-strip-types --test scripts/tutor-record-shapes.test.mjs` → `tests 13`, `pass 6`,
+  `fail 7` before the fix; `tests 14`, `pass 14`, `fail 0` after; and `14 / 14 / 0` again after the claims
+  record landed, when the tree holds 35 verdict-claims and 10 surface records of which 34 and 9 are the
+  map's.
+
+- **The claims capture.** `set "M044_CAPTURE=1"&& node --experimental-strip-types --test
+  "scripts/navigation-blocking.test.mjs"` → `tests 25`, `pass 25`, `fail 0`,
+  `armed run wrote research/raw/m055-verdict-claims.json (the list had not been written)`. The record
+  carries 3 claim rows (SC1, SC2, SC3), each with `claims[].artefactPath` — `scripts/tutor-record-shapes.test.mjs`
+  for SC1, `scripts/tutor-answer.test.mjs` for SC2 and SC3 — beside `capture.command`, `.check`, `.records`
+  and `.criteria`; it carries no `capture.head`, so the landing's contract split reads it as a record
+  without a full contract rather than as a stale one. `scripts/overlay-verdict-claims.test.mjs` is green
+  again (was 2 red on the missing file), and SC2's two edges both resolve to `scripts/tutor-answer.test.mjs`
+  through the moved plan row (`.project/plan/PLAN.md:61` before `:62`; the old `| SC2 | T002 | AC4 |` row
+  remains at `:63`, which the derivation never reaches because the first row already names a suite).
+
+- **The gate shapes, re-derived after the suite fix.** `set "M044_CAPTURE=1"&& node
+  --experimental-strip-types --test "scripts/gate-integrity.test.mjs"` → `tests 41`, `pass 41`, `fail 0`;
+  the armed run wrote the record and a second armed run changed no byte (`139461` bytes, sha256
+  `c0668a50b15e534fd93a412b9e86c39be9f3023dfdca7e4a4dde0beeac3ebbf1`). Old → new:
+  `archiveReferences.filesExamined` 308 → 313, `.suitesExamined` 157 → 159, `.examined` 183 → 185,
+  `.counts.undecided` 139 → 141, `.sites.pattern` 5 → 7, `.movedSubtreesDerivedFrom.archivesExamined`
+  54 → 55; `wholeTree.suites.scripts|total` 112|187 → 114|189, `.filesListed` 475 → 480,
+  `.declarations.tests` 2379 → 2405, `.describes` 325 → 326; `suiteDiff.counts.differing` 34 → 36,
+  `.added` 18 → 20, `.addedAssertionLines` 3812 → 4155; `fixRecord.claims.5.resolvesTo` 52 → 54.
+  `suiteDiff.differing` now carries this pass's `scripts/tutor-record-shapes.test.mjs` reading
+  (+1678/−0 lines, +167/−0 assertion lines) beside M055 T002's `scripts/tutor-answer.test.mjs`. The
+  record was re-derived a second time after the suite was put through `prettier --write` (the first
+  capture's `+1676` line count was the unformatted edit; the second armed run moved exactly
+  `suiteDiff.differing[27].addedLines` 1676 → 1678 and nothing else).
+
+- **Blocker 3 — `scripts/tutor-answer.test.mjs:885-:898`, and it is not in this task's `files:`.** The
+  record blocker 1 held now exists as the 35th verdict-claims record, and T002's suite holds the tree to
+  the map's own count: `assert.equal(realRecords.length, RECORDING_DATA.inventory.verdictClaims.count,
+  'the suite reads every verdict-claims record T001 measured')` → `35 !== 34`. `realRecords`
+  (`scripts/tutor-answer.test.mjs:156-:162`) is every `*-verdict-claims.json` on disk; the map measured 34
+  at `b450c28` and names T004's two records outside it for exactly this reason, and this suite is the one
+  place that does not subtract them. **Minimal fix, two lines, the same class as the inventory fix:**
+  filter `realRecords` through `RECORDING_DATA.inventory.outsideTheMap` before the count is taken, leaving
+  every other pin — the 44 claims that carry the field, the 22 records that carry none, E4's constructed
+  absence — untouched. `scripts/tutor-answer.test.mjs` is T002's suite and this task's `files:` does not
+  declare it, so this task may not make it; the landing refuses any changed path the list does not
+  declare, before the Verify. The alternative the previous pass named — re-measuring
+  `research/raw/m055-record-shapes.json` to 35 records — is inside `files:` but would replace the map T001
+  measured with a hand transcription at a different head, move `claims[].artefactPath` to 47 claims of 13
+  records, and stale the `34 verdict-claims records … 12 of the 34 … 22 records` readings that
+  `scripts/gate-integrity.test.mjs:5690` and the gate record carry.
+
+- **The three facts ship must carry, re-confirmed at this head.** (1) C4 holds: `claims[].artefactPath` is
+  carried by 12 of the 34 records the map measured, and the other 22 (M022–M043, in four shapes) carry no
+  artefact path, which is why the surface renders `no-artefact-named` in its own sentence. (2) The
+  authored index `extension/tutor-index.js` holds two facts per row — the question text to the criterion
+  id and the milestone — and gained no third. (3) E4's `missing-artefact` state has no live instance: all
+  44 `artefactPath` values the map names resolve, so the state is pinned by a constructed input in
+  `scripts/tutor-answer.test.mjs`, and the recording says so.
+
+- **The gate stability, re-derived last.** `set "M056_CAPTURE=1"&& node --test
+  "scripts/gate-stability-record.test.mjs"` → `tests 9`, `pass 9`, `fail 0`; the armed run wrote the record
+  and a second armed run changed no byte. Old → new: `archive.detail.plainRun.milestone` `M054` → `M055`;
+  `predecessor.detail.lines.1` `624 changed path(s) of b3a9cfe3…` → `655 changed path(s) of 049e92c8…`
+  (the newest ship commit it derives from moved `ship: M053 — webmcp-rehearsal` → `ship: M054 —
+  visual-qa`). The three gate runs stay green (`archive` 0, `fixRecord` 0, `predecessor` 0, no refusal
+  line, no finding), and `capture.head` stays the pinned `5290d939…` by the record's own design rather
+  than tracking HEAD. `archive.detail.plainRun.summary` reads `0 finding(s), 32 mention(s)` at this
+  capture (was 24): the mention count is a function of this Log's own text, which is why the suite pins
+  its shape (`0 finding(s), N mention(s)`) and the exit code, and not N.
+
+- **The project verify, measured leg by leg at this head.** `npx nx run angular-ai-devtools:build-extension
+  --skip-nx-cache` exits **0** (`Successfully ran target build-extension`; `extension/panel/index.html` is
+  the build's own output). `npm run check` exits **0** once the suite fix is formatted — the first run
+  exited 1 with `[warn] scripts/tutor-record-shapes.test.mjs` from `format:check` and every other stage
+  green (tsc ×4, skills, `gate:verification`, `gate:archive-paths`, `gate:fix-record` — `0 finding(s),
+  30 mention(s)`). `npm test` exits **1**: `tests 1787`, `pass 1785`, `fail 2`, and the two failures are
+  named below.
+
+- **Blocker 4 — `scripts/interaction-story.test.mjs:811-:844` is red at the base commit itself, before
+  any byte this task wrote.** `node --experimental-strip-types --test scripts/interaction-story.test.mjs`
+  → `tests 17`, `pass 16`, `fail 1`, `the 35 extension/*.js recorder files record no interaction …
+  1 !== 0`. The occurrence is `extension/tutor-index.js:72`, the authored index row
+  `'does every step of the interaction story quote an event the record carries, in the order it
+  arrived?'` — introduced by `f5f70284` (M055 T002) and carried unchanged into this task's base. Proven
+  pre-existing rather than caused here: a `git worktree` at `7a056be6` runs the same suite to the same
+  `tests 17 / pass 16 / fail 1`, and this task neither writes `extension/tutor-index.js` nor that suite.
+  **Minimal fix, either side:** exclude the authored index from the recorder word count beside the
+  existing `NARRATION` exclusion (`extension/tutor-index.js` is an authored mapping, not a recorder), or
+  reword that one question — the first is the honest one, because the pin's subject is a recorder writing
+  an `interaction` event and an index question naming one is neither. Neither path is in this task's
+  `files:`.
+
+- **Not established:** the landing, held by blockers 3 and 4 — both outside this task's `files:`, one of
+  them red before this task began. Nothing was committed.
+- Landed paths: `research/raw/m055-surface.json`, `research/raw/m055-record-shapes.json`, `scripts/tutor-record-shapes.test.mjs`, `research/raw/m055-verdict-claims.json`, `research/raw/m054-surface.json`, `research/raw/m053-surface.json`, `research/raw/m052-surface.json`, `research/raw/m051-surface.json`, `research/raw/m050-surface.json`, `research/raw/m049-surface.json`, `research/raw/m048-surface.json`, `research/raw/m048-surface-copy.json`, `research/raw/m056-gate-stability.json`, `research/raw/m044-gate-shapes.json`, `extension/copy-digest.json`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `scripts/copy-check.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/gate-stability-record.test.mjs`, `extension/panel/index.html` — each is read from this tree, ready.

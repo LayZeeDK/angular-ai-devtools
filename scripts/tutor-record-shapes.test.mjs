@@ -471,14 +471,37 @@ function validateHead(candidate) {
 }
 
 /**
+ * The records the map is measured over: every record present except the ones the recording names
+ * in `inventory.outsideTheMap`. T004's two records are captured after the map was measured, so they
+ * are named there on purpose rather than omitted — and only they are subtracted, so a record that
+ * appears later without being named is still held against the map and reddens.
+ * @param {any} candidate
+ * @param {{ verdictClaims: string[], surface: string[] }} [present] the records the tree holds, by
+ *   default read from disk; a mutant passes a synthetic list so a record that is not on disk can
+ *   still be held against the map
+ * @returns {{ verdictClaims: string[], surface: string[] }}
+ */
+function mappedRecords(candidate, present = presentRecords()) {
+  const outside = (candidate.inventory?.outsideTheMap ?? []).map(
+    (entry) => entry.path,
+  );
+  return {
+    verdictClaims: present.verdictClaims.filter(
+      (path) => !outside.includes(path),
+    ),
+    surface: present.surface.filter((path) => !outside.includes(path)),
+  };
+}
+
+/**
  * Every record present is measured, and every record measured is present. The two records this
  * milestone captures at T004 are named outside the map on purpose, so T004 landing them cannot
  * silently outgrow a map that was measured before they existed — and a record of another milestone
  * that appears later is a red test rather than an unmeasured record.
  * @param {any} candidate
+ * @param {{ verdictClaims: string[], surface: string[] }} [present] see {@link mappedRecords}
  */
-function validateInventory(candidate) {
-  const present = presentRecords();
+function validateInventory(candidate, present = presentRecords()) {
   const inventory = candidate.inventory;
   assert.ok(
     inventory !== null && typeof inventory === 'object',
@@ -492,23 +515,29 @@ function validateInventory(candidate) {
     );
   }
   assert.deepEqual(
+    [...outside].sort(),
+    [`${RAW}/m055-surface.json`, `${RAW}/m055-verdict-claims.json`],
+    'the records outside the map are exactly the two this milestone captures at T004, so a record of another milestone cannot be excused by naming it outside the map',
+  );
+  const mapped = mappedRecords(candidate, present);
+  assert.deepEqual(
     inventory.verdictClaims?.paths,
-    present.verdictClaims,
-    `the map measures every verdict-claims record present: the tree holds ${present.verdictClaims.length}`,
+    mapped.verdictClaims,
+    `the map measures every verdict-claims record present, the records named outside it excepted: the tree holds ${present.verdictClaims.length}, and ${outside.length} are named outside the map`,
   );
   assert.deepEqual(
     inventory.surface?.paths,
-    present.surface,
-    `the map measures every surface record present: the tree holds ${present.surface.length}`,
+    mapped.surface,
+    `the map measures every surface record present, the records named outside it excepted: the tree holds ${present.surface.length}, and ${outside.length} are named outside the map`,
   );
   assert.equal(
     inventory.verdictClaims?.count,
-    present.verdictClaims.length,
+    mapped.verdictClaims.length,
     'inventory.verdictClaims.count is the list it carries',
   );
   assert.equal(
     inventory.surface?.count,
-    present.surface.length,
+    mapped.surface.length,
     'inventory.surface.count is the list it carries',
   );
 
@@ -520,8 +549,8 @@ function validateInventory(candidate) {
   );
   assert.deepEqual(
     [...measured].sort(),
-    [...present.verdictClaims, ...present.surface].sort(),
-    'the table carries one entry per record present and no entry for a record that is not there',
+    [...mapped.verdictClaims, ...mapped.surface].sort(),
+    'the table carries one entry per record present and no entry for a record that is not there, the records the map names outside it excepted',
   );
   for (const entry of candidate.records ?? [])
     assert.ok(
@@ -978,7 +1007,7 @@ function validateClaims(candidate) {
  * @param {any} candidate
  */
 function validateFindings(candidate) {
-  const present = presentRecords();
+  const present = mappedRecords(candidate);
 
   const questionKeys = [];
   const nearMisses = [];
@@ -1390,16 +1419,18 @@ test('every citation is the line its own number names, found by searching the fi
 
 test('every record present is measured and every record measured is present', (t) => {
   validateInventory(RECORDING);
-  const { verdictClaims, surface } = presentRecords();
+  const present = presentRecords();
+  const mapped = mappedRecords(RECORDING, present);
   t.diagnostic(
-    `${verdictClaims.length} verdict-claims and ${surface.length} surface record(s) present, all measured; ${RECORDING.inventory.outsideTheMap.length} named outside the map for T004`,
+    `${mapped.verdictClaims.length} verdict-claims and ${mapped.surface.length} surface record(s) measured; ${present.verdictClaims.length + present.surface.length} present, ${RECORDING.inventory.outsideTheMap.length} named outside the map for T004`,
   );
   for (const expected of [
     ['verdict-claims', 34],
     ['surface', 9],
   ]) {
     const [kind, count] = expected;
-    const measured = kind === 'surface' ? surface.length : verdictClaims.length;
+    const measured =
+      kind === 'surface' ? mapped.surface.length : mapped.verdictClaims.length;
     assert.equal(
       measured,
       count,
@@ -1582,6 +1613,32 @@ test('a record the map does not measure reddens naming the record', () => {
   })();
   assert.ok(failure !== null, 'a record added to the table must redden');
   console.log(`mutant: unmeasured record -> ${failure.message.split('\n')[0]}`);
+});
+
+test('a record present and not named outside the map reddens naming the record', () => {
+  const present = presentRecords();
+  const unlisted = `${RAW}/m999-surface.json`;
+  present.surface = [...present.surface, unlisted].sort();
+  const failure = (() => {
+    try {
+      validateInventory(RECORDING, present);
+      return null;
+    } catch (error) {
+      assert.ok(error instanceof Error, 'the check fails with an Error');
+      return error;
+    }
+  })();
+  assert.ok(
+    failure !== null,
+    'a surface record present at this head and not named outside the map must redden, so the subtraction is the recording’s named exceptions rather than every record',
+  );
+  assert.ok(
+    failure.message.includes(unlisted),
+    `the failure names the record the map does not carry, and it says ${JSON.stringify(failure.message)}`,
+  );
+  console.log(
+    `mutant: new unlisted record -> ${failure.message.split('\n')[0]}`,
+  );
 });
 
 test('the recording is a read: it names its head and nothing here writes', (t) => {
