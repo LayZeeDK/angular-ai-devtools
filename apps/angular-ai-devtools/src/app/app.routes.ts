@@ -15,11 +15,8 @@ const loadPanelDemo = () =>
   import('./panel-demo').then((m) => m.PanelDemoComponent);
 
 /**
- * The panel's surfaces, in the order their routes sit in `appRoutes` below; each name is both the route's path and its `data.surface`, so the two readings of a surface cannot drift apart.
- *
- * A list mapped over one object literal rather than twenty-one literals: the route object is eager even though its component is lazy, because the table lives in the entry chunk, so every entry carried its own copy of the property names and the minifier's per-entry renames; every route here is lazy — installed through `loadPanelDemo`, never a surface function — so the initial bundle stays inside its baseline.
- * Every citation in this file is pinned to its line by `m047..m053`, which is why `webmcp-rehearsal` sits between `console-read` and `webmcp`, `webmcp` sits between it and `components`, and `what-changed` carries no comment: an entry added here pays for its own lines out of this paragraph, so no cited line below it moves.
- * The M053 entry registers nothing: the page that declares its tool is `REHEARSAL_PAGE` in `panel-webmcp-rehearsal.ts`, and this route only reaches the pane that renders the join's answer.
+ * The panel's surfaces, in the order their routes sit in `appRoutes` below; each name is both the route's path and its `data.surface`, so the two readings of a surface cannot drift apart. A list mapped over one object literal rather than twenty-one literals: the route object is eager even though its component is lazy, because the table lives in the entry chunk, so every entry carried its own copy of the property names and the minifier's per-entry renames; every route here is lazy — installed through `loadPanelDemo`, never a surface function — so the initial bundle stays inside its baseline.
+ * Every citation in this file is pinned to its line by `m047..m053`, which is why `webmcp-rehearsal` sits between `console-read` and `webmcp`, `webmcp` sits between it and `components`, and `what-changed` carries no comment: an entry added here pays for its own lines out of this paragraph, so no cited line below it moves. M054's `visual-qa` is paid for the same way, which is why it sits between `console-read` and `webmcp-rehearsal` rather than after `what-changed`: `scripts/component-search.test.mjs` re-reads the `appRoutes` declaration line below this list, and an append after `what-changed` would move it by the entry's own lines. The M053 entry registers nothing (its page is `REHEARSAL_PAGE` in `panel-webmcp-rehearsal.ts`), and the M054 entry measures nothing at render time: its reading is T001's (`research/raw/m054-style-read.json`).
  */
 const PANEL_SURFACES = [
   // The M028 SC4 surface: the ordered after-render chain, or the state that names its absence.
@@ -81,6 +78,9 @@ const PANEL_SURFACES = [
   // rendered it, the same with the absence a finding names still stated, or the `cannot-tell` reason
   // and nothing beside it.
   'console-read',
+  // The M054 SC1-SC3 surface: each measured property's computed value beside the baseline
+  // stylesheet's declared value, each under its own label — or the three absences, named apart.
+  'visual-qa',
   // The M053 SC1-SC3 surface: the tool the model chose, named by the awaited list, beside the result the
   // tool returned — or the absent handle, the tool's refusal, the unreadable list, each in its own words.
   'webmcp-rehearsal',

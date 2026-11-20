@@ -210,6 +210,17 @@ import {
   UNAVAILABLE as REHEARSAL_UNAVAILABLE,
   rehearsalPanel,
 } from './panel-webmcp-rehearsal';
+import {
+  BASELINE_LABEL as STYLE_BASELINE_LABEL,
+  COMPUTED_LABEL as STYLE_COMPUTED_LABEL,
+  MEASURED as STYLE_MEASURED,
+  NO_BASELINE as STYLE_NO_BASELINE,
+  NO_DOCUMENT as STYLE_NO_DOCUMENT,
+  NO_REPORT_TEXT as STYLE_NO_REPORT_TEXT,
+  NO_SUCH_ELEMENT as STYLE_NO_SUCH_ELEMENT,
+  STATE_TEXTS as STYLE_STATE_TEXTS,
+  stylePanel,
+} from './panel-visual-qa';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -2924,6 +2935,7 @@ describe('the panel demo', () => {
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
+      'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
@@ -2932,7 +2944,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(33);
+    expect(appRoutes).toHaveLength(34);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -4768,4 +4780,393 @@ describe('the panel demo', () => {
     // The pane adds no DOM and writes no field of its own.
     expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
   });
+
+  it('renders each measured property with both readings under their own labels, and the three absences each named apart', async () => {
+    // The measurement T001 recorded, rebuilt here from the recording's own bytes: the element is the
+    // panel's `h2`, the properties are the recording's declaration and each side's value is the one
+    // that side reported. Nothing below is written by hand.
+    const { recording, text } = readStyleRecording();
+    const measurement = styleMeasurement(recording);
+    expect(measurement.document.documentClass).toBe('chrome-extension://');
+    expect(measurement.document.documentUrl).toContain('/panel/');
+
+    // The shipped join's own answer for that measurement — and the demo's fact for it, field for field.
+    const join = visualQaJoin();
+    const answer = join.styleReport(measurement);
+    expect(answer.state).toBe(STYLE_MEASURED);
+    expect(answer.reason).toBeNull();
+    expect(answer.rows.map((row) => row.property)).toEqual(
+      recording.properties.map((property) => property.name),
+    );
+    // Every computed value the report carries is in the recording's own bytes, and so is every
+    // baseline value: nothing here was invented (SC3, N4).
+    for (const row of answer.rows) {
+      expect(text.includes(row.computed)).toBe(true);
+      if (row.baseline === null) {
+        throw new Error(
+          `the ${row.property} reading must carry a baseline on h2`,
+        );
+      }
+      expect(text.includes(row.baseline)).toBe(true);
+    }
+    expect(FACTS['visual-qa']).toEqual(answer);
+
+    // The route is the one a user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find((candidate) => candidate.path === 'visual-qa');
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the visual-qa surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('visual-qa');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'visual-qa'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo('visual-qa');
+    expect(demo.state()).toBe(STYLE_MEASURED);
+    const pane = stylePanel(FACTS['visual-qa']);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+
+    // `measured`: one row per property the recording declared, in its order, each naming the property
+    // as the measurement wrote it and each value under the label of the side that reported it.
+    expect(pane.state).toBe(STYLE_MEASURED);
+    expect(pane.lines[0]).toBe(`state: ${STYLE_MEASURED}`);
+    expect(pane.lines[1]).toBe(STYLE_STATE_TEXTS[STYLE_MEASURED]);
+    expect(pane.lines[2]).toBe('element: h2');
+    expect(pane.lines.slice(3)).toEqual(
+      answer.rows.flatMap((row) => [
+        `property: ${row.property}`,
+        `${STYLE_COMPUTED_LABEL}: ${row.computed}`,
+        `${STYLE_BASELINE_LABEL}: ${row.baseline}`,
+      ]),
+    );
+    // E2: the browser's serialised used value and the sheet's declaration are two different strings
+    // here, and neither is normalised into the other's spelling — a pane that printed one value for
+    // both sides would print `2px` where the element computed `1.71429px`.
+    expect(pane.text).toContain(`${STYLE_COMPUTED_LABEL}: 1.71429px`);
+    expect(pane.text).toContain(`${STYLE_BASELINE_LABEL}: 2px`);
+    expect(pane.text.includes(`${STYLE_BASELINE_LABEL}: 1.71429px`)).toBe(
+      false,
+    );
+
+    // `no-such-element`: the document the reading reached is named beside the absence, and no
+    // property row is rendered (E4, N3).
+    const noElement = join.styleReport({
+      document: measurement.document,
+      element: 'p.not-rendered',
+      found: false,
+      readings: [],
+    });
+    expect(noElement.state).toBe(STYLE_NO_SUCH_ELEMENT);
+    const noElementPane = stylePanel(noElement);
+    expect(noElementPane.state).toBe(STYLE_NO_SUCH_ELEMENT);
+    expect(noElementPane.lines[0]).toBe(`state: ${STYLE_NO_SUCH_ELEMENT}`);
+    expect(noElementPane.lines[1]).toBe(
+      STYLE_STATE_TEXTS[STYLE_NO_SUCH_ELEMENT],
+    );
+    expect(noElementPane.lines).toContain(
+      `document: ${measurement.document.documentUrl}`,
+    );
+    expect(noElementPane.lines).toContain(
+      'document-class: chrome-extension://',
+    );
+    expect(noElementPane.text).toContain('the reading located');
+    expect(noElementPane.text).toContain('p.not-rendered');
+
+    // `no-document`: nothing is named beside the absence, because there is no document reading.
+    const noDocument = join.styleReport(undefined);
+    expect(noDocument.state).toBe(STYLE_NO_DOCUMENT);
+    const noDocumentPane = stylePanel(noDocument);
+    expect(noDocumentPane.state).toBe(STYLE_NO_DOCUMENT);
+    expect(noDocumentPane.lines[0]).toBe(`state: ${STYLE_NO_DOCUMENT}`);
+    expect(noDocumentPane.lines[1]).toBe(STYLE_STATE_TEXTS[STYLE_NO_DOCUMENT]);
+    expect(
+      noDocumentPane.lines.filter((line) => line.startsWith('document:')),
+    ).toEqual([]);
+
+    // `no-baseline`: the property the report names and every property it lists, in its own order.
+    const noBaseline = join.styleReport({
+      document: measurement.document,
+      element: 'h2',
+      found: true,
+      readings: [
+        { property: 'padding', computed: '8px 0px 6px', baseline: null },
+        { property: 'borderTopWidth', computed: '1.71429px', baseline: '2px' },
+        { property: 'fontSize', computed: '15px', baseline: null },
+      ],
+    });
+    expect(noBaseline.state).toBe(STYLE_NO_BASELINE);
+    if (noBaseline.reason === null) {
+      throw new Error('the no-baseline answer must state the absence it names');
+    }
+    expect(noBaseline.reason.property).toBe('padding');
+    expect(noBaseline.reason.properties).toEqual(['padding', 'fontSize']);
+    const noBaselinePane = stylePanel(noBaseline);
+    expect(noBaselinePane.state).toBe(STYLE_NO_BASELINE);
+    expect(noBaselinePane.lines[0]).toBe(`state: ${STYLE_NO_BASELINE}`);
+    expect(noBaselinePane.lines[1]).toBe(STYLE_STATE_TEXTS[STYLE_NO_BASELINE]);
+    expect(noBaselinePane.lines).toContain('property: padding');
+    expect(noBaselinePane.lines).toContain('properties: padding, fontSize');
+
+    for (const absence of [noElementPane, noDocumentPane, noBaselinePane]) {
+      // An absence is never a measured-unchanged answer: no row carries a reading, on either side.
+      expect(absence.state).not.toBe(STYLE_MEASURED);
+      expect(
+        absence.lines.filter(
+          (line) =>
+            line.startsWith(`${STYLE_COMPUTED_LABEL}:`) ||
+            line.startsWith(`${STYLE_BASELINE_LABEL}:`),
+        ),
+      ).toEqual([]);
+    }
+    // Three absences, three states and three sentences — never one blank state (E3).
+    expect(
+      new Set([noElementPane.state, noDocumentPane.state, noBaselinePane.state])
+        .size,
+    ).toBe(3);
+    expect(
+      new Set([
+        noElementPane.lines[1],
+        noDocumentPane.lines[1],
+        noBaselinePane.lines[1],
+      ]).size,
+    ).toBe(3);
+
+    // E5: the same absence on a second run, and a run that measured nothing renders no property row.
+    expect(stylePanel(noDocument)).toEqual(stylePanel(noDocument));
+    expect(stylePanel(noBaseline)).toEqual(stylePanel(noBaseline));
+    expect(stylePanel(FACTS['visual-qa'])).toEqual(
+      stylePanel(FACTS['visual-qa']),
+    );
+    expect(
+      stylePanel({
+        state: STYLE_MEASURED,
+        element: 'h2',
+        rows: [],
+        reason: null,
+      }).lines,
+    ).toEqual([
+      `state: ${STYLE_MEASURED}`,
+      STYLE_STATE_TEXTS[STYLE_MEASURED],
+      'element: h2',
+    ]);
+
+    // A row with no computed reading is no row at all, and it is not restated as a missing baseline:
+    // nothing the measurement did not produce is printed on either side (N4).
+    expect(
+      stylePanel({
+        state: STYLE_MEASURED,
+        element: 'h2',
+        rows: [{ property: 'padding', computed: '', baseline: '8px 0px 6px' }],
+        reason: null,
+      }).lines,
+    ).toEqual([
+      `state: ${STYLE_MEASURED}`,
+      STYLE_STATE_TEXTS[STYLE_MEASURED],
+      'element: h2',
+    ]);
+
+    // A report nobody handed over is its own absence, a state word this pane was not written for is
+    // rendered as the word it was given, and a pane never writes a sentence the registry lacks.
+    expect(stylePanel(undefined).lines).toEqual([STYLE_NO_REPORT_TEXT]);
+    expect(stylePanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+
+    // The pane adds no DOM and writes no value of its own.
+    expect(demo.text()).not.toMatch(/<\/?[a-z]/i);
+  });
 });
+
+/** One recorded hook reading: the computed values the browser reported and the rules that declare it. */
+interface RecordedHook {
+  found: boolean;
+  computed: { tag: string; values: Record<string, string> };
+  declared: {
+    selectorText: string;
+    media: string | null;
+    applies: boolean;
+    properties: Record<string, string>;
+  }[];
+}
+
+/** One recorded run: the document reading it located and the four baseline hooks it read. */
+interface RecordedRun {
+  label: string;
+  readings: Record<
+    string,
+    {
+      documentUrl: string;
+      documentClass: string;
+      baselineMedia: string | null;
+      hooks: Record<string, RecordedHook>;
+    }
+  >;
+}
+
+/** The part of `research/raw/m054-style-read.json` this spec reads. */
+interface StyleReadRecording {
+  instrument: { runs: RecordedRun[] };
+  properties: {
+    name: string;
+    cssName: string;
+    declaredFor: {
+      hook: string;
+      citation: { path: string; line: number; text: string };
+    }[];
+  }[];
+}
+
+/** One reading the measurement took, as the join reads it. */
+interface StyleReading {
+  property: string;
+  computed: string;
+  baseline: string | null;
+}
+
+/** The measurement the join is handed: the document reading, the element and the readings. */
+interface StyleMeasurement {
+  document: { documentUrl: string; documentClass: string };
+  element: string;
+  found: boolean;
+  readings: StyleReading[];
+}
+
+/** The join's answer, for the fields this spec reads. */
+interface StyleReport {
+  state: string;
+  element: string | null;
+  rows: StyleReading[];
+  reason: {
+    code: string;
+    element: string | null;
+    document: { documentUrl: string; documentClass: string } | null;
+    property?: string;
+    properties?: string[];
+    detail: string;
+  } | null;
+}
+
+/** The page's own visual-qa namespace, as `extension/visual-qa.js` publishes it. */
+interface StyleJoin {
+  styleReport(measurement: unknown): StyleReport;
+}
+
+/**
+ * T001's measurement recording and its text, inlined from disk the same way the other recordings are:
+ * the demo's `visual-qa` fact is held to a measurement rebuilt from it, never to a copy of one.
+ */
+function readStyleRecording(): {
+  recording: StyleReadRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m054-style-read.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m054-style-read.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as StyleReadRecording, text };
+}
+
+/**
+ * The measurement T001 took in the panel's own document, rebuilt from the recording: the element is
+ * the panel's `h2`, every computed value is the one the recorded hook reported for that property, and
+ * every baseline value is the one a rule that applies declares for it — or, for the property no hook
+ * rule declares and the hooks inherit from `body`, the value on the declaring line the recording
+ * cites. The run whose baseline applied is the one read: the artefact at head, where the sheet is not
+ * behind a media gate. The fresh-build run's readings are the browser's own defaults and are not
+ * baseline readings at all.
+ */
+function styleMeasurement(recording: StyleReadRecording): StyleMeasurement {
+  const applied = recording.instrument.runs.filter(
+    (run) => run.readings['light']?.baselineMedia === '',
+  );
+  if (applied.length !== 1) {
+    throw new Error(
+      `the recording must carry exactly one run whose baseline applied; it carries ${applied.length}`,
+    );
+  }
+  const reading = applied[0]?.readings['light'];
+  const hook = reading?.hooks['h2'];
+  if (reading === undefined || hook === undefined || hook.found !== true) {
+    throw new Error('the recording must hold the h2 reading of that run');
+  }
+  const readings = recording.properties.map((property): StyleReading => {
+    const computed = hook.computed.values[property.name];
+    if (typeof computed !== 'string') {
+      throw new Error(
+        `the recording holds no computed ${property.name} for h2`,
+      );
+    }
+    let baseline: string | null = null;
+    for (const rule of hook.declared) {
+      if (rule.applies !== true) continue;
+      const declared = rule.properties[property.name];
+      if (typeof declared === 'string') {
+        baseline = declared;
+        break;
+      }
+    }
+    if (baseline === null) {
+      const declaration = property.declaredFor[0];
+      const prefix = `${property.cssName}: `;
+      const line = declaration?.citation.text ?? '';
+      if (!line.startsWith(prefix)) {
+        throw new Error(
+          `the recording declares no baseline for ${property.name} on h2, and its declaring line reads ${JSON.stringify(line)}`,
+        );
+      }
+      baseline = line.slice(prefix.length).replace(/;$/, '').trim();
+    }
+    return { property: property.name, computed, baseline };
+  });
+  return {
+    document: {
+      documentUrl: reading.documentUrl,
+      documentClass: reading.documentClass,
+    },
+    element: 'h2',
+    found: true,
+    readings,
+  };
+}
+
+/**
+ * The join `extension/visual-qa.js` publishes on the page's global, evaluated from its own committed
+ * text, so the four states this spec renders are the shipped join's answers rather than a copy of its
+ * rules written here. The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function visualQaJoin(): StyleJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/visual-qa.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/visual-qa.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (globalThis as unknown as { angularAiVisualQa?: StyleJoin })
+    .angularAiVisualQa;
+  if (join === undefined || typeof join.styleReport !== 'function') {
+    throw new Error('extension/visual-qa.js published no styleReport');
+  }
+  return join;
+}

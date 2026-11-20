@@ -414,7 +414,8 @@ describe('PagePickerComponent', () => {
     // surface is appended — M039 adds `render-phase` after this one, M040 adds `performance`, M045
     // adds `console` last, M046 adds `console-read` after that, M047 adds `components` after that,
     // M048 adds `copy-check` after that and M049 adds `interaction-story` after that, M050 adds
-    // `dead-click` after that and M051 adds `what-changed` after that, while M053 adds
+    // `dead-click` after that and M051 adds `what-changed` after that, M054 appends `visual-qa` after
+    // that, while M053 adds
     // `webmcp-rehearsal` between `console-read` and `webmcp` — so a route that quietly
     // stopped being lazy reddens
     // here as well as in the app suite rather than going unread. The list of lazy paths is one
@@ -431,6 +432,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('stability');
     expect(lazy).toContain('console');
     expect(lazy).toContain('console-read');
+    expect(lazy).toContain('visual-qa');
     expect(lazy).toContain('webmcp-rehearsal');
     expect(lazy).toContain('webmcp');
     expect(lazy).toContain('components');
@@ -460,6 +462,7 @@ describe('PagePickerComponent', () => {
       'stability',
       'console',
       'console-read',
+      'visual-qa',
       'webmcp-rehearsal',
       'webmcp',
       'components',
@@ -469,7 +472,7 @@ describe('PagePickerComponent', () => {
       'what-changed',
     ]);
 
-    // The whole table, in order and to the count — thirty-three paths, exactly the ordered list
+    // The whole table, in order and to the count — thirty-four paths, exactly the ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `panel-demo.spec.ts` pin. The lazy list above
     // is one reading of the table; without this one an eager route appended to the end would leave
     // this suite green, which is what M045 T007 repairs here.
@@ -500,6 +503,7 @@ describe('PagePickerComponent', () => {
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
+      'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
@@ -508,7 +512,7 @@ describe('PagePickerComponent', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(33);
+    expect(appRoutes).toHaveLength(34);
   });
 });
 
