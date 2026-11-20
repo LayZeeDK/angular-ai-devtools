@@ -2,10 +2,10 @@
 id: T001
 title: Measure the style read and rule on the relay before anything is built
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: c255d2cb33a8306f10dbf28181ffa5eefa4d178e
 worktree: null
 task_branch: null
 files:
@@ -106,3 +106,4 @@ node --test scripts/visual-qa-style-read.test.mjs && npx prettier --check script
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m054-style-read.json`, `scripts/visual-qa-style-read.test.mjs` — each is read from this tree, ready.
