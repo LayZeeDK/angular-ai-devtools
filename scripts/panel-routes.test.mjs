@@ -35,6 +35,7 @@ const surfaces = [
   'console',
   'console-read',
   'visual-qa',
+  'tutor-foundations',
   'webmcp-rehearsal',
   'webmcp',
   'components',
@@ -570,6 +571,26 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
       String(err.message).includes('route visual-qa must exist'),
     'a table without the visual-qa route must fail naming the missing surface',
   );
+
+  // Mutant: the M055 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the artefact a record states for a question, so the per-surface half must name it
+  // rather than pass on the older surfaces alone.
+  const withoutTutorFoundations = source.replace(
+    "  'tutor-foundations',\n",
+    '',
+  );
+  assert.notEqual(
+    withoutTutorFoundations,
+    source,
+    'the removed-tutor-foundations-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutTutorFoundations),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route tutor-foundations must exist'),
+    'a table without the tutor-foundations route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -596,6 +617,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'dead-click': ['panel-dead-click', 'deadClickPanel'],
     'what-changed': ['panel-what-changed', 'whatChangedPanel'],
     'visual-qa': ['panel-visual-qa', 'visualQaPanel'],
+    'tutor-foundations': ['panel-tutor-foundations', 'tutorFoundationsPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -644,6 +666,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'deadClickPanel(',
     'whatChangedPanel(',
     'visualQaPanel(',
+    'tutorFoundationsPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -1116,5 +1139,31 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: visual-qa'),
     'removing the visual-qa loader must fail naming the missing surface visual-qa',
+  );
+
+  // Mutant: remove the tutor-foundations key from LOADERS. The M055 route is the one this task adds,
+  // so the check must name it when its loader is gone rather than pass on the surfaces before it. It
+  // is a quoted key whose import is the only reference to `panel-tutor-foundations.ts`, so a route
+  // that dropped it would leave the artefact surface unreachable while every earlier surface still
+  // loaded. The assertion reads the failure's whole message: the missing-key sentence and the
+  // surface it names.
+  const withoutTutorFoundations = demoSource.replace(
+    "  'tutor-foundations': () => import('./panel-tutor-foundations') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutTutorFoundations,
+    demoSource,
+    'the tutor-foundations loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutTutorFoundations),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: tutor-foundations'),
+    'removing the tutor-foundations loader must fail naming the missing surface tutor-foundations',
   );
 });

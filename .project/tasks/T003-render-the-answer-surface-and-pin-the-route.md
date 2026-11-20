@@ -2,10 +2,10 @@
 id: T003
 title: Render the answer surface and pin the route
 wave: 3
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: f5f70284c923726c4ccf3f0a3eefa694acf8fc9b
 worktree: null
 task_branch: null
 files:
@@ -126,3 +126,4 @@ npx nx run angular-ai-devtools:build-extension --skip-nx-cache && node --experim
 ## Log
 
 - pending.
+- Landed paths: `apps/angular-ai-devtools/src/app/panel-tutor-foundations.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/component-search.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `tests/held-out/fixture-explainers-unchanged.test.mjs`, `extension/panel/index.html` — each is read from this tree, ready.

@@ -717,6 +717,7 @@ describe('the chat route', () => {
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic, the unmatched code named
       'console-read', // M046 SC1-3 surface: the control naming what will be sent, the body the pane drew, the absence or the cannot-tell reason
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
+      'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
@@ -753,6 +754,7 @@ describe('the chat route', () => {
       'console', // M045 SC3-5 surface
       'console-read', // M046 SC1-3 surface
       'visual-qa', // M054 SC1-3 surface
+      'tutor-foundations', // M055 SC1-3 surface
       'webmcp-rehearsal', // M053 SC1-3 surface
       'webmcp', // M052 SC1-2 surface
       'components', // M047 SC1-2 surface
@@ -816,6 +818,7 @@ describe('the chat route', () => {
       'dead-click',
       'what-changed',
       'visual-qa',
+      'tutor-foundations',
     ]) {
       const route = appRoutes.find((candidate) => candidate.path === surface);
       if (route?.loadComponent === undefined) {
