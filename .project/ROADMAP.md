@@ -1891,7 +1891,7 @@ Goal: The panel reports the style readings it measured for a rendered element ag
 Depends on: [M020]
 Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
-Status: pending
+Status: active
 Archive: null
 Integrated: null
 
