@@ -71,12 +71,11 @@ citation against the tree. Build nothing: no join, no surface, no route, no rela
 
 ## Interface contract
 
-`research/raw/m054-style-read.json` is the only shape T001 and T002 exchange. It parses as JSON
-whose top-level `measurement` object carries, each with `path:line` citations recording the cited
-line's own trimmed text: the relay audit and its ruling; the declared property list with each
-property's declaring side and the injected defaults; and the live readings with instrument metadata.
-T002 reads it and no other source; neither task sends a message through the relay or reads an
-inspected-page element.
+`extension/panel/index.html` is a build artifact and is never edited by hand. T003 lands a freshly
+built copy that serves the new panel surface; T004's verify rebuilds it and discards the
+working-tree diff with `git checkout -- extension/panel/index.html` so the head that ships holds
+the built artifact. The file changes only through
+`npx nx run angular-ai-devtools:build-extension --skip-nx-cache`, never through an edit.
 
 ## Files
 

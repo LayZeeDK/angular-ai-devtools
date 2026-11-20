@@ -62,10 +62,11 @@ owns held-out E4.
 
 ## Interface contract
 
-`extension/visual-qa.js` exports `styleReport` on `globalThis.angularAiVisualQa` and answers the
-shape above; its input vocabulary is T001's `research/raw/m054-style-read.json` `measurement` object
-and nothing else. T003 renders the join's answer and never re-derives a state, a row or a value the
-join did not answer.
+`extension/panel/index.html` is a build artifact and is never edited by hand. T003 lands a freshly
+built copy that serves the new panel surface; T004's verify rebuilds it and discards the
+working-tree diff with `git checkout -- extension/panel/index.html` so the head that ships holds
+the built artifact. The file changes only through
+`npx nx run angular-ai-devtools:build-extension --skip-nx-cache`, never through an edit.
 
 ## Files
 

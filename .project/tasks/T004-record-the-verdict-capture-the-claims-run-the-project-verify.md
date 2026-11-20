@@ -82,11 +82,11 @@ re-deriving nothing after it.
 
 ## Interface contract
 
-Every recording this task writes or re-derives carries `capture.head` equal to the head it lands
-and is produced by its own capture command; `gsd land`'s pre-flight refuses a declared recording
-whose `capture.head` is not HEAD and runs the repo's pre-commit hook over the paths committed,
-both before the Verify. `extension/panel/index.html` changes only through the build, never through
-an edit.
+`extension/panel/index.html` is a build artifact and is never edited by hand. T003 lands a freshly
+built copy that serves the new panel surface; T004's verify rebuilds it and discards the
+working-tree diff with `git checkout -- extension/panel/index.html` so the head that ships holds
+the built artifact. The file changes only through
+`npx nx run angular-ai-devtools:build-extension --skip-nx-cache`, never through an edit.
 
 ## Files
 
