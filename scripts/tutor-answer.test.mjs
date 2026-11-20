@@ -153,13 +153,45 @@ function loadJoin(source = JOIN_SOURCE) {
 }
 
 /** Every verdict-claims record on disk, in file-name order, with the path it is read from. */
-const realRecords = readdirSync(join(ROOT, RECORD_DIR))
+const presentRecords = readdirSync(join(ROOT, RECORD_DIR))
   .filter((name) => name.endsWith(CLAIM_SUFFIX))
   .sort()
   .map((name) => ({
     path: RECORD_DIR + '/' + name,
     record: JSON.parse(readFileSync(join(ROOT, RECORD_DIR, name), 'utf8')),
   }));
+
+/**
+ * The paths the recording names in `inventory.outsideTheMap`: the records T001 measured the map
+ * before, which it names on purpose rather than omitting.
+ * @param {any} [recording] the map to read, by default T001's
+ * @returns {string[]}
+ */
+function outsideTheMap(recording = RECORDING_DATA) {
+  const named = recording.inventory?.outsideTheMap ?? [];
+  return named.map((/** @type {any} */ entry) => entry.path);
+}
+
+/**
+ * The records the map is measured over: every verdict-claims record present except the ones the
+ * recording names in `inventory.outsideTheMap` — the same subtraction
+ * `scripts/tutor-record-shapes.test.mjs` makes through its `mappedRecords`, made here so the two
+ * suites hold the tree to one map. T004 captures `research/raw/m055-verdict-claims.json` after the
+ * 34 beneath it were measured and names it outside the map for exactly that reason. Only the named
+ * paths are subtracted, so a record that is present and not named outside the map is still measured
+ * and still reddens the census below — which is what the census mutant proves.
+ * @param {{path: string, record: any}[]} [present] the records the tree holds, by default read from
+ *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the map too
+ * @param {any} [recording] the map to read `outsideTheMap` from, by default T001's
+ * @returns {{path: string, record: any}[]}
+ */
+function mappedRecords(present = presentRecords, recording = RECORDING_DATA) {
+  const outside = outsideTheMap(recording);
+  return present.filter((entry) => !outside.includes(entry.path));
+}
+
+/** T001's 34 records, as the join answers over them: the records the map is measured over. */
+const realRecords = mappedRecords();
 
 /** The claim rows one record entry carries, whatever shape the record is in. */
 /** @param {{record: any}} entry */
@@ -882,7 +914,41 @@ test('T002 — a criterion id no record carries is refused by the join rather th
 // carry none, and the one authored row whose record cannot answer.
 // ------------------------------------------------------------------------------------------------
 
+/**
+ * The census this suite reads through: the map measures every verdict-claims record present, the
+ * records it names outside itself excepted — the pin `scripts/tutor-record-shapes.test.mjs` makes
+ * over the same map. It is made here too because the join answers over these records and over no
+ * others, and it is strict in both directions: a record present and not named outside the map must
+ * be on the map, and a record the map measures must be present. A bare count is not enough, because
+ * a count of 34 is satisfied by the wrong 34.
+ * @param {{path: string, record: any}[]} [present] the records the tree holds, by default read from
+ *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the map too
+ * @returns {{path: string, record: any}[]} the records the map measures
+ */
+function pinRecordCensus(present = presentRecords) {
+  const outside = outsideTheMap();
+  const measured = mappedRecords(present);
+  const mapped = RECORDING_DATA.inventory.verdictClaims.paths;
+  for (const entry of measured)
+    assert.ok(
+      mapped.includes(entry.path),
+      `${entry.path} is present and is not named outside the map, so the map must measure it: T001 measured ${mapped.length} verdict-claims record(s) and ${outside.length} are named outside the map (${outside.join(', ')})`,
+    );
+  for (const path of mapped)
+    assert.ok(
+      measured.some((entry) => entry.path === path),
+      `the map measures ${path}, so that record is present and is not named outside the map`,
+    );
+  assert.equal(
+    measured.length,
+    RECORDING_DATA.inventory.verdictClaims.count,
+    'the suite reads every verdict-claims record T001 measured',
+  );
+  return measured;
+}
+
 test('T002 — the join answers every claim that carries the field and renders the 22 records that carry none as the absence (C4)', () => {
+  pinRecordCensus();
   const withPaths = realRecords.filter((entry) =>
     claimsOf(entry).some((claim) => typeof claim.artefactPath === 'string'),
   );
@@ -1011,6 +1077,35 @@ test('T002 — the join answers every claim that carries the field and renders t
   console.log(
     `T002 records: ${realRecords.length} verdict-claims records, ${answered} claim(s) answered with their own claims[].artefactPath, ${absences} record(s) rendered as no-artefact-named`,
   );
+});
+
+test('T002 — a record present and not named outside the map still reddens the census', () => {
+  const unlisted = {
+    path: `${RECORD_DIR}/m901-verdict-claims.json`,
+    record: { milestone: 'M901', claims: [{ criterion: 'SC9' }] },
+  };
+  const failure = failureOf(() =>
+    pinRecordCensus([...presentRecords, unlisted]),
+  );
+  assert.ok(
+    failure !== null,
+    'a record present and not named outside the map must redden the census, and it reddened nothing',
+  );
+  assert.ok(
+    failure.message.includes(unlisted.path),
+    `the census names the unlisted record rather than reporting a bare count: ${failure.message.split('\n')[0]}`,
+  );
+  assert.ok(
+    failure.message.includes('outside the map'),
+    `the census says what the record would have had to be to be excused: ${failure.message.split('\n')[0]}`,
+  );
+  assert.equal(
+    presentRecords.length - realRecords.length,
+    outsideTheMap().filter((path) => path.endsWith(CLAIM_SUFFIX)).length,
+    'the census subtracts exactly the verdict-claims records the map names outside itself and no others, so the exclusion is the map’s own rather than this suite’s',
+  );
+  pinRecordCensus();
+  console.log(`T002 census mutant: ${failure.message.split('\n')[0]}`);
 });
 
 test('T002 — the shipped index answers over the real records with a real reader, one row at a time', () => {
