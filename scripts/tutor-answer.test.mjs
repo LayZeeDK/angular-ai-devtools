@@ -1018,18 +1018,14 @@ test('T002 — a criterion id no record carries is refused by the join rather th
   );
 });
 
-// ------------------------------------------------------------------------------------------------
-// The join's pins over the records on disk: the 44 claims that carry the field, the 22 records that
-// carry none, and the one authored row whose record cannot answer.
-// ------------------------------------------------------------------------------------------------
+// The join's pins over the records on disk: the claims that carry the field, and the records that carry none.
 
 /**
  * The census this suite reads through: the map measures every verdict-claims record present, the
- * records the two recordings name outside themselves excepted — the pin
- * `scripts/tutor-record-shapes.test.mjs` makes over the same maps. It is made here too because the
- * join answers over these records and over no others, and it is strict in both directions: a record
- * present and not named outside either map must be on the map, and a record the map measures must be
- * present. A bare count is not enough, because a count of 34 is satisfied by the wrong 34.
+ * records the two recordings name outside themselves excepted — the pin the record-shapes suite makes
+ * over the same maps. It is strict in both directions, because a bare count is satisfied by the wrong
+ * records: a record present and not named outside either map must be on the map, and one it measures
+ * must be present.
  * @param {{path: string, record: any}[]} [present] the records the tree holds, by default read from
  *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the maps too
  * @returns {{path: string, record: any}[]} the records the map measures
@@ -1274,8 +1270,16 @@ test('T006 — a third path named outside a map reddens, and a record neither ma
     path: `${RECORD_DIR}/m057-verdict-claims.json`,
     record: { milestone: 'M057', claims: [{ criterion: 'SC1' }] },
   };
+  // The record this milestone owes is named outside the map now that T009 has captured it, so the
+  // mutant is that map with `inventory.outsideTheMap` emptied: the property under it is "a present
+  // record the map neither measures nor names reddens", not "this record is unnamed", which T009's
+  // landing made false by construction.
+  const unnamed = {
+    ...OWN_MAP_DATA,
+    inventory: { ...(OWN_MAP_DATA.inventory ?? {}), outsideTheMap: [] },
+  };
   const unmeasured = failureOf(() =>
-    pinNamedOutside([...presentRecords, owed]),
+    pinNamedOutside([...presentRecords, owed], [RECORDING_DATA, unnamed]),
   );
   assert.ok(
     unmeasured !== null,
@@ -1492,11 +1496,7 @@ test('T002 — the join is pure: no import, no filesystem, no network, no DOM, n
     );
 });
 
-// ------------------------------------------------------------------------------------------------
-// The mutants. Each is one edit of one shipped file, applied in memory. `defect` is the word the failing
-// pin must be shown to name and `names` the string in its failure text: a mutant that reddens with a
-// stack and no sentence would prove nothing about the answer.
-// ------------------------------------------------------------------------------------------------
+// The mutants. Each is one edit of one shipped file, applied in memory; `defect` is the word the pin must name.
 
 const JOIN_MUTATIONS = [
   {

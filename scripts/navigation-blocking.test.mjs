@@ -2586,19 +2586,19 @@ function boundMilestone() {
 
 /**
  * The text of one `##` section, up to the next `##` heading. Every table this file reads lives in one,
- * so a table in a task example or a later section cannot be mistaken for the one the ruling names.
+ * and the heading is matched at a line start, so a plan that names it in its prose is not the section.
  *
  * @param {string} source
  * @param {string} heading
  * @returns {string}
  */
 function sectionOf(source, heading) {
-  const at = source.indexOf(heading);
+  const at = source.indexOf(`\n${heading}`);
   assert.ok(
     at >= 0,
     `the document must carry a ${JSON.stringify(heading)} section`,
   );
-  const rest = source.slice(at + heading.length);
+  const rest = source.slice(at + heading.length + 1);
   const end = rest.indexOf('\n## ');
   return end >= 0 ? rest.slice(0, end) : rest;
 }

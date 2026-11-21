@@ -1819,17 +1819,17 @@ test('this milestone’s map may name only its own record, and a record it neith
     `the refusal names the path it refuses to subtract, and it says ${JSON.stringify(excused.message)}`,
   );
 
-  // The mutant is the map with `inventory.outsideTheMap` emptied. The property under it is "a record
-  // the map neither measures nor names outside itself reddens", so the map it runs against must be
-  // the one that does not name this record: T007's map names it on purpose, and the block below pins
-  // that naming. With the real map the assertion would read "this record is unnamed", which is false
-  // by construction once the recording lands.
+  // The mutant is the map with `inventory.outsideTheMap` emptied and a present list that carries no
+  // other record of this milestone's: the property under it is "a record the map neither measures nor
+  // names outside itself reddens", so the run must isolate that record - T007's map names the surface
+  // and T009's capture named the verdict list, and the block below pins that naming. With the real
+  // map the assertion would read "this record is unnamed", which is false by construction.
   const unnamed = {
     ...OWN,
     inventory: { ...(OWN.inventory ?? {}), outsideTheMap: [] },
   };
   const owed = `${RAW}/m057-surface.json`;
-  const present = presentRecords();
+  const present = { ...presentRecords(), verdictClaims: [] };
   present.surface = [...present.surface, owed].sort();
   const unmeasured = (() => {
     try {
