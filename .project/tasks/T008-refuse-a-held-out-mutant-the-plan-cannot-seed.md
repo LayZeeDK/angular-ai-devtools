@@ -58,7 +58,7 @@ the absent path the mutant can no longer plant, and the `console.log` records th
 new message, run against the current prose-only plan, is pasted into this task's Log. The helper's
 healthy path is proven where it still applies: on an in-memory copy whose `## Held-out checks`
 section carries the three-column table with its separator and no `E` row, the seed fires, and the
-derivation refuses naming `scripts/absent-held-out-suite.test.mjs` — the case the branch's own
+derivation refuses naming a suite path the checkout does not carry — the case the branch's own
 comment records (a milestone may run no held-out check) still passes. The six-column mutant and
 every other record-independent reading are edited not at all: measured at this head, the suite is
 24 tests / 17 pass / 7 fail, the six record-dependent failures are the final wave's deliverable
