@@ -150,7 +150,7 @@
 
   // The ordering, as data: one state, one named absence, on every answer this module gives.
   const ABSENT = 'absent';
-  const NO_WRITE_RECORD_NO_ORDER = 'no-write-record-no-order';
+  const ORDERING_ABSENCE = 'no-write-record-no-order';
 
   // The node kind that says "effect". A label is never consulted to decide what kind of node one is.
   const EFFECT_KIND = 'effect';
@@ -443,7 +443,7 @@
   // The ordering: one object, one state, one named absence, built here and nowhere else, so no
   // branch of this file can vary it and no field can carry a cause (SC2, E7).
   function orderingState() {
-    return { state: ABSENT, absence: NO_WRITE_RECORD_NO_ORDER };
+    return { state: ABSENT, absence: ORDERING_ABSENCE };
   }
 
   // The claims an answer renders, in the order it renders them: the effect, its reads, what the
@@ -529,7 +529,7 @@
     }
     detail +=
       '; the record carries no write record, so the ordering is the named absence ' +
-      NO_WRITE_RECORD_NO_ORDER +
+      ORDERING_ABSENCE +
       ' and this answer names no write, no owner and no cause';
     if (changeDetection !== null) {
       detail +=

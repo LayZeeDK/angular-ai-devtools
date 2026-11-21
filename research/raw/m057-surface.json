@@ -718,14 +718,14 @@
     "statedIn": {
       "file": "extension/tutor-signals.js",
       "line": 153,
-      "lineText": "const NO_WRITE_RECORD_NO_ORDER = 'no-write-record-no-order';",
-      "holds": "NO_WRITE_RECORD_NO_ORDER"
+      "lineText": "const ORDERING_ABSENCE = 'no-write-record-no-order';",
+      "holds": "ORDERING_ABSENCE"
     },
     "builtAt": {
       "file": "extension/tutor-signals.js",
       "line": 446,
-      "lineText": "return { state: ABSENT, absence: NO_WRITE_RECORD_NO_ORDER };",
-      "holds": "NO_WRITE_RECORD_NO_ORDER"
+      "lineText": "return { state: ABSENT, absence: ORDERING_ABSENCE };",
+      "holds": "ORDERING_ABSENCE"
     },
     "carriedAt": {
       "file": "extension/tutor-signals.js",

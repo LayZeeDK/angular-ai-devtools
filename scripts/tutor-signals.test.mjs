@@ -505,7 +505,7 @@ function pinOrderingAbsent(api, source = JOIN_SOURCE) {
   // The absence is not a finding: `ordering` never joins `claims` as an effect-shaped entry, and the
   // shipped module builds it in exactly one place, so no branch can vary it.
   assert.equal(
-    codeOf(source).split('absence: NO_WRITE_RECORD_NO_ORDER').length - 1,
+    codeOf(source).split('absence: ORDERING_ABSENCE').length - 1,
     1,
     'the ordering is built in exactly one place in the shipped module',
   );
@@ -1271,7 +1271,7 @@ const MUTATIONS = [
     // SC2 backwards: the absence rendered as causation — the write, then the render.
     defect: 'causation',
     names: 'named absence',
-    anchor: '    return { state: ABSENT, absence: NO_WRITE_RECORD_NO_ORDER };',
+    anchor: '    return { state: ABSENT, absence: ORDERING_ABSENCE };',
     replacement:
       "    return {\n      state: 'recorded',\n      absence: null,\n      cause: 'the write preceded the render',\n    };",
     pin: pinOrderingAbsent,
@@ -1281,7 +1281,7 @@ const MUTATIONS = [
     // SC2 backwards: an order read out of an edge's direction.
     defect: 'direction',
     names: 'named absence',
-    anchor: '    return { state: ABSENT, absence: NO_WRITE_RECORD_NO_ORDER };',
+    anchor: '    return { state: ABSENT, absence: ORDERING_ABSENCE };',
     replacement:
       "    return {\n      state: 'recorded',\n      absence: null,\n      order: 'before the effect, because the producer points at the consumer',\n    };",
     pin: pinOrderingAbsent,
