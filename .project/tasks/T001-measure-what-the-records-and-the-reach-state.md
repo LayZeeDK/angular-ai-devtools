@@ -75,9 +75,8 @@ redirect is only `url` differing from `urlAfterRedirects`. Both are recorded as 
 later join renders, never as something a capture could add (D7).
 
 **The record's inventory.** The recording carries `inventory.outsideTheMap` naming exactly the two
-records this milestone owes — `research/raw/m058-surface.json` and
-`the milestones verdict-claims record (produced by T004, listed in its files:)` — from the start, so no later wave has to touch the map to
-have its records excused.
+records this milestone owes — the surface record T003 writes and the verdict-claims record T004
+writes — from the start, so no later wave has to touch the map to have its records excused.
 
 **The two inventories read the map beside the earlier ones.** Edit `scripts/tutor-answer.test.mjs`
 and `scripts/tutor-record-shapes.test.mjs` so each reads M058's map beside M055's and M057's: each
@@ -100,19 +99,19 @@ route.
 
 ## Interface contract
 
-T001 publishes `the file this milestone creates (named in the owning tasks files:)on`: the field map whose terminal-class key sets,
-config five fields, absence names `no-guard-verdict` and `no-redirect-decision`, attribution rule
-(by `id` and `route.path`, never by position) and `reach.readFrom` are the only fields T002's join
-may read, and whose `inventory.outsideTheMap` names exactly `the milestones surface record (produced by T003, listed in its files:)` and
-`the milestones verdict-claims record (produced by T004, listed in its files:)`. T002 publishes `the file this milestone creates (named in the owning tasks files:)`:
+T001 publishes the record-shapes field map, whose terminal-class key sets, config five fields,
+absence names `no-guard-verdict` and `no-redirect-decision`, attribution rule (by `id` and
+`route.path`, never by position) and `reach.readFrom` are the only fields T002's join may read,
+and whose `inventory.outsideTheMap` names exactly the surface record T003 writes and the
+verdict-claims record T004 writes. T002 publishes the join module T002 creates:
 `tutorRouting(records)` on `globalThis.angularAiTutorRouting`, `records` = `{ navigation, config }`,
 one object out — `{ state, question, terminal, route, absences, unconfigured, claims, detail }`,
 every field present in every state, each `claims[]` entry carrying `artefactPath` — which T003's
-pane renders and whose route, loader key and state fields T003's `the milestones surface record (produced by T003, listed in its files:)`
-states and T004's claims record re-derives against. T003 publishes the route `tutor-routing` in
+pane renders and whose route, loader key and state fields the surface record T003 writes states and
+T004's claims record re-derives against. T003 publishes the route `tutor-routing` in
 `PANEL_SURFACES` through the shared `loadPanelDemo` closure, the `LOADERS` key `'tutor-routing'`,
 the exported `tutorRoutingPanel`, the `PANE_SENTENCES` registry and the digest rows in
-`the file this milestone creates (named in the owning tasks files:)on`.
+`extension/copy-digest.json`.
 
 `extension/panel/index.html` is a build artifact and is never edited by hand. T003 lands a freshly
 built copy that serves the new panel surface; the project verify rebuilds it and discards the
