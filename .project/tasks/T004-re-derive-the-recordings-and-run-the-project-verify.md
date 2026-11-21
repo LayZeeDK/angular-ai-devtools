@@ -2,11 +2,11 @@
 id: T004
 title: Re-derive the recordings and run the project verify
 wave: 5
-status: in-progress
+status: pending
 deps: [T003, T005]
-agent: build_T004
-base: e1530ab607752c7c313fe1bfe8b5b09718ba83ec
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
   - research/raw/m058-verdict-claims.json
