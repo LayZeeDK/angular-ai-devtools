@@ -5,7 +5,7 @@ milestone: tutor-signals
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M056
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1140,3 +1140,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — plan — build recovery: {"base": "95dc69a7f188aeb267348222a761c94036afe79e", "branch": "gsd-path/M056", "kind": "plan", "source": "build"}
 - 2026-11-21 — plan — plan approved
 - 2026-11-21 — build — build started
+- 2026-11-21 — build — build blocked: the repaired brief pinned a provenance field the record does not carry, so the plan returns for a wording repair

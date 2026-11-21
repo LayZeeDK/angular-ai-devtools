@@ -280,12 +280,12 @@ writes `id: String(n.id)` where the reader reads `index` (`extension/agent-main.
 each edge end to a node id, so a capture reproduces the defect instead of curing it, and no field the
 answer reads — `index`, `kind`, `label`, the two edge ends — is left for a live read to supply. So no
 live read is taken and the record a capture would have written, `research/raw/m057-signal-graph.json`,
-is never created. The record's own `capture` block states where it was read — its command, route, URL,
-element, component and head — and the suite pins that provenance rather than restating it, so a
-re-derivation of the record reddens in T003 rather than in a later wave. The labelled
-`Resource.loadEffect` the portal carries is not in that record with an `index`, and no record carries
-it with one, for the reason above; the empty-label effect is the shape this milestone reads, and the
-task names the portal's labelled effect as the shape a portal read would offer in its place
+is never created. The record's own `capture` block states where it was read — its command, route, page
+URL, element, component, build, browser instance and time — and the suite pins that provenance rather
+than restating it, so a re-derivation of the record reddens in T003 rather than in a later wave. The
+labelled `Resource.loadEffect` the portal carries is not in that record with an `index`, and no record
+carries it with one, for the reason above; the empty-label effect is the shape this milestone reads, and
+the task names the portal's labelled effect as the shape a portal read would offer in its place
 (`extension/render-phase.js:13-16`) without claiming a page it did not open (SC5, E6).
 
 ## Wave 4 — render the answer and pin the route table

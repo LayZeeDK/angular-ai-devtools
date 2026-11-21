@@ -42,9 +42,9 @@ one carrying a numeric `index`; 6 `allEdges`, every one carrying numeric `consum
 ends; one node of kind `effect`, at `index 5`, carrying an empty `label`; and that node's one consumer
 edge reaching producer index `2`, whose node is the `signal` the graph labels `count`. It reads the
 record's own `capture` block for the provenance the record states — the command that wrote it, the
-route and URL it was read on, the element and component it was read off, and the head it was recorded
-at — and asserts those fields are the ones the record carries, so the graph is the record's own
-statement and not one this milestone composes.
+route and page URL it was read on, the element and component it was read off, the build and browser
+instance it was read in, and the time it was read at — and asserts those fields are the ones the record
+carries, so the graph is the record's own statement and not one this milestone composes.
 
 **The answer is proved from that record, not assumed.** The suite loads the join T002 ships in a bare
 `node:vm` context, hands it the record's own `nodes` and `allEdges` and asserts the answer names the
@@ -57,9 +57,10 @@ no build, no profiler tap, no page-side listener and no serialization call. Ever
 reads — `index`, `kind`, `label` and the two edge ends — is one the record already holds, and a fresh
 serialized capture cannot supply the field that matters, because the serializer writes `id` where the
 reader reads `index`; so there is no field a live read would add, and none is taken (SC5). The suite
-pins that absence the way it pins the shape: it reads its own source and asserts it arms no capture
-flag, names no serialization entry point and writes no file, and it asserts the record this task would
-have captured (`m057-signal-graph.json`) exists nowhere under `research/raw/`.
+pins that absence the way it pins the shape: it reads its own import list and asserts it names only
+node builtins — no capture flag, no browser driver, no page-side probe and no profiler module — and it
+asserts the record this task would have captured (`m057-signal-graph.json`) exists nowhere under
+`research/raw/`.
 
 **What the record is not.** The record's own `capture` block says it was read on the counter fixture,
 so the labelled `Resource.loadEffect` the portal's record carries is not in it, and no record carries
@@ -93,14 +94,15 @@ this task at all (SC5, E6).
    that index, names the upstream node at `index 2` by the label the graph gives it, carries the
    record's path and pointer on its claims, and states the ordering as the named absence
    `no-write-record-no-order` — never a write, an owner or a cause (SC1).
-3. No capture leg exists: the suite opens no page, builds nothing, starts no profiler tap, registers no
-   page-side listener and calls no serialization entry point, it pins that in its own source, and the
-   record this task would have captured is absent from `research/raw/` — because the serializer writes
-   `id` and never `index`, so a capture could not supply the field the answer reads (SC5).
-4. The record's provenance is pinned rather than restated — the `capture` block's command, route, URL,
-   element, component and head are the ones the record carries — and the task states that no page was
-   opened, naming the portal's labelled `Resource.loadEffect` as the shape a portal read would offer in
-   place of this record's empty-label effect (SC5, E6).
+3. No capture leg exists: the suite opens no page, builds nothing, starts no profiler tap and registers
+   no page-side listener, its own import list names only node builtins so no browser driver, page-side
+   probe or profiler module can be reached, and the record this task would have captured is absent from
+   `research/raw/` — because the serializer writes `id` and never `index`, so a capture could not supply
+   the field the answer reads (SC5).
+4. The record's provenance is pinned rather than restated — the `capture` block's command, route, page
+   URL, element, component, build, browser instance and time are the ones the record carries — and the
+   task states that no page was opened, naming the portal's labelled `Resource.loadEffect` as the shape
+   a portal read would offer in place of this record's empty-label effect (SC5, E6).
 
 ## Verify
 
