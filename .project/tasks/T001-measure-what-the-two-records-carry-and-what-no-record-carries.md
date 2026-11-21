@@ -2,10 +2,10 @@
 id: T001
 title: Measure what the two records carry and what no record carries
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: e5feffb8f64f6436fa34833e5db0110a27a09bd5
 worktree: null
 task_branch: null
 files:
@@ -106,3 +106,44 @@ node --test scripts/tutor-signals-shapes.test.mjs && npx prettier --check script
 
 - pending.
 - Landed paths: `research/raw/m057-record-shapes.json`, `scripts/tutor-signals-shapes.test.mjs` — each is read from this tree, ready.
+- Measured statically at base `e5feffb8f64f6436fa34833e5db0110a27a09bd5`. No page opened, no build
+  run, no browser started. `research/raw/m057-record-shapes.json` carries 54 `path:line` citations,
+  each holding the cited line's own trimmed text; every one is re-resolved by searching its file for
+  that exact text, and all 54 resolve to the line recorded. Recorded by
+  `node <scratch>/m057-build-record.mjs`, which prints:
+  `authored extension files 57 excluded build output 48`, `write matches 5`,
+  `json files 140 graph objects 8 effect objects anywhere 16 effect nodes in nodes arrays 10`,
+  `recorded-shape objects 2 with effect 1`, `orderish edge keys []`.
+- **AC3 holds, measured.** `writeRecord`, `write_record`, `writeLog`, `writeOrder` match nothing
+  under `extension/`; `writes:` matches 5 lines — `extension/sanitizer-triage.js:37` (a sanitizer
+  binding's documented field), `extension/agent-main.test.mjs:2452` (a test title) and three
+  `matchDirectWrites:` identifiers in `extension/stale-view-worker.js:212,221,234`. The union of
+  every edge key over every graph object under `research/raw/` is
+  `consumer 13, producer 13, edge 6, consumerLabel 1, producerLabel 1` and no order-ish key, so
+  `no write record, no order` is stated as the answer's named absence. Two further `writes:` hits
+  sit inside the gitignored build bundle `extension/panel/`, excluded as build output.
+- **AC4 does not hold as written, and the recording states the measured opposite.** The premise —
+  "no record under `research/raw/` carries a node of kind `effect`" — is false. Measured:
+  `16` objects carry `kind: "effect"` across these six records: `effect-writes.json`,
+  `m036-resource-graph.json`, `m039-render-phase.json`, `vitest-attach-gemma4-newcontext.json`,
+  `vitest-attach-gemma4.json`, `vitest-chromium-bundled.json`; `10` of them sit inside a `nodes`
+  array. The premise that "the closest one holds no `index` on its nodes" is true only of
+  `m039-render-phase.json`'s `/effect/fromRecording` (nodes carry `kind` and `label` only). The same
+  file also holds `/effect/freshRead`: `6` nodes all carrying a numeric `index`, `6` `allEdges` with
+  numeric `consumer`/`producer` ends, and the effect at `index 5`, `label ""`, one consumer edge to
+  producer index `2`. That is the recorded shape exactly, and exactly one record holds an effect node
+  in it. The existing reader answers from it: running `extension/render-phase.js` in a bare
+  `node:vm` context over `{ nodes: freshRead.nodes, edges: freshRead.allEdges }` returns
+  `{"findings":[{"state":"effect","effect":null,"namedBy":"recorded-edge","reads":["count"]}],"phase":{"state":"cannot-tell","absence":"no-effect-event"}}`.
+- **What no record carries instead, which is the sharper absence.** `serializeGraph` never writes an
+  `index`: it pushes `id: String(n.id)` and resolves each edge end to the consumer/producer node id,
+  so a graph the agent's own serializer wrote cannot feed a reader that reads `index`. The milestone's
+  operative conclusion — the graph it reads is a capture (T003) — stands, but not for the reason the
+  plan gave. `research/raw/m057-record-shapes.json`'s `premiseCorrections` states all four
+  corrections, and `## Acceptance criteria` 4 as written is refuted by measurement rather than met.
+- Verify, exactly as written: `node --test scripts/tutor-signals-shapes.test.mjs && npx prettier
+  --check scripts/tutor-signals-shapes.test.mjs research/raw/m057-record-shapes.json` — exit `0`,
+  `tests 21`, `pass 21`, `fail 0`, and `All matched files use Prettier code style!`
+- Verdict: blocked — the measurement is complete and its Verify passes, but AC4 as written is a claim
+  the tree refutes, and T003's "no record holds the graph, so capture it" premise rests on that claim,
+  so the next wave needs an owner ruling before it runs: blocked.
