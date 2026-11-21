@@ -48,31 +48,10 @@ and needs a ruling of the same kind before a verdict cites it.
 
 ## Corrections
 
-- C1 2026-11-21: The roadmap's Goal promises an answer naming "the subscription, effect or timer that
-  outlived it" (`.project/ROADMAP.md:2094`), and no such handle record exists. Measured: `handleRecord`,
-  `postDestroy` and `leakedHandle` appear **zero** times across `extension/*.js` and `scripts/*.mjs`
-  (0/38 modules), `handleRecord` and `postDestroy` appear **zero** times across the 100+ recordings in
-  `research/raw/*.json`, and the only `.unsubscribe(` sites in the tree are `extension/agent-main.js:1858`
-  and `:2435`, both the agent's own subscriptions torn down on its reset path. Nothing intercepts
-  `setTimeout`, `subscribe` or `effect` on the inspected page: `setTimeout =` matches 0 of 38 extension
-  modules, and the module whose subject is lifecycle, `extension/resource-lifecycle.js:130`, answers a
-  `resource()` fact (`status`, `value`) rather than a handle. Measured verdict: the entry's first
-  observable does not exist, and creating it is the "new page-side instrumentation" its own SC2 forbids
-  (`.project/ROADMAP.md:2099`). The criterion that asked the answer to name a handle is rewritten in its
-  place: the answer names the diagnostic the console carries and states the absent handle record as its
-  own named absence (SC1, SC4).
-- C2 2026-11-21: Angular's own diagnostic for a post-teardown touch exists and is already in this
-  repository's digest: `extension/error-digest.json` carries 64 codes, one of which is
-  `{"code": "NG0205", "title": "Injector has already been destroyed"}`, enumerated from the installed
-  framework rather than typed by hand and pinned by a hash (`research/raw/m045-console-shapes.json:192`,
-  the digest hash assertion in `scripts/panel-copy.test.mjs`). Measured verdict: a code and a message body
-  are citable from the record this agent already produces, and nothing in it names a subscription.
-- C3 2026-11-21: The console record's shape is what M032 and M045 measured, not a new capture: a message
-  carries `code`, `message` and its level, and the panel's console join already keeps the code, the body
-  with the stack stripped, and the count (`extension/lint-core.js`, `extension/console-join.js`). Measured
-  verdict: an answer can name the code and the body, and where the record carries no component identity —
-  which `NG0205`'s body does not, since it names the injector "has already been destroyed" and no owner —
-  the answer must say so rather than attribute the message to the last component it saw (SC1, SC4).
+- C1 2026-11-21: The roadmap's Goal promises an answer naming "the subscription, effect or timer that outlived it" (`.project/ROADMAP.md:2094`), and no such handle record exists. Measured: `handleRecord`, `postDestroy` and `leakedHandle` appear **zero** times across `extension/*.js` and `scripts/*.mjs` (0/38 modules), `handleRecord` and `postDestroy` appear **zero** times across the 100+ recordings in `research/raw/*.json`, and the only `.unsubscribe(` sites in the tree are `extension/agent-main.js:1858` and `:2435`, both the agent's own subscriptions torn down on its reset path. Nothing intercepts `setTimeout`, `subscribe` or `effect` on the inspected page: `setTimeout =` matches 0 of 38 extension modules, and the module whose subject is lifecycle, `extension/resource-lifecycle.js:130`, answers a `resource()` fact (`status`, `value`) rather than a handle. Measured verdict: the entry's first observable does not exist, and creating it is the "new page-side instrumentation" its own SC2 forbids (`.project/ROADMAP.md:2099`). The criterion that asked the answer to name a handle is rewritten in its place: the answer names the diagnostic the console carries and states the absent handle record as its own named absence (SC1, SC4).
+- C2 2026-11-21: Angular's own diagnostic for a post-teardown touch exists and is already in this repository's digest: `extension/error-digest.json` carries 64 codes, one of which is `{"code": "NG0205", "title": "Injector has already been destroyed"}`, enumerated from the installed framework rather than typed by hand and pinned by a hash (`research/raw/m045-console-shapes.json:192`, the digest hash assertion in `scripts/panel-copy.test.mjs`). Measured verdict: a code and a message body are citable from the record this agent already produces, and nothing in it names a subscription.
+- C3 2026-11-21: The console record's shape is what M032 and M045 measured, not a new capture: a message carries `code`, `message` and its level, and the panel's console join already keeps the code, the body with the stack stripped, and the count (`extension/lint-core.js`, `extension/console-join.js`). Measured verdict: an answer can name the code and the body, and where the record carries no component identity — which `NG0205`'s body does not, since it names the injector "has already been destroyed" and no owner — the answer must say so rather than attribute the message to the last component it saw (SC1, SC4).
+
 
 ## Success criteria
 
