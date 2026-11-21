@@ -2,10 +2,10 @@
 id: T008
 title: Refuse a held-out mutant the plan cannot seed
 wave: 6
-status: pending
+status: done
 deps: [T003, T006, T007]
-agent: null
-base: null
+agent: build_T008
+base: 4492c59bc8f79656fab26beab2d4f67583848ffd
 worktree: null
 task_branch: null
 files:
@@ -136,3 +136,9 @@ node --test --test-name-pattern "refuses a held-out test this checkout does not 
 ## Log
 
 - pending.
+- Landed path: `scripts/navigation-blocking.test.mjs`.
+- The defect's root cause is guarded, not its symptom: `replaceFirstHeldOutTest` now compares the seeded copy with the source and, when they are identical, refuses with `the plan's "## Held-out checks" section carries no | E… | row and no separator row to seed one behind, so it carries no seedable table row`, instead of re-entering on a copy that is not a copy. The helper's docstring states its three outcomes.
+- Both halves proven: the refusal against this plan, whose held-out rows are prose; and the healthy seed against an in-memory copy carrying the three-column table with its separator and no `E` row, where the seed plants `| E1 | T000 | ... |` and the derivation then refuses naming a suite the checkout does not carry.
+- Whole-file state moved from 24 tests / 17 pass / 7 fail to 25 / 19 / 6; the six remaining reds are all the final wave's missing verdict-claims record, and the mutant is green by refusal.
+- No other call site shares the identity-replacement pattern: the guard had one site to cover.
+- Landed paths: `scripts/navigation-blocking.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs` — each is read from this tree, ready.
