@@ -2,10 +2,10 @@
 id: T009
 title: Re-measure the census and run the project verify
 wave: 8
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T009
+base: 1bfe76d48ea144cf6c1fd76c95e43f55198fa545
 worktree: null
 task_branch: null
 files:
