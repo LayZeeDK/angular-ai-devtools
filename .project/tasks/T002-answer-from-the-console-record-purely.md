@@ -1,0 +1,83 @@
+---
+id: T002
+title: Answer from the console record, purely
+wave: 2
+status: pending
+deps: [T001]
+agent: null
+base: null
+worktree: null
+task_branch: null
+files:
+  - extension/teardown-leak.js
+  - scripts/teardown-leak.test.mjs
+---
+
+# T002 — Answer from the console record, purely
+
+## Goal
+
+The join that answers why a destroyed component still changes state, as a pure function of the console
+record `T001` measured: it names the code, the message body and — only where the record attributes one —
+the owner, and it names `owner-not-in-the-message` and `handle-record-not-held` as its own states.
+
+## Context
+
+The record states 64 digest codes including `NG0205`, a console message carrying code, body and count,
+and no per-injector handle anywhere. The join therefore cannot name a subscription, and must say so
+instead of inferring one. Its shape follows the two lessons the panel's other joins earned: `cannot-tell`
+is reserved for a record that does not state the thing, and no field is invented (the M031 `cannot-tell`
+remedy and the M032 stack-stripping rule).
+
+## Approach
+
+`extension/teardown-leak.js` exports `teardownLeak(records)` on `globalThis.angularAiTeardownLeak`, taking
+`{ console, digest }` and returning `{ state, code, message, owner, absences, claims, detail }` with every
+field present in every state. `state` is `finding` when the record carries an `NG0205` message, `absent`
+when it carries none, `cannot-tell` when the record does not state what it was asked, and `empty` with no
+record at all. `owner` stays `null` unless a field of the message carries it. `absences` lists
+`owner-not-in-the-message` and `handle-record-not-held` as separate entries. `claims[]` entries carry
+`artefactPath`.
+
+## Interface contract
+
+T001 publishes the record-shapes field map described above; T002's join reads only its `digest` and
+`message` sections. T002 publishes `teardownLeak(records)` with the object shape stated in Approach, every
+field present in every state and each `claims[]` entry carrying `artefactPath`; T003's pane renders that
+object and only that object, and T004's claims record re-derives against it.
+
+## Intent coverage
+
+- SC1 — AC1: a record carrying `NG0205` yields a finding naming the code and the body, and an unowned
+  message yields `owner-not-in-the-message` beside the code.
+- SC2 — AC2: the join reads the record the agent already holds and nothing else.
+- SC3 — AC3: a released handle followed by the diagnostic is rendered as that sequence, never as a leak.
+- SC4 — AC4: no handle identity is named, and the absence `handle-record-not-held` is always present.
+- SC5 — AC5: the join publishes a contract the surface and the claims record can read.
+
+## Acceptance criteria
+
+1. SC1: a record carrying `NG0205` yields `state: 'finding'` naming the code and the body; a message with
+   no owner field yields `owner: null` and the absence `owner-not-in-the-message`; a mutant that
+   suppresses the code match, and a mutant that attributes the message to the last component seen, redden
+   naming the defect.
+2. SC2: the join reads only its `records` argument and touches no global, no page and no clock; a mutant
+   that reads a live page value reddens.
+3. SC3: a record that states a released handle before the diagnostic renders the sequence and names no
+   handle as the cause; a mutant that renders "leaked subscription" for a released handle reddens.
+4. SC4: every answer carries `handle-record-not-held`, and no answer states a subscription, effect or
+   timer name; a mutant that renders a handle name reddens — held-out E5 asserts the two absences stay two
+   states.
+5. SC5: the returned object carries every stated field in every state, and each `claims[]` entry carries
+   `artefactPath`; a mutant that drops a field reddens — held-out E2 asserts an empty record is a named
+   absence naming the code searched for and the count read, never "no leak found".
+
+## Verify
+
+```bash
+node --test scripts/teardown-leak.test.mjs && npx prettier --check extension/teardown-leak.js scripts/teardown-leak.test.mjs && npm run check
+```
+
+## Log
+
+- pending.
