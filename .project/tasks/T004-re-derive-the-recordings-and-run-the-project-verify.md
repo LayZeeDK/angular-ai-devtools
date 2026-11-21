@@ -9,7 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
-  - the milestones verdict-claims record (produced by T004, listed in its files:)
+  - research/raw/m058-verdict-claims.json
   - research/raw/m044-gate-shapes.json
   - research/raw/m056-gate-stability.json
   - scripts/gate-integrity.test.mjs
@@ -45,7 +45,7 @@ it is re-derived after the last Log byte and before the project verify.
 Re-derive the recordings this change moved, each by its own stated command and no other, a second
 armed run of each changing no byte (PLAN D5):
 
-- `the milestones verdict-claims record (produced by T004, listed in its files:)` via
+- `research/raw/m058-verdict-claims.json` via
   `set "M044_CAPTURE=1"&& node --experimental-strip-types --test "scripts/navigation-blocking.test.mjs"`
   — the command the record itself states.
 - `research/raw/m044-gate-shapes.json` via its own armed capture
@@ -62,7 +62,7 @@ suite's own reading rather than to reach green, appended after the last line the
 pins. Declare `scripts/gate-integrity-default-tasks.test.mjs` and edit it not at all, and declare
 `scripts/gate-stability-record.test.mjs`, the suite whose record this task re-derives. The two
 inventory suites are declared here as readers of the map and the records this milestone already
-landed — `the milestones verdict-claims record (produced by T004, listed in its files:)` above, and the surface record T003 wrote — and are
+landed — `research/raw/m058-verdict-claims.json` above, and the surface record T003 wrote — and are
 run green at this head with no assertion loosened, no count lowered, nothing skipped.
 
 This task also runs the direct-suite leg T003 left to it — the two route-file suites T003 edits,
@@ -105,7 +105,7 @@ built artifact. The file changes only through `npx nx run angular-ai-devtools:bu
 
 ## Files
 
-- the milestones verdict-claims record (produced by T004, listed in its files:)
+- research/raw/m058-verdict-claims.json
 - research/raw/m044-gate-shapes.json
 - research/raw/m056-gate-stability.json
 - scripts/gate-integrity.test.mjs
@@ -118,7 +118,7 @@ built artifact. The file changes only through `npx nx run angular-ai-devtools:bu
 ## Acceptance criteria
 
 1. The records the change re-derived are re-derived by their own commands and no other —
-   `the milestones verdict-claims record (produced by T004, listed in its files:)` and `research/raw/m044-gate-shapes.json` behind
+   `research/raw/m058-verdict-claims.json` and `research/raw/m044-gate-shapes.json` behind
    `M044_CAPTURE=1`, `research/raw/m056-gate-stability.json` behind `M056_CAPTURE=1` last after
    this milestone's last Log byte — a second armed run of each changes no byte, and the readings
    the answer's artefact paths rest on are this head's and not a stale one (SC5).
