@@ -100,11 +100,11 @@ route.
 
 ## Interface contract
 
-T001 publishes `research/raw/m058-record-shapes.json`: the field map whose terminal-class key sets,
+T001 publishes `the file this milestone creates (named in the owning tasks files:)on`: the field map whose terminal-class key sets,
 config five fields, absence names `no-guard-verdict` and `no-redirect-decision`, attribution rule
 (by `id` and `route.path`, never by position) and `reach.readFrom` are the only fields T002's join
 may read, and whose `inventory.outsideTheMap` names exactly `the milestones surface record (produced by T003, listed in its files:)` and
-`the milestones verdict-claims record (produced by T004, listed in its files:)`. T002 publishes `extension/tutor-routing.js`:
+`the milestones verdict-claims record (produced by T004, listed in its files:)`. T002 publishes `the file this milestone creates (named in the owning tasks files:)`:
 `tutorRouting(records)` on `globalThis.angularAiTutorRouting`, `records` = `{ navigation, config }`,
 one object out — `{ state, question, terminal, route, absences, unconfigured, claims, detail }`,
 every field present in every state, each `claims[]` entry carrying `artefactPath` — which T003's
@@ -112,7 +112,7 @@ pane renders and whose route, loader key and state fields T003's `the milestones
 states and T004's claims record re-derives against. T003 publishes the route `tutor-routing` in
 `PANEL_SURFACES` through the shared `loadPanelDemo` closure, the `LOADERS` key `'tutor-routing'`,
 the exported `tutorRoutingPanel`, the `PANE_SENTENCES` registry and the digest rows in
-`extension/copy-digest.json`.
+`the file this milestone creates (named in the owning tasks files:)on`.
 
 `extension/panel/index.html` is a build artifact and is never edited by hand. T003 lands a freshly
 built copy that serves the new panel surface; the project verify rebuilds it and discards the
