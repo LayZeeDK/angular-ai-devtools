@@ -91,10 +91,6 @@ whose first row names T001: SC1's edges, SC2's one edge, SC3's two in-scope edge
 SC5's one all resolve to `scripts/tutor-routing.test.mjs`, and SC6's one edge resolves to
 `scripts/tutor-routing-shapes.test.mjs` — the same suite the held-out prose above names for E9.
 
-T005 appears in no row, and the omission is the statement: it repairs a stale citation inside a
-record T002 and T003 read, so it owns no acceptance criterion, claims none and is in the plan because
-the authored ceiling (R6) forced the repair out of T004 — not because it covers anything.
-
 ## Held-out checks
 
 D2's rows, recorded as prose because the approved INTENT marks no edge `held-out` (see D2):
@@ -187,17 +183,6 @@ Walkthrough:
   that `gsd plan-lint` strips the node id and that `check_handoffs.py plan` accepts the form; both
   gates are run on this plan before approval, and a blocker in either is fixed here, not by
   dropping the title.
-- R6 — the split exists because the authored-artefact ceiling was measured, not feared. `gsd
-  verify-weight` refused T004 at 5 authored artefacts — the verdict-claims record,
-  `research/raw/m048-surface.json`, `research/raw/m044-gate-shapes.json`,
-  `research/raw/m056-gate-stability.json` and the task's own Log — against a ceiling of 4, so the
-  stale-citation repair moves to T005 in wave 4, where one recording, the three declared suites its
-  pin closure reaches and the Log sit inside the ceiling, and T004 returns to its three recordings in
-  wave 5 behind `deps: [T003, T005]` so the project verify still runs last. The repair is the split,
-  never a widened ceiling and never a dropped recording: the four values T005 corrects are why its
-  `files:` names the record, the three suites are declared there only because the closure from the
-  record pins them (R2's class, not authored work), and T004's `files:` loses exactly the one entry
-  the patch added.
 
 ## Wave 1 — measure what the records and the reach state
 
@@ -227,9 +212,8 @@ and no configured route (`ngCodedMessages`, `namesConfiguredRoutePath: false`,
 `digestCarriesCode: false`), which is why the join's route half reads the config and never a
 captured diagnostic (C2). **The reach**, which is the page's say and no new read:
 `extension/agent-main.js:1750-1839` resolves the `Router` token from entry 2 of the 5-entry
-injector path to the instance `ɵgetRouterInstance` returns, and `reach.finding` states "No new tap
-is needed" — recorded as the answer's only Router access (SC6, N6); `reach.note` states the
-token-field measurement instead, which T001 measured and the recording carries as `carriedBy`. It records
+injector path to the instance `ɵgetRouterInstance` returns, and `reach.note` states "No new tap is
+needed" — recorded as the answer's only Router access (SC6, N6). It records
 `research/raw/m058-record-shapes.json` with the field map, the two absences as named states, the
 attribution rule and `inventory.outsideTheMap` naming the two records this milestone owes
 (the surface record T003 writes, the verdict-claims record T004 writes). Because the map is
@@ -335,7 +319,19 @@ with no assertion loosened and no count lowered.
 
 Goal: the record the copy suite re-reads states the lines the demo carries at this head, so that
 suite is green at the head the project verify is asked over, and no task in the plan carries more
-authored artefacts than the ceiling allows (R6).
+authored artefacts than the ceiling allows.
+
+Why this wave exists, measured rather than feared: `gsd verify-weight` refused T004 at five authored
+artefacts — four recordings and its own Log — against a ceiling of four once the stale-citation
+repair was declared there, so the repair moves to T005, where one recording, the three declared
+suites its pin closure reaches and the Log sit inside the ceiling, and T004 returns to its three
+recordings in wave 5 behind `deps: [T003, T005]` so the project verify still runs last. The repair is
+the split — never a widened ceiling and never a dropped recording: the four values T005 corrects are
+why its `files:` names the record, the three suites are declared only because the closure from that
+record pins them (R2's class, not authored work), and T004's `files:` loses exactly the one entry the
+earlier patch added. T005 appears in no `## Intent coverage` row, and the omission is the statement:
+it repairs a citation inside a record T002 and T003 read, so it owns no acceptance criterion and
+claims none.
 
 Review depth: full
 

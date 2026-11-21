@@ -37,7 +37,7 @@ the record quotes 201. `scripts/copy-check.test.mjs` re-reads those citations, s
 the base this task starts from (29 pass, 1 fail) and green once the four values are this head's.
 
 The record is outside every earlier task's `files:`, and T004 cannot carry the repair: it already
-owns three recordings plus its own Log, and the authored ceiling is four (PLAN R6). So the repair is
+owns three recordings plus its own Log, and the authored ceiling is four (PLAN Wave 4). So the repair is
 its own task in the wave before the project verify, and this task authors no second record, no
 product source and no suite. It therefore owns no acceptance criterion and claims none: the plan's
 `## Intent coverage` table names no row for it, and the criteria whose records it corrects stay with
