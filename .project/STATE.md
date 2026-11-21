@@ -6,7 +6,7 @@ phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
-branch: gsd-path/M056
+branch: gsd-path/M057
 archive: null
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
@@ -1145,3 +1145,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — plan — build recovery: {"base": "98a4c09ec74db737a50858aa1a30f7a6e5e35812", "branch": "gsd-path/M056", "kind": "plan", "source": "build"}
 - 2026-11-21 — plan — plan approved
 - 2026-11-21 — build — build started
+- 2026-11-21 — build — STATE repair: the branch line rebound from gsd-path/M056 to gsd-path/M057 (M057's build was carried on the branch M056 shipped on, so the four readers that derive the milestone from that line — the intent resolver, the overlay claims check, the navigation pin's claim list and the gate's own state read — each answered M056, whose archived intent predates the five-column edge table and whose claims record this milestone does not own); the checked-out branch keeps its M056 name and no other field moved
