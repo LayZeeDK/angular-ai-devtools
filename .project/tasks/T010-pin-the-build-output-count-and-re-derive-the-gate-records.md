@@ -2,10 +2,10 @@
 id: T010
 title: Pin the build-output count and re-derive the gate records
 wave: 5
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T010
+base: ea9bae02c10ac303ebaed0f733a816bcf657a3f8
 worktree: null
 task_branch: null
 files:
@@ -80,3 +80,7 @@ node --test scripts/tutor-signals-shapes.test.mjs && node --test scripts/gate-st
 ## Log
 
 - pending.
+- Landed paths: `scripts/tutor-signals-shapes.test.mjs`, `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`.
+- The gap the wave-6 review named is closed: the suite now compares the `extension/panel/` build-output count it walks against `negativeMeasurements.writeRecord.filesExcludedAsBuildOutput`, and a doctored copy of the record reddens naming both numbers — `... is 51 but the extension/panel/ build output this tree carries is 50 file(s)`. The existing `filesScanned` reading is the same walk filtered the other way, so nothing was loosened.
+- Measured at this head: `extension/` 109 files, `extension/panel/` 50, authored 59, matching the record's 50 and 59.
+- `research/raw/m044-gate-shapes.json` re-derived with its armed command: `suiteDiff.differing[32].addedLines` 568 -> 575, `addedAssertionLines` 83 -> 84, totals 4984 -> 4985, sha256 `ad1e21bb…`, idempotent on a second run. `research/raw/m056-gate-stability.json` re-derived last and reported nothing moved at that moment.
