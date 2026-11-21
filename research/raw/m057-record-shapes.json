@@ -508,7 +508,7 @@
       "holds": true,
       "scope": "every file under extension/, excluding extension/panel/ (gitignored build output)",
       "command": "recursive, case-insensitive scan of extension/ (extension/panel/ excluded) for writeRecord, write_record, writeLog, writeOrder, writes:",
-      "filesScanned": 58,
+      "filesScanned": 59,
       "filesExcludedAsBuildOutput": 49,
       "needles": [
         "writeRecord",
@@ -568,7 +568,7 @@
       "claimAsStatedInThePlan": "no record under research/raw/ carries a node of kind `effect`, and the closest one holds no `index` on its nodes and no index ends on its edges",
       "holds": false,
       "command": "walk every JSON file under research/raw/ except this record itself, collecting every object whose `kind` is `effect`, and every object that carries both a `nodes` and an `edges` list",
-      "jsonFilesScanned": 142,
+      "jsonFilesScanned": 144,
       "excludedFromItsOwnScan": "m057-record-shapes.json",
       "graphBearingObjects": 8,
       "objectsCarryingKindEffect": 16,

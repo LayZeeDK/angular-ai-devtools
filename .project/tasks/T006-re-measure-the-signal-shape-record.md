@@ -2,10 +2,10 @@
 id: T006
 title: Re-measure the signal-shape record
 wave: 6
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T006
+base: af0c5016af4dde95da7b4e17da4e8c114836ce2f
 worktree: null
 task_branch: null
 files:
@@ -135,3 +135,9 @@ node --test scripts/tutor-signals-shapes.test.mjs && npx prettier --check resear
 ## Log
 
 - pending.
+- Landed path: `research/raw/m057-record-shapes.json`.
+- Two values re-derived from the record's own stated scans, and nothing else written: `negativeMeasurements.writeRecord.filesScanned` 58 -> 59 (the one added authored file is `extension/tutor-routing.js`, T002) and `negativeMeasurements.effectNodeInARecord.jsonFilesScanned` 142 -> 144 (the two added recordings are `m058-record-shapes.json`, T001, and `m058-surface.json`, T003). `scripts/tutor-signals-shapes.test.mjs` is 21/21 at this head, against 19/21 before, with no assertion loosened.
+- The record carries no armed capture: its two `command` fields are the scans themselves, and both were reproduced in a scratch script and cross-checked against the suite's own re-derivation, which is the M057-T009 remedy for a measurement-owned record.
+- Reported, not written, because no suite asserts it and the contract fixes the change at two values: `negativeMeasurements.writeRecord.filesExcludedAsBuildOutput` records 49 and the tree measures 50, one more panel output than M057's T009 measured, because this head carries T003's rebuilt panel.
+- The declared pin closure measures 90 tests / 80 pass / 10 fail, all ten inside `scripts/gate-integrity.test.mjs` and byte-identical with this change stashed, so they are the suite-diff rows T004 owns in wave 7, not this task's.
+- Landed paths: `research/raw/m057-record-shapes.json`, `scripts/tutor-signals-shapes.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-signals.test.mjs` — each is read from this tree, ready.
