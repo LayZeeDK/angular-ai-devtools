@@ -2,10 +2,10 @@
 id: T004
 title: Re-derive the recordings and run the project verify
 wave: 7
-status: pending
+status: done
 deps: [T003, T005, T006, T007, T008]
-agent: null
-base: null
+agent: build_T004
+base: 86cec59eb664c51a2e24a579bff77ab272a94624
 worktree: null
 task_branch: null
 files:
@@ -152,3 +152,8 @@ node --test scripts/gate-integrity.test.mjs scripts/gate-integrity-default-tasks
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`, `research/raw/m058-verdict-claims.json`, `scripts/gate-integrity.test.mjs`.
+- Each recording re-derived by its own command and idempotent on a second armed run: the verdict-claims record first write, 29 847 bytes, sha256 `83c56d00…` (26/26); the gate-shapes record 152 763 bytes, sha256 `36061e36…` (41/41); the stability record 6 568 bytes, sha256 `1f899ce7…`, last, because two of its values are a function of this milestone's logs — `plainRun.milestone` M057 -> M058 and the mention count 88 -> 10.
+- The reason table needed three rows rather than the two the plan names: `scripts/prove-skills-audited.test.mjs` (T007, landed after that enumeration was written) is a third suite this milestone added, and without its row the gate reddens at `scripts/gate-integrity.test.mjs:4014`. All three rows are read from their own suites; no earlier row loosened, removed or reworded.
+- The Verify's nine-suite leg is 147/147 and `npm run check` is clean, including `fix-record` over twelve declared pins; `git checkout -- extension/panel/index.html` discarded nothing.
+- A stash from an earlier attempt (`m058-t004-wip`) was inspected and not applied: it predates T007/T008 and does not carry the verdict-claims record, so everything was re-derived at this head instead.
