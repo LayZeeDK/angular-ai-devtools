@@ -4516,33 +4516,34 @@ test('T004: the three new sections are what this head derives, so a default run 
 
 // ============ T003: the range the stage is held to at this head (SC3, SC4; E5, E7, E8) ============
 //
-// Appended after the last line the record pins, so no line above moves and the record's own
-// enumeration of this file's dot-project references stays where it was. This section names no such
+// Appended after the last line the record pins, so no line above moves. This section names no such
 // path and spawns nothing: it drives the exported `workRange` and the gate's printed line, both of
-// which read this tree's `git log` and nothing else.
-
-/** The milestone whose numerically previous id carries no ship commit, measured at this head. */
-const UNSHIPPED_MILESTONE = 'M056';
-
+// which read this tree's `git log` and nothing else. Both milestones below are read from that log
+// rather than named: naming them is what left this fixture asserting M044 was newest after M045
+// shipped, and M055's predecessor unshipped after M055 shipped at 1aff7555.
+/** Every ship commit `git log` records, newest first. */
+const SHIPPED_MILESTONES = execFileSync(
+  'git',
+  ['log', '--format=%s', '--grep=^ship: M'],
+  { cwd: ROOT, encoding: 'utf8' },
+)
+  .split('\n')
+  .map((line) => /^ship: (M\d+)/.exec(line)?.[1] ?? '')
+  .filter((id) => id !== '');
+assert.ok(SHIPPED_MILESTONES.length > 0, 'git log names a ship commit');
+/** The newest ship commit the log carries, which the fallback's base is: the property is "newest". */
+const NEWEST_SHIPPED_MILESTONE = SHIPPED_MILESTONES[0];
 /**
- * The milestone whose ship commit is the newest `git log` carries, so it answers M056's base. Read from
- * the log rather than named: naming it made the fixture assert that M044 was newest, which stopped being
- * true the moment M045 shipped, and the fallback then answered with a base the constant could not see.
- * The property is "newest", so the fixture reads the newest.
+ * The milestone whose numerically previous id carries no ship commit: the lowest id the log records
+ * no shipment for, plus one, so the instance moves with the log instead of being named here.
  */
-const NEWEST_SHIPPED_MILESTONE = (() => {
-  const log = execFileSync('git', ['log', '--format=%s', '--grep=^ship: M'], {
-    cwd: ROOT,
-    encoding: 'utf8',
-  });
-  const first = log.split('\n').find((line) => line.trim() !== '') ?? '';
-  const numbered = /^ship: (M\d+)/.exec(first);
-  assert.ok(
-    numbered,
-    `git log must name at least one ship commit for this measurement to mean anything: ${first}`,
-  );
-  return numbered[1];
+const UNSHIPPED_PREDECESSOR = (() => {
+  let id = 1;
+  while (SHIPPED_MILESTONES.includes(`M${String(id).padStart(3, '0')}`))
+    id += 1;
+  return `M${String(id).padStart(3, '0')}`;
 })();
+const UNSHIPPED_MILESTONE = `M${String(Number(UNSHIPPED_PREDECESSOR.slice(1)) + 1).padStart(3, '0')}`;
 
 test('T003 E5, E7: a milestone whose numerically previous id is unshipped derives a range, and the base it used is printed', (t) => {
   const newest = shipRange({ root: ROOT, milestone: NEWEST_SHIPPED_MILESTONE });
@@ -4557,7 +4558,7 @@ test('T003 E5, E7: a milestone whose numerically previous id is unshipped derive
   );
 
   // The defect this task repairs: the numerically previous id is unshipped, and the range is
-  // derived anyway rather than stopping with "names no ship commit for M055".
+  // derived anyway rather than stopping with the predecessor's missing ship commit named.
   const derived = workRange(ROOT, UNSHIPPED_MILESTONE);
   assert.equal(
     derived.error,
@@ -4576,7 +4577,7 @@ test('T003 E5, E7: a milestone whose numerically previous id is unshipped derive
   );
   assert.match(
     String(derived.rule),
-    /no ship commit for M055/,
+    new RegExp(`no ship commit for ${UNSHIPPED_PREDECESSOR}\\b`),
     `the rule that answered must name the predecessor id it could not use: ${String(derived.rule)}`,
   );
   assert.match(
@@ -4596,8 +4597,7 @@ test('T003 E5, E7: a milestone whose numerically previous id is unshipped derive
   );
 
   // E5: the head is this tree's HEAD whether or not the milestone's own ship commit exists, so the
-  // range derives the same answer before the shipment and after it. M044 ships at this head, and its
-  // own ship commit is a base - never the head.
+  // range derives the same answer before the shipment and after it: its own ship commit is a base.
   const shipped = workRange(ROOT, NEWEST_SHIPPED_MILESTONE);
   const predecessor = shipRange({
     root: ROOT,
@@ -4672,7 +4672,7 @@ test('T003 E5, E7: a milestone whose numerically previous id is unshipped derive
   t.diagnostic(`printed: ${String(reading)}`);
 });
 
-test('T003 E8: restoring the numeric-predecessor rule refuses this milestone, and the refusal names M055', (t) => {
+test(`T003 E8: restoring the numeric-predecessor rule refuses this milestone, and the refusal names ${UNSHIPPED_PREDECESSOR}`, (t) => {
   // The mutant is the branch a regression would take: the predecessor's ship commit or nothing. The
   // pair below differs by that rule alone, so the failure the mutant produces is the one the repair
   // removes rather than a failure the measurement was going to report anyway.
@@ -4705,7 +4705,7 @@ test('T003 E8: restoring the numeric-predecessor rule refuses this milestone, an
   );
   assert.match(
     String(restored.error),
-    /names no ship commit for M055/,
+    new RegExp(`names no ship commit for ${UNSHIPPED_PREDECESSOR}\\b`),
     `the refusal must name the predecessor id whose ship commit git log does not carry: ${String(restored.error)}`,
   );
   assert.match(
@@ -5690,4 +5690,18 @@ Object.assign(SUITE_DIFF_REASONS, {
     'wholly added at this head: M055 T001 measured what the records actually carry against what a traceability answer needs — the 34 verdict-claims records and 9 surface records, `claims[].artefactPath` carried by 12 of the 34 and 44 claims, `evidence.recordings` and `evidence.suites` by 11 of 34, the 22 records from M022 to M043 carrying none of them in four different shapes (M022’s portal-verdict block, M023–M037 four keys with the file named only inside `reason` and 0 of M023’s 4 rows naming a file at all, M038–M040 adding `criterionCharacters`, M041–M043 `artefact` prose plus `proves` as a string), the two spellings of the `milestone` field, and all 44 `artefactPath` values resolving at the head — in `research/raw/m055-record-shapes.json`, and the suite re-reads every `path:line` citation that recording makes against the tree, holds each counted shape to the records it names, and reddens when a citation slides off its line, when a count drifts from the records, or when the recording claims a dead path or an unobserved state; a reading the measured commit carries no file to edit',
   'scripts/tutor-answer.test.mjs':
     'wholly added at this head: M055 T002 pins the two files this milestone authors — the one authored mapping `extension/tutor-index.js`, rows of the question text, the criterion id and the milestone and nothing else (no path, no value, no answer text), every criterion id held to the record on disk that names it, and the pure join `extension/tutor-foundations.js`, `tutorAnswer(question, sources)` answering `answered`, `no-matching-criterion`, `no-artefact-named`, `records-unreadable` or `missing-artefact` with the milestone from the record’s own `milestone`, the criterion from its `claims[].criterion` and the path from its `claims[].artefactPath`, presence read through the injected `sources.exists` on every answer — over the 44 claims that carry the field and the 22 records that carry none, with an index row carrying a path, a value or an answer text, an answer assembled from the template prose or by file naming, the load-bearing mutant that replaces a record’s `artefactPath` with a hard-coded constant and still answers, an unanswered question rendered as an answer, the absences folded into one blank state, a missing artefact rendered as unanswered, a join that ignores the reader and answers from a bake, a criterion id the record does not carry, a path re-rooted, normalised or shortened and a join that refuses every question each reddening the pin that names its defect; it owns held-out E4, whose dead-path input is constructed because all 44 values resolve at this head, and the recording is asserted to say so rather than manufacturing a live instance; a reading the measured commit carries no file to edit',
+});
+
+// The reason for the three suites M057's first three waves added. They travel here, appended after
+// the last line the M044 recording pins in this file, for the same reason the blocks above do: a row
+// added above one of those pinned references would stale it by moving it. Each is a reading of its own
+// diff — what the suite is, which recording it reads and what it refuses — rather than a name admitted
+// to the list.
+Object.assign(SUITE_DIFF_REASONS, {
+  'scripts/tutor-signals-shapes.test.mjs':
+    'wholly added at this head: M057 T001 measured what the two records the answer may cite actually carry and what no record carries — the graph side `serializeGraph` and the one per-check field that carries its result, read for `index`, `kind` and `label` per node and the two ends per edge, and the render/effect side `renderPhase`, the effect finding’s four fields, its read list and the three published absences — in `research/raw/m057-record-shapes.json`, and the suite re-resolves every `path:line` citation the recording makes by searching the file it names for the exact line the recording quotes rather than trusting the typed number, holds each side’s declared field set to the tree, re-derives the two negatives from the source and the edge keys rather than reading them back (the `extension/` scan for the five write-record needles, and no edge carrying a field that would order a write), asserts that a fresh `serializeGraph` writes `id: String(n.id)` and never an `index`, and states the premise the second measurement refuted rather than the plan’s prose; nothing here builds and nothing writes, a reading the measured commit carries no file to edit',
+  'scripts/tutor-signals.test.mjs':
+    'wholly added at this head: M057 T002 pins the pure join `extension/tutor-signals.js`, `tutorSignals(records)`, over the two records T001 measured — the effect named by the label the graph gives it and by the node’s own `index` rather than its position in the `nodes` array or a number minted from an id, every claim carrying the artefact path and line that states it, the ordering always the named absence `no-write-record-no-order` with a recorded change-detection message kept as a second claim and never joined to the effect, the three absences `graph-unreadable`, `no-render-entry` and `no-effect-node` kept as three states with their own sentences, and every producer end or effect reference the graph cannot place named in `unplaced` by end and value — with the real-record leg answering `index: null` and naming the reference there rather than numbering it from its position, purity proved by running the module in a bare `node:vm` context and by a byte scan for every reach a pure join must not have, and each of the in-memory mutants reddening the pin that names its defect; a reading the measured commit carries no file to edit',
+  'scripts/tutor-signals-graph.test.mjs':
+    'wholly added at this head: M057 T003 reads the graph record the answer comes from, PLAN C8 having retargeted it at `research/raw/m039-render-phase.json`’s `/effect/freshRead` — six nodes each carrying a numeric `index`, the effect at `index` 5 with the empty label, and its consumer edge reaching the node the graph labels `count` at `index` 2 — pins the record’s own `capture` block as the record states it while claiming no `head` the record does not state, loads T002’s join in a bare `node:vm` context and hands it the record’s own node and edge lists so the answer is the record’s statement and not one this milestone composes, and proves the capture leg was deleted: its import list names node builtins only, `research/raw/m057-signal-graph.json` exists nowhere under `research/raw/`, and no page global reaches the context; the three named defects — a position read instead of `index`, a claimed portal read and an invented provenance field — each redden the pin that names them; a reading the measured commit carries no file to edit',
 });
