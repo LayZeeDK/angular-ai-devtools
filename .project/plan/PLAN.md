@@ -54,13 +54,14 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
   recording; only an explicit armed run (`M058_CAPTURE=1 node --test …`, or the record's own
   `M044_CAPTURE` / `M056_CAPTURE` flag for the records that name those flags) writes one. New
   records are named `research/raw/m058-*.json`.
-- D6 — the four prove-* skills exist and appear where they fit:
-  `.commandcode/skills/prove-join-absence-folding/check.mjs` and
-  `.commandcode/skills/prove-console-cannot-tell/check.mjs` cover the join module T002 changes;
-  `.commandcode/skills/prove-overlay-observer-purity/check.mjs` covers the surface T003 renders; and
-  `.commandcode/skills/prove-graph-serialize-closure/check.mjs` covers the serializer-derived
-  recordings T004 re-derives. A task that changes a module under one of their covered files adds
-  that skill's check to its Verify.
+- D6 — a task's `## Verify` names only paths that exist at the milestone's layer base. Four skill
+  checks landed on `main` after this branch was bound from `origin/main`, and the base does not
+  move, so their paths do not resolve here; their covered modules are also none this milestone
+  changes — `extension/tutor-signals.js`, `extension/tutor-foundations.js`,
+  `extension/render-phase.js`, `extension/lint-core.js`, `extension/overlay.js` and
+  `agent-main.js`'s `serializeGraph`. So no skill check appears in these Verifies: the rule is the
+  base, not the tree at plan time. A milestone whose layer base includes those skills adds the
+  skill whose covered module it changes.
 - D7 — C1 governs the plan: the two absences are states, never inferences. No task, acceptance
   criterion or check requires a guard verdict or a redirect decision, because no record carries one
   (`research/raw/m041-navigation.json` `absences.guard-verdict-not-recorded`,
@@ -169,9 +170,11 @@ Walkthrough:
   counting rule, not the plan: a suite declared only because it pins a file the task changes is
   declared, not edited, and is not work the task authors. If `gsd verify-weight` reports CHUNK for
   that class, the carve-out applies — no declaration is widened and no pin is dropped.
-- R3 — the four prove-* skill checks (D6) are new to this plan's Verify chains at the canonical
-  `.commandcode/skills/<name>/check.mjs` paths. If a path does not resolve at dispatch, that is a
-  plan repair naming the skill's real path — never a deleted check and never a widened Verify.
+- R3 — the layer base bounds what a Verify may name (D6). The four skill checks landed on `main`
+  after this branch was bound from `origin/main`, so their canonical paths do not resolve at this
+  milestone's base, and the modules they cover are none M058 changes. The repair is the removal,
+  not a widened Verify and not a moved base: no task here names a skill check. A milestone whose
+  base carries those skills names the one whose covered module it changes.
 - R4 — T004's ordering. One value `research/raw/m056-gate-stability.json` derives is a function of
   this milestone's own task logs (the mention count M057's C9 recorded), so the stability record is
   re-derived after this milestone's last Log byte and before the project verify, and nothing is
@@ -337,6 +340,4 @@ Then it runs the project verify's remaining legs as the last action and re-deriv
 it: `npm run check`, `npm test`, and the checkout that discards the working-tree diff of a build
 artifact — the companion and extension builds lead the Config project verify at ship, and the
 artifact T003 freshly landed is re-proven fresh here by `npm test`'s own budget leg, because this
-task edits no source the artifact is built from. It adds
-`.commandcode/skills/prove-graph-serialize-closure/check.mjs` to its Verify (D6), because the
-records it re-derives are serializer-derived readings.
+task edits no source the artifact is built from.

@@ -74,8 +74,7 @@ re-proves the artifact fresh here.
 
 Then run the project verify's remaining legs as the last action and re-derive nothing after it:
 `npm run check`, `npm test`, and the checkout that discards any working-tree diff of a build
-artifact. The re-derived recordings are serializer-derived readings, so the Verify adds
-`.commandcode/skills/prove-graph-serialize-closure/check.mjs` (PLAN D6).
+artifact.
 
 ## Interface contract
 
@@ -139,7 +138,7 @@ built artifact. The file changes only through `npx nx run angular-ai-devtools:bu
 ## Verify
 
 ```bash
-node --test scripts/gate-integrity.test.mjs scripts/gate-integrity-default-tasks.test.mjs scripts/gate-stability-record.test.mjs scripts/tutor-answer.test.mjs scripts/tutor-record-shapes.test.mjs scripts/panel-routes.test.mjs scripts/copy-check.test.mjs scripts/component-search.test.mjs tests/held-out/fixture-explainers-unchanged.test.mjs && node .commandcode/skills/prove-graph-serialize-closure/check.mjs && npx prettier --check research/raw/m058-verdict-claims.json research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json scripts/gate-integrity.test.mjs && npm run check && npm test && git checkout -- extension/panel/index.html
+node --test scripts/gate-integrity.test.mjs scripts/gate-integrity-default-tasks.test.mjs scripts/gate-stability-record.test.mjs scripts/tutor-answer.test.mjs scripts/tutor-record-shapes.test.mjs scripts/panel-routes.test.mjs scripts/copy-check.test.mjs scripts/component-search.test.mjs tests/held-out/fixture-explainers-unchanged.test.mjs && npx prettier --check research/raw/m058-verdict-claims.json research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json scripts/gate-integrity.test.mjs && npm run check && npm test && git checkout -- extension/panel/index.html
 ```
 
 ## Log

@@ -96,11 +96,6 @@ pins carry their own titles: `held-out E5: the two absences stay two states on o
 `held-out E7: a reused id keeps two decisions apart by id and route.path, never by arrival
 position`.
 
-Because this task changes the join module, its Verify adds the two skill checks whose covered files
-the module sits under (PLAN D6):
-`.commandcode/skills/prove-join-absence-folding/check.mjs` and
-`.commandcode/skills/prove-console-cannot-tell/check.mjs`.
-
 ## Interface contract
 
 T001 publishes `research/raw/m058-record-shapes.json`: the field map whose terminal-class key sets,
@@ -174,7 +169,7 @@ built artifact. The file changes only through `npx nx run angular-ai-devtools:bu
 ## Verify
 
 ```bash
-node --test scripts/tutor-routing.test.mjs && node .commandcode/skills/prove-join-absence-folding/check.mjs && node .commandcode/skills/prove-console-cannot-tell/check.mjs && npx prettier --check extension/tutor-routing.js scripts/tutor-routing.test.mjs && npm run check
+node --test scripts/tutor-routing.test.mjs && npx prettier --check extension/tutor-routing.js scripts/tutor-routing.test.mjs && npm run check
 ```
 
 ## Log

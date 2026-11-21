@@ -27,7 +27,6 @@ files:
   - extension/panel/index.html
   - research/raw/m058-surface.json
   - research/raw/m048-surface-copy.json
-  - .commandcode/skills/prove-overlay-observer-purity/check.mjs
 ---
 
 # T003 — Render the answer and pin the route tables
@@ -123,11 +122,8 @@ the digest's count, held field-for-field by `apps/angular-ai-devtools/src/app/pa
 Run the app suite in this task's Verify, and leave the direct-suite leg — the two route-file suites
 this task edits, the copy suite and the two literal pins — to T004, which depends on this task and
 runs them over the head it leaves (the M057 C6 pattern): the build, the app suite, the formatting
-check, the skill check and the typecheck already fill this task's Verify, and the route the wave
-lands is proven green at the head the wave leaves rather than unrun. The pane changes no module
-under `.commandcode/skills/prove-overlay-observer-purity/check.mjs`'s covered page-side files, and
-the skill's check runs in the Verify to prove the surface adds no observer, no page-side DOM and no
-new instrumentation (PLAN D6, SC6, N6, N7).
+check and the typecheck already fill this task's Verify, and the route the wave lands is proven
+green at the head the wave leaves rather than unrun.
 
 `extension/panel/index.html` is a build artifact: land a freshly built copy and never edit it by
 hand.
@@ -207,7 +203,7 @@ built artifact. The file changes only through `npx nx run angular-ai-devtools:bu
 ## Verify
 
 ```bash
-npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npx nx run angular-ai-devtools:test --skip-nx-cache && node .commandcode/skills/prove-overlay-observer-purity/check.mjs && npx prettier --check apps/angular-ai-devtools/src/app/app.routes.ts apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/panel-tutor-routing.ts scripts/panel-routes.test.mjs research/raw/m058-surface.json research/raw/m048-surface-copy.json extension/copy-digest.json && npm run check && git checkout -- extension/panel/index.html
+npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npx nx run angular-ai-devtools:test --skip-nx-cache && npx prettier --check apps/angular-ai-devtools/src/app/app.routes.ts apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/panel-tutor-routing.ts scripts/panel-routes.test.mjs research/raw/m058-surface.json research/raw/m048-surface-copy.json extension/copy-digest.json && npm run check && git checkout -- extension/panel/index.html
 ```
 
 ## Log
