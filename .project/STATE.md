@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: tutor-signals
-phase: shipped
+milestone: tutor-routing
+phase: inspect
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
-branch: gsd-path/M057
-archive: .project/archive/057-tutor-signals
+status: active
+branch: gsd-path/M058
+archive: null
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
