@@ -5,7 +5,7 @@ milestone: tutor-routing
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M058
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1155,3 +1155,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — ship — build done; final review pending
 - 2026-11-21 — shipped — archive preflight passed; shipment recorded
 - 2026-11-21 — shipped — milestone M057 shipped; handoff to the next roadmap entry
+- 2026-11-21 — plan — plan approved
