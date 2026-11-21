@@ -12,7 +12,7 @@ Alignment mode: no
 | stale | 61 |
 | aspirational | 0 |
 | unverifiable | 200 |
-| descriptive docs (no testable claims) | 1 |
+| descriptive docs (no testable claims) | 5 |
 
 ## Doc: .commandcode/pstack-models.md
 
@@ -1339,6 +1339,19 @@ Alignment mode: no
   `research/raw/m055-verdict-claims.json`) and carries no claim of its own that a test could
   contradict; every number it cites is one those records pin and their suites re-derive on every
   run.
+
+- `.commandcode/skills/prove-join-absence-folding/SKILL.md`
+  one property, one bound, one command: `check.mjs` fails on a real break of the
+  shipped joins and passes once it is reverted.
+- `.commandcode/skills/prove-console-cannot-tell/SKILL.md`
+  one property, one bound, one command: `check.mjs` fails when the digest guard is
+  removed and passes once it is restored.
+- `.commandcode/skills/prove-overlay-observer-purity/SKILL.md`
+  one property, one bound, one command: `model.mjs` fails on a target-only filter
+  and on a disabled injection guard, and passes on the shipped code.
+- `.commandcode/skills/prove-graph-serialize-closure/SKILL.md`
+  one property, one bound, one command: `model.mjs` fails on a renumbering node
+  loop and records the standing finding on string edge ends.
 
 ## User rulings
 
