@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: tutor-routing
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: done
 branch: gsd-path/M058
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1168,3 +1168,6 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — plan — plan approved
 - 2026-11-21 — build — build started
 - 2026-11-21 — build — build blocked: T009 stales the stability record that T004 owns
+- 2026-11-21 — plan — build plan repair requested
+- 2026-11-21 — plan — build recovery: {"base": "dd11c8d0d2df03bf4f665685d08e8272a68c9c55", "branch": "gsd-path/M058", "kind": "plan", "source": "build"}
+- 2026-11-21 — plan — plan approved
