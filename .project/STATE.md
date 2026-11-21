@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: tutor-signals
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -1146,3 +1146,7 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — plan — plan approved
 - 2026-11-21 — build — build started
 - 2026-11-21 — build — STATE repair: the branch line rebound from gsd-path/M056 to gsd-path/M057 (M057's build was carried on the branch M056 shipped on, so the four readers that derive the milestone from that line — the intent resolver, the overlay claims check, the navigation pin's claim list and the gate's own state read — each answered M056, whose archived intent predates the five-column edge table and whose claims record this milestone does not own); the checked-out branch keeps its M056 name and no other field moved
+- 2026-11-21 — build — build completed
+- 2026-11-21 — ship — build done; final review pending
+- 2026-11-21 — ship — ship blocked: project verify red at the reviewed head — the sidecar npm test fails gate-stability-record (archive.detail.plainRun.summary derives 88 mention(s) against the record's 87; npm run gate:fix-record reproduces 88 in the primary) and ng-context-dev-build misses the companion dist in the sidecar only; finding set in .project/review/PATCH-FINDINGS.md
+- 2026-11-21 — plan — patch plan reopened
