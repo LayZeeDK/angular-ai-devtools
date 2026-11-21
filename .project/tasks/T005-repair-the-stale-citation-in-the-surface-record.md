@@ -2,10 +2,10 @@
 id: T005
 title: Repair the stale citation in the surface record
 wave: 4
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T005
+base: 1fa50cd5b6c24f4e9eb613bc3bc3c8f21776a1c6
 worktree: null
 task_branch: null
 files:
@@ -131,3 +131,7 @@ node --test scripts/copy-check.test.mjs && npx prettier --check research/raw/m04
 ## Log
 
 - pending.
+- Landed path: `research/raw/m048-surface.json`.
+- Four values corrected, each from the line `apps/angular-ai-devtools/src/app/panel-demo.ts` carries at this head: `loader.sampleFact.lineText` and `.holds` (`checked: 201` -> `206`, quoting `:450`), `loader.sampleFactComment[1].lineText` and `.holds` (`201` -> `206`, quoting `:444`). `node --test scripts/copy-check.test.mjs` is 30/30 at this head, against 30/29/1 before the repair, with no assertion loosened and no count lowered.
+- Limit recorded, not repaired: the record's own prose still states the old counts — `loader.statement` quotes `checked: 201` and calls this the twenty-eight-surface record with a 193-row digest, `states[0].statement` and `notCaptured[1]` still say 195, `verdict` still says 122, and `head` still names M048's commit. The suite reads none of those, and this task's contract is the four cited values; rewriting prose it does not read would widen the repair beyond what the plan approved.
+- Landed paths: `research/raw/m048-surface.json`, `scripts/copy-check.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs` — each is read from this tree, ready.

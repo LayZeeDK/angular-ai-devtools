@@ -110,8 +110,8 @@
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
       "line": 450,
-      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 201 },",
-      "holds": "checked: 201"
+      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 206 },",
+      "holds": "checked: 206"
     },
     "sampleFactComment": [
       {
@@ -123,8 +123,8 @@
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
         "line": 444,
-        "lineText": "// (`extension/copy-digest.json`): all 201 compared strings are explained, so the record reads",
-        "holds": "201"
+        "lineText": "// (`extension/copy-digest.json`): all 206 compared strings are explained, so the record reads",
+        "holds": "206"
       }
     ],
     "statement": "the `copy-check` key is a `LOADERS` key (:57) and no longer the last one — M049’s T003 appended `interaction-story` after it (:58) and M051’s T003 appended `what-changed` (:60), which is what moved the resolution lines below — and this key is the only path to `panel-copy-check.ts`: the demo looks the key up by the name the route’s `data.surface` states (:717), awaits the dynamic import (:723), calls the module’s default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact it is handed (:450) is `{ state: 'clean', unexplained: [], checked: 201 }` — the join’s answer over the twenty-eight-surface record this head measures and the 193-row digest authored from it — and the comment above it (:444) states the same count, so the fact and the record agree at this head."
