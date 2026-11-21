@@ -1,0 +1,120 @@
+head: cdb0b18d30fe059a4a1484ec9fbf295c7fe841e1 at 2026-11-21T01:14:20.659Z
+[7m[1m[36m NX [39m[22m[27m  [36mRunning target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on:[39m
+
+[2m[36m[39m[22m
+
+[2m> [22m[2mnx run[22m angular-ai-devtools:generate-error-digest
+
+[2m> [22mnode scripts/generate-error-digest.mjs
+
+wrote [33m64[39m entries to extension/error-digest.json
+
+[2m> [22m[2mnx run[22m angular-ai-devtools:build-extension
+
+[33m❯[39m Building...
+[32m✔[39m Building...
+[37m[1mInitial chunk files[22m[2m | [22m[1mNames[22m                  [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-B8BF8DsE.js[37m  [2m | [22m[2m-[22m                      [2m | [22m[36m326.56 kB[37m[2m | [22m               [36m93.44 kB[37m
+[32mmain.js[37m            [2m | [22m[2mmain[22m                   [2m | [22m[36m100.53 kB[37m[2m | [22m               [36m26.35 kB[37m
+[32mchunk-FCeS4p_v.js[37m  [2m | [22m[2m-[22m                      [2m | [22m [36m88.10 kB[37m[2m | [22m               [36m22.46 kB[37m
+[32mchunk-C9RC8o4w.js[37m  [2m | [22m[2m-[22m                      [2m | [22m  [36m8.95 kB[37m[2m | [22m                [36m3.01 kB[37m
+[32mchunk-CWnn2n5L.js[37m  [2m | [22m[2m-[22m                      [2m | [22m  [36m4.71 kB[37m[2m | [22m                [36m1.63 kB[37m
+[32mchunk-Di8Zy6Ss.js[37m  [2m | [22m[2m-[22m                      [2m | [22m  [36m2.60 kB[37m[2m | [22m              [36m936 bytes[37m
+[32mstyles.css[37m         [2m | [22m[2mstyles[22m                 [2m | [22m  [36m1.96 kB[37m[2m | [22m              [36m542 bytes[37m
+[32mchunk-BnQXArNS.js[37m  [2m | [22m[2m-[22m                      [2m | [22m[36m645 bytes[37m[2m | [22m              [36m645 bytes[37m
+[32mchunk-DJVAsKa_.js[37m  [2m | [22m[2m-[22m                      [2m | [22m[36m464 bytes[37m[2m | [22m              [36m464 bytes[37m
+[1m [22m                  [2m | [22m[1mInitial total[22m          [2m | [22m[1m[93m534.51 kB[37m[22m[2m | [22m              [1m149.49 kB[22m
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                  [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-470y0cjA.js[37m  [2m | [22m[2mcore[22m                   [2m | [22m [36m17.92 kB[37m[2m | [22m                [36m5.47 kB[37m
+[32mchunk-CPU-IOs9.js[37m  [2m | [22m[2mch[39m[37mat-entry-component[22m   [2m | [22m [36m16.42 kB[37m[2m | [22m                [36m4.80 kB[37m
+[32mchunk-BxmMq8A1.js[37m  [2m | [22m[2mpanel-demo[22m             [2m | [22m [36m12.88 kB[37m[2m | [22m                [36m4.31 kB[37m
+[32mchunk-BqGCQDFf.js[37m  [2m | [22m[2mpage-picker-component[22m  [2m | [22m  [36m7.17 kB[37m[2m | [22m                [36m2.12 kB[37m
+[32mchunk-Ia5h4MhU2.js[37m [2m | [22m[2mpanel-dead-click[22m       [2m | [22m  [36m6.73 kB[37m[2m | [22m                [36m2.00 kB[37m
+[32mchunk-BBqh6Sha.js[37m  [2m | [22m[2minterop-component[22m      [2m | [22m  [36m6.46 kB[37m[2m | [22m                [36m2.34 kB[37m
+[32mchunk-CR66fmfE.js[37m  [2m | [22m[2mpanel-webmcp-rehearsal[22m [2m | [22m  [36m5.92 kB[37m[2m | [22m                [36m1.92 kB[37m
+[32mchunk-BBCO5qwI2.js[37m [2m | [22m[2mpanel-error-boundary[22m   [2m | [22m  [36m5.60 kB[37m[2m | [22m                [36m1.73 kB[37m
+[32mchunk-n9bOoi47.js[37m  [2m | [22m[2mpanel-tutor-signals[22m    [2m | [22m  [36m5.00 kB[37m[2m | [22m                [36m1.67 kB[37m
+[32mchunk-DdLcS6n3.js[37m  [2m | [22m[2mpanel-stability[22m        [2m | [22m  [36m4.72 kB[37m[2m | [22m                [36m1.67 kB[37m
+[32mchunk-80XCxlnE.js[37m  [2m | [22m[2mpanel-console[22m          [2m | [22m  [36m4.70 kB[37m[2m | [22m                [36m1.50 kB[37m
+[32mchunk-CeMoq-ym.js[37m  [2m | [22m[2mpanel-interaction-story[22m[2m | [22m  [36m4.68 kB[37m[2m | [22m                [36m1.51 kB[37m
+[32mchunk-Cg_a8sST2.js[37m [2m | [22m[2mpanel-what-changed[22m     [2m | [22m  [36m4.68 kB[37m[2m | [22m                [36m1.56 kB[37m
+[32mchunk-CkSEIBfj2.js[37m [2m | [22m[2mimage-budget[22m           [2m | [22m  [36m4.45 kB[37m[2m | [22m                [36m1.41 kB[37m
+[32mchunk-sEvuZIj-.js[37m  [2m | [22m[2mpanel-visual-qa[22m        [2m | [22m  [36m4.06 [39m[37mkB[39m[2m | [22m                [36m1.39 kB[37m
+[2m...and 22 more lazy chunks files. Use "--verbose" to show all the files.[22m
+Application bundle generation complete. [2.279 seconds] - 2026-11-21T01:14:09.103Z
+[39m
+[37mOutput location: D:\projects\sandbox\angular-ai-devtools\extension\panel
+[39m
+
+[2m[32m[39m[22m
+
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on[39m
+
+
+  Run duration:      3.2s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.1s (2 tasks)
+  Recoverable time:  <1ms
+
+[2m> [22m[2mnx run[22m angular-ai-devtools:test
+
+[33m❯[39m Building...
+[32m✔[39m Building...
+[37mApplication bundle generation complete. [2.139 seconds] - 2026-11-21T01:14:13.950Z
+[39m
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mD:/projects/sandbox/angular-ai-devtools[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/hostile-tools.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/extension-message.service.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/role-name.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/n1-update-cause.component.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/read-tools.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/worker-read.service.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 126[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/job-handles.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/app-facts.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/summarize-job.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/extension-prompt.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-groups.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/tool-registry.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/error-digest.tool.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/panel-environment.tool.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/app.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/message-ring-buffer.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/companion.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/context-budget.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/chunked-fact-list-job.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 209[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/signal-provenance.service.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/feature-fingerprint.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/n3-di-doctor.component.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/panel-context.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/anti-pattern-detector.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/signal-provenance.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/di-path-display.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/update-cause-chain.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/page-picker.component.spec.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 256[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 215[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/panel-demo.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 1417[2mms[22m[39m
+[2m Test Files [22m [1m[32m31 passed[39m[22m[90m (31)[39m
+[2m      Tests [22m [1m[32m359 passed[39m[22m[90m (359)[39m
+[2m   Start at [22m 02:14:14
+[2m   Duration [22m 3.21s[2m (transform 2.27s, setup 3.01s, import 2.72s, tests 2.69s, environment 17.74s)[22m
+
+[2m[32m[39m[22m
+
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project angular-ai-devtools[39m
+
+
+  Run duration:      6.3s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     6.3s (1 task)
+  Recoverable time:  <1ms
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run nx run angular-ai-devtools:build-extension --skip-nx-cache
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 520.00 kB was not met by 14.51 kB with a total of 534.51 kB.[0m
+[39m[22m
+npm notice run npx
+npm notice run nx run angular-ai-devtools:test --skip-nx-cache
+npm notice run npx
+npm notice run prettier --check apps/angular-ai-devtools/src/app/app.routes.ts apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/panel-tutor-signals.ts

@@ -1,0 +1,29 @@
+head: beb69b97acad146fcb96bcc1cf6e0b7bb2e9b481 at 2026-11-21T00:57:51.610Z
+T003 shape: research/raw/m039-render-phase.json/effect/freshRead at line 399 — 6 nodes, indices [0,1,2,3,4,5]; 6 edges, every one with numeric consumer/producer ends; one node of kind effect at index 5 with label ""; its one consumer edge 5 -> 2 reaching the signal labelled "count"
+T003 provenance: command "set \"M039_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/render-phase-capture.test.mjs\""; route "/"; page "http://localhost:4222/"; element "app-counter"; component "_Counter"; build {"app":"spikes/ng222-app","angular":"22.2.2","configuration":"development"}; instance {"name":"chrome-beta-gemma4","cdp":9334}; at "2026-11-08T07:19:56.846Z"; head: absent
+T003 answer over the record: {"state":"answered","effect":{"label":"","index":5,"namedBy":"recorded-edge"},"reads":[{"index":2,"label":"count"}],"unplaced":[],"ordering":{"state":"absent","absence":"no-write-record-no-order"}}; claims ["effect","read","ordering"]
+T003 index not position: the record's own nodes reversed put the effect at position 0, and the answer still names index 5 reading [{"index":2,"label":"count"}]
+T003 no capture: imports ["node:assert/strict","node:fs","node:path","node:test","node:url","node:vm"]; page globals in the bare context ["document=undefined","window=undefined","fetch=undefined","XMLHttpRequest=undefined","WebSocket=undefined","process=undefined","location=undefined","navigator=undefined","chrome=undefined"]; research/raw/m057-signal-graph.json absent
+T003 portal: the record’s effect label is ""; Resource.loadEffect is named as the shape a portal read would offer in its place (extension/render-phase.js:15-16); no page was opened for this task
+T003 mutants: effect-by-position: the effect sits at position 0 of this list and the record states index 5 for it: a position in the nodes array is not an index the record states, and the answer rendered 0 || portal-read-claimed: no page was opened for this task, so the answer does not claim a portal read: "Resource.loadEffect" appears in {"effect":{"label":"","index":5,"namedBy":"recorded-edge"},"reads":[{"index":2,"label":"count"}],"unplaced":[],"ordering":{"state":"absent","absence":"no-write-record-no-order"},"claims":[{"claim":"effect","values":{"label":"","index":5,"namedBy":"recorded-edge"},"artefactPath":"research/raw/m039-render-phase.json","line":399},{"claim":"read","values":{"index":2,"label":"count"},"artefactPath":"research/raw/m039-render-phase.json","line":399},{"claim":"effect","values":{"route":"/home","page":"http://localhost:4222/","label":"Resource.loadEffect"},"artefactPath":"extension/render-phase.js","line":18},{"claim":"ordering","values":{"state":"absent","absence":"no-write-record-no-order"},"artefactPath":"extension/render-phase.js","line":18}]} || provenance-invented: a claim carries artefactPath, claim, line, values and nothing else, so no provenance field the record does not carry is invented beside it — no head, no route and no clock: this claim rendered {"head":"beb69b97acad146fcb96bcc1cf6e0b7bb2e9b481","claim":"effect","values":{"label":"","index":5,"namedBy":"recorded-edge"},"artefactPath":"research/raw/m039-render-phase.json","line":399}
+✔ T003 — the record carries the indexed graph the answer reads (SC1) (3.3036ms)
+✔ T003 — the record states its own provenance, and states no head (SC5, E6) (0.5068ms)
+✔ T003 — the join answers from the record and names the effect at 5 and the signal at 2 (SC1) (1.8067ms)
+✔ T003 — the answer carries the record path and pointer on every claim, and invents no field (SC1) (1.0297ms)
+✔ T003 — the answer reads a node’s own index and never its position (SC1, E2) (0.7609ms)
+✔ T003 — no capture leg: node builtins only and no m057-signal-graph.json (SC5) (2.6424ms)
+✔ T003 — no page was opened, and the portal’s labelled effect is named, not claimed (SC5, E6) (0.9822ms)
+✔ T003 mutants — every anchor is one place in the join and really changes it (0.167ms)
+✔ T003 mutants — each defect reddens its pin, and the failure names the defect by string (7.4195ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 152.7815
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/tutor-signals-graph.test.mjs

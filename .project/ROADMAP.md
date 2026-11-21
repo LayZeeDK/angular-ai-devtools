@@ -1995,8 +1995,8 @@ Success criteria
 Depends on: [M055]
 Programme: Generation 3 · Batch: 4 · Group: @angular/core
 Surfaces: panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/057-tutor-signals
 Integrated: null
 
 Goal: The tutor answers why a signal-driven template re-rendered, or failed to, citing the recorded graph and the write that preceded the render, so the answer names a rule the evidence supports rather than a plausible one.

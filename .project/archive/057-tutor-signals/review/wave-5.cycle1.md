@@ -3,8 +3,20 @@
 Cycle: 1
 Depth: full
 Wave verdict: pass
-Tasks reviewed: 4
-Reviewed HEAD: 53c6a77a96447bb4c8bd58adb63f67dd4c0f0ee9
+Tasks reviewed: 5
+Reviewed HEAD: 613ac83dd4d7be85e98fe45550188799f1bb1e2b
+
+This record replaces the wave-5 cycle-1 record committed at `bd6a1ff4` and deleted with this one:
+that record judged four of the wave's five tasks at `53c6a77a`, before T010 — the P001 patch task
+the project verify's refusal produced — landed in the same wave, so it no longer covered wave 5's
+task set and a second cycle beside it would have left two contradictory verdicts for one wave.
+`git show --stat 5a57cd21` touches `research/raw/m056-gate-stability.json` and T010's own task file
+and nothing else, and no file T006–T009 own moved after `53c6a77a` (`git diff --stat 53c6a77a
+613ac83d` lists the stability record, the task file, the ledger, STATE, PLAN and the review
+artifacts alone), so the evidence for those four tasks is re-read at this head rather than
+re-derived; T010 is judged here for the first time. Both suites this record cites were run at the
+shipping head inside the project verify the ledger records at `613ac83d` (`npm run check` green,
+`npm test` green, exit 0).
 
 ## T006 — Teach both record inventories this milestone's pair: pass
 
@@ -21,26 +33,22 @@ Reviewed HEAD: 53c6a77a96447bb4c8bd58adb63f67dd4c0f0ee9
   (`scripts/tutor-record-shapes.test.mjs:513-618`, the validation call wired into
   `validateInventory` at `:619-640`).
 - ✅ The teeth are proved, not asserted: a map naming a third path its milestone does not owe reddens
-  naming `research/raw/m901-verdict-claims.json`
-  (`scripts/tutor-answer.test.mjs:1246-1265`, the record-shapes twin with `m901-surface.json` at
-  `scripts/tutor-record-shapes.test.mjs:1791-1818`), and the record this milestone owes — present and
-  neither measured nor named — reddens naming itself
-  (`scripts/tutor-answer.test.mjs:1267-1282`, `scripts/tutor-record-shapes.test.mjs:1820-1848`), with
-  the subtraction still pinned to exactly the two recordings' own statements
-  (`scripts/tutor-answer.test.mjs:1232-1241`,
+  naming `research/raw/m901-verdict-claims.json` (`scripts/tutor-answer.test.mjs:1246-1265`, the
+  record-shapes twin with `m901-surface.json` at `scripts/tutor-record-shapes.test.mjs:1791-1818`),
+  and the record this milestone owes — present and neither measured nor named — reddens naming
+  itself (`scripts/tutor-answer.test.mjs:1267-1282`,
+  `scripts/tutor-record-shapes.test.mjs:1820-1848`), with the subtraction still pinned to exactly the
+  two recordings' own statements (`scripts/tutor-answer.test.mjs:1232-1241`,
   `scripts/tutor-record-shapes.test.mjs:1758-1790`).
 - ✅ The tripwire T006 armed fired as designed and was satisfied by the owner, not silenced: T006
   landed with M057's map carrying no inventory, so the first own-record to land would redden naming
   itself — T007's Verify reddened exactly there, and the repair was the map's own `inventory` block
   naming `research/raw/m057-surface.json` with a `T004`-bearing `why`
   (`.project/tasks/T007-record-the-surface-and-re-measure-the-copy.md:115,118`;
-  `research/raw/m057-record-shapes.json:793-805`), moving
-  `scripts/tutor-record-shapes.test.mjs` from 16/7/9 to 16/15/1 with the one red being T001's stale
-  mutant, recorded for the owner ruling rather than edited outside `files:`
-  (`.project/tasks/T007-record-the-surface-and-re-measure-the-copy.md:118-119`). T009 then extended
-  the same list with `research/raw/m057-verdict-claims.json`
-  (`research/raw/m057-record-shapes.json:800-803`) and measured the census unchanged — M055's 34
-  measured verdict-claims records still 34, nothing re-counted to fit
+  `research/raw/m057-record-shapes.json:793-805`). T009 then extended the same list with
+  `research/raw/m057-verdict-claims.json` (`research/raw/m057-record-shapes.json:800-803`) and
+  measured the census unchanged — M055's 34 measured verdict-claims records still 34, nothing
+  re-counted to fit
   (`.project/tasks/T009-re-derive-the-stability-record-and-run-the-project-verify.md:100`).
 
 ## T007 — Record the surface and re-measure the copy: pass
@@ -54,7 +62,8 @@ Reviewed HEAD: 53c6a77a96447bb4c8bd58adb63f67dd4c0f0ee9
   `extension/render-phase.js:18` — the same answer field for field that `panel-demo.spec.ts` holds
   `FACTS['tutor-signals']` to (`apps/angular-ai-devtools/src/app/panel-demo.spec.ts:5856-5857`,
   reviewed in wave 4). The route, loader key and pinned lines it records resolve at this head:
-  `apps/angular-ai-devtools/src/app/app.routes.ts:84`, `:113`, `:146`, `:147` (`research/raw/m057-surface.json:26-51`).
+  `apps/angular-ai-devtools/src/app/app.routes.ts:84`, `:113`, `:146`, `:147`
+  (`research/raw/m057-surface.json:26-51`).
 - ✅ The copy re-measure is a re-derivation with every moved value read at the line it names, and the
   digest moved with it: `research/raw/m048-surface.json`'s copy of the demo's copy-check fact moved
   195 → 201 in the quoted line and its `holds` (`research/raw/m048-surface.json:113-114`), the
@@ -64,9 +73,9 @@ Reviewed HEAD: 53c6a77a96447bb4c8bd58adb63f67dd4c0f0ee9
   authored (`extension/copy-digest.json`,
   `.project/tasks/T007-record-the-surface-and-re-measure-the-copy.md:113`), and `panel-demo.ts`'s
   copy-check fact moved with the count, that file and its pinning specs declared.
-- ✅ The blocked state is recorded as a blocker, not smoothed into a pass: the first Verify exited 1 on
-  one assertion — `research/raw/m048-surface.json:loader.sampleFact` quoting `checked: 195` against
-  the 201 the task's own AC3 requires, a record outside `files:` — and nothing was staged or
+- ✅ The blocked state is recorded as a blocker, not smoothed into a pass: the first Verify exited 1
+  on one assertion — `research/raw/m048-surface.json:loader.sampleFact` quoting `checked: 195`
+  against the 201 the task's own AC3 requires, a record outside `files:` — and nothing was staged or
   committed until the two paths the blocker named were declared and the minimal repair made
   (`.project/tasks/T007-record-the-surface-and-re-measure-the-copy.md:113-116`); after the repair the
   Verify exits 0 at 30 of 30 with prettier green (`:120`).
@@ -87,9 +96,9 @@ Reviewed HEAD: 53c6a77a96447bb4c8bd58adb63f67dd4c0f0ee9
 - ⚠ Declared limit, not a defect: the re-derived record's bytes landed in `d6ffafb6` — the carry
   commit T009's checkout made of T008's dirty work, stated in both Logs
   (`.project/tasks/T008-re-derive-the-gate-shapes-the-landing-staled.md:161`;
-  `.project/tasks/T009-re-derive-the-stability-record-and-run-the-project-verify.md:95`) — so
-  T008's own landed commit (`53c6a77a`) touches only its task file, and the landed tree at this
-  reviewed head is where the record and its four suites are read green
+  `.project/tasks/T009-re-derive-the-stability-record-and-run-the-project-verify.md:95`) — so T008's
+  own landed commit (`53c6a77a`) touches only its task file, and the landed tree at this reviewed
+  head is where the record and its four suites are read green
   (`.project/tasks/T008-re-derive-the-gate-shapes-the-landing-staled.md:186-188`). The bytes are
   T008's, measured green at `cbca600c` by T008's own Verify (`:182-185`).
 
@@ -110,11 +119,11 @@ Reviewed HEAD: 53c6a77a96447bb4c8bd58adb63f67dd4c0f0ee9
   not being the fallback, with the second test's own title reading `... and the refusal names M054`;
   restoring the derivation returns 40 / 40 / 0
   (`.project/tasks/T009-re-derive-the-stability-record-and-run-the-project-verify.md:102`).
-- ✅ The stability record was re-derived last through its own command and every moved value is the
-  stage's own printed line: `research/raw/m056-gate-stability.json`'s plain-run milestone is
-  `M057` (`research/raw/m056-gate-stability.json:30`) with the summary's mention count moved with
-  this milestone's logs (`:33`), the predecessor stage held to M056 now examines that archive's seven
-  task logs against 686 changed paths of `1aff7555..5290d939` by M055's ship rule (`:74`), and
+- ✅ The stability record was re-derived through its own command and every moved value is the stage's
+  own printed line: `research/raw/m056-gate-stability.json`'s plain-run milestone is `M057`
+  (`research/raw/m056-gate-stability.json:30`) with the summary's mention count moved with this
+  milestone's logs (`:33`), the predecessor stage held to M056 now examines that archive's seven task
+  logs against 686 changed paths of `1aff7555..5290d939` by M055's ship rule (`:74`), and
   `capture.head` stays `5290d939` with `capture.at` staying `2026-11-15T01:09:35.719Z`, so the record
   still pins the commit it was measured at rather than HEAD
   (`research/raw/m056-gate-stability.json:87,113`); the claims record
@@ -123,24 +132,52 @@ Reviewed HEAD: 53c6a77a96447bb4c8bd58adb63f67dd4c0f0ee9
   the ten edge rows assigning every criterion's suite
   (`.project/tasks/T009-re-derive-the-stability-record-and-run-the-project-verify.md:98,103`;
   `research/raw/m057-verdict-claims.json:6-7,46-51`).
-- ✅ The project verify ran as the last action and nothing was re-derived after it: the build first
-  (`build-extension`, cache skipped), then `npm run check` exit 0 with the fix-record stage
-  `gate-integrity: pass - 0 finding(s)`, then `npm test` exit 0 — 1834 node-side tests / 1834 pass,
-  the app suite 320 / 320, skills 60 / 60, the held-out corpus 22 suites / 85 tests all passing —
-  then the artifact checkout (`extension/panel/index.html`) discarding the working-tree diff of a
-  build artifact (`extension/panel/index.html` carries no tracked diff at this head, `git status`
-  clean for it), with the four tests the first full run had red named and repaired before the green
-  run (`.project/tasks/T009-re-derive-the-stability-record-and-run-the-project-verify.md:105-107`).
-- ⚠ Tooling defect, not a task defect — the nine `[ledger]` blockers: `gsd report` lists one
-  `[ledger]` blocker for every task in this milestone, nine in all. The cause is measured, and it is
-  `gsd land`'s own sequence: each landing writes the verify-ledger row into
-  `.project/build/verify-ledger.jsonl` and then runs `git clean -f -- .project/build/`, deleting the
-  entry it just wrote. The tree shows the result and not a task failure: `.project/build/` holds all
-  nine per-task verify logs (`verify-T001.log` … `verify-T009.log`) and no `verify-ledger.jsonl`, and
-  `git ls-files .project/build` is empty on this branch — the ledger was last tracked at M055's ship
-  (`git log -- .project/build/verify-ledger.jsonl` names `1aff7555 ship: M055`). Every task's verify
-  is otherwise evidenced: each `verify-T00N.log` exists, and T009's Log records the project verify's
-  legs with their exit codes. The repair belongs to `gsd land`'s clean step, not to any task here.
+- ✅ The project verify ran as the last action of the task and nothing was re-derived after it: the
+  build first (`build-extension`, cache skipped), then `npm run check` exit 0 with the fix-record
+  stage `gate-integrity: pass - 0 finding(s)`, then `npm test` exit 0 — 1834 node-side tests / 1834
+  pass, the app suite 320 / 320, skills 60 / 60, the held-out corpus 22 suites / 85 tests all
+  passing — then the artifact checkout (`extension/panel/index.html`)
+  (`.project/tasks/T009-re-derive-the-stability-record-and-run-the-project-verify.md:105-107`). The
+  project verify this head ships is that same chain, re-run in the verify sidecar and recorded in
+  `.project/build/verify-ledger.jsonl` at
+  `613ac83dd4d7be85e98fe45550188799f1bb1e2b`, `result: pass`.
+
+## T010 — Re-capture the stability record at the shipping head: pass
+
+- ✅ The re-capture is the suite's own remedy, run armed and never typed: the record was stale because
+  T009's post-capture Log lines and T008's landing moved one token the archive stage prints —
+  `archive.detail.plainRun.summary` from `gate-integrity: pass - 0 finding(s), 87 mention(s)` to
+  `… 88 mention(s)` — and the armed command wrote the moved value as its own output, 6568 bytes,
+  sha256 `57f8332c5f1e35822df253472ed9755bffdaefcd808f313c23ff5206646826a7`, with `capture.head` left
+  at `5290d939497448823ca0f5d1ce5c1d777805ddb8` and `capture.at` left at
+  `2026-11-15T01:09:35.719Z`
+  (`.project/tasks/T010-recapture-the-stability-record-at-the-shipping-head.md:82-98`;
+  `research/raw/m056-gate-stability.json:30,33,87,113`). No value in the record is a hand edit, and no
+  tolerance or check was widened: the task's declared `files:` names the record, the suite and the
+  two gate suites its assertion reaches, and the landing diff
+  (`git show --stat 5a57cd21`) touches the record and the task file alone.
+- ✅ The capture is a reading, proved by its own idempotence rather than by eye: the second armed run
+  changed no byte — the same sha256 before and after — so the Log this task appended did not move the
+  derivation the record states, which is the record's one-write property the suite's arming gate pins
+  (`.project/tasks/T010-recapture-the-stability-record-at-the-shipping-head.md:99-100`;
+  `.project/build/verify-T010.log`, the arming-leg test `the arming gate guards the one write, and a
+  default run spawns no writer`).
+- ✅ The task's Verify is green at the head that ships and is recorded: `node --test
+  scripts/gate-stability-record.test.mjs && npx prettier --check
+  research/raw/m056-gate-stability.json` — `tests 8`, `pass 8`, `fail 0`, `All matched files use
+  Prettier code style!` (`:76`, `.project/build/verify-T010.log`). The default run is a read of the
+  record and re-derives every section from this tree: its archive stage prints
+  `archive: exit 0 null over 5 task log(s); gate-integrity: pass - 0 finding(s), 7 mention(s)`, its
+  fixRecord stage `counts {"watched":3,"green":3,"red":0}`, its predecessor stage `exit 0 null - pass
+  - 0 finding(s), 4 mention(s)`, and its carrier stage names 31 commits behind
+  `5290d939497448823ca0f5d1ce5c1d777805ddb8` with `cbca600c` newest
+  (`.project/build/verify-T010.log`; `research/raw/m056-gate-stability.json:30-33,74,87`).
+- ✅ The record is only ever valid at the head that ships, and this task is the last byte written to
+  it: nothing after the armed capture names an undeclared path, so the count the record states is the
+  count the landed tree derives
+  (`.project/tasks/T010-recapture-the-stability-record-at-the-shipping-head.md:88-92`), and the ship
+  gate at `613ac83d` confirms it — `npm run check`'s `gate:fix-record` and the stability suite are
+  green in the project verify the ledger records at this head.
 
 ## Intent coverage
 
@@ -153,19 +190,22 @@ Reviewed HEAD: 53c6a77a96447bb4c8bd58adb63f67dd4c0f0ee9
   command re-runs the shipped join over the record T003 pins to the same answer the demo's fact is
   held to (`research/raw/m057-surface.json:10-15`). T006's inventories keep every record this
   milestone landed measured or named-on-purpose, so the claims the surface record's route rests on
-  are never an unmeasured record
-  (`scripts/tutor-answer.test.mjs:1217-1244`,
+  are never an unmeasured record (`scripts/tutor-answer.test.mjs:1217-1244`,
   `scripts/tutor-record-shapes.test.mjs:1758-1790`).
 
 ### SC2 — Where the record carries no ordering between a write and the render, the answer states that ordering as a named absence — no write record, no order — beside the effect and its upstream nodes, and names no write, no owner and no cause; a mutant that renders the absence as causation (the write, then the render), a mutant that reads an order out of an edge's direction, and a mutant that renders a write the record does not carry each redden.: pass
 
-- ✅ Covered by T009: the claims record T009 landed derives SC2's criterion text from the intent this
-  milestone binds, character for character, and assigns SC2's two held-out edges E7 and E8 to
-  `scripts/tutor-signals.test.mjs` — the suite whose ordering, causation, edge-direction and
+- ✅ Covered by T009 and T010: the claims record T009 landed derives SC2's criterion text from the
+  intent this milestone binds, character for character, and assigns SC2's two held-out edges E7 and
+  E8 to `scripts/tutor-signals.test.mjs` — the suite whose ordering, causation, edge-direction and
   write-recorded mutants are the absence's proof, reviewed green in wave 2
   (`research/raw/m057-verdict-claims.json:6-7`, the suite assignment at `:46-51`, the held-out rows
   at `:29-35`) — and the surface record states the absence in its own sentence with the field each
-  state reads (`research/raw/m057-surface.json:331,715-753`).
+  state reads (`research/raw/m057-surface.json:331,715-753`). T010 makes the one record the absence
+  is stated beside true at the head that ships: the re-captured
+  `research/raw/m056-gate-stability.json` is this tree's own derivation, idempotent on a second
+  armed run, so nothing the ship carries contradicts the absence it states
+  (`.project/build/verify-T010.log`).
 
 ### SC5 — The answer is produced from the two records the agent already captures — the serialized graph (`extension/agent-main.js:912`, carried per check at `:1070`) and the render/effect join (`extension/render-phase.js:304`) — with no new page-side instrumentation, no second profiler tap (`.project/ROADMAP.md:1085`), and nothing the record does not hold: no DOM, no clock, no console, no page global (`extension/render-phase.js:21-26`), and no field the reader ignores (`extension/render-phase.js:33-35`); a mutant that reads a live page value, starts its own profiler tap, or answers from a field the record does not carry reddens.: pass
 
@@ -179,4 +219,7 @@ Reviewed HEAD: 53c6a77a96447bb4c8bd58adb63f67dd4c0f0ee9
   the two inventories that count records excuse this milestone's own pair by the recordings' own
   statements, with a record neither map named still reddening
   (`scripts/tutor-answer.test.mjs:261-311`,
-  `scripts/tutor-record-shapes.test.mjs:584-618`).
+  `scripts/tutor-record-shapes.test.mjs:584-618`). No capture was added and none was widened: the one
+  record re-captured here is the gate's own stability record, re-derived through the command its
+  suite names, not a page-side read
+  (`.project/tasks/T010-recapture-the-stability-record-at-the-shipping-head.md:93-98`).

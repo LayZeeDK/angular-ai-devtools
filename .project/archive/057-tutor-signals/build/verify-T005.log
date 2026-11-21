@@ -1,0 +1,57 @@
+head: 1bfa7ef6e48dd31d7c9d887a6cb8f2adb0692a22 at 2026-11-21T01:37:49.672Z
+✔ readTargetWidth returns 0 and does not throw when the element has no box yet (97.0014ms)
+✔ readTargetWidth returns the element value 640, not a constant (8.4321ms)
+✔ the afterNextRender callback reads offsetWidth from the element without throwing (8.9094ms)
+✔ PRECONDITION: the after-render route is registered with AfterRenderPage (0.3463ms)
+✔ PRECONDITION: the route table declares all nineteen routes in order (0.4262ms)
+✔ PRECONDITION: the fixture adds no profiler instrumentation (0.2607ms)
+T002 substring: a case-sensitive match -> the filter matches a case-insensitive substring: APP keeps app-counter, and app
+T002 nothing matched: a name completed from framework knowledge -> the filter never completes a name from framework knowledge: a query for the framework’s app-root keeps nothing, because this record does not carry it
+T002 rows: a row the record does not carry -> the filter emits no row the record does not carry, and copies the count the record states | a count the record does not state -> a count the record does not state is null, never a count the record lacks
+T002 cannot-tell: a cause the record invented, repeated as though measured -> the filter never repeats a cause the record invented: the reason is a member of the closed set
+E4 empty beside cannot-tell: empty reported where the source is unreadable -> an unreadable source is cannot-tell with its reason, never an empty list presented as a result
+T002 idempotency: rows reordered out of the record’s order -> identical rows in identical order, in the order the record carries them
+T002 one implementation: the list is read from the record, and no caller reads the DOM to build it
+T002 closed set: 5 reasons, 2 of them the filter’s own
+✔ the record is a head, its sources, its absences and what it does not claim (47.9163ms)
+✔ every cited path and line is the one the record read (45.3673ms)
+✔ every yieldsName claim is the shape of the line it cites (0.3139ms)
+✔ the fallback word is on a path a null instance cannot reach (5.4972ms)
+✔ the record does not claim a component tree the measured file does not hold (1.9954ms)
+✔ the route table lists no components (0.762ms)
+✔ a record that names a component where the code names none is refused (157.9165ms)
+✔ a citation that slid off its line is refused (4.8285ms)
+✔ T002 — a query keeps the names the record carries, matched case-insensitively (25.4039ms)
+✔ T002 — a query that names no recorded name matches nothing and invents none (3.6957ms)
+✔ T002 — the rows are the record’s rows, and no row or count is invented (4.6958ms)
+✔ T002 — an unreadable source is cannot-tell with a reason from the closed set (2.9162ms)
+✔ E4 — an empty list that is stated is not a source that could not be read (5.9458ms)
+✔ T002 — the same record and query answer identical rows in identical order (2.4517ms)
+✔ T002 — the filter is one implementation and it reads the record, never the page (4.0592ms)
+✔ T002 — the closed reason set is the one the record names, and every cause is measured (4.0939ms)
+✔ E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name (10.3663ms)
+✔ E2: the surface functions are still exported for their suites (3.3338ms)
+✔ E3: the demo module renders the surface text it is handed (0.6972ms)
+✔ E4: every declared route surface has a panel-demo LOADERS key (25.0154ms)
+✔ fixture explainers unchanged: pinned files hash to base (2.8721ms)
+✔ pin is live: removing an explainer fails naming that file (2.0949ms)
+✔ pin is live: altering one byte fails naming that file (3.5435ms)
+✔ N1 "Why did this update?" answers on the fixture through its route (918.4369ms)
+✔ N2 "Signal Provenance" answers on the fixture through its route (509.3492ms)
+✔ N3 "DI Doctor" answers on the fixture through its route (501.2463ms)
+✔ the Error Explainer answers on the fixture through its route (427.0715ms)
+✔ the Error Explainer answers a code with no digest entry without asking its model (475.8ms)
+✔ mutant: removing an explainer from the route table reddens the suite naming it (516.8583ms)
+✔ the panel sources and toolchain this suite drives are present, so their absence fails rather than skips (0.9302ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4333.8978
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/panel-routes.test.mjs
