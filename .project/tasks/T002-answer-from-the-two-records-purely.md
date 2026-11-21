@@ -2,10 +2,10 @@
 id: T002
 title: Answer from the two records, purely
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: fa46efcf46f7078e97f07e35e828972f5781c018
 worktree: null
 task_branch: null
 files:
@@ -175,3 +175,9 @@ node --test scripts/tutor-routing.test.mjs && npx prettier --check extension/tut
 ## Log
 
 - pending.
+- Landed paths: `extension/tutor-routing.js`, `scripts/tutor-routing.test.mjs`.
+- Field-set correction, measured: `NavigationEnd`'s own key set is `id, type, url, urlAfterRedirects` (T001's map and m041's class table), so the join renders each class's full declared keys rather than the brief's parenthetical subset.
+- Route naming on the portal frames: pairing m041 with m030 means `/claim/list` and its siblings name segments the fixture's 18 paths do not carry, so those answers are `answered` with `route: null` and every segment named `unconfigured`. SC1's route half is proved on the redirect frame, which is the artefact C3 says the portal lacks.
+- Absence scope: `no-guard-verdict` is stated only where the stream records a `GuardsCheckEnd`; a cancel, skip or error frame never reached the guard stage and carries no absence, and `cannot-tell` states `absences: []`.
+- Claims carry `{ claim, values, artefactPath }` with no line: a JSON record states no line for itself and a pure join touches no filesystem (M057's correction).
+- Attribution rule: `RouteConfigLoadStart`/`RouteConfigLoadEnd` payloads carry no `id`, so a load belongs to the navigation whose own address's outermost segment its `route.path` names; the nested load is attributed to neither, and 1192.1 ms / 314.8 ms are re-derived from the events' own `t` inside the suite.
