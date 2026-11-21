@@ -70,10 +70,15 @@ The four suites beside it are the pin closure the suite's change reaches —
 `scripts/gate-integrity.test.mjs` and its default-tasks sibling, `scripts/tutor-answer.test.mjs`
 and `scripts/tutor-record-shapes.test.mjs` each name the suite this task edits — and they are
 declared, not edited: PLAN R2's class, the standing repair being the counting rule rather than a
-widened task, so none of them is written here and none is authored work. The task follows T006
-and T007 in the wave (`deps: [T003, T006, T007]`) because the three repairs' pin closures share
-the gate suites, and a shared declared file is serialized by a dependency, not left racing in one
-wave.
+widened task, so none of them is written here and none is authored work. The task follows T006 and
+T007 in the wave (`deps: [T003, T006, T007]`) because the three repairs' pin closures share the gate
+suites, and a shared declared file is serialized by a dependency, not left racing in one wave. The
+wave's third red — the audit's missing coverage of the four proof skills — is repaired as bookkeeping
+in the docs audit rather than by this task, and T007 pins that coverage: its suite reads the audit
+and reddens naming the proof skill whose coverage went missing, so a later edit cannot drop one of
+the four documents while `npm test` stays green. A build task may not declare a `.project` path in
+`files:`, which `approve --kind plan` refuses outright, so no task here authors the audit edit; the
+pin is the work, and it is T007's.
 
 ## Interface contract
 

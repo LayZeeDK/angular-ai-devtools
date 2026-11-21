@@ -359,9 +359,10 @@ Review depth: full
 ## Wave 6 — repair the four measured reds
 
 Goal: the project verify is red at the recovery base in six failing tests across four suites, and
-each failure is a state no M058 task owns. This wave repairs that state: three tasks, each greening
-its own suite with no assertion loosened, no expected count lowered and nothing skipped, so the
-final wave's verify measures a tree the reds no longer redden.
+each failure is a state no M058 task owns. This wave repairs that state: three tasks — two greening
+their own suite and one pinning the audit coverage the repair lands — each with no assertion
+loosened, no expected count lowered and nothing skipped, so the final wave's verify measures a tree
+the reds no longer redden.
 
 Why this wave exists, measured rather than feared, red by red at base `50523a7d`:
 
@@ -375,7 +376,10 @@ Why this wave exists, measured rather than feared, red by red at base `50523a7d`
   the tracked tree, and four proof-skill documents landed under `.commandcode/skills/` after the
   audit froze, so the documents the head audit covers are no longer the documents the gate derives.
   The repair is audit rows in the document's existing shape, never an inventory carve-out and
-  never a widened suite.
+  never a widened suite. Those rows are landed beside this plan, and nothing in the checkout reads
+  them: a search of `scripts/`, `tests/`, `extension/` and `apps/` for the four skill directory
+  names returns nothing, so the coverage is pinned by no suite `npm test` runs. T007 authors that
+  pin.
 - The held-out mutant recurses instead of refusing. The plan's `## Held-out checks` carries D2's
   rows as prose because the approved INTENT marks no edge `held-out`, so the mutant helper's
   "seed a row on its own copy" branch has no separator row to seed behind, rewrites the section to
@@ -393,25 +397,34 @@ Review depth: full
 T006 re-measures the signal-shape record: it owns `research/raw/m057-record-shapes.json` and
 `scripts/tutor-signals-shapes.test.mjs`, corrects exactly the two tree-derived values the suite
 re-derives (58 → 59 authored files, 142 → 144 recordings — the needle matches and every other
-derived value are measured unchanged), and greens the suite 19/2 → 21/0. T007 covers the proof
-skills in the audit: it owns `.project/research/DOCS-AUDIT.md` and declares
-`scripts/docs-audit-disposition.test.mjs` without editing it — the gate's own derivation demands
-no suite edit, and the task says so — adding one `## Doc:` section per proof-skill document at the
-level the audit's `control-*` and `verify-*` skill rows use, with the Summary recomputed and one
-classified queue row per non-verified claim numbered above every existing number. T008 refuses a
-held-out mutant the plan cannot seed: it owns `scripts/navigation-blocking.test.mjs`, makes the
-helper fail loudly naming the reason (the plan's `## Held-out checks` carries no table seedable
-row) where it used to recurse, keeps the seeding branch working where a table exists, and pastes
-the new message into its Log from the run against the prose-only plan. One measured dependency is
-recorded, not silently absorbed: the recording census is a function of the record set, so the
-verdict-claims record T004 writes lands one more recording after this repair and moves the census
-again — the same one-value re-derivation applies at the shipping head, the M057-T009 remedy applied
-where M057 applied it, and T006's task records the dependency so the landing is not read as drift.
-Each task also declares the pin closure its change reaches, edited not at all — the gate suites and
-the record-reading suites their changed files' literals name, R2's class — and because the three
-closures share the gate suites, the wave is internally ordered `T006 → T007 → T008`
-(`deps: [T003]`, then `[T003, T006]`, then `[T003, T006, T007]`): a shared declared file is
-serialized by a dependency, never left racing in one wave.
+derived value are measured unchanged), and greens the suite 19/2 → 21/0. T007 pins the proof skills
+in the audit: it authors `scripts/prove-skills-audited.test.mjs` — one reader, one coverage check,
+three cases — which reads the docs audit and asserts each of the four proof-skill documents
+(`.commandcode/skills/prove-join-absence-folding/SKILL.md`,
+`.commandcode/skills/prove-console-cannot-tell/SKILL.md`,
+`.commandcode/skills/prove-overlay-observer-purity/SKILL.md`,
+`.commandcode/skills/prove-graph-serialize-closure/SKILL.md`) is named as a `## Doc:` heading or as
+a `## Descriptive docs` entry, and asserts the Summary's descriptive count equals the number of
+entries that list carries (5 at this head); its mutant removes one skill from a copy of the audit
+held in memory and reddens naming that skill, so the pin is proven able to fail. It is a pin and not
+an audit edit: the rows are landed, `check_docs_audit.py` passes over them, the suite opens the
+document for reading only, and no task here may declare a `.project` path in `files:` — `approve
+--kind plan` refuses that outright. T008 refuses a held-out mutant the plan cannot seed: it owns
+`scripts/navigation-blocking.test.mjs`, makes the helper fail loudly naming the reason (the plan's
+`## Held-out checks` carries no table seedable row) where it used to recurse, keeps the seeding
+branch working where a table exists, and pastes the new message into its Log from the run against
+the prose-only plan. One measured dependency is recorded, not silently absorbed: the recording
+census is a function of the record set, so the verdict-claims record T004 writes lands one more
+recording after this repair and moves the census again — the same one-value re-derivation applies at
+the shipping head, the M057-T009 remedy applied where M057 applied it, and T006's task records the
+dependency so the landing is not read as drift. Each task also declares the pin closure its change
+reaches, edited not at all — the gate suites and the record-reading suites their changed files'
+literals name, R2's class. T007's change is one new suite that nothing pins, so its `files:` is that
+suite alone and its dependency is the wave's common one, `deps: [T003]`; the closures T006's and
+T008's changes reach share the gate suites, so T008 carries `deps: [T003, T006, T007]` — a shared
+declared file is serialized by a dependency, never left racing in one wave. T007's suite names one
+`.project` path, and the reference that adds is enumerated by the gate-integrity suite into the gate
+record T004 re-derives, which is T004's declared row and not a file T007 declares.
 
 ## Wave 7 — the records, the gate and the project verify
 
