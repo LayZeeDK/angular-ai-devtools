@@ -346,13 +346,15 @@ and not authored work — its Verify is the copy suite, `npx prettier --check` o
 `npm run check`, and it owns no criterion of its own: the repair is a citation, so the coverage table
 above names no row for it.
 
-## Wave 5 — held open by the repair wave
+## Wave 5 — the wave the repair split left open
 
-Goal: nothing. The repair split moved T005 into wave 4 and T004 into wave 7, which left this wave
-with no task. It stays in the plan because wave numbers must be contiguous, and it carries one
-withdrawn task (`T010`) because `build_state.py` refuses a `## Wave` heading with no task file —
-the same check that refuses renumbering five landed task files down by one. The wave is recorded
-openly rather than deleted, so a later reader sees the structure rather than inferring it.
+Goal: close the one gap the wave reviews named. The repair split moved T005 into wave 4 and T004
+into wave 7, which left this wave with no task, and `build_state.py` refuses a `## Wave` heading with
+no task file while the same check refuses renumbering five landed task files down by one. T010
+therefore does the smallest real work the milestone still owed: it asserts the panel build-output
+count the signal-shape record states, which no suite read, and re-derives the two gate records its
+own suite edit moves. The wave is recorded openly rather than deleted, so a later reader sees the
+structure rather than inferring it.
 
 Review depth: full
 
