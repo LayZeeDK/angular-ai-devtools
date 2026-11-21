@@ -1,9 +1,9 @@
 ---
 id: T004
 title: Re-derive the recordings and run the project verify
-wave: 5
+wave: 7
 status: pending
-deps: [T003, T005]
+deps: [T003, T005, T006, T007, T008]
 agent: null
 base: null
 worktree: null
@@ -69,8 +69,11 @@ This task also runs the direct-suite leg T003 left to it — the two route-file 
 the copy suite and the two literal pins that read the route file — in the same `node --test` leg,
 so the route T003 landed and the copy it re-measured are proven green at the head this wave leaves
 (the M057 C6 pattern). The artifact is freshly landed by T003 and this task edits no source it is
-built from, so the builds stay in the Config project verify at ship and `npm test`'s own budget leg
-re-proves the artifact fresh here.
+built from, so the builds stay in the Config project verify at ship; this task's Verify still
+leads with the extension build, measured at the repair wave: the held-out fixture suite its first
+leg runs rewrites and restores the route file, and the bumped mtime makes the budget leg of
+`npm test` refuse the artifact as a stale build, so the artifact is rebuilt fresh before `npm
+test` measures it and `npm test`'s own budget leg re-proves it fresh here.
 
 Then run the project verify's remaining legs as the last action and re-derive nothing after it:
 `npm run check`, `npm test`, and the checkout that discards any working-tree diff of a build
@@ -138,7 +141,7 @@ built artifact. The file changes only through `npx nx run angular-ai-devtools:bu
 ## Verify
 
 ```bash
-node --test scripts/gate-integrity.test.mjs scripts/gate-integrity-default-tasks.test.mjs scripts/gate-stability-record.test.mjs scripts/tutor-answer.test.mjs scripts/tutor-record-shapes.test.mjs scripts/panel-routes.test.mjs scripts/copy-check.test.mjs scripts/component-search.test.mjs tests/held-out/fixture-explainers-unchanged.test.mjs && npx prettier --check research/raw/m058-verdict-claims.json research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json scripts/gate-integrity.test.mjs && npm run check && npm test && git checkout -- extension/panel/index.html
+npx nx run angular-ai-devtools:build-extension --skip-nx-cache && node --test scripts/gate-integrity.test.mjs scripts/gate-integrity-default-tasks.test.mjs scripts/gate-stability-record.test.mjs scripts/tutor-answer.test.mjs scripts/tutor-record-shapes.test.mjs scripts/panel-routes.test.mjs scripts/copy-check.test.mjs scripts/component-search.test.mjs tests/held-out/fixture-explainers-unchanged.test.mjs && npx prettier --check research/raw/m058-verdict-claims.json research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json scripts/gate-integrity.test.mjs && npm run check && npm test && git checkout -- extension/panel/index.html
 ```
 
 ## Log

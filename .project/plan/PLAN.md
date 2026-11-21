@@ -346,12 +346,82 @@ and not authored work — its Verify is the copy suite, `npx prettier --check` o
 `npm run check`, and it owns no criterion of its own: the repair is a citation, so the coverage table
 above names no row for it.
 
-## Wave 5 — the records, the gate and the project verify
+## Wave 5 — held open by the repair wave
+
+Goal: this wave has no task. The recovery measured the project verify red at its base — 1858 pass,
+6 fail across four suites, each failure caused by state no M058 task owns — and that repair is a
+wave of its own that must land before the recordings are re-derived and the verify runs, so the
+wave that carried this work moves behind the repair as wave 7 and takes this wave's goal, review
+depth and task paragraph with it. The number stays so the plan's waves stay contiguous.
+
+Review depth: full
+
+## Wave 6 — repair the four measured reds
+
+Goal: the project verify is red at the recovery base in six failing tests across four suites, and
+each failure is a state no M058 task owns. This wave repairs that state: three tasks, each greening
+its own suite with no assertion loosened, no expected count lowered and nothing skipped, so the
+final wave's verify measures a tree the reds no longer redden.
+
+Why this wave exists, measured rather than feared, red by red at base `50523a7d`:
+
+- The shapes suite reddens twice. M058's join wave added a module under `extension/`, so the
+  authored-file census moved 58 → 59, and this milestone's earlier waves landed two more records
+  under `research/raw/`, so the recording census moved 142 → 144 (the directory holds 145; the
+  recording excludes itself). The record that carries both counts is
+  `research/raw/m057-record-shapes.json`, and no M058 task declared it. The repair is the
+  M057-T009 remedy — re-derive the record's counts from the tree — never a loosened assertion.
+- The docs-audit disposition suite reddens once, on coverage: the gate derives its inventory from
+  the tracked tree, and four proof-skill documents landed under `.commandcode/skills/` after the
+  audit froze, so the documents the head audit covers are no longer the documents the gate derives.
+  The repair is audit rows in the document's existing shape, never an inventory carve-out and
+  never a widened suite.
+- The held-out mutant recurses instead of refusing. The plan's `## Held-out checks` carries D2's
+  rows as prose because the approved INTENT marks no edge `held-out`, so the mutant helper's
+  "seed a row on its own copy" branch has no separator row to seed behind, rewrites the section to
+  itself and re-enters until `Maximum call stack size exceeded`. It is red at the plain base too,
+  which makes it a pre-existing suite defect this milestone is the first to expose; the repair is
+  a loud refusal naming the reason, and the healthy path is proven where a table still exists.
+- The budget suite reddens twice on a stale build. The held-out fixture suite T004's first verify
+  leg runs rewrites and restores the route file, bumping its mtime, so `extension/panel/index.html`
+  is refused as a build older than the newest source. The repair is T004's Verify leading with the
+  extension build — the Config verify already performs that build; the task's Verify now does too —
+  keeping every existing leg and the trailing checkout.
+
+Review depth: full
+
+T006 re-measures the signal-shape record: it owns `research/raw/m057-record-shapes.json` and
+`scripts/tutor-signals-shapes.test.mjs`, corrects exactly the two tree-derived values the suite
+re-derives (58 → 59 authored files, 142 → 144 recordings — the needle matches and every other
+derived value are measured unchanged), and greens the suite 19/2 → 21/0. T007 covers the proof
+skills in the audit: it owns `.project/research/DOCS-AUDIT.md` and declares
+`scripts/docs-audit-disposition.test.mjs` without editing it — the gate's own derivation demands
+no suite edit, and the task says so — adding one `## Doc:` section per proof-skill document at the
+level the audit's `control-*` and `verify-*` skill rows use, with the Summary recomputed and one
+classified queue row per non-verified claim numbered above every existing number. T008 refuses a
+held-out mutant the plan cannot seed: it owns `scripts/navigation-blocking.test.mjs`, makes the
+helper fail loudly naming the reason (the plan's `## Held-out checks` carries no table seedable
+row) where it used to recurse, keeps the seeding branch working where a table exists, and pastes
+the new message into its Log from the run against the prose-only plan. One measured dependency is
+recorded, not silently absorbed: the recording census is a function of the record set, so the
+verdict-claims record T004 writes lands one more recording after this repair and moves the census
+again — the same one-value re-derivation applies at the shipping head, the M057-T009 remedy applied
+where M057 applied it, and T006's task records the dependency so the landing is not read as drift.
+Each task also declares the pin closure its change reaches, edited not at all — the gate suites and
+the record-reading suites their changed files' literals name, R2's class — and because the three
+closures share the gate suites, the wave is internally ordered `T006 → T007 → T008`
+(`deps: [T003]`, then `[T003, T006]`, then `[T003, T006, T007]`): a shared declared file is
+serialized by a dependency, never left racing in one wave.
+
+## Wave 7 — the records, the gate and the project verify
 
 Goal: every machine-derived record this milestone's suites move is re-derived with its own command
 at the head that ships, the inventories already excuse this milestone's records through the map
 T001 wrote and the two inventory suites it edited, and the project verify runs last with nothing
 re-derived after it.
+
+T004 runs behind the repair wave (`deps: [T003, T005, T006, T007, T008]`), so the four measured
+reds are green at the head it measures.
 
 Review depth: full
 
@@ -369,6 +439,9 @@ the suite whose record it re-derives. The surface record, the copy record, the d
 inventory suites are T003's and T001's landed deliverables and are re-read here, not re-authored.
 Then it runs the project verify's remaining legs as the last action and re-derives nothing after
 it: `npm run check`, `npm test`, and the checkout that discards the working-tree diff of a build
-artifact — the companion and extension builds lead the Config project verify at ship, and the
-artifact T003 freshly landed is re-proven fresh here by `npm test`'s own budget leg, because this
-task edits no source the artifact is built from.
+artifact — the companion and extension builds lead the Config project verify at ship, and this
+task's Verify leads with the extension build for the reason the repair wave measured: the held-out
+fixture suite its first leg runs rewrites and restores the route file, and the bumped mtime makes
+`npm test`'s own budget leg refuse the artifact T003 landed as a stale build, so the build is
+re-run here and the artifact it writes is what `npm test` measures, before the checkout discards
+the working-tree diff.
