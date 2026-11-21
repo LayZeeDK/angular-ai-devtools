@@ -5,7 +5,7 @@ milestone: tutor-routing
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M058
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1167,3 +1167,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — plan — build recovery: {"base": "50523a7d7e2045a9e881dd2358185a9f19ae592f", "branch": "gsd-path/M058", "kind": "plan", "source": "build"}
 - 2026-11-21 — plan — plan approved
 - 2026-11-21 — build — build started
+- 2026-11-21 — build — build blocked: T009 stales the stability record that T004 owns

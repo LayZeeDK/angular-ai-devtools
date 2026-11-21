@@ -10,6 +10,7 @@ worktree: null
 task_branch: null
 files:
   - research/raw/m057-record-shapes.json
+  - research/raw/m056-gate-stability.json
   - scripts/tutor-signals-shapes.test.mjs
   - extension/panel/index.html
   - scripts/gate-integrity.test.mjs
@@ -52,6 +53,12 @@ before anything else this task runs:
 suite's own scan of the tree and nothing else — the same single-value re-derivation T006 performed,
 applied at the shipping head. Every other value in the recording is measured unchanged at this head
 and is not written.
+
+This task also owns the stability record, and only because it is the last task: two of that record's
+values are a function of this milestone's own task logs, so its capture has to follow this task's
+Log rather than precede it. Re-derive it last, with its own armed command, after the Log is written
+and immediately before the landing — the ordering T004 measured when its first land refused on
+exactly that drift.
 
 Then run `node --test scripts/tutor-signals-shapes.test.mjs` green with no assertion loosened, no
 expected count lowered and nothing skipped. The suite is declared and edited not at all: it reads
@@ -126,3 +133,9 @@ node --test scripts/tutor-signals-shapes.test.mjs && npx prettier --check resear
 ## Log
 
 - pending.
+- Landed path: `research/raw/m057-record-shapes.json`.
+- Two values re-derived from the record's own stated scans, after T004's capture and before the verify: `negativeMeasurements.effectNodeInARecord.jsonFilesScanned` 144 -> 145 (the added recording is T004's) and `negativeMeasurements.writeRecord.filesExcludedAsBuildOutput` 49 -> 50 (the panel this head builds carries 50 output files, a count no suite asserts and T006 measured but could not write). Every other value re-derives unchanged.
+- The census suite is 21/21 at this head against 20/21 at base, its one red at `scripts/tutor-signals-shapes.test.mjs:434`, and the suite file is edited not at all.
+- The project verify ran last: build-extension exit 0 with `Cache: Skipped`; `npm run check` exit 0 with both gate stages at 0 findings; `npm test` exit 0 with 1868/1868 across 261 suites, user-scope 60/60, skills 320/320, app 31 files / 360 tests, held-out 22 suites / 85 tests passed; the trailing checkout exit 0.
+- Observed and recorded rather than acted on: Angular warns that the initial bundle exceeds its 520 kB threshold by 14.52 kB, while the project's own 535.44 kB baseline passes with 0.92 kB of margin; and `npm run check` writes an untracked `.project/review/VERIFICATION.json` that `land` reverts.
+- Landed paths: `research/raw/m057-record-shapes.json`, `scripts/tutor-signals-shapes.test.mjs`, `extension/panel/index.html`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-signals.test.mjs`, `research/raw/m058-verdict-claims.json` — each is read from this tree, ready.
