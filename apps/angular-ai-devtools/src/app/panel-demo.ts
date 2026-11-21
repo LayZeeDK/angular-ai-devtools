@@ -64,7 +64,6 @@ const LOADERS: Record<
   'tutor-foundations': () => import('./panel-tutor-foundations') as never,
   'tutor-signals': () => import('./panel-tutor-signals') as never,
 };
-
 // The sample facts each surface renders; the spec holds each one to the recording it came from.
 export const FACTS: Record<string, unknown> = {
   // The join's own field answer for the cross-field case (extension/field-state.js): every field
@@ -442,13 +441,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 195 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 201 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
   // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
   // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 195 },
+  'copy-check': { state: 'clean', unexplained: [], checked: 201 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the
@@ -820,7 +819,11 @@ FACTS['tutor-foundations'] = {
 // the line its graph sits at, and the join's own path and line for the ordering it states, so no
 // artefact path is composed here (SC1). This is a different answer over that record than the
 // `render-phase` pane renders — that pane keeps the effect, the phase absence and the change-detection
-// finding apart and names no index at all — so the two panes stay two answers over one record.
+// finding apart and names no index at all — so the two panes stay two answers over one record. The one
+// `LOADERS` line that key added above this component is paid for by the blank line the M057 T007 copy
+// pass removed between the map and the `FACTS` comment, so the eight surface records which pin this
+// file's lines — `research/raw/m047-surface.json` to `m055-surface.json`, and `m048-surface-copy.json`
+// — re-resolve at this head instead of being re-cited, and no cited line below the map moved.
 FACTS['tutor-signals'] = {
   state: 'answered',
   question:

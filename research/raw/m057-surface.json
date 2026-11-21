@@ -1,0 +1,772 @@
+{
+  "schema": "m057-surface/v1",
+  "milestone": "M057 tutor-signals",
+  "task": "T007",
+  "title": "Record the tutor-signals route, its loader key, the five states the pane renders and the absence it states",
+  "question": "which route reaches the tutor-signals surface, which LOADERS key resolves it, what does each of the five states the pane renders read off the answer the shipped join gave, and in which sentence is the ordering stated as the named absence?",
+  "head": "7f0033332ffc87f8d9817e692fb74466123f0584",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: every citation below was read out of the file it names at the head above and re-resolved by searching that file for the exact line it quotes rather than by trusting a typed number; the answer the record states is `extension/tutor-signals.js` run node-side in a bare `node:vm` context over `research/raw/m039-render-phase.json`’s `/effect/freshRead`, printed by the `measurement` command below. The three readings this record describes are the route table (`app.routes.ts`), the loader map and the sample fact (`panel-demo.ts`) and the display module (`panel-tutor-signals.ts`); the graph it reads is the record T003 pins (PLAN C8) and the join is T002’s. No browser was opened for this record, no page was read, no capture was taken and no build or test of the app was run: the same answer is re-derived node-side by `panel-demo.spec.ts` on every test run.",
+  "measurement": {
+    "what": "the shipped join’s own answer over the record T003 pins, run in a bare vm context: the graph line the answer cites, the effect it names, the upstream nodes its edges state, what the record cannot place, the ordering it publishes as an absence, and the claims it carries",
+    "command": "node -e \"const fs=require('fs'),vm=require('vm');const t=fs.readFileSync('research/raw/m039-render-phase.json','utf8');const r=JSON.parse(t);const f=r.effect.freshRead;const line=t.split(/\\r?\\n/).findIndex(l=>l.includes('freshRead')&&l.trim().endsWith('{'))+1;const eff=f.nodes.filter(n=>n.kind==='effect');const ctx=vm.createContext({});vm.runInContext(fs.readFileSync('extension/tutor-signals.js','utf8'),ctx);const a=ctx.angularAiTutorSignals.tutorSignals({graph:{path:'research/raw/m039-render-phase.json',line,graph:{nodes:f.nodes,edges:f.allEdges}},effect:{edge:{consumer:eff[0].index}},question:r.effect.question});console.log(JSON.stringify({line,state:a.state,effect:a.effect,reads:a.reads,unplaced:a.unplaced,ordering:a.ordering,claims:a.claims,detail:a.detail}))\"",
+    "output": [
+      "{\"line\":399,\"state\":\"answered\",\"effect\":{\"label\":\"\",\"index\":5,\"namedBy\":\"recorded-edge\"},\"reads\":[{\"index\":2,\"label\":\"count\"}],\"unplaced\":[],\"ordering\":{\"state\":\"absent\",\"absence\":\"no-write-record-no-order\"},\"claims\":[{\"claim\":\"effect\",\"values\":{\"label\":\"\",\"index\":5,\"namedBy\":\"recorded-edge\"},\"artefactPath\":\"research/raw/m039-render-phase.json\",\"line\":399},{\"claim\":\"read\",\"values\":{\"index\":2,\"label\":\"count\"},\"artefactPath\":\"research/raw/m039-render-phase.json\",\"line\":399},{\"claim\":\"ordering\",\"values\":{\"state\":\"absent\",\"absence\":\"no-write-record-no-order\"},\"artefactPath\":\"extension/render-phase.js\",\"line\":18}],\"detail\":\"the graph record research/raw/m039-render-phase.json:399 states the effect node labelled \\\"\\\" at index 5, reached by the edge the record holds, and 1 upstream node in the order its edges appear; the record carries no write record, so the ordering is the named absence no-write-record-no-order and this answer names no write, no owner and no cause\"}"
+    ]
+  },
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+    "join": "extension/tutor-signals.js",
+    "graph": "research/raw/m039-render-phase.json",
+    "shapes": "research/raw/m057-record-shapes.json",
+    "copy": "research/raw/m048-surface-copy.json"
+  },
+  "route": {
+    "name": "tutor-signals",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 84,
+      "lineText": "'tutor-signals',",
+      "holds": "tutor-signals"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadPanelDemo"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "surface"
+    },
+    "table": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "appRoutes"
+    },
+    "closure": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "loadPanelDemo"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "panel-demo"
+      }
+    ],
+    "statement": "one entry of the `PANEL_SURFACES` list (:84), spread into the `appRoutes` table by the one mapped literal the table ends with, lazy through the shared `loadPanelDemo` closure the table defines once (:14, :15), and naming its surface in `data.surface` (:147) as every demo-backed route does. It sits directly after `tutor-foundations` (:83) rather than after `what-changed`, for the reason the list’s own note states: every citation of `m047`..`m055` and of `scripts/component-search.test.mjs` is pinned to its line, so an entry appended at the end would move them. The entry cost the list one line and moved no cited line, because M057’s T004 folded the M053 note’s two lines into one to pay for it (PLAN C3): `console-read` (:78), `copy-check` (:95), `interaction-story` (:98) and `dead-click` (:104) keep their numbers, and so does the `appRoutes` declaration (:113). The route registers nothing and measures nothing: it reaches the pane that renders the join’s answer."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "LOADERS"
+    },
+    "key": "tutor-signals",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 65,
+      "lineText": "'tutor-signals': () => import('./panel-tutor-signals') as never,",
+      "holds": "'./panel-tutor-signals'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 717,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 723,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 724,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 725,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 726,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 827,
+      "lineText": "FACTS['tutor-signals'] = {",
+      "holds": "FACTS['tutor-signals']"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 828,
+        "lineText": "state: 'answered',",
+        "holds": "state: 'answered'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 829,
+        "lineText": "question:",
+        "holds": "question:"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 831,
+        "lineText": "effect: { label: '', index: 5, namedBy: 'recorded-edge' },",
+        "holds": "index: 5"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 832,
+        "lineText": "reads: [{ index: 2, label: 'count' }],",
+        "holds": "label: 'count'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 833,
+        "lineText": "unplaced: [],",
+        "holds": "unplaced"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 834,
+        "lineText": "ordering: { state: 'absent', absence: 'no-write-record-no-order' },",
+        "holds": "no-write-record-no-order"
+      }
+    ],
+    "sampleFactComment": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 805,
+        "lineText": "// The join's own answer (`extension/tutor-signals.js`, T002) for the graph record T003 pins, entered",
+        "holds": "extension/tutor-signals.js"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 810,
+        "lineText": "// The record is `research/raw/m039-render-phase.json`'s `/effect/freshRead` (PLAN C8): six nodes, every",
+        "holds": "m039-render-phase.json"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 811,
+        "lineText": "// one carrying a numeric `index`, and one node of kind `effect` at index 5 whose label is the empty",
+        "holds": "index 5"
+      }
+    ],
+    "statement": "the `tutor-signals` key is the last entry of the `LOADERS` map (:35, :65), and it is the only path to `panel-tutor-signals.ts`: the demo looks the key up by the name the route’s `data.surface` states (:717), awaits the dynamic import (:723), calls the module’s default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact is entered after the component rather than inside the `FACTS` literal, because every cited line of that literal is pinned by `m048`..`m055` and a fact added up there would move them (the comment above it says so). The one line the key itself cost is paid for by the blank line M057’s T007 removed between the map and that literal, so the eight surface records which pin this file’s lines re-resolve at this head instead of being re-cited. The fact is the join’s own answer over the record T003 pins — `state: answered`, the effect node at index 5 with the empty label, the one upstream node at index 2 labelled `count`, no unplaced reference, and the ordering as `no-write-record-no-order` — and `panel-demo.spec.ts` re-reads that record, evaluates the shipped join from its committed text and holds this fact to that answer field for field, so a fact that drifted reddens there rather than shipping."
+  },
+  "answer": {
+    "shape": "{ state, question, effect, reads, unplaced, ordering, claims, detail }",
+    "joinAt": {
+      "file": "extension/tutor-signals.js",
+      "line": 589,
+      "lineText": "function tutorSignals(records) {",
+      "holds": "tutorSignals(records)"
+    },
+    "graphSource": {
+      "record": "research/raw/m039-render-phase.json",
+      "jsonPointer": "/effect/freshRead",
+      "at": {
+        "file": "research/raw/m039-render-phase.json",
+        "line": 399,
+        "lineText": "\"freshRead\": {",
+        "holds": "freshRead"
+      },
+      "nodes": 6,
+      "edges": 6,
+      "effectNodes": 1,
+      "effectIndex": 5,
+      "effectLabel": "",
+      "readFrom": "the record’s own `nodes` and `allEdges`, under the path and the line the record states them at — never a page, never a capture, and never a field the reader ignores"
+    },
+    "measured": {
+      "state": "answered",
+      "line": 399,
+      "effect": {
+        "label": "",
+        "index": 5,
+        "namedBy": "recorded-edge"
+      },
+      "reads": [
+        {
+          "index": 2,
+          "label": "count"
+        }
+      ],
+      "unplaced": [],
+      "ordering": {
+        "state": "absent",
+        "absence": "no-write-record-no-order"
+      },
+      "claims": 3,
+      "detail": "the graph record research/raw/m039-render-phase.json:399 states the effect node labelled \"\" at index 5, reached by the edge the record holds, and 1 upstream node in the order its edges appear; the record carries no write record, so the ordering is the named absence no-write-record-no-order and this answer names no write, no owner and no cause"
+    },
+    "fields": [
+      {
+        "field": "state",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 400,
+          "lineText": "const stateWord = writtenString(answer['state']);",
+          "holds": "answer['state']"
+        },
+        "note": "the word the join answered, and the only field that decides which state renders; a word this pane was not written for renders as the bare word (:409) rather than borrowing a state’s sentence."
+      },
+      {
+        "field": "question",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 299,
+          "lineText": "const question = writtenString(answer['question']);",
+          "holds": "answer['question']"
+        },
+        "note": "the entry record’s own question, echoed into every state by the join; a blank renders no `question:` line."
+      },
+      {
+        "field": "effect.label",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 313,
+          "lineText": "line(LABELS.effectLabel, valueText(effect['label'])),",
+          "holds": "effect['label']"
+        },
+        "note": "the label exactly as the graph spells it — the empty string included, printed as a blank beside the index (:313) and never minted from a position, a call site or a source string (E2)."
+      },
+      {
+        "field": "effect.index",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 314,
+          "lineText": "line(LABELS.effectIndex, valueText(effect['index'])),",
+          "holds": "effect['index']"
+        },
+        "note": "the node’s own `index` as the graph carries it, never its position in the nodes array (E2)."
+      },
+      {
+        "field": "effect.namedBy",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 315,
+          "lineText": "line(LABELS.effectNamedBy, valueText(effect['namedBy'])),",
+          "holds": "effect['namedBy']"
+        },
+        "note": "how the join reached the node — `label` or `recorded-edge` — in the existing join’s own vocabulary."
+      },
+      {
+        "field": "reads[]",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 325,
+          "lineText": "const reads = answer['reads'];",
+          "holds": "answer['reads']"
+        },
+        "note": "one `{ index, label }` per upstream node the graph’s edges state, in the order the answer lists them (:330-:331); no read is sorted, numbered or dropped, and a producer end the graph cannot place contributes no read."
+      },
+      {
+        "field": "unplaced[]",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 343,
+          "lineText": "const unplaced = answer['unplaced'];",
+          "holds": "answer['unplaced']"
+        },
+        "note": "one `{ end, value }` per reference the graph cannot place, printed by end and value (:348-:349) so a value no node carries is never printed as a node index (SC4)."
+      },
+      {
+        "field": "ordering",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 356,
+          "lineText": "const ordering = answer['ordering'];",
+          "holds": "answer['ordering']"
+        },
+        "note": "always `{ state: ’absent’, absence: ’no-write-record-no-order’ }`; the pane prints its two fields (:358-:361) and names no write, no owner and no cause of its own (SC2)."
+      },
+      {
+        "field": "claims[]",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 371,
+          "lineText": "const claims = answer['claims'];",
+          "holds": "answer['claims']"
+        },
+        "note": "one group of lines per claim — the claim, the artefact path that states it and the line in that artefact (:378-:381) — in the answer’s own order; a claim with no artefact path is not rendered, because a claim with no artefact is not a claim this pane states (SC1)."
+      },
+      {
+        "field": "detail",
+        "readAt": {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 388,
+          "lineText": "const detail = writtenString(answer['detail']);",
+          "holds": "answer['detail']"
+        },
+        "note": "the join’s own sentence about what it read or which absence holds, echoed unchanged under its own label — never a record field, never composed here."
+      }
+    ],
+    "statement": "the pane is the display half and reads only these fields: it reads no record, opens no page, stats no file, dispatches no message, asks nothing of an inspected window and imports nothing at runtime, so the join’s rules are never restated here as a computation. The answer itself is the join’s: `tutorSignals` (:589) reads the graph record (:596), the render/effect entry (:610), the effect node the entry names (:625) and the upstream nodes its edges state (:655), and every field the pane prints is one the join carried from a record’s own field. The answer this record states is the join’s own over `research/raw/m039-render-phase.json`’s `/effect/freshRead` and not a page read: no capture was taken by this milestone (PLAN C8), and the same answer is re-derived node-side by `panel-demo.spec.ts` on every test run."
+  },
+  "states": [
+    {
+      "id": "answered",
+      "word": "answered",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+        "line": 99,
+        "lineText": "export const ANSWERED = 'answered';",
+        "holds": "ANSWERED"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 176,
+          "lineText": "text: 'answered: the recorded signal graph carries the effect node this answer names, by the label the graph spells for it — the empty string included, printed beside the node’s own index — then each upstream node the graph’s edges state for it, by that node’s index and the label the graph gives it, and then the write ordering as the join’s named absence; every other line here is a field of the answer under its own path and no field is composed by this pane',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/tutor-signals.js",
+          "line": 127,
+          "lineText": "const ANSWERED = 'answered';",
+          "holds": "ANSWERED"
+        },
+        {
+          "file": "extension/tutor-signals.js",
+          "line": 640,
+          "lineText": "const effect = effectOf(subject.node, entry.namedBy);",
+          "holds": "effectOf("
+        },
+        {
+          "file": "extension/tutor-signals.js",
+          "line": 655,
+          "lineText": "const reads = readsOf(graph.nodes, graph.edges, effect.index, unplaced);",
+          "holds": "readsOf("
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 400,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 299,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "effect.label",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 313,
+            "lineText": "line(LABELS.effectLabel, valueText(effect['label'])),",
+            "holds": "effect['label']"
+          }
+        },
+        {
+          "field": "effect.index",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 314,
+            "lineText": "line(LABELS.effectIndex, valueText(effect['index'])),",
+            "holds": "effect['index']"
+          }
+        },
+        {
+          "field": "effect.namedBy",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 315,
+            "lineText": "line(LABELS.effectNamedBy, valueText(effect['namedBy'])),",
+            "holds": "effect['namedBy']"
+          }
+        },
+        {
+          "field": "reads[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 325,
+            "lineText": "const reads = answer['reads'];",
+            "holds": "answer['reads']"
+          }
+        },
+        {
+          "field": "unplaced[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 343,
+            "lineText": "const unplaced = answer['unplaced'];",
+            "holds": "answer['unplaced']"
+          }
+        },
+        {
+          "field": "ordering",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 356,
+            "lineText": "const ordering = answer['ordering'];",
+            "holds": "answer['ordering']"
+          }
+        },
+        {
+          "field": "claims[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 371,
+            "lineText": "const claims = answer['claims'];",
+            "holds": "answer['claims']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 388,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "statement": "the graph record is readable, the entry names an effect node the graph holds, and the answer renders what the record states: the effect by the label the graph spells and by its own `index`, each upstream node by that node’s `index` and label in the order the edges appear, the ordering as the named absence, and one group of lines per claim with the artefact path and line that states it. In this record it renders the empty label beside `index: 5` and the one upstream node `count` at `index: 2` — the measurement above is that answer — and it names no write, no owner and no cause (SC1, SC2; E1, E2, E7)."
+    },
+    {
+      "id": "graph-unreadable",
+      "word": "graph-unreadable",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+        "line": 100,
+        "lineText": "export const GRAPH_UNREADABLE = 'graph-unreadable';",
+        "holds": "GRAPH_UNREADABLE"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 181,
+          "lineText": "text: 'graph-unreadable: no signal graph could be read for this page — no graph record was supplied, or the record names no path or no line, or it holds no node and edge lists — so the absence names the graph and nothing else: no effect, no label, no read and no claim about the page’s effects, and it is never the statement that the page has none',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/tutor-signals.js",
+          "line": 128,
+          "lineText": "const GRAPH_UNREADABLE = 'graph-unreadable';",
+          "holds": "GRAPH_UNREADABLE"
+        },
+        {
+          "file": "extension/tutor-signals.js",
+          "line": 596,
+          "lineText": "if (graph.problem !== null) {",
+          "holds": "graph.problem"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 400,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 299,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "claims[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 371,
+            "lineText": "const claims = answer['claims'];",
+            "holds": "answer['claims']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 388,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "statement": "the first absence: no signal graph could be read — no graph record was supplied, the record names no path or no line, or it holds no node and edge lists. The pane states it in its own sentence and names no effect, no label and no read, and it is never the statement that the page has no effects (SC3, E3)."
+    },
+    {
+      "id": "no-render-entry",
+      "word": "no-render-entry",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+        "line": 101,
+        "lineText": "export const NO_RENDER_ENTRY = 'no-render-entry';",
+        "holds": "NO_RENDER_ENTRY"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 186,
+          "lineText": "text: 'no-render-entry: the graph record is readable and carries no render/effect entry this join can read, so nothing names an effect node: no effect, no label and no read are rendered beside this sentence, and it is neither the graph absence nor the empty-effect absence',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/tutor-signals.js",
+          "line": 129,
+          "lineText": "const NO_RENDER_ENTRY = 'no-render-entry';",
+          "holds": "NO_RENDER_ENTRY"
+        },
+        {
+          "file": "extension/tutor-signals.js",
+          "line": 610,
+          "lineText": "if (entry === null) {",
+          "holds": "entry === null"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 400,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 299,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "claims[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 371,
+            "lineText": "const claims = answer['claims'];",
+            "holds": "answer['claims']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 388,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "statement": "the second absence: the graph record is readable and carries no render/effect entry this join can read, so nothing names an effect node. Its own sentence, distinct from the graph absence and from the empty-effect absence (SC3, E4), and no effect, no label and no read are rendered beside it."
+    },
+    {
+      "id": "no-effect-node",
+      "word": "no-effect-node",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+        "line": 102,
+        "lineText": "export const NO_EFFECT_NODE = 'no-effect-node';",
+        "holds": "NO_EFFECT_NODE"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 191,
+          "lineText": "text: 'no-effect-node: the graph record is readable and holds no node of kind effect, or holds none carrying the reference the entry names, so that reference is named under unplaced by its end and the value the record states rather than resolved to the nearest node, and no effect, no label and no read are rendered beside it',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "extension/tutor-signals.js",
+          "line": 130,
+          "lineText": "const NO_EFFECT_NODE = 'no-effect-node';",
+          "holds": "NO_EFFECT_NODE"
+        },
+        {
+          "file": "extension/tutor-signals.js",
+          "line": 625,
+          "lineText": "if (subject.node === null) {",
+          "holds": "subject.node === null"
+        }
+      ],
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 400,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 299,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "unplaced[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 343,
+            "lineText": "const unplaced = answer['unplaced'];",
+            "holds": "answer['unplaced']"
+          }
+        },
+        {
+          "field": "claims[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 371,
+            "lineText": "const claims = answer['claims'];",
+            "holds": "answer['claims']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+            "line": 388,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "statement": "the third absence: the graph is readable and holds no node of kind `effect`, or holds none carrying the reference the entry names; the reference is named under `unplaced` by its end and the value the record states, never resolved to the nearest node (SC3, SC4; E4, E5). Its own sentence is the third, distinct from the other two."
+    },
+    {
+      "id": "no-tutor-signals-answer",
+      "word": "no-tutor-signals-answer",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+        "line": 123,
+        "lineText": "export const NO_ANSWER_STATE = 'no-tutor-signals-answer';",
+        "holds": "NO_ANSWER_STATE"
+      },
+      "sentenceAt": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 201,
+          "lineText": "text: 'no-tutor-signals-answer: no answer was handed over, so no state, no question, no effect, no read, no unplaced reference, no ordering and no claim are reported',"
+        }
+      ],
+      "answeredBy": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 399,
+          "lineText": "if (!isObject(answer)) return noAnswer();",
+          "holds": "noAnswer()"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+          "line": 294,
+          "lineText": "return surface(NO_ANSWER_STATE, [NO_ANSWER_TEXT]);",
+          "holds": "NO_ANSWER_STATE"
+        }
+      ],
+      "reads": [],
+      "statement": "the pane’s own absence, not one of the join’s four: no answer was handed to it at all, or the value it was handed is no object or carries no `state` word (:399-:401). It reads no field — there is none to read — and states the absence in its own sentence, which is why a surface handed nothing renders a sentence rather than a blank pane, and why the word is no synonym for any of the three absences."
+    }
+  ],
+  "absence": {
+    "id": "no-write-record-no-order",
+    "state": "absent",
+    "statedIn": {
+      "file": "extension/tutor-signals.js",
+      "line": 153,
+      "lineText": "const NO_WRITE_RECORD_NO_ORDER = 'no-write-record-no-order';",
+      "holds": "NO_WRITE_RECORD_NO_ORDER"
+    },
+    "builtAt": {
+      "file": "extension/tutor-signals.js",
+      "line": 446,
+      "lineText": "return { state: ABSENT, absence: NO_WRITE_RECORD_NO_ORDER };",
+      "holds": "NO_WRITE_RECORD_NO_ORDER"
+    },
+    "carriedAt": {
+      "file": "extension/tutor-signals.js",
+      "line": 493,
+      "lineText": "ordering: orderingState(),",
+      "holds": "orderingState()"
+    },
+    "sentenceAt": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+        "line": 196,
+        "lineText": "text: 'ordering: the record carries no write record, so the ordering between a write and this render is the named absence no-write-record-no-order — an edge is a direction of dependency and holds no field, no value and no moment to read an order out of — and this pane names no write, no owner and no cause',"
+      }
+    ],
+    "renderedAt": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-signals.ts",
+        "line": 423,
+        "lineText": "lines.push(ORDERING_TEXT, ...orderingLines(answer));",
+        "holds": "ORDERING_TEXT"
+      }
+    ],
+    "measured": {
+      "state": "absent",
+      "absence": "no-write-record-no-order"
+    },
+    "why": "no write record exists anywhere in `extension/` — T001 measured it and recorded it in `research/raw/m057-record-shapes.json` — and an edge is a direction of dependency that carries no field, no value and no moment (`extension/render-phase.js:18`), so a write is not representable in one and no ordering can be read out of a direction. The absence is therefore stated and not captured: there is no field in the answer a cause could sit in.",
+    "statement": "the ordering is one object — `{ state: ’absent’, absence: ’no-write-record-no-order’ }` — built in exactly one place in the join (:446) and carried on every answer, including the three absences (:493), so no branch of the join can vary it. The pane renders the sentence registered as `ordering-absent` (:196) and then the object’s own two fields (:422-:423), and names no write, no owner and no cause anywhere (SC2). The measured answer above carries the absence as its `ordering` field, which is the same object this record names."
+  },
+  "notCaptured": [
+    "Nothing here was rendered, clicked or captured: every value is a static read of the files the `sources` block names, at the head above, and the answer the record states is the shipped join run node-side over a record already on disk. No browser was opened, no page was read, no profiler was tapped and no `serializeGraph` call was made (PLAN C8).",
+    "No page read produced this answer and none could: `extension/agent-main.js:958` pushes `id: String(n.id)` and resolves each edge end to a node id, so a fresh `serializeGraph` capture reproduces the missing-`index` defect rather than curing it, and every field the answer reads — `index`, `kind`, `label`, the two edge ends — is one `research/raw/m039-render-phase.json`’s `/effect/freshRead` already holds. That is why the milestone takes no capture, and why this record names a record rather than a route it drove.",
+    "The record does not measure what the pane looks like. The five sentences it renders are enumerated in `panel-tutor-signals.ts`’s `PANE_SENTENCES` and measured for copy in `research/raw/m048-surface-copy.json`, which this record names as a source; this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
+    "The record pins no total for the route table or the `LOADERS` map: a later milestone appends to both on purpose, and a recorded total would go stale without changing what this record says about this route.",
+    "The record does not claim the demo’s `tutor-signals` fact was written by this task. It is T004’s, it is cited here as the read that reaches the pane (:824), and `panel-demo.spec.ts` holds it to the join’s answer over the record on every test run; this record states the same answer from the same two sources and does not restate the fact."
+  ],
+  "verdict": "measured: /tutor-signals is one lazy route — the `PANEL_SURFACES` entry at :84, spread into `appRoutes` by the one mapped literal at :144-:148 and costing the list no cited line (PLAN C3) — whose `data.surface` names the `tutor-signals` key of `panel-demo.ts`’s `LOADERS` (:65), and that key is the only path to `panel-tutor-signals.ts`: the demo looks it up (:717), awaits the import (:723), calls the module’s default export with the sample fact (:724) and sets the state (:725) and the lines (:726). The pane renders the join’s four states and one absence of its own: `answered` reads `state`, `question`, `effect.label`, `effect.index`, `effect.namedBy`, every `reads[]` member, every `unplaced[]` member, `ordering`, every `claims[]` member and `detail`; `graph-unreadable`, `no-render-entry` and `no-effect-node` each read `state`, `question`, `claims[]` and `detail` — with `unplaced[]` beside the third — and `no-tutor-signals-answer` reads no field at all. The ordering is the named absence `no-write-record-no-order`, stated in its own sentence (:196) on every answer, because no write record exists in `extension/` and an edge carries no field to order a write in. The answer shipped is the join’s own over `research/raw/m039-render-phase.json`’s `/effect/freshRead`: the effect node labelled \"\" at index 5, the one upstream node `count` at index 2, no unplaced reference and 3 claims — a different answer over that record than the `render-phase` pane renders, derived node-side and not read off a page.",
+  "revision": {
+    "author": "T007",
+    "head": "7f0033332ffc87f8d9817e692fb74466123f0584",
+    "why": "M057's T004 shipped the twenty-eighth panel surface, `panel-tutor-signals.ts`, with its route, loader key and sample fact, and this milestone's record of that surface is owed before the milestone ships",
+    "what": "the route, the loader key, the join’s four states and the pane’s own absence with the answer field each reads, the named ordering absence with the sentence it is rendered in, the join’s measured answer over the record T003 pins, and the copy record re-measured over the surface"
+  }
+}
