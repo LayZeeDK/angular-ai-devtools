@@ -48,8 +48,7 @@ returning `{ state, code, message, owner, absences, claims, detail }` with every
 state and each `claims[]` entry carrying `artefactPath`. T003 publishes the route `teardown-leak` in
 `PANEL_SURFACES`, the `LOADERS` key `'teardown-leak'`, the exported `teardownLeakPanel` and the surface
 record `research/raw/m059-surface.json`. T004 publishes `research/raw/m059-verdict-claims.json`, whose
-`claims[]` cite those artefacts by `artefactPath` and re-derive each against the tree. T005 publishes the
-re-derived `research/raw/m044-gate-shapes.json` and `research/raw/m056-gate-stability.json`.
+`claims[]` cite those artefacts by `artefactPath` and re-derive each against the tree.
 
 ## Intent coverage
 
