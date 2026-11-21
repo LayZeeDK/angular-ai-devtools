@@ -39,16 +39,7 @@ armed run, and record the moved values with the command that produced them.
 
 ## Interface contract
 
-T001 publishes `research/raw/m059-record-shapes.json`, whose `digest` section names the `NG0205` entry
-verbatim with the digest's hash, whose `message` section names the fields a console message carries after
-the join, whose `producible` section states whether a post-teardown touch emitted the diagnostic and names
-the route tried, and whose `absences` section states the handle record's absence with its counts. T002
-publishes `teardownLeak(records)` on `globalThis.angularAiTeardownLeak`, taking `{ console, digest }` and
-returning `{ state, code, message, owner, absences, claims, detail }` with every field present in every
-state and each `claims[]` entry carrying `artefactPath`. T003 publishes the route `teardown-leak` in
-`PANEL_SURFACES`, the `LOADERS` key `'teardown-leak'`, the exported `teardownLeakPanel` and the surface
-record `research/raw/m059-surface.json`. T004 publishes `research/raw/m059-verdict-claims.json`, whose
-`claims[]` cite those artefacts by `artefactPath` and re-derive each against the tree.
+T001 publishes the record-shapes record: its digest section names the NG0205 entry verbatim with the digest hash, its message section names the fields a console message carries after the join, its producible section states whether a post-teardown touch emitted the diagnostic and names the route tried, and its absences section states the handle record absence with its counts. T002 publishes teardownLeak(records) on globalThis.angularAiTeardownLeak, taking { console, digest } and returning { state, code, message, owner, absences, claims, detail } with every field present in every state and each claims entry carrying an artefactPath. T003 publishes the route teardown-leak in PANEL_SURFACES, the LOADERS key teardown-leak, the exported teardownLeakPanel, the digest rows and the surface record. T004 publishes the verdict-claims record, whose claims cite those artefacts by artefactPath and re-derive each against the tree. T005 publishes the re-derived gate shapes and gate stability records.
 
 ## Intent coverage
 
