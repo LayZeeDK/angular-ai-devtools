@@ -1,7 +1,7 @@
 ---
 id: T009
 title: Re-measure the census and run the project verify
-wave: 7
+wave: 8
 status: done
 deps: [T004]
 agent: build_T009

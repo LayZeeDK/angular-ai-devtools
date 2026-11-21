@@ -1,7 +1,7 @@
 ---
 id: T004
 title: Re-derive the recordings and run the project verify
-wave: 6
+wave: 7
 status: done
 deps: [T003, T005, T006, T007, T008]
 agent: build_T004

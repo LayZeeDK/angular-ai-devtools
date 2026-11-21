@@ -1,7 +1,7 @@
 ---
 id: T008
 title: Refuse a held-out mutant the plan cannot seed
-wave: 5
+wave: 6
 status: done
 deps: [T003, T006, T007]
 agent: build_T008
