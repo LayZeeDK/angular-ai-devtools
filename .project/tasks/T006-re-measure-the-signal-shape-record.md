@@ -1,7 +1,7 @@
 ---
 id: T006
 title: Re-measure the signal-shape record
-wave: 6
+wave: 5
 status: done
 deps: [T003]
 agent: build_T006

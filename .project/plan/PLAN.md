@@ -346,17 +346,7 @@ and not authored work — its Verify is the copy suite, `npx prettier --check` o
 `npm run check`, and it owns no criterion of its own: the repair is a citation, so the coverage table
 above names no row for it.
 
-## Wave 5 — held open by the repair wave
-
-Goal: this wave has no task. The recovery measured the project verify red at its base — 1858 pass,
-6 fail across four suites, each failure caused by state no M058 task owns — and that repair is a
-wave of its own that must land before the recordings are re-derived and the verify runs, so the
-wave that carried this work moves behind the repair as wave 7 and takes this wave's goal, review
-depth and task paragraph with it. The number stays so the plan's waves stay contiguous.
-
-Review depth: full
-
-## Wave 6 — repair the four measured reds
+## Wave 5 — repair the four measured reds
 
 Goal: the project verify is red at the recovery base in six failing tests across four suites, and
 each failure is a state no M058 task owns. This wave repairs that state: three tasks — two greening
@@ -426,7 +416,7 @@ declared file is serialized by a dependency, never left racing in one wave. T007
 `.project` path, and the reference that adds is enumerated by the gate-integrity suite into the gate
 record T004 re-derives, which is T004's declared row and not a file T007 declares.
 
-## Wave 7 — the records, the gate and the project verify
+## Wave 6 — the records, the gate and the project verify
 
 Goal: every machine-derived record this milestone's suites move is re-derived with its own command
 at the head that ships, the inventories already excuse this milestone's records through the map
@@ -459,7 +449,7 @@ fixture suite its first leg runs rewrites and restores the route file, and the b
 re-run here and the artifact it writes is what `npm test` measures, before the checkout discards
 the working-tree diff.
 
-## Wave 8 — re-measure the census and run the project verify
+## Wave 7 — re-measure the census and run the project verify
 
 Goal: the recording census the shapes record states is a function of the record set, and T004's
 capture moves it, so the census is re-derived after that capture and before the project verify, and

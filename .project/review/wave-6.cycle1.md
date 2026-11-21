@@ -1,157 +1,201 @@
-# Review — wave 6, cycle 1
+# Review — wave 7, cycle 1
 
 Cycle: 1
 Depth: full
 Wave verdict: pass
-Tasks reviewed: 3
-Reviewed HEAD: 5b71032601c15f0a830f365c350c46262b63326b
+Tasks reviewed: 1
+Reviewed HEAD: 6ba3a011ea6f322167d003e1b351a029ceba5a09
 
-## T006 — Re-measure the signal-shape record: pass
+Note on the checkout this review measured at: HEAD is `5b71032601c15f0a830f365c350c46262b63326b`
+(T009, wave 8), one landing past the wave under review. Wave 8 owns one of the three recordings this
+wave landed — the stability record, whose derived mention count is a function of the milestone's task
+logs and which T009 re-derives after T004's Log (`.project/plan/PLAN.md:476-484`) — so the digest
+this review prints for that record is the landing's (`f7724bf5…` at `6ba3a011`) beside the checkout's
+(`2162f6c2…`, T009's re-derivation, 12 mentions). The other two recordings are byte-identical between
+the landing and this checkout, re-hashed from `git show 6ba3a011:<path>` and from the working tree.
 
-- ✅ The landing is exactly the two tree-derived values and nothing else: `git show --stat 5649a8d6`
-  reads `.project/tasks/T006-re-measure-the-signal-shape-record.md | 12 +-, research/raw/m057-record-shapes.json | 4 ++-, 2 files changed, 11 insertions(+), 5 deletions(-)`, and the recording diff is
-  precisely two lines — `"filesScanned": 58,` → `"filesScanned": 59,` and `"jsonFilesScanned": 142,`
-  → `"jsonFilesScanned": 144,` — at the two hunks `@@ -508,7` and `@@ -568,7`. No needle list, no
-  `command` text, no graph count and no other derived value moved, so the contract's "change fixed at
-  two values" holds byte for byte.
-- ✅ The two values are the tree's, re-derived by this review and not read back off the record. At the
-  reviewed HEAD `5b710326`, `powershell` over the working tree measures 59 authored files under
-  `extension/` excluding `extension/panel/`, 50 files under `extension/panel/`, and 146 top-level
-  `*.json` under `research/raw/` — 145 scanned once the recording excludes itself — matching the
-  recording as it now stands (`research/raw/m057-record-shapes.json:511` `"filesScanned": 59,`,
-  `:512` `"filesExcludedAsBuildOutput": 50,`, `:571` `"jsonFilesScanned": 145,`). At T006's own head
-  `5649a8d6`, `git ls-tree -r` counts 145 top-level JSONs under `research/raw/` — 144 scanned
-  excluding the recording itself, the value T006 wrote. The two added recordings are the ones the Log
-  names (`m058-record-shapes.json` T001, `m058-surface.json` T003) and the one added authored file is
-  `extension/tutor-routing.js` (T002), both present in the tree at `5649a8d6`.
-- ✅ The suite is green with no assertion loosened and the suite file edited not at all:
-  `node --test scripts/tutor-signals-shapes.test.mjs` at this head prints `ℹ tests 21 / ℹ pass 21 /
-  ℹ fail 0`, including the two tests that re-derive the recording rather than read it back —
-  `✔ no write record exists anywhere in extension/` and `✔ the second measurement is re-run over the
-  tree, not read back` — so the two corrected counts are re-derived from the tree on every run and a
-  future drift reddens here, not in a review.
-- ✅ The third drifted value is reported, not hidden: the Log states
-  `negativeMeasurements.writeRecord.filesExcludedAsBuildOutput` records 49 while the tree measures 50,
-  "one more panel output than M057's T009 measured, because this head carries T003's rebuilt panel"
-  (`.project/tasks/T006-re-measure-the-signal-shape-record.md:141`), with the reason it was left
-  unwritten — no suite asserts it and the contract fixes the change at two values. T009 later landed
-  the 50 (`git show 5b710326`: `"filesExcludedAsBuildOutput": 49,` → `50,`) and T009's Log records the
-  same state ("a count no suite asserts and T006 measured but could not write",
-  `.project/tasks/T009-re-measure-the-census-and-run-the-project-verify.md:139`). Whether the
-  deferral was honest is taken up under GAP 1 below — the verdict here is that the wave's own
-  accounting of it is complete: measured, reported with cause, and closed inside the same wave.
-- ⚠ unverified in this review: that the tree at T006's head measured exactly 50 excluded panel
-  outputs. The measurement rests on the two Logs quoted above; this review measured 50 at the
-  reviewed HEAD only, because `extension/panel/` is gitignored build output — `git ls-tree -r
-  5649a8d6 --name-only extension/panel/` tracks 2 files — so the head's on-disk panel is not
-  reconstructible from git, and re-running a build would write the tree under review.
+## T004 — Re-derive the recordings and run the project verify: pass
+
+- ✅ Three recordings re-derived, each by the command its own record states, and the landing carries
+  nothing else: `git show --stat 6ba3a011` reads `research/raw/m044-gate-shapes.json | 200 +++...`,
+  `research/raw/m056-gate-stability.json | 4 +-`, `research/raw/m058-verdict-claims.json | 168 +++`,
+  `scripts/gate-integrity.test.mjs | 16 ++` and the task file `11 +-` — `5 files changed, 346
+  insertions(+), 53 deletions(-)`: no page, no build, no source file, no inventory-suite edit (AC2,
+  `.project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:133-136`). Each record's
+  `capture.command` names its own writer (`research/raw/m058-verdict-claims.json:63` — `set
+  "M044_CAPTURE=1"&& node --experimental-strip-types --test "scripts/navigation-blocking.test.mjs"`;
+  `research/raw/m056-gate-stability.json:84` — `set "M056_CAPTURE=1"&& node --test
+  scripts/gate-stability-record.test.mjs`), matching the task's Approach (`:50-58`) and PLAN wave 7
+  (`.project/plan/PLAN.md:441-447`). A byte/sha check at this checkout prints `research/raw/
+  m058-verdict-claims.json 29847 bytes sha256 83c56d00b48ea131ece1827d88da8290e96c1fd0615f22262ab66161c0f1ae96`
+  and `research/raw/m044-gate-shapes.json 152763 bytes sha256 36061e36c2136cb03e4eb383cc979dad00ea3aae17d51c8de844de4406c65105`
+  — both byte counts and both digests exactly what the task Log states
+  (`.project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:156`: "the verdict-claims
+  record first write, 29 847 bytes, sha256 `83c56d00…` … the gate-shapes record 152 763 bytes, sha256
+  `36061e36…`") — and the stability record is 6 568 bytes as the Log states but hashes `f7724bf5…`
+  at the landing, not the `1f899ce7…` the Log states (GAP 1 below).
+- ✅ Every default run this review executed is a read, so the read half of AC1's idempotence holds on
+  all three records at this checkout: `node --test scripts/gate-integrity.test.mjs` is 40/40 green
+  (`ℹ tests 40 / ℹ pass 40 / ℹ fail 0`) printing `research/raw/m044-gate-shapes.json at load: 152763
+  bytes, sha256 36061e36c2136cb03e4eb383cc979dad00ea3aae17d51c8de844de4406c65105 / after the run:
+  sha256 36061e36…` — load and after equal; `node --experimental-strip-types --test
+  scripts/navigation-blocking.test.mjs` is 25/25 green printing `research/raw/m058-verdict-claims.json
+  at load and after the run: 29847 bytes, sha256 83c56d00…`; `node --test
+  scripts/gate-stability-record.test.mjs` is 8/8 green printing `research/raw/m056-gate-stability.json
+  at load: 6568 bytes, sha256 2162f6c2… / after the run: sha256 2162f6c2…` and
+  `✔ the three sections are what this head derives, so the record cannot drift from the tree` — at
+  this checkout that holds against T009's re-derivation (12 mentions), which is the wave-8 ordering
+  the plan assigns (`.project/plan/PLAN.md:476-484`), not a defect of this landing.
+- ✅ The third reason row is the plan's stale enumeration, not a task overreach — the governing rule
+  is the one the plan states and the task followed: `.project/plan/PLAN.md:448-449` says the suite-diff
+  reason table "gains one declared row per suite this milestone added, written from the suite's own
+  reading", and the task's parenthetical enumerating two ("the record suite T001 writes and the join's
+  suite T002 writes", `.project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:61-63`)
+  was written before T007's suite existed. The Log records the correction with the site it reddens at
+  (`:157`): "`scripts/prove-skills-audited.test.mjs` (T007, landed after that enumeration was written)
+  is a third suite this milestone added, and without its row the gate reddens at
+  `scripts/gate-integrity.test.mjs:4014`" — and that site is what the code says:
+  `scripts/gate-integrity.test.mjs:4012-4017` reads `const reason = SUITE_DIFF_REASONS[file];` then
+  `if (typeof reason !== 'string' || reason === '') { fail(`${file} differs from ${MEASURED_HEAD} and
+  no reason was read for it, so recording it would be a guess rather than a reading of the diff`) }`,
+  the `fail` sitting at line 4014. The row itself states the suite's own property, quoted from
+  `scripts/gate-integrity.test.mjs:5721-5722`: "wholly added at this head: M058 T007 pins the docs
+  audit's coverage of the four proof skills the milestone lands, because the rows are landed and the
+  audit check passes over them but no suite `npm test` runs re-reads the document, so a later audit
+  edit that dropped one of the four would redden nothing" — the property being that the audit covers
+  each of the four proof skills as a `## Doc:` heading or a `## Descriptive docs` entry, and the
+  Summary's descriptive-docs tally is the number of entries the list carries, held by the suite's three
+  cases (`scripts/prove-skills-audited.test.mjs:299` — `test('the docs audit covers each of the four
+  proof skills, as a ## Doc: heading or a ## Descriptive docs entry', …)`, `:320` — the Summary count
+  read as a number, `:338` — the mutant that removes one bullet), matching the row's "three cases hold
+  it" and its "four proof skills" (`:45`). All three rows are readings rather than admissions to reach
+  green: the run's own diff lines carry the rows' counts (`ℹ A scripts/prove-skills-audited.test.mjs:
+  +390/-0, assertions +15/-0` against the row's "the fifteen assertion lines"; `ℹ A
+  scripts/tutor-routing.test.mjs: +1796/-0, assertions +154/-0` against "the 154 assertion lines";
+  `ℹ A scripts/tutor-routing-shapes.test.mjs: +2373/-0, assertions +149/-0` against "the 149 assertion
+  lines" — counts the suite re-derives from git numstat, so a typed row would redden), and the block
+  sits after the last line the M044 recording pins: the recording cites `scripts/gate-integrity.test.mjs`
+  42 times and the highest cited line is 3811, while the appended block begins at :5709 with the
+  comment stating that discipline (`scripts/gate-integrity.test.mjs:5709-5715` — "They travel here,
+  appended after the last line the M044 recording pins in this file, for the same reason the blocks
+  above do: a row added above one of those pinned references would stale it by moving it"). No earlier
+  row was loosened, removed or reworded: the landing's diff to this file is 16 added lines, 0 removed.
+- ✅ The verdict-claims record derives six criteria rows and they match the intent's six: the record's
+  `evidence.intent.criteria` is `["SC1","SC2","SC3","SC4","SC5","SC6"]`
+  (`research/raw/m058-verdict-claims.json:21-28`), one claim per criterion at `:76-167`, and the
+  quotes block states the derivation is character-exact (`:6` — "the 6 criteria it declares are
+  ["SC1","SC2","SC3","SC4","SC5","SC6"] and scripts/overlay-verdict-claims.test.mjs compares them
+  character for character"). The check suite holds both halves at this head:
+  `✔ rules every criterion the intent declares, quotes it, and cites an artefact that carries its
+  reading` and `✔ is exactly the list this head derives, so a citation cannot drift` — so the rows
+  cannot slide off the intent without reddening. The ten edge rows (`:34-44`, `"rows": 10`) carry the
+  assignments the intent's own five-column table states — E1/E8/E10→SC1, E2→SC2, E3/E4/E5→SC3,
+  E6→SC4, E7→SC5, E9→SC6 (`.project/intent/INTENT.md:118-127`) — and each row cites the suite the
+  plan assigns, `scripts/tutor-routing.test.mjs` for SC1–SC5 and
+  `scripts/tutor-routing-shapes.test.mjs` for SC6's E9 (`research/raw/m058-verdict-claims.json:45-56`,
+  `:83`, `:158`), with the ruling `0 required, 6 not-required` (`:10-11`) and each reason naming the
+  portal clause it answers rather than dodging it (`:14`).
+- ✅ The final ordering — stability capture last, then land — is recorded where the next agent will
+  find it, three times over: the task's Approach (`:55-58`) says the stability record is re-derived
+  "**last**, after this milestone's last byte of prose, because one value it derives is a function of
+  this milestone's own task logs (PLAN R4)"; the Log repeats it with the two values named (`:156` —
+  "`plainRun.milestone` M057 -> M058 and the mention count 88 -> 10", and the M057 side is real:
+  the record at M057's shipping head prints `"summary": "gate-integrity: pass - 0 finding(s), 88
+  mention(s)"` with `"milestone": "M057"` at `5a57cd21`); and the plan carries it forward as the
+  wave-8 hand-off (`.project/plan/PLAN.md:476-484` — "T009 … re-derives the census record after T004's
+  capture … and then runs the project verify … as its last action, with nothing re-derived after it").
+  The suites carry the enforcement the prose describes: the record's own `capture.reading` states the
+  default run "asserts the committed record is exactly what this head derives, so the record cannot
+  drift from the tree without failing" (`research/raw/m056-gate-stability.json:112`) and the stability
+  suite runs `✔ the commit carrying the record sits ahead of the head the record pins`. What the Log
+  does not record is the first attempt's drift failure by name — its only trace is the stash note
+  (`:159`, "A stash from an earlier attempt (`m058-t004-wip`) was inspected and not applied: it
+  predates T007/T008 …"), which names the stash but not the assertion that failed, and the Log's
+  stability-record numbers are that earlier capture's (GAP 1).
+- ⚠ unverified in this review: the armed half of AC1 — "a second armed run of each changes no byte"
+  (`.project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:130-131`). The review
+  runs read-mode only; an armed run is the recording's writer and would write the tree under review.
+  What this review verified is the read half for all three records (the three hash-equal load/after
+  outputs in the bullet above); the armed leg's write-side idempotence rests on the task's own runs.
+- ⚠ unverified in this review: the direct-suite leg's four suites the task runs green —
+  `scripts/panel-routes.test.mjs`, `scripts/copy-check.test.mjs`, `scripts/component-search.test.mjs`
+  and `tests/held-out/fixture-explainers-unchanged.test.mjs`
+  (`.project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:141-143`) — were not
+  re-run here. The landing's own record covers them: `.project/build/verify-T004.log:364-365` prints
+  `ℹ pass 147` / `ℹ fail 0` over the nine-suite leg and `:371` prints `All matched files use Prettier
+  code style!` (the Log's "147/147" and clean prettier leg, `:158`).
+- ⚠ Declared here so the next reader does not take it as hidden: the two inventory suites and the
+  join's suite were executed green by this review at this checkout — `node --test
+  scripts/tutor-routing.test.mjs scripts/tutor-answer.test.mjs scripts/tutor-record-shapes.test.mjs`
+  is 41/41 (`ℹ tests 41 / ℹ pass 41 / ℹ fail 0`) with the census reading `T006 maps: M055 names 2
+  outside itself, M057 names 2 outside itself, M058 names 2 outside itself, the subtraction is 6
+  path(s) and the census reads 34 record(s)` and `ℹ 44 of 44 artefact path(s) resolve over 18 distinct
+  file(s); 0 do not` — the map-beside-map reading AC4 demands, with the verdict-claims record this
+  wave wrote among the six excused paths.
 - Files the wave touched, read or not read, with the diff covered:
-  `.project/tasks/T006-re-measure-the-signal-shape-record.md` — read (whole file, 143 lines; diff
-  9+/3-), 100%; `research/raw/m057-record-shapes.json` — read in slices (`:505-518` write-record
-  block, `:565-575` effect block), ≈28 of 810 lines, ≈3% line-read, and 100% of the 4 changed diff
-  lines via `git show 5649a8d6`; `scripts/tutor-signals-shapes.test.mjs` — not read, declared
-  edited-not-at-all, confirmed untouched by the commit stat, and 100% executed by the green 21/21
-  run. Not read otherwise: none — the commit touches no other file.
-
-## T007 — Pin the proof skills in the audit: pass
-
-- ✅ The landing is one new suite and its task file, nothing else: `git show --stat 568ffbb7` reads
-  `.project/tasks/T007-pin-the-proof-skills-in-the-audit.md | 11 +-, scripts/prove-skills-audited.test.mjs | 390 +++ (new), 2 files changed, 398 insertions(+), 3 deletions(-)` — no audit row, no
-  gate suite, no recording, exactly as AC3 demands ("the suite is the only path this task lands").
-- ✅ The coverage is re-derived from the audit's own text, not read back from the prose: the run
-  prints `T007 coverage: 4/4 proof skills covered, 4 of them as ## Descriptive docs entries, of 5
-  entries and 113 ## Doc: sections` and `T007 count: the Summary says 5 descriptive docs and the list
-  carries 5`, and the suite is 3/3 — `node --test scripts/prove-skills-audited.test.mjs` reports
-  `ℹ tests 3 / ℹ pass 3 / ℹ fail 0`. The list's size is counted from the bullets
-  (`descriptiveEntries`, `scripts/prove-skills-audited.test.mjs:179-192`) and held to the Summary's
-  own tally (`assert.equal(audit.descriptiveCount, audit.descriptive.length, …)` at `:327-332`), so
-  the two halves of the count cannot drift apart silently — the drift AC1 names.
-- ✅ The mutant proves un-coverage, not count movement — this is the question this review was asked,
-  and the answer is yes, by construction and by measurement. The mutant case first drives the
-  unmutated text through the same check (`scripts/prove-skills-audited.test.mjs:341`
-  `assertAuditCoversProofSkills(auditText);`), so the failure below is the mutation's and not a pin
-  that was already red. It then removes exactly one bullet and its indented continuations
-  (`withoutDescriptiveEntry`, `:276-298`), and measures the mutation before believing it: the skill
-  is gone from the copy (`:348-351` `!mutated.includes(MUTATED_SKILL)`), the Summary's tally is
-  untouched (`:353-356`), and the list shrank by exactly one (`:358-361` "the mutant removes exactly
-  one bullet … so the list and the untouched tally disagree"). Only then does it assert the refusal's
-  message equals, exactly, the skill-naming sentence (`:375-378`):
-  `the docs audit must cover .commandcode/skills/prove-join-absence-folding/SKILL.md: neither a ## Doc: heading nor a ## Descriptive docs entry names it` — the run prints it (`T007 mutant: the docs
-  audit must cover …`). A count-drift proof would have asserted the Summary assertion fired; this one
-  deliberately leaves the tally disagreeing and asserts the coverage sentence instead, so the pin's
-  demonstrated failure mode is "removing the bullet un-covers the skill", with the count move proven
-  present and proven not to be what reddened. The count drift is separately held by case 2, so the
-  two drifts each have their own red.
-- ✅ The audit is opened for reading only, and the suite proves it rather than promising it: the
-  mutation is a string join (`:297`), and the last assertion re-reads the document's bytes and holds
-  them to the bytes the run started with (`:383-386` `assert.equal(readFileSync(auditPath, 'utf8'),
-  auditText, …)`).
-- Files the wave touched, read or not read, with the diff covered:
-  `.project/tasks/T007-pin-the-proof-skills-in-the-audit.md` — read (whole file, 149 lines; diff
-  8+/3-), 100%; `scripts/prove-skills-audited.test.mjs` — the landing diff read in full (390 of 390
-  new lines via `git show 568ffbb7`, the whole file), 100%, with targeted re-reads at `:245-260`,
-  `:276-300` and `:338-390`. Not read: none — the commit touches no other file.
-
-## T008 — Refuse a held-out mutant the plan cannot seed: pass
-
-- ✅ The fix is the root cause, not the symptom — the second question this review was asked, and the
-  answer is root cause. The defect was identity replacement: a prose-only `## Held-out checks`
-  section has no separator row to seed behind, so `source.replace(section, seeded)` returned a copy
-  equal to its source and the helper re-entered on it unconditionally until `RangeError: Maximum call
-  stack size exceeded`. The repair removes the re-entry on an unchanged copy:
-  `scripts/navigation-blocking.test.mjs:3221` `const seededCopy = source.replace(section, seeded);`
-  followed by `:3226-3230` `if (seededCopy === source) { assert.fail(…) }` before the recursion at
-  `:3231`. There is no `RangeError` catch anywhere in the file — the only mentions of
-  `Maximum call stack size exceeded` are the two comments that describe the old defect (`:3196`,
-  `:3616`) — so the crash class is gone rather than caught, and the refusal names the reason (the
-  section, the missing `| E… |` row and the missing separator) instead of the stack. The helper's
-  docstring states the three outcomes (`:3190-3198`), as AC1 asks.
-- ✅ The refusal is proven against the plan as it stands and the healthy seed against a table, both
-  green at this head. `node --test --test-name-pattern "held-out" scripts/navigation-blocking.test.mjs`
-  prints `held-out refusal: the plan's "## Held-out checks" section carries no | E… | row and no
-  separator row to seed one behind, so it carries no seedable table row: …` and `held-out seed: SC1
-  carries one citation, so every edge the intent assigns it must be held by the same suite…`, with
-  `ℹ tests 3 / ℹ pass 3 / ℹ fail 0`. The full suite run confirms the Log's whole-file state:
-  `node --test scripts/navigation-blocking.test.mjs` reports `ℹ tests 25 / ℹ pass 25 / ℹ fail 0` at
-  this reviewed head — the Log records the move as 24 tests / 17 pass / 7 fail → 25 / 19 / 6 with the
-  six remaining reds the missing verdict-claims record (`.project/tasks/T008-refuse-a-held-out-mutant-the-plan-cannot-seed.md:142`), and those six are green here because T004's capture landed at
-  `6ba3a011` — the same six, no new red, none of them T008's.
-- ✅ The healthy path is proven where a table still exists, on a copy in memory: the new test builds
-  `withTable` by replacing the prose section with the three-column header and separator
-  (`scripts/navigation-blocking.test.mjs:3644-3657` region), asserts the replacement changed
-  something and `heldOutChecks(withTable).size === 0`, then asserts the seed plants
-  `| E1 | T000 | scripts/absent-held-out-suite.test.mjs |` and that `heldOutChecks(broken)` reads it
-  back, and finally that the derivation refuses naming the absent suite (`:3673-3700` region; the
-  `existsSync` guard at `:3691-3695` proves the wildcard names a suite this checkout does not carry).
-  No assertion was loosened: the six-column mutant still refuses by column count (run output:
-  `six-column mutant: the intent's edge-coverage table carries 6 column(s); …`), and every other
-  record-independent reading is untouched by the diff.
-- ✅ The Log's "one site to cover" claim holds: `replaceFirstHeldOutTest` is declared at
-  `scripts/navigation-blocking.test.mjs:3203` and called at exactly three places — its own recursion
-  `:3231` (now guarded) and the two tests `:3619`, `:3673`, neither of which re-enters — so the
-  identity-replacement pattern had one site and the guard covers it.
-- Files the wave touched, read or not read, with the diff covered:
-  `.project/tasks/T008-refuse-a-held-out-mutant-the-plan-cannot-seed.md` — read (whole file, 144
-  lines; diff 5+/2-), 100%; `scripts/navigation-blocking.test.mjs` — the landing diff read in full
-  (113+/7- via `git show e7442525`), targeted reads at `:3203-3232` and the new-test region
-  `:3609-3712`, ≈130 of 3739 lines, ≈3% line-read, 100% of the diff, and 100% executed by the green
-  25/25 run; the four declared pin-closure suites — not read, declared edited-not-at-all, confirmed
-  untouched by the commit stat. Not read otherwise: none — the commit touches no other file.
+  `.project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md` — read (whole file,
+  159 lines; diff 11 +-), 100%; `research/raw/m058-verdict-claims.json` — read (whole file, 168
+  lines; the entire new file), 100%; `research/raw/m056-gate-stability.json` — read (whole file, 115
+  lines; diff 4 +-), 100%; `scripts/gate-integrity.test.mjs` — the landing diff read whole (16 added
+  lines) plus its surroundings and the reason-lookup site (`:4005-4025`, `:5709-5723` of 5724 lines),
+  <1% read line-by-line and 100% executed by the 40/40 run; `research/raw/m044-gate-shapes.json` —
+  not read line-by-line (152 763 B): read structurally, every `gate-integrity.test.mjs` citation pin
+  extracted (42 pins, highest line 3811) and every derived section re-derived by the 40/40 run.
+  Read beside the diff: `.project/plan/PLAN.md` (the `## Wave 6` and `## Wave 8` sections, :429-486
+  of 487 lines, ≈12%), `.project/intent/INTENT.md` (Success criteria through Constraints, :59-155,
+  ≈62%), `scripts/prove-skills-audited.test.mjs` (the declaration lines and header comments :4-60,
+  :190-205, :299-355 of 391 lines, ≈20%), `.project/build/verify-T004.log` (header and the leg
+  summaries, ≈10%), `.project/review/wave-1.cycle1.md` (whole, the shape this file copies).
 
 ## Intent coverage
 
-None advanced. Each of the three tasks records `## Intent coverage` → `- None`
-(`.project/tasks/T006-re-measure-the-signal-shape-record.md:103-105`,
-`.project/tasks/T007-pin-the-proof-skills-in-the-audit.md:108-110`,
-`.project/tasks/T008-refuse-a-held-out-mutant-the-plan-cannot-seed.md:105-107`), and the plan's
-wave-6 prose assigns no criterion row to them — it records the repairs as owning no acceptance
-criterion of their own: T006 "repairs the tree-consistency of a recording earlier waves read",
-T007 "pins a document's coverage rather than a criterion's reading", T008 "repairs the suite's own
-mutant machinery, not a criterion's reading" (`PLAN.md:397-427`). No `### SCn` section appears
-because the wave advances no criterion; the wave verdict rests on the three task sections above.
+### SC5 — An answer never derives the destination from the final URL or the address bar: the destination it names is the `url` and `urlAfterRedirects` the terminal event itself carries, and where two navigations share an `id` their events are kept apart by the `id` and the `route.path` each event carries, never by arrival position — the abandoned navigation's own `RouteConfigLoadEnd` arrived 1192.1 ms after its cancel and 314.8 ms before the successor's, and the record's own attribution is "by route.path in the event's own payload, never by position" (`superseded.ordering`, `superseded.attribution`; `.project/ROADMAP.md:2053`); a mutant that reads the destination from the address bar, from `router.url` or from `currentNavigation()`, and a mutant that attributes a route-config event to the navigation that arrived beside it, redden.: pass
 
-### GAP 1 — the recording's `filesExcludedAsBuildOutput` rode stale from T006 to T009 and still has no suite to redden it: T006 measured the tree at 50 excluded panel outputs against the recording's 49 and left the recording unwritten (reported at `.project/tasks/T006-re-measure-the-signal-shape-record.md:141`), T009 wrote the 50 two hours later (`research/raw/m057-record-shapes.json:512` at HEAD), and no suite asserts that value either at T006's head or at this reviewed HEAD — T009's own Log calls it "a count no suite asserts" (`.project/tasks/T009-re-measure-the-census-and-run-the-project-verify.md:139`). The deferral was honest, not a gap in the wave's accounting: the reason is stated in the Log, the task's interface contract fixed the change at exactly two values, the two asserted counts were repaired and are suite-held at every run, and the correction landed inside the same wave so no head shipped with the stale value. The gap that remains is a pin that does not exist: the wave built re-derivation pins for `filesScanned` and `jsonFilesScanned` (the shapes suite re-derives both on every run) but none for `filesExcludedAsBuildOutput`, so the next panel rebuild that changes the build-output file count drifts the recording silently again, reddening nothing until a human re-measures.
-Risk: low — the value counts gitignored build output the suites deliberately do not derive, the drift
-direction is always "panel rebuild changes the count", T009's same-wave re-derivation caught this
-instance, and the two suite-held counts bound the damage: a future drift cannot move the recording's
-asserted values without reddening `scripts/tutor-signals-shapes.test.mjs` immediately.
+- ✅ Covered by T004: the verdict-claims record this wave wrote rules SC5 not-required with its
+  `criterionText` the intent's own sentence, character for character
+  (`research/raw/m058-verdict-claims.json:139` against `.project/intent/INTENT.md:96-103`, 832
+  characters, `:140`), citing the edge row the intent assigns — E7 (`INTENT.md:124`) — and the
+  artefact the plan assigns it, `scripts/tutor-routing.test.mjs` (`:143`, `:145` — "11 test
+  declaration(s) in scripts/tutor-routing.test.mjs hold SC5 through the 1 ordering edge row(s) the
+  intent assigns it, ["E7"]"), and the record is asserted by its check suite to be "exactly the list
+  this head derives, so a citation cannot drift" (navigation-blocking run, 25/25).
+- ✅ The mutants the criterion demands are live in the suite the row cites and green-held at this
+  checkout: the join's run reddens `destination-from-the-address-bar` ("cannot-tell reads no
+  destination from the address bar: a records object carrying an address bar changes nothing this
+  module reports"), `destination-from-router-url`, `destination-from-current-navigation` and
+  `route-config-attributed-by-arrival` ("the abandoned navigation owns the route-config events naming
+  its own route path — its own RouteConfigLoadEnd arrived 1192.1 ms after its cancel and 314.8 ms
+  before the successor's — because attribution is by route.path in the event's own payload and never
+  by arrival position"), and `✔ held-out E7: a reused id keeps two decisions apart by id and
+  route.path, never by arrival position` passes (41/41 across the three suites this review ran).
+- ✅ The not-required ruling answers the portal clause rather than skipping it: the reason quotes the
+  clause, states that no insurance-portal route can produce a fact about "what a stage examines, what
+  a range is derived from or what a mutant reddens", and names the edge rows and the suite that hold
+  the criterion instead (`research/raw/m058-verdict-claims.json:142`).
+
+### SC6 — The answer is produced from the two observables the agent already holds — the recorded navigation stream and the router config it reads through the `Router` token its own injector walk resolves (`research/raw/m041-navigation.json` `reach.readFrom`: `routerTokenFrom` at `extension/agent-main.js:1750-1839` finds the token in entry 2 of a 5-entry path, resolving to the instance `ɵgetRouterInstance` returns, and the record states "No new tap is needed") — with no new page-side instrumentation, no second tap (`.project/ROADMAP.md:2049`) and nothing the record does not hold: no DOM, no console, no page global, no live page read (`extension/router-diagnostic.js:11-14`); a mutant that reads a live page value, starts its own tap, or answers from a field the record does not carry reddens.: pass
+
+- ✅ Covered by T004: no page read and no capture beyond what the records state — the landing commit
+  touches exactly the three recordings, the gate suite and the task file (`git show --stat 6ba3a011`),
+  every armed capture writes only the record its `capture.command` names, and the surface record, the
+  copy record, the digest and the inventory-suite edits are absent from the diff, re-read and not
+  re-authored (AC2, `.project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:133-136`).
+- ✅ The read discipline the criterion demands of production holds on the records themselves: all
+  three default runs are byte-reads with the digests equal before and after (the three outputs quoted
+  in the first bullet), so the captures this wave landed cannot be mistaken for live page work and
+  the default runs cannot write the tree they read.
+- ✅ SC6's own row in the record is derived, not typed: it cites E9 and
+  `scripts/tutor-routing-shapes.test.mjs` (`research/raw/m058-verdict-claims.json:152-166`, reading
+  "20 test declaration(s) in scripts/tutor-routing-shapes.test.mjs hold SC6 through the 1 precision
+  edge row(s) the intent assigns it, ["E9"]"), the suite whose E9 pin the wave-1 review verified
+  re-derives the reach from the agent's source, and the row's `proves` commands are the record's own
+  capture command, that suite, and `npm run check` (`:161-165`).
+
+### GAP 1 — the Log's stability-record identity line is the failed first attempt's measurement, not the landed record's: `.project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:156` states "the stability record 6 568 bytes, sha256 `1f899ce7…`, last, because two of its values are a function of this milestone's logs — `plainRun.milestone` M057 -> M058 and the mention count 88 -> 10", but the record landed in the same commit reads `"summary": "gate-integrity: pass - 0 finding(s), 11 mention(s)"` at `research/raw/m056-gate-stability.json:33` and hashes `f7724bf582cd83b999188b5e4e6e65d31f09f4cb6000f6416d10fbf2613cc634` at `6ba3a011` (6 568 bytes — only the digest is wrong); `1f899ce7…` matches no committed blob (all 38 commits in the file's history were hashed) and no stash blob (stash@{0} `m058-t004-wip` = `bf5e6270`, whose copy hashes `bd7b0fba…` at 6 567 bytes with 7 mentions). The count the Log states is one below the landed record's, and the difference is the size of the task's own Log naming the record — the `Landed paths` line (`:155`) names `research/raw/m056-gate-stability.json`, which is exactly the self-reference the drift assertion guards: a Log line naming the record moves the count that record derives. Under the ordering the task itself states (capture last, after the last Log byte), the Log can never truthfully state the final capture's digest — any digest it states is of an earlier capture — and it does not say so. (Severity: low.)
+Risk: low — the landed record is held to the tree by its own suite (`node --test
+scripts/gate-stability-record.test.mjs`, 8/8: "the three sections are what this head derives"), the
+wave-8 ordering supersedes it as planned (T009's re-derivation, 12 mentions, sha256 `2162f6c2…`, is
+what this checkout carries and the same suite holds it green), no wave deliverable reads the Log's
+digest, and a reader who takes `1f899ce7…` as the landed record's identity falls back to the suite
+that owns the value and re-derives it in one command; the residue is a stale sentence in a Log, not a
+wrong artefact.

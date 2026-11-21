@@ -1,7 +1,7 @@
 ---
 id: T007
 title: Pin the proof skills in the audit
-wave: 6
+wave: 5
 status: done
 deps: [T003]
 agent: build_T007
