@@ -1,0 +1,34 @@
+head: e5feffb8f64f6436fa34833e5db0110a27a09bd5 at 2026-11-21T00:18:54.071Z
+✔ the recording declares the two sides an answer may cite (1.356ms)
+✔ the graph side is the serializer and the one per-check carry (1.9663ms)
+✔ a node is read for index, kind and label and every other field is ignored (0.2646ms)
+✔ an edge is its two ends and nothing else (0.316ms)
+✔ the serializer writes an id, never an index (2.1289ms)
+✔ the render/effect entry declares the effect finding and its read list (0.3931ms)
+✔ the three absences are declared and distinct (0.2282ms)
+✔ the two findings are never joined (0.2118ms)
+✔ every citation carries the cited line’s own trimmed text (6.9776ms)
+✔ every citation is re-resolved by searching its file for the quoted line (8.9523ms)
+✔ every citation id is unique and every reference resolves (0.2767ms)
+✔ no write record exists anywhere in extension/ (41.8673ms)
+✔ no edge carries a field to order a write in (26.2671ms)
+✔ the answer’s ordering vocabulary is the named absence and not a capture (0.1139ms)
+✔ the second measurement is re-run over the tree, not read back (16.3394ms)
+✔ exactly one record holds an effect node in the recorded shape (17.0383ms)
+✔ the closest record carries an indexed effect node, unlike the plan’s prose (0.3579ms)
+✔ the existing join answers from that record without authoring anything (1.3622ms)
+✔ the recording states what no record carries: an index in the serializer’s output (0.0775ms)
+✔ every premise the measurement refuted is stated as refuted (0.0761ms)
+✔ nothing was built (0.0532ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 270.6297
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/tutor-signals-shapes.test.mjs research/raw/m057-record-shapes.json

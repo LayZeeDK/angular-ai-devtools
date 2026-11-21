@@ -1,0 +1,810 @@
+{
+  "milestone": "M057",
+  "task": "T001",
+  "title": "Measure what the two records carry and what no record carries",
+  "base": "e5feffb8f64f6436fa34833e5db0110a27a09bd5",
+  "method": "Static measurement at this head. Every citation below carries the cited line's own trimmed text and is re-resolved by searching its file for that exact text, never by trusting a typed number. No page was opened, no build was run, no browser was started.",
+  "citations": [
+    {
+      "id": "serializeGraph",
+      "path": "extension/agent-main.js",
+      "line": 912,
+      "text": "function serializeGraph(graph) {"
+    },
+    {
+      "id": "perCheckCarry",
+      "path": "extension/agent-main.js",
+      "line": 1070,
+      "text": "graph: serializeGraph(graph),"
+    },
+    {
+      "id": "serializedNodeFields",
+      "path": "extension/agent-main.js",
+      "line": 957,
+      "text": "var pushedNode = {"
+    },
+    {
+      "id": "serializedNodeId",
+      "path": "extension/agent-main.js",
+      "line": 958,
+      "text": "id: String(n.id),"
+    },
+    {
+      "id": "serializedNodeKind",
+      "path": "extension/agent-main.js",
+      "line": 959,
+      "text": "kind: n.kind,"
+    },
+    {
+      "id": "serializedNodeLabel",
+      "path": "extension/agent-main.js",
+      "line": 960,
+      "text": "label: n.label != null ? String(n.label) : null,"
+    },
+    {
+      "id": "serializedEdgeEnds",
+      "path": "extension/agent-main.js",
+      "line": 1003,
+      "text": "edges.push({ consumer: consumerId, producer: producerId });"
+    },
+    {
+      "id": "serializedResult",
+      "path": "extension/agent-main.js",
+      "line": 1013,
+      "text": "var result = { nodes: nodes, edges: edges };"
+    },
+    {
+      "id": "recordedShapeA",
+      "path": "extension/linked-state.js",
+      "line": 29,
+      "text": "//             graph   the signal graph as the page exposes it, recorded: `{ nodes: [{ index, kind,"
+    },
+    {
+      "id": "recordedShapeB",
+      "path": "extension/linked-state.js",
+      "line": 30,
+      "text": "//                     label, value }, …], edges: [{ consumer, producer }, …] }`. The recording's"
+    },
+    {
+      "id": "recordedShapeC",
+      "path": "extension/linked-state.js",
+      "line": 31,
+      "text": "//                     `graph` object is exactly this shape, so `{ graph: <recording>.graph }` is"
+    },
+    {
+      "id": "recordedShapeD",
+      "path": "extension/linked-state.js",
+      "line": 32,
+      "text": "//                     accepted, and so is the graph object itself in that slot. Only `index`,"
+    },
+    {
+      "id": "recordedShapeE",
+      "path": "extension/linked-state.js",
+      "line": 33,
+      "text": "//                     `kind`, `label` and `value` of a node, and the two ends of an edge, are"
+    },
+    {
+      "id": "recordedShapeF",
+      "path": "extension/linked-state.js",
+      "line": 34,
+      "text": "//                     read; every other field (`id`, `epoch`, `fn`, a cause a later capture might"
+    },
+    {
+      "id": "recordedShapeG",
+      "path": "extension/linked-state.js",
+      "line": 35,
+      "text": "//                     add) is ignored, so a fact carrying one changes nothing this module reports"
+    },
+    {
+      "id": "recordedShapeH",
+      "path": "extension/linked-state.js",
+      "line": 36,
+      "text": "//                     (E7)."
+    },
+    {
+      "id": "effectCarriedAsNodeKind",
+      "path": "extension/render-phase.js",
+      "line": 13,
+      "text": "//   - the effect is carried by the signal graph as a node of kind `effect`. Its label may be empty:"
+    },
+    {
+      "id": "edgeIsTwoMembers",
+      "path": "extension/render-phase.js",
+      "line": 17,
+      "text": "//   - an edge is `{ consumer, producer }` (`DebugSignalGraphEdge`, two members): a direction of"
+    },
+    {
+      "id": "edgeIsDirectionOnly",
+      "path": "extension/render-phase.js",
+      "line": 18,
+      "text": "//     dependency and nothing else — no field, no value, no moment. A write is therefore not"
+    },
+    {
+      "id": "writeNotRepresentable",
+      "path": "extension/render-phase.js",
+      "line": 19,
+      "text": "//     representable as an edge, so nothing here names a write, an owner or a cause (N1). The signals"
+    },
+    {
+      "id": "readsAreProducerEnds",
+      "path": "extension/render-phase.js",
+      "line": 20,
+      "text": "//     an effect reads are the producer ends of its consumer edges, and that is all the graph says."
+    },
+    {
+      "id": "noDomNoClockNoConsole",
+      "path": "extension/render-phase.js",
+      "line": 22,
+      "text": "// This module is a reader of what it is given and of nothing else: no DOM (no `document`, no"
+    },
+    {
+      "id": "noPageGlobal",
+      "path": "extension/render-phase.js",
+      "line": 23,
+      "text": "// `window`, no `getComputedStyle`), no clock, no console, no network, no imports and no page global"
+    },
+    {
+      "id": "bareVmContextEnough",
+      "path": "extension/render-phase.js",
+      "line": 24,
+      "text": "// beyond the one namespace below. A bare `node:vm` context with nothing in it is enough to run it,"
+    },
+    {
+      "id": "pureJoinCannotReachPage",
+      "path": "extension/render-phase.js",
+      "line": 25,
+      "text": "// which is what the suite proves. It is a pure join, so it cannot reach a page even if it wanted to:"
+    },
+    {
+      "id": "captureBelongsToCaller",
+      "path": "extension/render-phase.js",
+      "line": 26,
+      "text": "// the capture belongs to a caller, and this module only says what the captured fact supports."
+    },
+    {
+      "id": "nodeFieldsRead",
+      "path": "extension/render-phase.js",
+      "line": 32,
+      "text": "//                     …] }`, the shape the recordings carry. Only `index`, `kind` and `label` of a"
+    },
+    {
+      "id": "otherNodeFieldsIgnored",
+      "path": "extension/render-phase.js",
+      "line": 33,
+      "text": "//                     node, and the two ends of an edge, are read; every other field (`id`, `epoch`,"
+    },
+    {
+      "id": "ignoredFieldExamples",
+      "path": "extension/render-phase.js",
+      "line": 34,
+      "text": "//                     `value`, `debuggableFn`, a cause a later capture might add) is ignored, so a"
+    },
+    {
+      "id": "ignoredFieldChangesNothing",
+      "path": "extension/render-phase.js",
+      "line": 35,
+      "text": "//                     fact carrying one changes nothing this module reports."
+    },
+    {
+      "id": "findingsOrder",
+      "path": "extension/render-phase.js",
+      "line": 49,
+      "text": "// `findings` holds the effect finding and, where the fact carries a recorded message, the"
+    },
+    {
+      "id": "noIdentityFromIndex",
+      "path": "extension/render-phase.js",
+      "line": 58,
+      "text": "// `namedBy` (`label` or `recorded-edge`). No identity is minted from an index, a position, a call"
+    },
+    {
+      "id": "readsIsProducerLabels",
+      "path": "extension/render-phase.js",
+      "line": 59,
+      "text": "// site or a source string (E2, N1). `reads` is the list of signals the effect's consumer edges name,"
+    },
+    {
+      "id": "readsOfComment",
+      "path": "extension/render-phase.js",
+      "line": 246,
+      "text": "// no sort — the recorded order is the only order this module has (E3, E8)."
+    },
+    {
+      "id": "readsOfSignature",
+      "path": "extension/render-phase.js",
+      "line": 247,
+      "text": "function readsOf(nodes, edges, consumer) {"
+    },
+    {
+      "id": "readsOfSkipMissingProducer",
+      "path": "extension/render-phase.js",
+      "line": 254,
+      "text": "if (producer === null) continue;"
+    },
+    {
+      "id": "readsOfSkipsEmptyLabel",
+      "path": "extension/render-phase.js",
+      "line": 256,
+      "text": "if (label === null) continue;"
+    },
+    {
+      "id": "readsOfPushesLabel",
+      "path": "extension/render-phase.js",
+      "line": 257,
+      "text": "reads.push(label);"
+    },
+    {
+      "id": "readsOfReturns",
+      "path": "extension/render-phase.js",
+      "line": 259,
+      "text": "return reads;"
+    },
+    {
+      "id": "effectFindingSignature",
+      "path": "extension/render-phase.js",
+      "line": 265,
+      "text": "function effectFinding(name, namedBy, reads) {"
+    },
+    {
+      "id": "effectFindingState",
+      "path": "extension/render-phase.js",
+      "line": 267,
+      "text": "state: EFFECT,"
+    },
+    {
+      "id": "effectFindingEffect",
+      "path": "extension/render-phase.js",
+      "line": 268,
+      "text": "effect: name,"
+    },
+    {
+      "id": "effectFindingNamedBy",
+      "path": "extension/render-phase.js",
+      "line": 269,
+      "text": "namedBy: namedBy,"
+    },
+    {
+      "id": "effectFindingReads",
+      "path": "extension/render-phase.js",
+      "line": 270,
+      "text": "reads: reads,"
+    },
+    {
+      "id": "indexOfNode",
+      "path": "extension/render-phase.js",
+      "line": 159,
+      "text": "return isObject(node) && isIndex(node.index) ? node.index : null;"
+    },
+    {
+      "id": "joinAt304",
+      "path": "extension/render-phase.js",
+      "line": 304,
+      "text": "// The join. `fact` is what the caller read: the signal graph, the effect to report and, where the"
+    },
+    {
+      "id": "graphUnreadableAbsence",
+      "path": "extension/render-phase.js",
+      "line": 310,
+      "text": "// No graph to read: the absence names the graph, not the page's effects (SC4, N5)."
+    },
+    {
+      "id": "graphUnreadableReturn",
+      "path": "extension/render-phase.js",
+      "line": 312,
+      "text": "if (graph === null) return answer([cannotTell(GRAPH_UNREADABLE)]);"
+    },
+    {
+      "id": "noEffectNodeAbsence",
+      "path": "extension/render-phase.js",
+      "line": 317,
+      "text": "// A readable graph with no effect node: the absence names the node the graph lacks (E1)."
+    },
+    {
+      "id": "noEffectNodeReturn",
+      "path": "extension/render-phase.js",
+      "line": 319,
+      "text": "if (effects.length === 0) return answer([cannotTell(NO_EFFECT_NODE)]);"
+    },
+    {
+      "id": "readsCalledWithIndex",
+      "path": "extension/render-phase.js",
+      "line": 331,
+      "text": "readsOf(nodes, edges, indexOfNode(subject.node)),"
+    },
+    {
+      "id": "changeDetectionNeverJoined",
+      "path": "extension/render-phase.js",
+      "line": 336,
+      "text": "// A recorded change-detection message is a finding of its own, after the effect and never joined"
+    },
+    {
+      "id": "changeDetectionPushed",
+      "path": "extension/render-phase.js",
+      "line": 338,
+      "text": "if (isObject(read.error)) findings.push(changeDetectionFinding(read.error));"
+    },
+    {
+      "id": "sanitizerWritesField",
+      "path": "extension/sanitizer-triage.js",
+      "line": 37,
+      "text": "//   bindings  the bindings the page declares, read off the page: `[{ id, bypass?, writes: [{ version,"
+    }
+  ],
+  "graphSide": {
+    "whereAGraphReachesARecord": {
+      "description": "The only place a signal graph reaches a record: the serializer, and the one field of a per-check record that carries its result.",
+      "citationIds": [
+        "serializeGraph",
+        "perCheckCarry"
+      ]
+    },
+    "recordedShape": {
+      "description": "The shape a reader accepts: an object with a `nodes` list and an `edges` list, nodes keyed by a numeric `index`, edges keyed by the two index ends.",
+      "shape": "{ nodes: [{ index, kind, label, … }], edges: [{ consumer, producer }] }",
+      "citationIds": [
+        "recordedShapeA",
+        "recordedShapeB",
+        "recordedShapeC",
+        "recordedShapeD",
+        "recordedShapeE",
+        "recordedShapeF",
+        "recordedShapeG",
+        "recordedShapeH"
+      ]
+    },
+    "node": {
+      "read": [
+        "index",
+        "kind",
+        "label"
+      ],
+      "ignored": [
+        "id",
+        "epoch",
+        "value",
+        "debuggableFn",
+        "any cause a later capture might add"
+      ],
+      "citationIds": [
+        "nodeFieldsRead",
+        "otherNodeFieldsIgnored",
+        "ignoredFieldExamples",
+        "ignoredFieldChangesNothing",
+        "indexOfNode"
+      ],
+      "note": "Only `index`, `kind` and `label` of a node are read; a node carrying any other field changes nothing a reader reports."
+    },
+    "edge": {
+      "read": [
+        "consumer",
+        "producer"
+      ],
+      "ignored": [
+        "every other field"
+      ],
+      "citationIds": [
+        "edgeIsTwoMembers",
+        "edgeIsDirectionOnly",
+        "writeNotRepresentable",
+        "readsAreProducerEnds"
+      ],
+      "note": "An edge is two members and nothing else: a direction of dependency, with no field, no value and no moment."
+    },
+    "whatTheSerializerItselfWrites": {
+      "description": "Measured from the source: `serializeGraph` pushes nodes keyed by `id`, never by `index`, and resolves each edge end to the consumer/producer node id rather than its index. So a record produced by this serializer carries no node `index` at all, and cannot feed a reader that reads `index`.",
+      "nodeFieldsWritten": [
+        "id",
+        "kind",
+        "label",
+        "epoch",
+        "debuggableFn",
+        "debuggableFnSource",
+        "value (when defined)",
+        "component (enumerated component nodes only)"
+      ],
+      "nodeFieldsNotWritten": [
+        "index"
+      ],
+      "edgeEndsWritten": "node ids (strings), not indices",
+      "citationIds": [
+        "serializedNodeFields",
+        "serializedNodeId",
+        "serializedNodeKind",
+        "serializedNodeLabel",
+        "serializedEdgeEnds",
+        "serializedResult"
+      ]
+    }
+  },
+  "renderEffectSide": {
+    "join": {
+      "description": "The render/effect entry: one function, one fact in, one answer out.",
+      "citationIds": [
+        "joinAt304"
+      ]
+    },
+    "effectFinding": {
+      "fields": [
+        "state",
+        "effect",
+        "namedBy",
+        "reads"
+      ],
+      "citationIds": [
+        "effectFindingSignature",
+        "effectFindingState",
+        "effectFindingEffect",
+        "effectFindingNamedBy",
+        "effectFindingReads"
+      ],
+      "note": "The effect finding has exactly four fields: the state, the effect label, how the caller named it, and the read list. No phase, no write, no owner, no cause."
+    },
+    "readList": {
+      "name": "reads",
+      "contents": "the labels of the producer ends of the effect’s consumer edges, in the order the edges appear",
+      "rules": [
+        "a producer the graph does not hold names nothing and is skipped",
+        "a producer whose label is empty names nothing and is skipped",
+        "no fallback, no borrowing, no sort — the recorded order is the only order"
+      ],
+      "citationIds": [
+        "readsOfComment",
+        "readsOfSignature",
+        "readsOfSkipMissingProducer",
+        "readsOfSkipsEmptyLabel",
+        "readsOfPushesLabel",
+        "readsOfReturns",
+        "readsIsProducerLabels",
+        "noIdentityFromIndex"
+      ]
+    },
+    "publishedAbsences": [
+      {
+        "reason": "graph-unreadable",
+        "names": "the graph, and nothing else",
+        "citationIds": [
+          "graphUnreadableAbsence",
+          "graphUnreadableReturn"
+        ]
+      },
+      {
+        "reason": "no-effect-node",
+        "names": "the effect node the readable graph lacks",
+        "citationIds": [
+          "noEffectNodeAbsence",
+          "noEffectNodeReturn"
+        ]
+      },
+      {
+        "reason": "reads",
+        "names": "the read list is built from the effect’s own index",
+        "citationIds": [
+          "readsCalledWithIndex"
+        ]
+      }
+    ],
+    "neverMerged": {
+      "description": "The effect finding and a recorded change-detection message stay two findings in the recorded order, the effect first; the message is pushed after it and the two are never joined.",
+      "citationIds": [
+        "findingsOrder",
+        "changeDetectionNeverJoined",
+        "changeDetectionPushed"
+      ]
+    },
+    "purity": {
+      "description": "The module reads what it is given and nothing else: no DOM, no clock, no console, no network, no imports, no page global beyond one namespace. A bare `node:vm` context runs it, and the capture belongs to a caller.",
+      "citationIds": [
+        "noDomNoClockNoConsole",
+        "noPageGlobal",
+        "bareVmContextEnough",
+        "pureJoinCannotReachPage",
+        "captureBelongsToCaller"
+      ]
+    }
+  },
+  "negativeMeasurements": {
+    "writeRecord": {
+      "claim": "no write record, no order",
+      "holds": true,
+      "scope": "every file under extension/, excluding extension/panel/ (gitignored build output)",
+      "command": "recursive, case-insensitive scan of extension/ (extension/panel/ excluded) for writeRecord, write_record, writeLog, writeOrder, writes:",
+      "filesScanned": 58,
+      "filesExcludedAsBuildOutput": 49,
+      "needles": [
+        "writeRecord",
+        "write_record",
+        "writeLog",
+        "writeOrder",
+        "writes:"
+      ],
+      "matches": [
+        {
+          "needle": "writes:",
+          "path": "extension/agent-main.test.mjs",
+          "line": 2452,
+          "text": "it('a given event record is what the agent writes: the record builder names no value (SC2)', () => {"
+        },
+        {
+          "needle": "writes:",
+          "path": "extension/sanitizer-triage.js",
+          "line": 37,
+          "text": "//   bindings  the bindings the page declares, read off the page: `[{ id, bypass?, writes: [{ version,"
+        },
+        {
+          "needle": "writes:",
+          "path": "extension/stale-view-worker.js",
+          "line": 212,
+          "text": "matchDirectWrites: matchDirectWrites,"
+        },
+        {
+          "needle": "writes:",
+          "path": "extension/stale-view-worker.js",
+          "line": 221,
+          "text": "matchDirectWrites: matchDirectWrites,"
+        },
+        {
+          "needle": "writes:",
+          "path": "extension/stale-view-worker.js",
+          "line": 234,
+          "text": "matchDirectWrites: matchDirectWrites,"
+        }
+      ],
+      "conclusion": "No write record exists anywhere in extension/: the first four needles match nothing, and `writes:` matches one sanitizer binding’s documented field, one test title, and three `matchDirectWrites:` identifiers. None of them is a record of a write, and none carries a moment."
+    },
+    "noEdgeCarriesAnOrderField": {
+      "command": "union of every edge key over every graph-bearing object under research/raw/",
+      "edgeKeys": {
+        "consumer": 13,
+        "producer": 13,
+        "edge": 6,
+        "consumerLabel": 1,
+        "producerLabel": 1
+      },
+      "orderishEdgeKeys": [],
+      "holds": true,
+      "conclusion": "An edge carries only `consumer` and `producer` (and, in derived readings, labels and a rendered `edge` string). No field, value or moment orders a write, so the ordering is a named absence and not a capture this milestone could add."
+    },
+    "effectNodeInARecord": {
+      "claimAsStatedInThePlan": "no record under research/raw/ carries a node of kind `effect`, and the closest one holds no `index` on its nodes and no index ends on its edges",
+      "holds": false,
+      "command": "walk every JSON file under research/raw/ except this record itself, collecting every object whose `kind` is `effect`, and every object that carries both a `nodes` and an `edges` list",
+      "jsonFilesScanned": 142,
+      "excludedFromItsOwnScan": "m057-record-shapes.json",
+      "graphBearingObjects": 8,
+      "objectsCarryingKindEffect": 16,
+      "filesCarryingKindEffect": [
+        "effect-writes.json",
+        "m036-resource-graph.json",
+        "m039-render-phase.json",
+        "vitest-attach-gemma4-newcontext.json",
+        "vitest-attach-gemma4.json",
+        "vitest-chromium-bundled.json"
+      ],
+      "effectNodesInsideANodesArray": 10,
+      "effectNodes": [
+        {
+          "file": "effect-writes.json",
+          "pointer": "//nodes[5]",
+          "keys": [
+            "hasDebuggableFn",
+            "kind",
+            "label",
+            "source",
+            "writes"
+          ],
+          "index": null,
+          "label": ""
+        },
+        {
+          "file": "m036-resource-graph.json",
+          "pointer": "/graph/nodes[5]",
+          "keys": [
+            "kind",
+            "label",
+            "value"
+          ],
+          "index": null,
+          "label": "Resource#ErroredResource.loadEffect"
+        },
+        {
+          "file": "m036-resource-graph.json",
+          "pointer": "/graph/nodes[11]",
+          "keys": [
+            "kind",
+            "label",
+            "value"
+          ],
+          "index": null,
+          "label": "Resource#IdleResource.loadEffect"
+        },
+        {
+          "file": "m036-resource-graph.json",
+          "pointer": "/graph/nodes[17]",
+          "keys": [
+            "kind",
+            "label",
+            "value"
+          ],
+          "index": null,
+          "label": "Resource#LoadingResource.loadEffect"
+        },
+        {
+          "file": "m036-resource-graph.json",
+          "pointer": "/graph/nodes[23]",
+          "keys": [
+            "kind",
+            "label",
+            "value"
+          ],
+          "index": null,
+          "label": "Resource#ResolvedResource.loadEffect"
+        },
+        {
+          "file": "m039-render-phase.json",
+          "pointer": "/effect/fromRecording/nodes[5]",
+          "keys": [
+            "kind",
+            "label"
+          ],
+          "index": null,
+          "label": ""
+        },
+        {
+          "file": "m039-render-phase.json",
+          "pointer": "/effect/freshRead/nodes[5]",
+          "keys": [
+            "carriesPhaseField",
+            "epoch",
+            "id",
+            "index",
+            "kind",
+            "label"
+          ],
+          "index": 5,
+          "label": ""
+        },
+        {
+          "file": "vitest-attach-gemma4-newcontext.json",
+          "pointer": "/iframeMount/signalGraph/nodes[5]",
+          "keys": [
+            "kind",
+            "label"
+          ],
+          "index": null,
+          "label": ""
+        },
+        {
+          "file": "vitest-attach-gemma4.json",
+          "pointer": "/iframeMount/signalGraph/nodes[5]",
+          "keys": [
+            "kind",
+            "label"
+          ],
+          "index": null,
+          "label": ""
+        },
+        {
+          "file": "vitest-chromium-bundled.json",
+          "pointer": "/iframeMount/signalGraph/nodes[5]",
+          "keys": [
+            "kind",
+            "label"
+          ],
+          "index": null,
+          "label": ""
+        }
+      ],
+      "objectsInTheRecordedShape": [
+        {
+          "file": "m038-linked-state.json",
+          "pointer": "/graph",
+          "nodes": 5,
+          "nodesWithIndex": 5,
+          "edgeShape": "object-ends",
+          "effectNodes": 0
+        },
+        {
+          "file": "m039-render-phase.json",
+          "pointer": "/effect/freshRead",
+          "nodes": 6,
+          "nodesWithIndex": 6,
+          "edgeShape": "object-ends",
+          "effectNodes": 1
+        }
+      ],
+      "recordedShapeObjectsWithAnEffectNode": [
+        "m039-render-phase.json/effect/freshRead"
+      ],
+      "theOneThatRefutesIt": {
+        "file": "research/raw/m039-render-phase.json",
+        "pointer": "/effect/freshRead",
+        "nodes": 6,
+        "nodesWithIndex": 6,
+        "effectNodeIndex": 5,
+        "effectNodeLabel": "",
+        "allEdges": 6,
+        "effectEdges": [
+          {
+            "consumer": 5,
+            "producer": 2,
+            "consumerLabel": "effect:",
+            "producerLabel": "signal:count"
+          }
+        ],
+        "conclusion": "A record on disk carries an effect node in exactly the recorded shape — numeric `index` on every node, numeric `consumer`/`producer` ends on every edge — and the existing join answers from it."
+      },
+      "theJoinAnswersFromThatRecord": {
+        "description": "The existing extension/render-phase.js, run in a bare node:vm context over { nodes: freshRead.nodes, edges: freshRead.allEdges }, authors nothing and returns:",
+        "fact": {
+          "graph": "m039-render-phase.json /effect/freshRead nodes + allEdges",
+          "effect": {
+            "edge": {
+              "consumer": 5,
+              "producer": 2
+            }
+          }
+        },
+        "answer": {
+          "findings": [
+            {
+              "state": "effect",
+              "effect": null,
+              "namedBy": "recorded-edge",
+              "reads": [
+                "count"
+              ]
+            }
+          ],
+          "phase": {
+            "state": "cannot-tell",
+            "absence": "no-effect-event"
+          }
+        }
+      },
+      "whatNoRecordCarriesInstead": {
+        "description": "What no record carries is the serialized shape: `serializeGraph` keys nodes by `id` and never by `index`, so no record the agent’s own serializer wrote carries a node index, and none of them can feed a reader that reads `index`. The graph in the recorded shape that does exist on disk is a capture (m039’s freshRead), not a serialized record.",
+        "conclusion": "The graph this milestone reads is a capture (T003) — the plan’s operative conclusion stands — but not for the reason the plan stated: records do carry effect nodes, one of them in the recorded shape with an index. The absence is of an `index` in the serializer’s own output."
+      }
+    }
+  },
+  "premiseCorrections": [
+    {
+      "premise": "No record under research/raw/ carries a node of kind `effect` (task Approach; plan C1).",
+      "measured": "16 objects under research/raw/ carry `kind: \"effect\"` across 6 records; 10 of them sit inside a `nodes` array.",
+      "correct": false
+    },
+    {
+      "premise": "m039-render-phase.json holds the graph only as effect.fromRecording, whose nodes carry `kind` and `label` and no `index`, and whose edges are kind:label strings (task Approach; plan C1).",
+      "measured": "fromRecording does match that description, but the same file holds the graph in two further places, and /effect/freshRead carries numeric `index` on all 6 nodes and numeric `consumer`/`producer` on all 6 edges, with the effect at index 5.",
+      "correct": false
+    },
+    {
+      "premise": "The five searches find a sanitizer binding’s `writes` field and a test title and nothing else (task Approach; intent C1).",
+      "measured": "True of the conclusion and incomplete in the detail: `writes:` also matches three `matchDirectWrites:` identifiers in stale-view-worker.js, and two more lines inside the gitignored build bundle extension/panel/chunk-B8BF8DsE.js (excluded as build output).",
+      "correct": false
+    },
+    {
+      "premise": "A node is read for `index`, `kind` and `label` (task Approach).",
+      "measured": "True of the reader, but `serializeGraph` never writes an `index`: it writes `id`, and resolves edge ends to ids. This is an addition to the premise, not a contradiction of it, and it is the real reason a serialized record cannot feed the join.",
+      "correct": true,
+      "addition": true
+    }
+  ],
+  "inventory": {
+    "measured": "This recording measures no record under `research/raw/`: its 54 citations are lines of the join, the reader and the serializer, not another record's own claims, so the map it states is read over records the two inventories name rather than over records this file quotes.",
+    "outsideTheMap": [
+      {
+        "path": "research/raw/m057-surface.json",
+        "why": "M057's T004 rendered the answer and landed the route, the loader key and the pane this milestone's surface record states, and T007 measured that record after this map was written, so the record is subtracted from the map by name rather than read as an unmeasured record — the refusal M055's T004 hit twice."
+      },
+      {
+        "path": "research/raw/m057-verdict-claims.json",
+        "why": "M057's own verdict list, ruling the criteria the intent this milestone binds declares: T009 captured it after this map was measured, so it is named outside the map rather than read as an unmeasured record — the same subtraction T004's own map made for M055's verdict list and its surface record, which is the mechanism the two inventories apply."
+      }
+    ]
+  },
+  "builtNothing": {
+    "built": [],
+    "description": "No join, no capture, no surface and no route: nothing was built and no page was opened. This file and scripts/tutor-signals-shapes.test.mjs are the whole of what T001 writes, and this file is a static reading, not a capture."
+  }
+}

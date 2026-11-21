@@ -226,6 +226,16 @@ teardown-leak · M056 error-routing · M057 locale-correctness · M058 outlet-ex
 guard-phase · M060 lazy-chunk-failure · M061 title-input-binding · M062 schema-disabled-hidden ·
 M063 formfield-binder · M064 head-state · M065 error-channel-map
 
+**Admitted 2026-11-20, in two approvals.** `copy-to-agent` through `tutor-foundations` shipped
+(roadmap M046-M055, with `gate-integrity` and `console-read` inserted as M044-M045). The tail was
+admitted as the next generation: roadmap M057-M068 are `tutor-signals`, `tutor-routing`,
+`teardown-leak`, `error-routing`, `locale-correctness`, `outlet-explainer`, `guard-phase`,
+`lazy-chunk-failure`, `title-input-binding`, `schema-disabled-hidden`, `formfield-binder` and
+`head-state`. The tail was thirteen entries against §2's twelve-entry cap, so
+`error-channel-map` carries to the next generation. The ids above are this document's own and are
+not the roadmap's: in-flight insertions shifted them, so map a backlog item to its milestone by
+slug, never by number (AGENTS.md, `## Programmes`).
+
 ### Generation 4 — design system and Storybook (owner ruling 2026-11-05)
 
 **Reordered 2026-11-05 (A10).** This generation was Generation 7. The owner moved it to sit immediately after `angular/components` (generation 3), so the panel dogfoods the design system while the material features it is built on are still being worked on.

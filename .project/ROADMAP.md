@@ -1990,3 +1990,388 @@ Success criteria
    makes the range unconditional reddens the recording suite naming the section that moved.
 5. Every claim in this milestone's logs is inside a task whose `files:` declares the path it names, so the
    stage this milestone repairs reports `claims: declared` on its own log rather than on a mention.
+
+### M057 — tutor-signals
+Depends on: [M055]
+Programme: Generation 3 · Batch: 4 · Group: @angular/core
+Surfaces: panel
+Status: shipped
+Archive: .project/archive/057-tutor-signals
+Integrated: null
+
+Goal: The tutor answers why a signal-driven template re-rendered, or failed to, citing the recorded graph and the write that preceded the render, so the answer names a rule the evidence supports rather than a plausible one.
+
+Scope: in
+- The signal graph, the write record and the render record the agent already captures, read as the observable for one signals question.
+- The tutor surface answering with the change-detection rule the evidence supports, and at least one artifact path per claim (M055's answer shape, extended to this question family).
+- The named absence reported when no committed artifact answers the question, in place of a paraphrase of Angular's documentation.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. An answer cites the artifact path of every claim, and a mutant that answers with no path reddens the pin M055 shipped.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. A page whose signal graph the agent cannot read reports "cannot tell" rather than naming a wrong cause.
+
+Risks
+- A graph read after the fact cannot tell a write that caused the render from a write that merely happened alongside it; the write record, not the ordering alone, has to carry that.
+
+Open questions
+- none
+
+### M058 — tutor-routing
+Depends on: [M055]
+Programme: Generation 3 · Batch: 4 · Group: @angular/router
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The tutor answers why a navigation landed where it did, naming the route node, the redirect and the guard verdict that decided it, from the recorded navigation stream and the router config.
+
+Scope: in
+- The recorded navigation stream and the router config the agent already reads, as the observable for one routing question.
+- The tutor answer naming the matched route, the decision point that changed the outcome and an artifact path per claim.
+- The named absence reported when the stream carries no terminal for the navigation asked about.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. An answer about a redirected navigation names the config node that carried the redirect, and a mutant that answers from the final URL alone reddens the pin.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. A navigation the agent recorded no terminal for reports "cannot tell" rather than guessing the destination from the address bar.
+
+Risks
+- A navigation id reused after a redirect makes two decisions look like one; the terminal is the evidence, the last URL is not.
+
+Open questions
+- none
+
+### M059 — teardown-leak
+Depends on: [M020]
+Programme: Generation 3 · Batch: 4 · Group: @angular/core
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why a destroyed component still changes state, naming the subscription, effect or timer that outlived its injector and the owner it belonged to.
+
+Scope: in
+- The handle record the agent keeps per injector (subscriptions, effects, timers) and the writes each makes after the injector is destroyed.
+- The panel surface rendering the leaked handle, its owning component and the first post-destroy write it made.
+- The named absence reported when a post-destroy write cannot be attributed to a handle the record carries.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A fixture component that keeps a subscription past destroy produces a finding naming the subscription and its owner; a mutant that unsubscribes on destroy turns the finding off.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. An unsubscribe that ran before the write it was meant to prevent reports no leak rather than a wrong cause.
+
+Risks
+- A write after destroy can be a legitimate change to a shared value; attribution to the handle, not to the value, is what keeps the finding honest.
+
+Open questions
+- none
+
+### M060 — error-routing
+Depends on: [M020]
+Programme: Generation 3 · Batch: 4 · Group: @angular/router
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why an error that should have reached an ErrorHandler was reported as uncaught, naming the handler chain in effect and the phase the error was thrown in.
+
+Scope: in
+- The ErrorHandler instances reachable through the injector walk, in the order a thrown error meets them, and the throw site the record carries.
+- The panel surface naming the handler that should have run, the provider that supplied it and whether the error left it.
+- The named absence reported when no handler was provided at all.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. An app whose handler rethrows produces a finding naming that handler and the rethrow; a mutant that swallows the error inside the handler reddens it.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. An error thrown outside any injector context reports "cannot tell" rather than naming a handler that was never in its path.
+
+Risks
+- A handler that logs and swallows looks identical to no handler at all unless the chain is read; the console is not the evidence.
+
+Open questions
+- none
+
+### M061 — locale-correctness
+Depends on: [M020]
+Programme: Generation 3 · Batch: 4 · Group: @angular/common
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why a formatted date, number or currency renders in the wrong locale, naming the LOCALE_ID in effect, the provider that set it and the call that used it.
+
+Scope: in
+- The LOCALE_ID token and the providers that set it, read from the injector walk the agent already performs.
+- The formatting call site the record carries (a pipe, or a manual formatter named by the stack) and the value it produced.
+- The named absence reported when the value was formatted outside Angular's i18n surface.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A fixture route with a non-default LOCALE_ID produces a finding naming the provider and the formatted value; a mutant that restores the default locale turns it off.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. A formatted value the record does not carry reports "cannot tell" rather than reading the rendered text back as its own evidence.
+
+Risks
+- The browser's default locale and the app's LOCALE_ID diverge, so a mismatch read from the rendered text alone names the wrong provider.
+
+Open questions
+- none
+
+### M062 — outlet-explainer
+Depends on: [M020]
+Programme: Generation 3 · Batch: 4 · Group: @angular/router
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why routed content appeared in the wrong outlet, or in none, naming the outlet name requested, the name matched and the route that supplied it.
+
+Scope: in
+- The outlet mapping in the router state and the outlet names declared in the component tree, as the observable.
+- The panel surface rendering the requested outlet name, the matched name and the route path.
+- The named absence reported when the content is projected outside the router's own tree, by a portal or a manual attach to a view container.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A second named outlet produces a finding naming both names; a mutant that renames the outlet in the route config reddens it.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. An outlet the router state does not carry reports "cannot tell" rather than naming the nearest router outlet in the rendered tree.
+
+Risks
+- An unnamed outlet and one explicitly named primary are the same outlet, so a naive name comparison reports a mismatch that does not exist.
+
+Open questions
+- none
+
+### M063 — guard-phase
+Depends on: [M020]
+Programme: Generation 3 · Batch: 4 · Group: @angular/router
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why a guard's side effect ran even though the navigation was cancelled, naming the guard phase it ran in and the guard that produced the value.
+
+Scope: in
+- The ordered guard verdicts the navigation record carries, across canMatch, canActivate, canDeactivate and resolve.
+- The panel surface rendering the phase order, the guard that ran first and the verdict that cancelled the navigation.
+- The named absence reported when a functional guard's returned observable never emitted a verdict.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A cancelled navigation whose guard had already written state produces a finding naming that guard and its phase; a mutant that cancels before the guard runs turns it off.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. A guard whose verdict the record does not carry reports "cannot tell" rather than naming the last guard the app logged.
+
+Risks
+- canMatch runs before the route is known, so a side effect there cannot be attributed to a route; the phase has to be read before the owner is named.
+
+Open questions
+- none
+
+### M064 — lazy-chunk-failure
+Depends on: [M020]
+Programme: Generation 3 · Batch: 5 · Group: @angular/router
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why a lazily loaded route failed to render, naming the import it could not load, the route that owns it and the chunk state the failure left behind.
+
+Scope: in
+- The dynamic-import failure the record carries, together with the route path whose lazy load produced it.
+- The panel surface rendering the failed import specifier, the owning route and whether a retry can succeed.
+- The named absence reported when the failure is a server error on the chunk rather than a missing or mismatched one.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A stubbed import failure produces a finding naming the import specifier and its route; a mutant that resolves the import turns it off.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. A chunk request that never completed reports "cannot tell" rather than naming a version drift it did not measure.
+
+Risks
+- A chunk replaced after deploy and a network failure look the same from the router; the response status and the content hash have to agree before a cause is named.
+
+Open questions
+- none
+
+### M065 — title-input-binding
+Depends on: [M020]
+Programme: Generation 3 · Batch: 5 · Group: @angular/router
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why the document title, or a value bound from the route, did not follow the navigation, naming the strategy in effect and the last write that beat it.
+
+Scope: in
+- The title strategy the app registers and the writes the record carries against the document title and the route-bound inputs.
+- The panel surface rendering the value the route implies, the value on the document and the last writer.
+- The named absence reported when the write came from outside Angular, such as the browser or a script.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A route that sets a title and a later manual write produce a finding naming the last writer; a mutant that removes the manual write turns it off.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. A title with no recorded writer reports "cannot tell" rather than assuming the strategy ran.
+
+Risks
+- The browser also writes the title on session restore, which is not the app's doing and must not be attributed to it.
+
+Open questions
+- none
+
+### M066 — schema-disabled-hidden
+Depends on: [M037]
+Programme: Generation 3 · Batch: 5 · Group: @angular/forms
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why a Signal Forms field is disabled or hidden, naming the schema node that declared it and the state that node derived from.
+
+Scope: in
+- The field state the Signal Forms doctor already reads, joined to the schema node behind it (a disabled, hidden or readonly rule) and the values that node read.
+- The panel surface rendering the field, the derived state and the declaration that produced it.
+- The named absence reported when the state came from a control the schema does not own.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A field disabled by a schema rule produces a finding naming the rule and its field; a mutant that removes the rule enables the field and turns the finding off.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. A field absent from the schema reports "cannot tell" rather than reading hidden from the rendered tree.
+
+Risks
+- Hidden and removed look identical in the DOM, so the schema read, not the rendered tree, has to decide which state the field is in.
+
+Open questions
+- none
+
+### M067 — formfield-binder
+Depends on: [M037]
+Programme: Generation 3 · Batch: 5 · Group: @angular/material
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why a form field is not bound to the control its label names, naming the control the binder resolved and the field it attached it to.
+
+Scope: in
+- The control each form field hosts, read through the @angular/cdk/testing field harness and the injector walk the agent already performs.
+- The panel surface rendering the field's label, the control it hosts and the control the schema expects for that field.
+- The named absence reported when the field is not a components field at all, such as a plain input.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A fixture form whose binder attaches the wrong control produces a finding naming both controls; a mutant that fixes the binding turns it off.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. A field whose harness the agent cannot read reports "cannot tell" rather than matching the control by its name.
+
+Risks
+- Two fields sharing a control name resolve to the same control, so a name match is not a binding proof; the harness read is.
+
+Open questions
+- none
+
+### M068 — head-state
+Depends on: [M020]
+Programme: Generation 3 · Batch: 5 · Group: @angular/core
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel answers why a document head entry is stale or duplicated, naming the entry the app wrote, the one still present and the route that wrote it.
+
+Scope: in
+- The head entries recorded against the document (title, meta, link and JSON-LD), each joined to the route that wrote it.
+- The panel surface rendering, per entry, what the current route expects against what is present, with a duplicate named rather than counted.
+- The named absence reported when the entry was written outside Angular's head service.
+
+Scope: out
+- A page-side control, input or widget; AR-6 keeps every interaction in the panel.
+- Code generation of app code; a finding may name a modern Angular pattern and an official schematic only.
+- `@angular/animations` and Angular SSR (A5); the `angular/components` families are in scope only as the subject this entry explains, and no panel surface adopts them here.
+- DOM added to an inspected page (AR-3).
+
+Success criteria
+1. A route that adds a meta tag and never removes it produces a finding naming the entry and the route; a mutant that tears the route's injector down removes both and turns it off.
+2. The finding is produced from the listed observables, with no new page-side instrumentation.
+3. An entry with no recorded writer reports "cannot tell" rather than attributing it to the route that happens to be active.
+
+Risks
+- A service worker or another extension can add head entries, so the writer's identity, not the tag's presence, is the evidence.
+
+Open questions
+- none
+

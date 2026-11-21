@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m055+t004",
+  "version": "m057+t007",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -937,6 +937,36 @@
       "surface": "tutor-foundations",
       "key": "no-tutor-answer",
       "text": "no-tutor-answer: no tutor answer was handed over, so no state, no question, no milestone, no criterion and no artefact path are reported"
+    },
+    {
+      "surface": "tutor-signals",
+      "key": "state-answered",
+      "text": "answered: the recorded signal graph carries the effect node this answer names, by the label the graph spells for it — the empty string included, printed beside the node’s own index — then each upstream node the graph’s edges state for it, by that node’s index and the label the graph gives it, and then the write ordering as the join’s named absence; every other line here is a field of the answer under its own path and no field is composed by this pane"
+    },
+    {
+      "surface": "tutor-signals",
+      "key": "state-graph-unreadable",
+      "text": "graph-unreadable: no signal graph could be read for this page — no graph record was supplied, or the record names no path or no line, or it holds no node and edge lists — so the absence names the graph and nothing else: no effect, no label, no read and no claim about the page’s effects, and it is never the statement that the page has none"
+    },
+    {
+      "surface": "tutor-signals",
+      "key": "state-no-render-entry",
+      "text": "no-render-entry: the graph record is readable and carries no render/effect entry this join can read, so nothing names an effect node: no effect, no label and no read are rendered beside this sentence, and it is neither the graph absence nor the empty-effect absence"
+    },
+    {
+      "surface": "tutor-signals",
+      "key": "state-no-effect-node",
+      "text": "no-effect-node: the graph record is readable and holds no node of kind effect, or holds none carrying the reference the entry names, so that reference is named under unplaced by its end and the value the record states rather than resolved to the nearest node, and no effect, no label and no read are rendered beside it"
+    },
+    {
+      "surface": "tutor-signals",
+      "key": "ordering-absent",
+      "text": "ordering: the record carries no write record, so the ordering between a write and this render is the named absence no-write-record-no-order — an edge is a direction of dependency and holds no field, no value and no moment to read an order out of — and this pane names no write, no owner and no cause"
+    },
+    {
+      "surface": "tutor-signals",
+      "key": "no-tutor-signals-answer",
+      "text": "no-tutor-signals-answer: no answer was handed over, so no state, no question, no effect, no read, no unplaced reference, no ordering and no claim are reported"
     }
   ]
 }
