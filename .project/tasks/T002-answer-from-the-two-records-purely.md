@@ -2,10 +2,10 @@
 id: T002
 title: Answer from the two records, purely
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: cd79bfd355fa0e28db4f42206c09604607db0deb
 worktree: null
 task_branch: null
 files:
@@ -134,3 +134,62 @@ node --test scripts/tutor-signals.test.mjs && npx prettier --check extension/tut
 
 - pending.
 - Landed paths: `extension/tutor-signals.js`, `scripts/tutor-signals.test.mjs`, `research/raw/m057-record-shapes.json` — each is read from this tree, ready.
+- Built at base `cd79bfd355fa0e28db4f42206c09604607db0deb` (branch `gsd-path/M056`). `extension/tutor-signals.js`
+  (684 lines) is the pure join `tutorSignals(records)` on `globalThis.angularAiTutorSignals`: one object out,
+  `{ state, question, effect, reads, unplaced, ordering, claims, detail }`, with every field present in every
+  state. `records` is the two records and nothing else: `graph` is `{ path, line, graph: { nodes, edges } }` —
+  the per-check record's own `graph` field (`extension/agent-main.js:1070`) with the provenance every claim
+  must cite — and `effect` is `{ label }` or `{ edge: { consumer, producer } }`, plus the optional recorded
+  `error` message and the entry record's own `question`. Anything else on `records` is ignored, so a caller
+  cannot smuggle a page value, a clock or a cause into the answer.
+- The state vocabulary, as the contract states it: `state` ∈ `answered` | `graph-unreadable` |
+  `no-render-entry` | `no-effect-node`; `effect` on `answered` is `{ label, index, namedBy }` with `namedBy`
+  ∈ `label` | `recorded-edge` (the existing join's two words, `extension/render-phase.js:56-59`) and `index`
+  the node's own index or `null` where the record carries none; `reads` is `{ index, label }` per producer
+  end in edge order, never sorted, never de-duplicated; `unplaced` is `{ end, value }` per producer end or
+  effect reference the graph cannot place; `ordering` is always
+  `{ state: 'absent', absence: 'no-write-record-no-order' }`; `claims` is `{ claim, values, artefactPath,
+  line }` per rendered claim, graph-side claims citing the record's own path and line and entry-side claims
+  citing `extension/render-phase.js:18` and `:336`; `detail` is the join's own sentence.
+- **The brief's premise about a claim's line is wrong, and the answer says so.** A claim "carries the
+  artefact path and line that states it", but a JSON record states no line for itself and a pure join touches
+  no filesystem, so neither the graph record's path nor its line can be read out of the record's bytes. Both
+  are handed over with the graph record (`records.graph.path`, `records.graph.line`), exactly as every other
+  field the answer renders is; a graph slot missing either is `graph-unreadable` with its own sentence, so
+  "an answer with no artefact path is not an answer this module can produce" still holds.
+- **AC2's `namedBy` holds where the record carries an index, and the C8 leg shows the other word.** Named by
+  the edge the record holds (`{ edge: { consumer: 5 } }`), the fixture's unlabelled effect renders
+  `{ label: "", index: 5, namedBy: "recorded-edge" }`. Named by label — the only handle
+  `/effect/fromRecording` offers — the answer renders `{ label: "", index: null, namedBy: "label" }`, measured
+  in the C8 leg below. The read does not branch on whether a label is present (E1): the empty label is
+  compared as the string the record spells.
+- **The ordering claim cites `extension/render-phase.js:18`, not `:17`.** Measured at this head: `:17` reads
+  "an edge is `{ consumer, producer }` … a direction of" and `:18` carries "no field, no value, no moment".
+  The suite re-reads both cited lines and the two serializer citations on every run, so a citation that
+  slides off its line reddens here rather than in a later wave.
+- Held-out **E7** and **E8** are pinned in `scripts/tutor-signals.test.mjs`: the ordering is the one named
+  absence on all four states and no field of the answer carries a write, an owner or a cause; the recorded
+  change-detection message is a claim of its own rendered after the effect, carrying its three values, with
+  the effect claim's keys exactly `index, label, namedBy`.
+- The C8 leg, measured rather than assumed: `research/raw/m039-render-phase.json`'s `/effect/fromRecording`
+  (line 330, re-resolved by reading the file) holds 6 nodes carrying `kind` and `label` and no `index`, and
+  the join answers `answered`, `effect { label: "", index: null, namedBy: "label" }`,
+  `unplaced [{ end: "effect", value: "" }]`, `reads []` — an answer with `unplaced` rather than a numbered
+  node, `5` being the node's position and `6` the serializer's id. The graph T003 pins is not read here.
+- Verify, exactly as written: `node --test scripts/tutor-signals.test.mjs && npx prettier --check
+  extension/tutor-signals.js scripts/tutor-signals.test.mjs` — exit `0`, `tests 11`, `pass 11`, `fail 0`,
+  `duration_ms 209`, and `All matched files use Prettier code style!`
+- The mutant battery is 13 blocks, each an anchored single edit applied in memory, each reddening its own pin
+  with the defect named by string: `no-artefact-path` (`artefact path`), `effect-by-position` (`position` —
+  it rendered 3 where the record states 5), `producer-omitted` (`omitting a producer`),
+  `index-past-the-graph` (`past the graph`), `unplaceable-dropped` (`dropped`), `absence-as-causation`
+  (`causation`), `order-from-edge-direction` (`direction`), `write-recorded` (`write`), `absences-folded`
+  (`three absences`), `unreadable-as-no-effects` (`graph with no effects`), `ignored-field-read` (`ignored`,
+  from `id` and `epoch`), `second-call-differs` (`purity`), `message-joined-to-effect` (`joined`). Every
+  anchor is asserted to occur exactly once in the shipped module and to change it.
+- Also run outside the Verify, both clean: `npx tsc -p extension/tsconfig.json` and `npx tsc -p tsconfig.json`
+  (`npm run check` runs them at T009, and a new `extension/*.js` file is type-checked).
+- `git status --porcelain` after the build: `?? extension/tutor-signals.js`,
+  `?? scripts/tutor-signals.test.mjs` and the task file this activation wrote;
+  `research/raw/m057-record-shapes.json` and `scripts/tutor-signals-shapes.test.mjs` are declared, read and
+  untouched.
