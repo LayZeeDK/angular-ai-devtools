@@ -2027,8 +2027,8 @@ Open questions
 Depends on: [M055]
 Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/058-tutor-routing
 Integrated: null
 
 Goal: The tutor answers why a navigation landed where it did, naming the route node, the redirect and the guard verdict that decided it, from the recorded navigation stream and the router config.

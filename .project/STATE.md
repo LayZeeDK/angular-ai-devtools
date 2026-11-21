@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: tutor-signals
+milestone: tutor-routing
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M057
-archive: .project/archive/057-tutor-signals
+branch: gsd-path/M058
+archive: .project/archive/058-tutor-routing
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1154,3 +1154,24 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — build — build started
 - 2026-11-21 — ship — build done; final review pending
 - 2026-11-21 — shipped — archive preflight passed; shipment recorded
+- 2026-11-21 — shipped — milestone M057 shipped; handoff to the next roadmap entry
+- 2026-11-21 — plan — plan approved
+- 2026-11-21 — build — build started
+- 2026-11-21 — build — build blocked: T003 measured a stale citation in a record no task declares
+- 2026-11-21 — plan — build plan repair requested
+- 2026-11-21 — plan — build recovery: {"base": "d7394e43aac09cd6ea9f174c8d592777435fa1b8", "branch": "gsd-path/M058", "kind": "plan", "source": "build"}
+- 2026-11-21 — plan — plan approved
+- 2026-11-21 — build — build started
+- 2026-11-21 — build — build blocked: the project verify is red in four suites across files no task declares
+- 2026-11-21 — plan — build plan repair requested
+- 2026-11-21 — plan — build recovery: {"base": "50523a7d7e2045a9e881dd2358185a9f19ae592f", "branch": "gsd-path/M058", "kind": "plan", "source": "build"}
+- 2026-11-21 — plan — plan approved
+- 2026-11-21 — build — build started
+- 2026-11-21 — build — build blocked: T009 stales the stability record that T004 owns
+- 2026-11-21 — plan — build plan repair requested
+- 2026-11-21 — plan — build recovery: {"base": "dd11c8d0d2df03bf4f665685d08e8272a68c9c55", "branch": "gsd-path/M058", "kind": "plan", "source": "build"}
+- 2026-11-21 — plan — plan approved
+- 2026-11-21 — build — build started
+- 2026-11-21 — build — build complete
+- 2026-11-21 — ship — build done; final review pending
+- 2026-11-22 — shipped — archive preflight passed; shipment recorded

@@ -3187,6 +3187,15 @@ function sixColumnEdgeTable(source) {
  * The same plan with the first held-out row's Test cell replaced, so the derivation's refusal for a
  * cited suite this checkout does not carry can be proven without writing a file.
  *
+ * Three outcomes, and the third is a refusal rather than another pass. A section carrying a `| E… |`
+ * row has that row's Test cell rewritten. A section carrying no such row but carrying a table
+ * separator has one row seeded behind the separator and is read again. A section carrying neither - a
+ * `## Held-out checks` written as prose, which is what a plan whose intent marks no edge held-out
+ * records - has nowhere to seed, so it is refused by name. The refusal is the repair for the defect
+ * this branch used to carry: the prose-only section was rewritten to itself and re-entered on the
+ * unchanged copy until `Maximum call stack size exceeded`, which named the stack rather than the
+ * reason.
+ *
  * @param {string} source
  * @param {string} test
  * @returns {string}
@@ -3209,7 +3218,17 @@ function replaceFirstHeldOutTest(source, test) {
           : entry,
       )
       .join('\n');
-    return replaceFirstHeldOutTest(source.replace(section, seeded), test);
+    const seededCopy = source.replace(section, seeded);
+    // The identity case is the defect's root cause, not its symptom. A section with no separator to
+    // seed behind has no row to add, so the copy is the plan it came from; re-entering on it recurses
+    // without ever changing a byte and without ever saying why. Fail here, naming the section and the
+    // row it could not seed, rather than recursing on a copy that is not a copy.
+    if (seededCopy === source) {
+      assert.fail(
+        `the plan's "## Held-out checks" section carries no | E… | row and no separator row to seed one behind, so it carries no seedable table row: the held-out mutant cannot be planted on this plan, and the section must carry the three-column Edge | Task | Test table a row is seeded into`,
+      );
+    }
+    return replaceFirstHeldOutTest(seededCopy, test);
   }
   const cells = line.split('|').map((cell) => cell.trim());
   const data = cells.slice(1, -1);
@@ -3590,22 +3609,108 @@ describe('the claim list', () => {
       planPath,
       `the plan ${CLAIMS_MILESTONE} binds`,
     );
-    const broken = replaceFirstHeldOutTest(
-      planSource,
-      'scripts/absent-held-out-suite.test.mjs',
-    );
+    // The mutant joins the try it feeds: on a plan whose `## Held-out checks` is prose the helper has
+    // no row to plant, so what the derivation is left holding is the helper's own refusal, and that
+    // refusal is this assertion's subject. The call used to sit outside the try because it was
+    // expected to plant a row; it rewrote the section to itself instead and re-entered until
+    // `Maximum call stack size exceeded`, naming the stack rather than the reason.
     let message = '';
     try {
+      const broken = replaceFirstHeldOutTest(
+        planSource,
+        'scripts/absent-held-out-suite.test.mjs',
+      );
       derivedClaimsFrom(intentSource, broken, intentPath, planPath);
     } catch (error) {
       message = error instanceof Error ? error.message : String(error);
     }
     assert.match(
       message,
-      /absent-held-out-suite\.test\.mjs/,
-      `a citation of a suite that is not there must redden naming the path; it produced ${JSON.stringify(message.slice(0, 320))}`,
+      /## Held-out checks/,
+      `a plan that gives the mutant no row must be refused by naming the section it read; it produced ${JSON.stringify(message.slice(0, 320))}`,
     );
-    console.log(`held-out absence: ${message.split('\n')[0]}`);
+    assert.match(
+      message,
+      /no seedable table row/,
+      `the refusal must name the row the plan gives it no place to seed, rather than the stack it recursed into; it produced ${JSON.stringify(message.slice(0, 320))}`,
+    );
+    console.log(`held-out refusal: ${message.split('\n')[0]}`);
+  });
+
+  it('refuses a held-out test this checkout does not carry, seeding a row where the plan carries a table', () => {
+    const intentPath = intentPathForMilestone(CLAIM_ROOT, CLAIMS_MILESTONE);
+    const planPath = planPathForIntent(intentPath);
+    const intentSource = claimText(
+      intentPath,
+      `the intent ${CLAIMS_MILESTONE} binds`,
+    );
+    const planSource = claimText(
+      planPath,
+      `the plan ${CLAIMS_MILESTONE} binds`,
+    );
+
+    // The refusal above must not have been bought by losing the branch that works: a plan whose
+    // `## Held-out checks` carries the three-column table has a separator to seed behind, and the
+    // milestone that runs no held-out check is exactly the case that branch exists for. The table is
+    // put on a copy in memory - header and separator, no `E` row - so the seed is what plants the row
+    // the mutant then rewrites, and the checkout is never written.
+    const section = sectionOf(planSource, '## Held-out checks');
+    const table = ['', '| Edge | Task | Test |', '|---|---|---|', ''].join(
+      '\n',
+    );
+    const withTable = planSource.replace(section, table);
+    assert.notEqual(
+      withTable,
+      planSource,
+      'the copy must carry the three-column table in place of the prose, and the replacement changed nothing',
+    );
+    assert.equal(
+      heldOutChecks(withTable).size,
+      0,
+      'the copy must carry no held-out row, so the row the mutant rewrites is the one the seed plants',
+    );
+
+    const broken = replaceFirstHeldOutTest(
+      withTable,
+      'scripts/absent-held-out-suite.test.mjs',
+    );
+    assert.match(
+      broken,
+      /\|\s*E1\s*\|\s*T000\s*\|\s*scripts\/absent-held-out-suite\.test\.mjs\s*\|/,
+      `the seed must plant a row behind the separator and the mutant must rewrite its Test cell; the copy carries ${JSON.stringify(sectionOf(broken, '## Held-out checks').slice(0, 320))}`,
+    );
+    assert.deepEqual(
+      [...heldOutChecks(broken).entries()],
+      [
+        [
+          'E1',
+          { task: 'T000', test: 'scripts/absent-held-out-suite.test.mjs' },
+        ],
+      ],
+      'the seeded row must be the held-out mapping the derivation reads',
+    );
+
+    let message = '';
+    try {
+      derivedClaimsFrom(intentSource, broken, intentPath, planPath);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    // The path the seeded row cites is one this checkout does not carry, so the derivation's refusal
+    // names an absent suite rather than a suite that is there. E1's criterion still holds a second edge
+    // the plan resolves through `## Intent coverage`, so the refusal is the one-citation rule doing its
+    // work over the seeded row; the absent path is in the holders it lists either way.
+    assert.equal(
+      existsSync(join(CLAIM_ROOT, 'scripts/absent-held-out-suite.test.mjs')),
+      false,
+      'the wildcard must name a suite this checkout does not carry, or the refusal it proves is not the one the row states',
+    );
+    assert.match(
+      message,
+      /absent-held-out-suite\.test\.mjs/,
+      `a seeded row citing a suite this checkout does not carry must redden the derivation naming the path; it produced ${JSON.stringify(message.slice(0, 320))}`,
+    );
+    console.log(`held-out seed: ${message.split('\n')[0]}`);
   });
 
   it('reddens when a row names prose where an edge id belongs', () => {

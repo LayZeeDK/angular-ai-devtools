@@ -63,11 +63,11 @@ const LOADERS: Record<
   'visual-qa': () => import('./panel-visual-qa') as never,
   'tutor-foundations': () => import('./panel-tutor-foundations') as never,
   'tutor-signals': () => import('./panel-tutor-signals') as never,
+  'tutor-routing': () => import('./panel-tutor-routing') as never,
 };
 // The sample facts each surface renders; the spec holds each one to the recording it came from.
 export const FACTS: Record<string, unknown> = {
-  // The join's own field answer for the cross-field case (extension/field-state.js): every field
-  // valid, while the root carries its own error kind. The submit state is the recording's, not a
+  // The join's own field answer for the cross-field case (extension/field-state.js): every field valid, while the root carries its own error kind. The submit state is the recording's, not a
   // label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact
   // shape in `research/raw/m031-field-state.json` and names the element it was read off
   // (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured
@@ -441,13 +441,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 201 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 206 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
-  // written by hand. `panel-demo.spec.ts` runs the shipped join over that record and that digest
-  // and holds this fact to its answer field for field, so a fact that drifted reddens there.
-  'copy-check': { state: 'clean', unexplained: [], checked: 201 },
+  // written by hand, and the twenty-nine surfaces it measures include this milestone's own
+  // `panel-tutor-routing.ts`. `panel-demo.spec.ts` holds this fact to that join field for field.
+  'copy-check': { state: 'clean', unexplained: [], checked: 206 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the
@@ -854,4 +854,124 @@ FACTS['tutor-signals'] = {
   ],
   detail:
     'the graph record research/raw/m039-render-phase.json:399 states the effect node labelled "" at index 5, reached by the edge the record holds, and 1 upstream node in the order its edges appear; the record carries no write record, so the ordering is the named absence no-write-record-no-order and this answer names no write, no owner and no cause',
+};
+
+// The join's own answer (`extension/tutor-routing.js`, T002) for the two records T001 pins, entered
+// here after the component for the reason the three facts above are: every cited line of this file is
+// pinned where it sits, so a fact added inside the literal would move the template, the loader
+// resolution and the earlier facts those records quote.
+//
+// The records are `research/raw/m041-navigation.json`'s redirect frame — eleven recorded events,
+// terminal `NavigationEnd` with `id` 2, `url` `/redirect` and `urlAfterRedirects` `/landing`, a
+// `GuardsCheckEnd` carrying the aggregate `shouldActivate` and zero `NavigationCancel` — beside
+// `research/raw/m030-router-config.json`'s `config`, the eighteen rows the fixture declares. The
+// answer is not written here by hand: `panel-demo.spec.ts` re-reads both records, evaluates the
+// shipped join from its own committed text, hands it the frame's own `events` under the record's own
+// path and the config's own rows under its own path, and holds this fact to that answer field for
+// field — so a fact that drifted from either record, from the join or from the tree reddens there
+// rather than shipping.
+//
+// Both absences hold on this one navigation and stay two: `no-guard-verdict` because the stream
+// records a `GuardsCheckEnd` and its only field over `GuardsCheckStart` is the aggregate
+// `shouldActivate`, and `no-redirect-decision` because the terminal's two urls differ with zero
+// cancels. The route is the entry the terminal's own `url` names — `redirect`, whose `redirectTo` is
+// a configuration fact and never the decision — and the eighteen paths that were compared are the
+// config's own, in its own order, with no segment left unconfigured. So the walkthrough's step 2 is
+// walkable without a page, and the pane renders an answer that is a different one over those records
+// than the `navigation` and `router` panes render.
+//
+// The one `LOADERS` line that key added above this component is paid for by folding the `fields`
+// fact's comment into one line, the way M057's T004 paid for its own key by giving up a blank line:
+// the loader resolution, the component template and every fact those records quote keep their
+// numbers, so the surface records which pin this file's lines re-resolve at this head.
+FACTS['tutor-routing'] = {
+  state: 'answered',
+  question:
+    'What does each of the three terminal classes actually put on the wire?',
+  terminal: {
+    class: 'NavigationEnd',
+    id: 2,
+    type: 1,
+    url: '/redirect',
+    urlAfterRedirects: '/landing',
+  },
+  route: { path: 'redirect', redirectTo: 'landing' },
+  absences: [
+    {
+      state: 'no-guard-verdict',
+      guardsCheckEndKeys: [
+        'id',
+        'shouldActivate',
+        'state',
+        'type',
+        'url',
+        'urlAfterRedirects',
+      ],
+      guardFields: ['shouldActivate'],
+      guardsNamed: [],
+      detail:
+        'the absence no-guard-verdict holds: the stream records GuardsCheckEnd for this navigation and it adds 1 field over GuardsCheckStart (shouldActivate), which is the aggregate of the whole check, and the payload names 0 guards: no per-guard verdict is recorded here, so none is rendered and no refusal is inferred from the terminal class "NavigationEnd"',
+    },
+    {
+      state: 'no-redirect-decision',
+      url: '/redirect',
+      urlAfterRedirects: '/landing',
+      cancels: 0,
+      cancellationCodeZero: false,
+      detail:
+        'the absence no-redirect-decision holds: the terminal states url "/redirect" and urlAfterRedirects "/landing", so the two differ, and the stream records 0 NavigationCancel events for this navigation and no cancellation code 0: the redirect is only the two urls differing, so it is not a stage and not a terminal, and the change is stated rather than rendered as the decision',
+    },
+  ],
+  unconfigured: {
+    segments: [],
+    compared: [
+      'stale-view',
+      'stale-view-deferred',
+      'components',
+      'image-budget',
+      'after-render',
+      'trust-bypass',
+      'field-form',
+      'lint-observability',
+      'router-lint',
+      'legacy-module',
+      'onpush-ready',
+      'resource-states',
+      'redirect',
+      'landing',
+      'gated',
+      'lazy',
+      'loop-a',
+      'loop-b',
+    ],
+  },
+  claims: [
+    {
+      claim: 'terminal',
+      values: { class: 'NavigationEnd', id: 2 },
+      artefactPath: 'research/raw/m041-navigation.json',
+    },
+    {
+      claim: 'route',
+      values: { path: 'redirect' },
+      artefactPath: 'research/raw/m030-router-config.json',
+    },
+    {
+      claim: 'absence',
+      values: { state: 'no-guard-verdict' },
+      artefactPath: 'research/raw/m041-navigation.json',
+    },
+    {
+      claim: 'absence',
+      values: { state: 'no-redirect-decision' },
+      artefactPath: 'research/raw/m041-navigation.json',
+    },
+    {
+      claim: 'unconfigured',
+      values: { segments: [] },
+      artefactPath: 'research/raw/m030-router-config.json',
+    },
+  ],
+  detail:
+    'the navigation record research/raw/m041-navigation.json states NavigationEnd for navigation id 2 with url "/redirect" and urlAfterRedirects "/landing", so the destination it names is the url the terminal event itself carries and never the address bar, router.url or currentNavigation(); the config record research/raw/m030-router-config.json states the entry path "redirect" with 1 stated field (redirectTo), and that redirectTo is a configuration fact and never the redirect that decided this navigation; every url segment this navigation names matches a configured path beside the 18 paths that were compared; the two absences hold side by side on this one navigation and stay two states, neither as the other and neither folded: no-guard-verdict and no-redirect-decision',
 };

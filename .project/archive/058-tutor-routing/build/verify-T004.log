@@ -1,0 +1,469 @@
+head: e74425259507d9db50f625f01820cdfbef07df41 at 2026-11-21T20:48:03.888Z
+T002 substring: a case-sensitive match -> the filter matches a case-insensitive substring: APP keeps app-counter, and app
+T002 nothing matched: a name completed from framework knowledge -> the filter never completes a name from framework knowledge: a query for the framework’s app-root keeps nothing, because this record does not carry it
+T002 rows: a row the record does not carry -> the filter emits no row the record does not carry, and copies the count the record states | a count the record does not state -> a count the record does not state is null, never a count the record lacks
+T002 cannot-tell: a cause the record invented, repeated as though measured -> the filter never repeats a cause the record invented: the reason is a member of the closed set
+E4 empty beside cannot-tell: empty reported where the source is unreadable -> an unreadable source is cannot-tell with its reason, never an empty list presented as a result
+T002 idempotency: rows reordered out of the record’s order -> identical rows in identical order, in the order the record carries them
+T002 one implementation: the list is read from the record, and no caller reads the DOM to build it
+T002 closed set: 5 reasons, 2 of them the filter’s own
+✔ the record is a head, its sources, its absences and what it does not claim (36.2856ms)
+✔ every cited path and line is the one the record read (42.8864ms)
+✔ every yieldsName claim is the shape of the line it cites (0.1807ms)
+✔ the fallback word is on a path a null instance cannot reach (5.5347ms)
+✔ the record does not claim a component tree the measured file does not hold (1.8095ms)
+✔ the route table lists no components (0.2878ms)
+✔ a record that names a component where the code names none is refused (118.6818ms)
+✔ a citation that slid off its line is refused (2.7356ms)
+✔ T002 — a query keeps the names the record carries, matched case-insensitively (4.0076ms)
+✔ T002 — a query that names no recorded name matches nothing and invents none (2.7723ms)
+✔ T002 — the rows are the record’s rows, and no row or count is invented (3.4008ms)
+✔ T002 — an unreadable source is cannot-tell with a reason from the closed set (2.0029ms)
+✔ E4 — an empty list that is stated is not a source that could not be read (1.8761ms)
+✔ T002 — the same record and query answer identical rows in identical order (2.8539ms)
+✔ T002 — the filter is one implementation and it reads the record, never the page (3.659ms)
+✔ T002 — the closed reason set is the one the record names, and every cause is measured (3.7084ms)
+T001 surfaces: 29 surfaces, 172 declared sentences, 34 inline sentences, 1 absence
+T001 citations: 550 lines re-read
+T001 verbatim: 233 sentences found in their files
+T001 coverage: 29 surfaces and 2 specs on disk
+T001 absence: context declares nothing, 13 single-token literals, 0 templates, and cites 5 lines
+T001 boundary: the copy is measured and the digest is T002’s, not this record’s
+T002 digest: 198 rows for 206 sentences (8 repeat(s)), 41743 bytes against the record's 252498
+T002 scope: 172 declared + 34 inline sentences read, 261 labels and value words read past
+T002 not digested: sanitizer "${count} ${noun}${count === 1 ? '' : 's'}" (composed-at-render)
+T002 per surface: components: clean, 9 sentences | console: clean, 11 sentences | console-read: clean, 7 sentences | stability: clean, 15 sentences | error-boundary: clean, 14 sentences | fields: clean, 6 sentences | navigation: clean, 6 sentences | performance: clean, 2 sentences | render-phase: clean, 7 sentences | linked-state: clean, 2 sentences | lint: clean, 3 sentences | router: clean, 3 sentences | resource: clean, 3 sentences | onpush: clean, 3 sentences | legacy: clean, 3 sentences | redirect: clean, 6 sentences | sanitizer: clean, 11 sentences | panel-demo: clean, 2 sentences | context: cannot-tell (surface-declares-nothing) | copy-check: clean, 9 sentences | interaction-story: clean, 13 sentences | dead-click: clean, 19 sentences | what-changed: clean, 11 sentences | webmcp: clean, 9 sentences | webmcp-rehearsal: clean, 10 sentences | visual-qa: clean, 5 sentences | tutor-foundations: clean, 6 sentences | tutor-signals: clean, 6 sentences | tutor-routing: clean, 5 sentences
+T002 record: clean, 206 sentences compared, 0 unexplained; context row: cannot-tell (surface-declares-nothing)
+T002 precedence: no digest → cannot-tell (no-digest), checked 0
+T002 precedence: zero strings → cannot-tell (surface-declares-nothing), checked 0
+T002 precedence: one unexplained string → unexplained, naming "listed: the record names…" (components)
+T002 precedence: fully explained record → clean (206 compared), context row → cannot-tell (surface-declares-nothing)
+T002 exact text: "filtered: the typed text kept the rows below, and the count states how many rows match" and "unstable: the page's isStable emitted false" are reported rather than explained
+T002 idempotency: 11 rows, twice, identical and in record order
+T002 mutants: digest-entry-dropped: every sentence the copy-bearing surfaces declare is in the digest, and the answer is "unexplained" naming "listed: the record names these components, and every row below is one the record carries" (components) as unexplained || similarity-match: a sentence is explained by the digest's own text and never by similarity, and this near-miss was explained: "filtered: the typed text kept the rows below, and the count states how many rows match" (components) || invented-row: an invented row is not an explanation, and this module explains "cannot tell: no panel copy can be named", which no surface in the record renders || missing-digest-reported-clean: a surface with strings and no digest reports cannot-tell with the reason "no-digest", because nobody compared the strings; this reported "clean"
+T004 surface: copy-check declares 9 sentences and builds 7 labels; the digest holds 198 rows for 206 sentences, eight of them one text
+T004 route record: 58 citations re-read, 3 states, loader key "copy-check", fields ["state","checked","unexplained","unexplained[].string","unexplained[].surface","reason"]
+T004 interaction-story record: 72 citations re-read, 2 states, loader key "interaction-story", fields ["state","steps","steps[].stream","steps[].at","steps[].fields","cannotTell","reason","bounded"]
+T004 dead-click record: 97 citations re-read, 3 states, loader key "dead-click", fields ["state","findings","findings[].chain","findings[].event","findings[].window","findings[].window.field","findings[].window.kind","findings[].window.length","findings[].window.final","considered","refusals","reason","chain"]
+✔ the record is every panel surface, the copy each declares, and the absence (15.5924ms)
+✔ every cited path and line is the one the record read (4.7175ms)
+✔ every declared sentence appears verbatim in the file it is cited in (1.5323ms)
+✔ every surface on disk is in the record, and the specs are named as excluded (1.3225ms)
+✔ the counts the record states are the counts its entries carry (0.3627ms)
+✔ a surface that declares no sentences is recorded as an absence, not skipped (0.5331ms)
+✔ the record states what it does not claim (0.1541ms)
+✔ a citation that slid off its line, or lost its text, is refused (2.0897ms)
+✔ a surface that declares copy cannot be recorded as declaring nothing (1.7189ms)
+✔ the record names the task that authors the digest, and measures no join itself (0.2976ms)
+✔ T002 — the digest is the record’s sentences, under the surface and key each is declared under (1.6692ms)
+✔ T002 — the scope reads the sentences and reads past the labels and value words by count (1.277ms)
+✔ T002 — the pluralised word the pane never renders whole is a recorded decision, not a digest row (1.3836ms)
+✔ T002 — every sentence a surface declares is explained, and the surface that renders no copy is cannot-tell (11.2886ms)
+✔ T002 — the record as measured is clean, and the surface that renders no copy is its own row (3.8056ms)
+✔ T002 / precedence 1 — a missing digest is cannot-tell with "no-digest", before anything else (4.4962ms)
+✔ T002 / precedence 2 — zero strings compared is cannot-tell with "surface-declares-nothing" (1.6622ms)
+✔ T002 / precedence 3 — one unexplained string is "unexplained" even when a surface renders no copy (2.7181ms)
+✔ T002 / precedence 4 — a fully explained record with an absent surface is clean, and its absent row is cannot-tell (13.5657ms)
+✔ T002 — the states and the reasons are closed lists the module publishes (7.8631ms)
+✔ T002 / E4 — a surface with strings and no digest is cannot-tell, and the same surface beside a stale digest is reported (5.5877ms)
+✔ T002 — a match is the digest’s own text: a near-miss sentence and a respelled apostrophe are reported (1.6483ms)
+✔ T002 / E6 — the same record and digest answer identical rows in identical order, and the join writes neither (8.5021ms)
+✔ T002 — the join is one implementation, reads no page, and reads no file (5.4431ms)
+✔ T002 mutants — every anchor is one place in the shipped module and really changes it (0.1667ms)
+✔ T002 mutants — each defect reddens its pin, and the failure names the defect by string (19.8472ms)
+✔ T004 — the twentieth surface is measured, and the digest explains every sentence the record carries (4.6612ms)
+✔ T004 — the route record names the route, the loader key, the three states and what each reads (2.1101ms)
+✔ T004 — the interaction-story route record names the route, the loader key, the two states, what each reads and the fifth field (2.226ms)
+✔ T004 — the dead-click route record names the route, the loader key, the three states, what each reads and the fifth field (5.3599ms)
+✔ E1: the milestone the caller named answers, and the live directory answers for one with no archive (5.8835ms)
+ℹ E1: .project/archive/044-gate-integrity/tasks answered for M044 with .project/tasks beside it, and .project/tasks answered for M056, which has no archive
+✔ E2: the archived tasks answer when the archive move has emptied the live directory (4.2487ms)
+ℹ E2: .project/archive/044-gate-integrity/tasks answered with the live directory empty, and again with it absent
+✔ E3: with no task file anywhere the live path answers, so nothing-examined can still fire (2655.3635ms)
+ℹ E3: .project/tasks answered and the stage refused - no claim was compared against the range and no pin was read, so the check examined nothing rather than finding every claim true
+✔ E4: M44, m044, M044, 044 and M0044 reach one archive, and M999 borrows nothing (4.4145ms)
+ℹ E4: five spellings of 44 answered .project/archive/044-gate-integrity/tasks, and M999, M045, M043 and a milestone name answered .project/tasks
+✔ E9: an archived tasks/ directory that exists but holds no .md file counts as empty (4.5884ms)
+ℹ E9: .project/tasks answered while the archived tasks/ held only a non-.md file and a nested log, and .project/archive/044-gate-integrity/tasks answered once a log sat beside them
+✔ SC1: a tree the move emptied reads its archived log and exits 0 (3336.4071ms)
+ℹ SC1: exit 0 over 1 claim(s) in 1 archived task log(s), range a1eb71db2c9446bb3ea2de20d49e17595cdbb253..7a9c333f3af1723d6db005b34c804eb12d0e15b3
+✔ an explicit --tasks stays authoritative over the default (4909.1448ms)
+ℹ explicit: default read .project/archive/044-gate-integrity/tasks as M044 (exit 1), --tasks read .project/tasks as M056 (exit 0)
+✔ AC1: --milestone M044 examines M044 archived logs while the milestone being built sits beside them (2560.8081ms)
+ℹ AC1: M044 read .project/archive/044-gate-integrity/tasks with .project/tasks beside it - exit 0
+✔ AC1: a milestone with no archive reads the live directory, and a caller-named directory names no milestone (3876.5738ms)
+ℹ AC1: M056 (no archive) read .project/tasks, and --tasks caller-tasks read its own directory as no milestone
+✔ E6: a default run is a read: the recording hashes the same before and after (264.2855ms)
+ℹ research/raw/m044-gate-shapes.json at load: 152763 bytes, sha256 36061e36c2136cb03e4eb383cc979dad00ea3aae17d51c8de844de4406c65105
+ℹ research/raw/m044-gate-shapes.json after the run: sha256 36061e36c2136cb03e4eb383cc979dad00ea3aae17d51c8de844de4406c65105
+ℹ an armed run would write: research/raw/m044-gate-shapes.json - set "M044_CAPTURE=1"&& node --experimental-strip-types --test "scripts/gate-integrity.test.mjs"
+✔ the recording is the canonical serialisation of its own record (1.7726ms)
+✔ the recording still re-derives from the tree, the range and the stream this head carries (3280.5092ms)
+ℹ archiveReferences: 194 reference(s) in 165 suite(s) of 323 listed file(s); {"archived-by-the-move":17,"deliberate-archive-read":29,"undecided":148}
+ℹ fixRecord: 6 claim(s) in 7 task log(s) over 63 changed path(s); nx.json in range: false; tree cache at d94502d1: true
+ℹ skippedNavigations: 1 NavigationSkipped entry(ies) among 69 event(s) in 8 frame(s); {"skippedByType":1,"skippedByClass":1,"withAStartInTheRecording":1,"withAStartInItsOwnFrame":0}
+✔ every .project reference is enumerated and classified, and each class names the path it resolves (1.1286ms)
+✔ the M035 nx.json claim is absent from its range, and the tree fact is a separate field (1.8375ms)
+✔ a rename is recorded as the pair it produces, and the M035 range carries none (0.4125ms)
+✔ every NavigationSkipped entry is recorded with its id, its url and its start reading (0.9451ms)
+✔ a measurement that examined nothing is a failure, and every section states its command (2.158ms)
+✔ a planted misclassification reddens the archive-reference pin and names the file (3.6491ms)
+ℹ mutant failure: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   'scripts/error-boundary-capture.test.mjs:46 .project/archive/042-error-boundary/intent/INTENT.md is recorded archived-by-the-move (segment) and the tree derives deliberate-archive-read (segment)',
++   'scripts/error-boundary-capture.test.mjs:46 reason: planted: an archive read called a live reference -> resolves to .project/archive/042-error-boundary/intent/INTENT.md, inside .project/archive - the destination the archive move writes - so the suite names an archived path on purpose'
++ ]
+- []
+
+✔ the arming gate guards the one write, and the suite spawns nothing but read-only git (1.3318ms)
+✔ AC1: the live paths this tree carries are all namings, and the four reads T002 measured open none (323.8182ms)
+ℹ archivePaths: 17 live reference(s) of 194 in 165 suite(s); findings: none; repaired: scripts/autonomy-gaps.test.mjs, scripts/docs-audit-disposition.test.mjs, scripts/retired-suites.test.mjs, scripts/navigation-capture.test.mjs (asks the shared resolver)
+✔ AC1: every class the record decided is the class the check derives, and no row diverges (1.552ms)
+✔ AC1: a live read is a finding, a live naming is clean with its use, and an archived read is clean (13.779ms)
+✔ AC3: the archive-path check reports examined 0 as a finding, for a move that deletes nothing and for a call with no input (1.1726ms)
+✔ AC2: M035 own range carries no nx.json, and the claim is a finding naming the task and the file (1340.1826ms)
+ℹ fixRecord: 6 claim(s) from 7 task log(s) over 63 changed path(s); 1 absent: T005 research/raw/stale-view-counter.json
+✔ AC2: a claim naming the new name of a rename is not reported absent, because a rename carries both names (106.0241ms)
+✔ AC3: the fix-record check reports examined 0 as a finding, for an empty range and an empty task list (375.6104ms)
+✔ AC4: removing the use distinction reddens the archive-path check, naming the file and the path (24.9643ms)
+ℹ mutant failure: the live path .project/research/DOCS-AUDIT.md that scripts/docs-audit-disposition.test.mjs:57 reads with readFileSync must be a finding; the mutant reported it clean because a naming and a read are no longer told apart
+✔ AC4: treating a rename as absent reddens the fix-record check, naming the task and the file (307.0619ms)
+ℹ mutant failure: the claim names the new name of the rename .project/archive/043-stability-explainer/intent/INTENT.md, which the range carries
++ actual - expected
+
++ [
++   {
++     claim: '- the archive move put it at `.project/archive/043-stability-explainer/intent/INTENT.md`',
++     class: 'claim-absent-from-the-range',
++     file: '.project/archive/043-stability-explainer/intent/INTENT.md',
++     line: 6,
++     path: '.project/archive/043-stability-explainer/intent/INTENT.md',
++     reason: 'T903 claims .project/archive/043-stability-explainer/intent/INTENT.md at fixture/T903.md:6, and git diff --name-status -M d94502d1^..d94502d1 carries no such path (25 changed path(s), 9 rename row(s))',
++     site: 'log',
++     statusesInTheRange: [
++       {
++         paths: [
++           '.project/intent/INTENT.md',
++           '.project/archive/043-stability-explainer/intent/INTENT.md'
++         ],
++         status: 'R100'
++       }
++     ],
++     task: 'T903',
++     taskFile: 'fixture/T903.md',
++     use: 'claimed',
++     useLine: 6,
++     usedBy: 'git diff --name-status -M d94502d1^..d94502d1',
++     verdict: 'finding'
++   }
++ ]
+- []
+
+✔ AC6: this tree is clean with a non-zero examined count, and one reverted repair reddens it naming the file (13.3289ms)
+ℹ AC6 mutant: scripts/docs-audit-disposition.test.mjs:57 .project/research/DOCS-AUDIT.md read by readFileSync at line 58 - resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives, and this suite reads it with readFileSync at line 58, so that call throws the moment the path is gone
+✔ AC2: a red check reaches the gate as a refusal, and this milestone’s own tree passes it (3227.7046ms)
+ℹ AC2: clean exit 0 on this tree (17 live reference(s), 4 claim(s) over d94502d174aff31b0b1ebbab200d5e47939dec39..e74425259507d9db50f625f01820cdfbef07df41); refused exit 1 on the fixture with gate-integrity: refusal scripts/docs-audit-disposition.test.mjs:57 names .project/research/DOCS-AUDIT.md (archived-by-the-move) - resolves to .project/research/DOCS-AUDIT.md, whose .project subtree research is one the archive move relocates to .project/archive/<NNN>-<slug>/research, so that path is deleted when the milestone archives, and this suite reads it with readFileSync at line 58, so that call throws the moment the path is gone
+✔ AC7: a log token is a claim only where its task declares it, and claims: log still reports nx.json (1789.5485ms)
+ℹ AC7: declared 4 claim(s) and 7 mention(s), 0 absent; log 11 claim(s), 3 absent (nx.json among them)
+✔ AC7: a declared suite or recording the range did not change is a pin, and an undeclared one is never promoted (645.9976ms)
+ℹ AC7 pin: declared 0 claim(s) and 1 pin(s), 0 absent; log 1 claim(s), 1 absent; undeclared 1 mention(s), 0 pin(s)
+✔ AC7: a declared path the range changed is a claim, not a pin (181.398ms)
+ℹ AC7 claim: research/raw/m044-gate-shapes.json is in M044's range, recorded as true, with 0 pin(s)
+✔ T004 AC1: each check is driven on its measured instance and a clean control, with what it printed and its exit status (0.7817ms)
+ℹ archive-paths: instance exit 1 with 1 refusal(s), control exit 0 with 0
+ℹ fix-record: instance exit 1 with 1 refusal(s), control exit 0 with 0
+✔ T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails (1.0278ms)
+ℹ mutant failure: Got unwanted exception.
+Actual message: "scripts/planted.test.mjs records 1 dropped assertion line(s): SC6 permits the navigation pin to be replaced and no assertion to be deleted"
+ℹ suiteDiff: 195 suite(s) compared with d94502d1, 42 differ (16 edited, 26 added), 204 assertion line(s) removed of which 204 were re-cut and 0 dropped
+ℹ M apps/angular-ai-devtools/src/app/app.spec.ts: +208/-1, assertions +60/-0 (0 re-cut, 0 dropped) - the ordered route-table pin gained the `console` surface M045 T003 appends last, and the lazy-component / route-data / own-name block for it; every earlier path is unchanged and no assertion line was removed; M047 T003 appends `components` to the same pin with its own lazy-component / route-data / own-name block, and no assertion line was removed; M048 T003 appends `copy-check` to the same pin with its own lazy-component / route-data / own-name block, and no assertion line was removed; M049 T003 appends `interaction-story` to the same pin with its own lazy-component / route-data / own-name block, and no assertion line was removed
+ℹ M apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts: +39/-0, assertions +0/-0 (0 re-cut, 0 dropped) - the chat suite’s two ordered route-table pins gained the `console` surface M045 T003 appends last — in the full path list and in the lazy list — and the per-surface loop names it; no earlier path was reordered and no assertion line was removed; M047 T003 appends `components` to both ordered lists and to that loop, and no earlier path was reordered; M048 T003 appends `copy-check` to both ordered lists and to that loop, and no earlier path was reordered; M049 T003 appends `interaction-story` to both ordered lists and to that loop, and no earlier path was reordered
+ℹ M apps/angular-ai-devtools/src/app/page-picker.component.spec.ts: +81/-3, assertions +15/-0 (0 re-cut, 0 dropped) - the picker suite’s lazy-path list gained the `console` surface M045 T003 appends last, so a route appended without registering still reddens here; the comment above it says so, and no assertion line was removed; M047 T003 appends `components` to both lists and moves the pinned count to twenty-seven, and no assertion line was removed; M048 T003 appends `copy-check` to both lists and moves the pinned count to twenty-eight, and no assertion line was removed; M049 T003 appends `interaction-story` to both lists and moves the pinned count to twenty-nine, and no assertion line was removed
+ℹ M apps/angular-ai-devtools/src/app/panel-demo.spec.ts: +5650/-737, assertions +883/-172 (172 re-cut, 0 dropped) - the demo suite gained the M045 T003 console pin: its route, its sample fact held to the shipped digest and to the join, and its rendered lines held to E7 — no cause, no element, no remedy, no count and no empty list; the earlier surfaces’ pins are unchanged and no assertion line was removed; M047 T003 adds the components pin — its route, its sample fact held to the shipped component-search join, and the four states with a stated count, a stated absence for a missing count, the filtered count and the cannot-tell reason — and the table pin gains `components`; M048 T003 adds the copy-check pin — its route, its sample fact held to the shipped copy-check join over T001’s recorded surfaces and the digest, and the three states with the clean count, each unexplained string named with its surface verbatim, and the cannot-tell reason never rendered as clean — and the table pin gains `copy-check`; M049 T003 adds the interaction-story pin — its route, its sample fact held to the shipped interaction-story join over a record rebuilt from T001’s measured field lists, the steps in `at` order with their recorded fields, the empty stream named beside the story, and the cannot-tell reasons — and the table pin gains `interaction-story`
+ℹ M scripts/autonomy-gaps.test.mjs: +36/-1, assertions +1/-0 (0 re-cut, 0 dropped) - the live audit path is resolved at read time instead of opened by name, so the suite reads whichever copy the checkout carries; no assertion line was removed
+ℹ A scripts/component-search.test.mjs: +1100/-0, assertions +122/-0 (0 re-cut, 0 dropped) - wholly added at this head: M047 T001 measured the names the page agent yields and the absences it states, and T002 pinned the filter over them, so the suite holds `research/raw/m047-names-and-absences.json` to the tree line by line and `extension/component-search.js` to that record — sixteen tests appended, no assertion line removed and no earlier suite touched, a reading the measured commit carries no file to edit
+ℹ A scripts/console-join.test.mjs: +1539/-0, assertions +182/-0 (0 re-cut, 0 dropped) - wholly added at this head: M045 T002 pins the join of a captured diagnostic to the shipped digest by the code it carries — one finding per diagnostic in capture order, a code the digest lacks named rather than counted, a message with no code saying so, and an empty capture kept distinct from no diagnostics — with five mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit
+ℹ A scripts/console-panel-record.test.mjs: +3493/-0, assertions +224/-0 (0 re-cut, 0 dropped) - wholly added at this head: M045 T004 pins the console pane’s behaviour as one recorded reading of it — every case’s join `state`, each finding’s `text` with its `code`/`title`/`reason` exactly where the contract places them, and the pane’s own rendered lines — by re-deriving all of it from the join, the shipped digest and the pane, with a code the digest lacks named rather than counted, captured-nothing stated rather than rendered as an empty list, the two absences kept as two statements, and the one write behind `M045_CAPTURE=1` so a default run reads the same bytes; two mutants each redden the pin that names its defect, a reading the measured commit carries no file to edit
+ℹ A scripts/console-panel-render.test.mjs: +3442/-0, assertions +227/-0 (0 re-cut, 0 dropped) - wholly added at this head: M045 T003 pins the console pane’s rendering of the join’s `{ state, findings[] }` — captured-nothing as a statement, an unmatched code named rather than counted, and no cause, element, remedy or unattributed wording — with six mutants each reddening the pin that names its defect, a reading the measured commit carries no file to edit
+ℹ A scripts/copy-check.test.mjs: +3303/-0, assertions +365/-0 (0 re-cut, 0 dropped) - wholly added at this head: M048 T002 pins the join `extension/copy-check.js` — the record-level clean answer with its compared count, each unexplained string with the surface that renders it, and the two cannot-tell reasons in the contract order — over T001’s measured surfaces and the shipped digest, with a copy-less surface kept in its own row rather than deciding the record, a reading the measured commit carries no file to edit
+ℹ A scripts/copy-to-agent.test.mjs: +880/-0, assertions +86/-0 (0 re-cut, 0 dropped) - a suite this milestone added rather than changed: it pins the measurement record `research/raw/m046-pane-and-copy.json`, its five assertions are all additions and none was removed, and every cited path and line is read from that record rather than spelled here
+ℹ A scripts/dead-click.test.mjs: +2055/-0, assertions +211/-0 (0 re-cut, 0 dropped) - wholly added at this head: M050 T001 measures the three consequence chains in `research/raw/m050-chains.json` and T002 pins the judgement `extension/dead-click.js` over the router chain, the two refused chains, the unbounded and empty records and the four mutants, a reading the measured commit carries no file to edit
+ℹ M scripts/doc-fix-alignment.test.mjs: +39/-50, assertions +10/-10 (10 re-cut, 0 dropped) - the two-tree loop over `.commandcode` and `.claude` became one read of the maintained tree, because the owner deleted the mirror; the four assertions it carried still run, once, and the only deleted lines are the loop scaffolding and the second root
+ℹ M scripts/docs-audit-disposition.test.mjs: +43/-4, assertions +1/-0 (0 re-cut, 0 dropped) - the live audit path is resolved at read time instead of bound once at load, so the suite reads whichever copy the checkout carries; no assertion line was removed
+ℹ M scripts/docs-correction.test.mjs: +112/-127, assertions +18/-17 (17 re-cut, 0 dropped) - same reason: the cross-tree loop became a single read, the three assertions that existed only to prove the two trees agreed were replaced by equivalents on the maintained file alone, and the re-attribution pin now asserts checks/state.mjs:321, the line that carries the 600 s timeout, instead of :253 - the Chromium build-and-revision shape, the maintain rationale standing as its own paragraph, and the reference citing the `.commandcode` path
+ℹ A scripts/gate-integrity-default-tasks.test.mjs: +636/-0, assertions +41/-0 (0 re-cut, 0 dropped) - wholly added at this head: M056 T002 measured the fix-record stage’s default task directory on fixture trees, a reading the measured commit carries no file to edit
+ℹ A scripts/gate-integrity.test.mjs: +5723/-0, assertions +346/-0 (0 re-cut, 0 dropped) - added at this head: T001 measured the three shapes, T002 the two checks, T003 the wiring and T004 these recordings, so the measured commit carries no such file to edit
+ℹ A scripts/gate-stability-record.test.mjs: +1084/-0, assertions +34/-0 (0 re-cut, 0 dropped) - wholly added at this head: M056 T001 spawned the three refusing commands and published what each printed, a reading the measured commit carries no file to edit
+ℹ A scripts/interaction-story.test.mjs: +2188/-0, assertions +231/-0 (0 re-cut, 0 dropped) - wholly added at this head: M049 T001 measures the three arrival-ordered streams in `research/raw/m049-streams.json` and T002 pins the narration `extension/interaction-story.js` over the interleaved order, the one-empty and all-empty refusals, the equal-`at` instant and the unreadable record, a reading the measured commit carries no file to edit
+ℹ M scripts/navigation-blocking.test.mjs: +1550/-4, assertions +84/-0 (0 re-cut, 0 dropped) - the navigation pin named in SC6: the answer key set gained `skipped`, the E3 message counts five fields, and the E7/E8 pins for an ended id were added — the one edited assertion SC6 permits
+ℹ M scripts/navigation-capture.test.mjs: +23/-7, assertions +2/-1 (1 re-cut, 0 dropped) - the live intent path is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite decides nothing about the archive move itself; one assertion line was re-cut to the resolver’s answer with its call and its subject unchanged, and none was dropped
+ℹ M scripts/panel-bundle-budget.test.mjs: +177/-2, assertions +5/-0 (0 re-cut, 0 dropped) - the suite gained the freshness rule M050 T005 added: a present extension/panel build older than the newest source file the panel build reads is refused by name, with the rebuild command in the message, instead of being compared as current — proven in both directions by doctoring the build index.html mtime and restoring it; the baseline constant, the synthetic measurement and the real comparison are untouched and the five added assertion lines are all additions, none removed
+ℹ M scripts/panel-routes.test.mjs: +699/-89, assertions +83/-4 (4 re-cut, 0 dropped) - the surface list gained `console-read`, so E1 checks that route and E2 exports it; E4 gained a mutant that drops its LOADERS key and E1 gained one that deletes its route entry, and no existing assertion was removed; M047 T003 appends `components` to the same list and adds its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M048 T003 appends `copy-check` to the same list with its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M049 T003 appends `interaction-story` to the same list with its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M050 T005 replaced the twenty-one per-surface route literals with the PANEL_SURFACES list and one literal mapped over it, so E1 now reads the list, the single literal and the absence of any spelled-out surface route, its per-surface mutants drop a name from that list, the own-closure and second-definition mutants and every E2/E3/E4 assertion are carried unchanged, `console` joins the per-surface list it was missing from, and no assertion line was removed
+ℹ M scripts/panel-typecheck-scope.test.mjs: +68/-27, assertions +3/-0 (0 re-cut, 0 dropped) - the check-chain pin was re-cut from six stages to twelve when T003 wired the two gate stages in, with the red half widened to a dropped, swapped or extra stage of each; strengthened rather than weakened
+ℹ M scripts/performance-capture.test.mjs: +7/-2, assertions +0/-0 (0 re-cut, 0 dropped) - the live intent is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite reads whichever intent was most recently current when none is live between milestones; two assertion lines added and none dropped
+ℹ A scripts/prove-skills-audited.test.mjs: +390/-0, assertions +15/-0 (0 re-cut, 0 dropped) - wholly added at this head: M058 T007 pins the docs audit’s coverage of the four proof skills the milestone lands, because the rows are landed and the audit check passes over them but no suite `npm test` runs re-reads the document, so a later audit edit that dropped one of the four would redden nothing. One reader answers two things and never a guess — the documents the audit covers, read from the paths its `## Doc:` headings name beside the paths its `## Descriptive docs` bullets carry, and the Summary’s descriptive-docs row as a number counted from the bullets that section holds rather than typed twice — and three cases hold it: the four proof-skill documents each named as a heading or as a descriptive entry, with a refusal that names the document rather than the tally, the Summary’s count held to the list it describes, and the pin’s own proof, which removes one bullet from a copy of the audit held in memory and drives the same coverage check again so the refusal is asserted to read the sentence naming the skill that went missing. The audit is opened for reading only, every mutation is a string, and the mutant case re-reads the document’s bytes to say the file was never written; the document is resolved through the shared resolver the docs-audit disposition suite uses rather than opened by a live path, so the archive move does not strand the suite; the fifteen assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit
+ℹ M scripts/retired-suites.test.mjs: +14/-8, assertions +0/-0 (0 re-cut, 0 dropped) - the live record path became a candidate the resolver tests before opening, so nothing opens the name the archive move deletes; no assertion line was removed
+ℹ A scripts/tutor-answer.test.mjs: +1824/-0, assertions +120/-0 (0 re-cut, 0 dropped) - wholly added at this head: M055 T002 pins the two files this milestone authors — the one authored mapping `extension/tutor-index.js`, rows of the question text, the criterion id and the milestone and nothing else (no path, no value, no answer text), every criterion id held to the record on disk that names it, and the pure join `extension/tutor-foundations.js`, `tutorAnswer(question, sources)` answering `answered`, `no-matching-criterion`, `no-artefact-named`, `records-unreadable` or `missing-artefact` with the milestone from the record’s own `milestone`, the criterion from its `claims[].criterion` and the path from its `claims[].artefactPath`, presence read through the injected `sources.exists` on every answer — over the 44 claims that carry the field and the 22 records that carry none, with an index row carrying a path, a value or an answer text, an answer assembled from the template prose or by file naming, the load-bearing mutant that replaces a record’s `artefactPath` with a hard-coded constant and still answers, an unanswered question rendered as an answer, the absences folded into one blank state, a missing artefact rendered as unanswered, a join that ignores the reader and answers from a bake, a criterion id the record does not carry, a path re-rooted, normalised or shortened and a join that refuses every question each reddening the pin that names its defect; it owns held-out E4, whose dead-path input is constructed because all 44 values resolve at this head, and the recording is asserted to say so rather than manufacturing a live instance; a reading the measured commit carries no file to edit
+ℹ A scripts/tutor-record-shapes.test.mjs: +1953/-0, assertions +181/-0 (0 re-cut, 0 dropped) - wholly added at this head: M055 T001 measured what the records actually carry against what a traceability answer needs — the 34 verdict-claims records and 9 surface records, `claims[].artefactPath` carried by 12 of the 34 and 44 claims, `evidence.recordings` and `evidence.suites` by 11 of 34, the 22 records from M022 to M043 carrying none of them in four different shapes (M022’s portal-verdict block, M023–M037 four keys with the file named only inside `reason` and 0 of M023’s 4 rows naming a file at all, M038–M040 adding `criterionCharacters`, M041–M043 `artefact` prose plus `proves` as a string), the two spellings of the `milestone` field, and all 44 `artefactPath` values resolving at the head — in `research/raw/m055-record-shapes.json`, and the suite re-reads every `path:line` citation that recording makes against the tree, holds each counted shape to the records it names, and reddens when a citation slides off its line, when a count drifts from the records, or when the recording claims a dead path or an unobserved state; a reading the measured commit carries no file to edit
+ℹ A scripts/tutor-routing-shapes.test.mjs: +2373/-0, assertions +149/-0 (0 re-cut, 0 dropped) - wholly added at this head: M058 T001 measured what the records the milestone’s answer may cite actually state — the recorded navigation stream, the recorded router config, the one coded console message the router emits for a URL no route matches, and the injector walk `extension/agent-main.js` already makes — and writes `research/raw/m058-record-shapes.json` behind `M058_CAPTURE=1`, its twenty declarations holding the recording to the tree four ways: every `path:line` the recording makes is re-resolved by searching the file it quotes for the exact line, each citing a needle that selects exactly one line of its file; the field map’s terminal-class key sets, the config’s five fields and row shapes, and the attribution-by-`id`-and-`route.path` rule are re-derived from the records; the two absences are re-derived from the shapes that force them, as states rather than gaps; and the reach is re-derived from the agent’s own source, so a named new tap, a second observable or a live page read reddens. Two mutants redden a doctored citation and an invented field, the inventory names exactly the two records this milestone owes and no other, the default run is asserted to be a read that leaves the recording’s bytes where they were, and nothing here builds, opens a page or starts a browser; the 149 assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit
+ℹ A scripts/tutor-routing.test.mjs: +1796/-0, assertions +154/-0 (0 re-cut, 0 dropped) - wholly added at this head: M058 T002 builds the pure join `extension/tutor-routing.js` and then mutates it in memory, one defect at a time. Its eleven declarations read the answer the join returns over the records T001 measured — the terminal class the stream recorded for the `id` asked about with only that class’s own fields, the config entry the navigation’s own address names by its `path` and the fields it states, the two absences kept as two states on one navigation with `shouldActivate` never rendered as a verdict and `redirectTo` never rendered as the decision, `cannot-tell` naming the last recorded class and nothing else, and an unmatched segment named unconfigured beside the paths compared rather than resolved to `**` or to a `redirectTo` row. Purity is proved by running the module in a bare `node:vm` context with nothing in it, by a scan of its code for every reach a pure join must not have, and by an answer that does not move on a second read; sixteen mutants each redden the pin that names its defect by string, among them a route read from the final URL, a held navigation reported landed, a destination read from the address bar, from `router.url` or from `currentNavigation()`, and an event attributed by arrival across a reused `id`; held-out E5 and E7 are two of the eleven, and the 154 assertion lines are all additions with none removed, a reading the measured commit carries no file to edit
+ℹ A scripts/tutor-signals-graph.test.mjs: +976/-0, assertions +92/-0 (0 re-cut, 0 dropped) - wholly added at this head: M057 T003 reads the graph record the answer comes from, PLAN C8 having retargeted it at `research/raw/m039-render-phase.json`’s `/effect/freshRead` — six nodes each carrying a numeric `index`, the effect at `index` 5 with the empty label, and its consumer edge reaching the node the graph labels `count` at `index` 2 — pins the record’s own `capture` block as the record states it while claiming no `head` the record does not state, loads T002’s join in a bare `node:vm` context and hands it the record’s own node and edge lists so the answer is the record’s statement and not one this milestone composes, and proves the capture leg was deleted: its import list names node builtins only, `research/raw/m057-signal-graph.json` exists nowhere under `research/raw/`, and no page global reaches the context; the three named defects — a position read instead of `index`, a claimed portal read and an invented provenance field — each redden the pin that names them; a reading the measured commit carries no file to edit
+ℹ A scripts/tutor-signals-shapes.test.mjs: +568/-0, assertions +83/-0 (0 re-cut, 0 dropped) - wholly added at this head: M057 T001 measured what the two records the answer may cite actually carry and what no record carries — the graph side `serializeGraph` and the one per-check field that carries its result, read for `index`, `kind` and `label` per node and the two ends per edge, and the render/effect side `renderPhase`, the effect finding’s four fields, its read list and the three published absences — in `research/raw/m057-record-shapes.json`, and the suite re-resolves every `path:line` citation the recording makes by searching the file it names for the exact line the recording quotes rather than trusting the typed number, holds each side’s declared field set to the tree, re-derives the two negatives from the source and the edge keys rather than reading them back (the `extension/` scan for the five write-record needles, and no edge carrying a field that would order a write), asserts that a fresh `serializeGraph` writes `id: String(n.id)` and never an `index`, and states the premise the second measurement refuted rather than the plan’s prose; nothing here builds and nothing writes, a reading the measured commit carries no file to edit
+ℹ A scripts/tutor-signals.test.mjs: +1478/-0, assertions +111/-0 (0 re-cut, 0 dropped) - wholly added at this head: M057 T002 pins the pure join `extension/tutor-signals.js`, `tutorSignals(records)`, over the two records T001 measured — the effect named by the label the graph gives it and by the node’s own `index` rather than its position in the `nodes` array or a number minted from an id, every claim carrying the artefact path and line that states it, the ordering always the named absence `no-write-record-no-order` with a recorded change-detection message kept as a second claim and never joined to the effect, the three absences `graph-unreadable`, `no-render-entry` and `no-effect-node` kept as three states with their own sentences, and every producer end or effect reference the graph cannot place named in `unplaced` by end and value — with the real-record leg answering `index: null` and naming the reference there rather than numbering it from its position, purity proved by running the module in a bare `node:vm` context and by a byte scan for every reach a pure join must not have, and each of the in-memory mutants reddening the pin that names its defect; a reading the measured commit carries no file to edit
+ℹ M scripts/user-scope-autonomy.test.mjs: +1/-1, assertions +0/-0 (0 re-cut, 0 dropped) - one assertion line re-pinned, one added and one removed, none deleted: the P3 check_handoffs behavioural assertion named the reason string `Intent coverage row is unreadable`, which `git log -S` over every branch of the upstream source shows check_handoffs.py never emitted in any revision and no copy carries today, so the test side was wrong and the pin was re-pointed at the reason the code actually raises for a dropped coverage row, `PLAN.md Intent coverage has no rows` (check_handoffs.py:1056, measured exit 1 over a three-cell row); the readable-row exit-0 half of the same assertion and every other assertion in the file are untouched
+ℹ A scripts/visual-qa-style-read.test.mjs: +629/-0, assertions +54/-0 (0 re-cut, 0 dropped) - wholly added at this head: M054 T001 measured whether the panel runtime can read its own document’s computed style, which properties the measurement declares and whether the relay carries a style read — the six properties with the hook and line that declares each, the injected default each side is not, the relay’s six page types and two panel-to-page routes, the zero `getComputedStyle` call sites, the `tabId`-only `inspectedWindow` reads and the unused `scripting` permission — in `research/raw/m054-style-read.json`, and the suite re-reads every `path:line` citation that recording makes against the tree, holds the two live runs apart (the fresh build’s sheet behind `media="print"` with the CSP refusal in its log, the artefact at head applying every declaration), and reddens when a citation slides off its line, when a property names no declaring line, when an unobserved member is claimed observed or when the recording drifts from the file it names; a reading the measured commit carries no file to edit
+ℹ A scripts/visual-qa-style.test.mjs: +1692/-0, assertions +130/-0 (0 re-cut, 0 dropped) - wholly added at this head: M054 T002 pins the pure join `extension/visual-qa.js` — one row per declared property with the element’s computed value and the stylesheet’s declared value under their own labels, or one of the three absences `no-such-element`, `no-document` and `no-baseline` — over the interleaved cases and their absences, with a property hidden, one value printed for both sides, a declaration labelled as the computed reading, an absence rendered as a row of matching readings, a wrong absence named, placeholder values for a measurement that did not run, a name folded, trimmed or prefix-matched, a value normalised into the declaration’s spelling and a join that refuses every input each reddening the pin that names its defect; a reading the measured commit carries no file to edit
+ℹ A scripts/webmcp-api.test.mjs: +586/-0, assertions +81/-0 (0 re-cut, 0 dropped) - wholly added at this head: M052 T001 measures what `document.modelContext` exposes to a page — a registration function, a readable tool list or neither — in `research/raw/m052-webmcp-api.json`, and the suite re-reads every `path:line` citation the recording makes against the tree, holds the recorded shape to the canary and the browser fixtures it cites, and reddens when a citation slides off its line or the recording drifts from the file it names, a reading the measured commit carries no file to edit
+ℹ A scripts/webmcp-audit.test.mjs: +1061/-0, assertions +81/-0 (0 re-cut, 0 dropped) - wholly added at this head: M052 T002 pins the pure reading `extension/webmcp-audit.js` over the shape T001 recorded — `tools` naming each declared tool with the name and description the API reports, `empty` for a list the API answered with nothing in it, and `cannot-tell` naming the absence where no list is readable — with the DOM-derived name, the empty list rendered as a count, the refusal collapsed into an empty list and the re-registration used to observe each reddening the pin that names it, plus the held-out description-less descriptor, a reading the measured commit carries no file to edit
+ℹ A scripts/webmcp-execute-tool.test.mjs: +851/-0, assertions +143/-0 (0 re-cut, 0 dropped) - wholly added at this head: M053 T001 measured what `document.modelContext.executeTool` needs and answers — one argument of type `Tool`, a Promise in every case, a TypeError rejection rather than a synchronous throw, a `Tool` whose constructor is illegal, and a `no-model` answer the launches could not produce — in `research/raw/m053-execute-tool.json`, and the suite re-reads every `path:line` citation that recording makes against the tree, holds each `measurement` member to the observations it cites, and reddens when a citation slides off its line, when a state the recording marks unobserved is claimed as observed, or when the recording drifts from the file it names; a reading the measured commit carries no file to edit
+ℹ A scripts/webmcp-rehearsal.test.mjs: +1508/-0, assertions +113/-0 (0 re-cut, 0 dropped) - wholly added at this head: M053 T002 pins `extension/webmcp-rehearsal.js` — the awaited caller that hands `getTools()`’s resolved list to the shipped reader, and the pure join `rehearse(reading, chosen, invocation)` answering `rehearsed`, `no-tool`, `refused` or `unavailable` and no fifth state — over the interleaved cases and their absences, with the name taken from a fixture list, a result rendered for a rehearsal that never ran, an invented model turn, a re-registration used to observe, an un-awaited synchronous return judged as a list and a join that refuses every input each reddening the pin that names its defect, plus a token scan proving the module reads no DOM, registers nothing and invokes nothing; a reading the measured commit carries no file to edit
+ℹ A scripts/what-changed.test.mjs: +1924/-0, assertions +243/-0 (0 re-cut, 0 dropped) - wholly added at this head: M051 T001 measures what a recorded snapshot carries and what binds two of them in `research/raw/m051-snapshots.json`, and T002 pins the judgement `extension/what-changed.js` over the differing pair, the added and removed field, the unmeasured key, the unbound pair, the absent snapshot, the two refused shapes and the five mutants, a reading the measured commit carries no file to edit
+✔ T004 AC3: the tree the project verify runs is counted, so a removed test is a smaller number (0.1711ms)
+ℹ wholeTree: 195 suite(s) of 498 listed file(s) {"scripts":120,"extension":11,"apps":34,"src":2,"skills":28,"total":195}, 2489 test declaration(s) in 328 group(s)
+✔ T004: the three new sections are what this head derives, so a default run is a read (1.7891ms)
+ℹ sections re-measured by an armed run: archiveReferences.command, archiveReferences.counts, archiveReferences.examined, archiveReferences.filesExamined, archiveReferences.movedSubtrees, archiveReferences.movedSubtreesDerivedFrom, archiveReferences.reading, archiveReferences.references, archiveReferences.sites, archiveReferences.suiteSelection, archiveReferences.suitesExamined, drivenChecks.command, drivenChecks.examined, drivenChecks.fixtures, drivenChecks.reading, drivenChecks.runs, fixRecord.claim, fixRecord.claims, fixRecord.claimsExamined, fixRecord.command, fixRecord.examined, fixRecord.findings, fixRecord.range, fixRecord.reading, fixRecord.rename, fixRecord.tasksExamined, fixRecord.tree, skippedNavigations.command, skippedNavigations.counts, skippedNavigations.entries, skippedNavigations.eventTypesFrom, skippedNavigations.examined, skippedNavigations.frames, skippedNavigations.framesExamined, skippedNavigations.reading, skippedNavigations.skippedType, skippedNavigations.startType, suiteDiff.baseline, suiteDiff.command, suiteDiff.counts, suiteDiff.differing, suiteDiff.examined, suiteDiff.filesListed, suiteDiff.reading, wholeTree.command, wholeTree.declarations, wholeTree.examined, wholeTree.filesListed, wholeTree.reading, wholeTree.rule, wholeTree.run, wholeTree.suites
+✔ T003 E5, E7: a milestone whose numerically previous id is unshipped derives a range, and the base it used is printed (3306.7248ms)
+ℹ E7: M059 derives 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41 by rule newest-ship - git log names no ship commit for M058, so the base is the newest it carries, 21fb7ccd (ship: M057 — tutor-signals); the head is this tree's HEAD, e7442525 (T008: Refuse a held-out mutant the plan cannot seed)
+ℹ E5: M057 derives b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..e74425259507d9db50f625f01820cdfbef07df41 by rule ship
+ℹ printed: gate-integrity: fix-record clean - examined 32 claim(s) in 9 task log(s) of .project/tasks (logs of M058) against 54 changed path(s) of 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41 (rule newest-ship: git log names no ship commit for M058, so the base is the newest it carries, 21fb7ccd (ship: M057 — tutor-signals); the head is this tree's HEAD, e7442525 (T008: Refuse a held-out mutant the plan cannot seed); claims: declared)
+✔ T003 E8: restoring the numeric-predecessor rule refuses this milestone, and the refusal names M058 (710.1135ms)
+ℹ E8 mutant failure: the numeric-predecessor rule cannot answer: git log names no ship commit for M058, so the range this milestone owns cannot be derived
+ℹ E8: the repair answers 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41; the restored rule answers "" and refuses
+✔ T006: a declared suite-shaped path no commit and no tree carries is refused, not pinned (530.1112ms)
+ℹ T006 pin: scripts/absent-probe-suite.test.mjs is a claim absent from 99054909bd019afd578172200a07b64194e6489e..eb24d1e2deca1deed7992e46a965bb314864b6a1; under fix-record-pin-by-spelling it is 1 pin and 0 finding
+✔ T006: a declared recording-shaped path no commit and no tree carries is refused, not pinned (675.4953ms)
+ℹ T006 pin: research/raw/m999-absent-recording.json is a claim absent from 99054909bd019afd578172200a07b64194e6489e..eb24d1e2deca1deed7992e46a965bb314864b6a1; under fix-record-pin-by-spelling it is 1 pin and 0 finding
+✔ T006: a path named with a leading dot-slash and one named bare produce the same verdict (557.0711ms)
+ℹ T006 token: research/raw/m044-gate-shapes.json reads {"ok":true,"claimsExamined":1,"pinsExamined":0,"inTheRange":[true],"findings":[]} bare and {"ok":true,"claimsExamined":1,"pinsExamined":0,"inTheRange":[true],"findings":[]} with a leading ./; under fix-record-token-unnormalised the dot-slash form reads {"ok":false,"claimsExamined":1,"pinsExamined":0,"inTheRange":[false],"findings":["research/raw/m044-gate-shapes.json claim-absent-from-the-range"]}
+✔ T006: a three-dot range is refused with its form named, not read as a two-dot range (291.589ms)
+ℹ T006 range: d94502d174aff31b0b1ebbab200d5e47939dec39...53f93bb555ef1805934442b90976dcc807b1bda1 is refused - the range "d94502d174aff31b0b1ebbab200d5e47939dec39...53f93bb555ef1805934442b90976dcc807b1bda1" is a three-dot range (`base...head`), and the pin reading compares a path's blob at exactly two commits, so this check refuses rather than splitting it into a base and a head that no commit carries
+✔ T006: --tasks given one markdown file reads it, and a directory still reads every task file (632.7959ms)
+ℹ T006 tasks: one file read 1 task (0), the directory read 2 (0)
+✔ T011: a declared tail whose spelling exists nowhere is reported, not pinned (1669.3854ms)
+ℹ T011 tail: src/app/panel-console.ts is 1 mention naming it and, in claims: log, a finding naming the spelling and 99054909bd019afd578172200a07b64194e6489e..eb24d1e2deca1deed7992e46a965bb314864b6a1; under fix-record-resolve-any-tail it is 1 pin of apps/angular-ai-devtools/src/app/panel-console.ts
+✔ T011: a basename that names a file this tree carries still resolves to its declaration (695.08ms)
+ℹ T011 basename: tsconfig.json resolves to extension/tsconfig.json as 1 pin, 0 mention; under fix-record-tail-resolution-off it is 0 pin and a mention of tsconfig.json
+✔ T011: two declarations that share a tail are reported, never separated by front-matter order (659.3055ms)
+ℹ T011 ambiguity: nx.json tails apps/one/nx.json and apps/two/nx.json, so the run reports both and judges the token as itself; under fix-record-first-tail-wins it judges apps/one/nx.json and never names apps/two/nx.json
+✔ T011: --tasks given a directory named with the markdown suffix is read, not thrown as EISDIR (546.9639ms)
+ℹ T011 tasks directory: C:\Users\LARSGY~1\AppData\Local\Temp\m044-tasks-directory-a0RIvd\tasks.md read 2 task file(s) and the gate named it on exit 0; under tasks-read-directory-as-file the same argument throws EISDIR
+✔ T011: the corpus reading counts are pinned, so no branch can move them silently (3201.7931ms)
+ℹ T011 counts: the corpus at 516b24506336cbcb8937090f94ad13156ff6f346 reads 83 claim(s), 1 pin(s) and 93 mention(s) over b8d3341cf8a00e01af0d9cbba3a7cd1e0d226b55..516b24506336cbcb8937090f94ad13156ff6f346; under fix-record-resolve-any-tail it reads 91, 2 and 84
+✔ a default run is a read: the recording hashes the same before and after (1.7134ms)
+ℹ research/raw/m056-gate-stability.json at load: 6568 bytes, sha256 f7724bf582cd83b999188b5e4e6e65d31f09f4cb6000f6416d10fbf2613cc634
+ℹ research/raw/m056-gate-stability.json after the run: sha256 f7724bf582cd83b999188b5e4e6e65d31f09f4cb6000f6416d10fbf2613cc634
+✔ the recording is the canonical serialisation of its own record (0.3869ms)
+✔ the three sections are what this head derives, so the record cannot drift from the tree (29203.2871ms)
+ℹ archive: npm run gate:fix-record -- --milestone M044 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8 exited 0 with refusal null; counts {"refusalLines":0,"findings":0,"mentions":7,"claimsExamined":4,"taskLogsExamined":5,"changedPaths":52}
+ℹ fixRecord: node --test scripts/gate-integrity.test.mjs exited 0 with refusal null; counts {"watched":3,"green":3,"red":0}
+ℹ predecessor: node scripts/gate-integrity.mjs --check fix-record --milestone M056 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8 exited 0 with refusal null; counts {"refusalLines":0,"findings":0}
+✔ the commit carrying the record sits ahead of the head the record pins (68.252ms)
+ℹ carrier: git log --format=%H 5290d939497448823ca0f5d1ce5c1d777805ddb8..HEAD -- research/raw/m056-gate-stability.json names 32 commit(s), newest 5a57cd21
+✔ the archive section records the clean pass the repaired task directory earns (1.4254ms)
+ℹ archive: exit 0 null over 5 task log(s); gate-integrity: pass - 0 finding(s), 7 mention(s)
+✔ the fixRecord section records the green suite its three repairs produced (0.2819ms)
+ℹ fixRecord: the recording still re-derives from the tree, the range and the stream this head carries is green at this head
+ℹ fixRecord: AC2: a red check reaches the gate as a refusal is green at this head
+ℹ fixRecord: AC7: a log token is a claim only where its task declares it is green at this head
+✔ the predecessor section records the range the repaired stage derives (0.2647ms)
+ℹ predecessor: exit 0 null - pass - 0 finding(s), 4 mention(s)
+✔ the arming gate guards the one write, and a default run spawns no writer (0.4952ms)
+✔ E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name (10.0728ms)
+✔ E2: the surface functions are still exported for their suites (2.4691ms)
+✔ E3: the demo module renders the surface text it is handed (0.6867ms)
+✔ E4: every declared route surface has a panel-demo LOADERS key (22.2856ms)
+T002 index: 10 row(s), 9 naming a criterion whose record states an artefact path, 1 naming one whose record states none
+T002 records: 34 verdict-claims records, 44 claim(s) answered with their own claims[].artefactPath, 22 record(s) rendered as no-artefact-named
+T002 census mutant: research/raw/m901-verdict-claims.json is present and is not named outside the map by any recording, so the map must measure it: T001 measured 34 verdict-claims record(s) and the maps name 6 outside themselves (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json)
+T006 maps: M055 names 2 outside itself, M057 names 2 outside itself, M058 names 2 outside itself, the subtraction is 6 path(s) and the census reads 34 record(s)
+T006 mutants M057: third path -> M057's own map names research/raw/m901-verdict-claims.json outside itself, and the records M057 owes are research/raw/m057-surface.json, research/raw/m057-verdict-claims.json: a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording and a record another map measures is never subtracted here || unmeasured record -> research/raw/m057-verdict-claims.json is M057's own record and is present, and M057's map measures it nowhere and names it nowhere outside itself: the census below reads it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m057-verdict-claims.json in its inventory.outsideTheMap or measure it
+T006 mutants M058: third path -> M058's own map names research/raw/m901-verdict-claims.json outside itself, and the records M058 owes are research/raw/m058-surface.json, research/raw/m058-verdict-claims.json: a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording and a record another map measures is never subtracted here || unmeasured record -> research/raw/m058-verdict-claims.json is M058's own record and is present, and M058's map measures it nowhere and names it nowhere outside itself: the census below reads it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m058-verdict-claims.json in its inventory.outsideTheMap or measure it
+T002 mutants: row-carries-a-path: row {"question":"which check refuses a test that resolves a milestone path its own archive move deletes?","criterion":"SC1","milestone":"M044","artefactPath":"research/raw/m044-gate-shapes.json"} is two facts in three fields — question, criterion, milestone — and no path, no value and no answer text (N5) || row-carries-a-value: row {"question":"which check refuses a test that resolves a milestone path its own archive move deletes?","criterion":"SC1","milestone":"M044","value":"a recording of the gate shapes"} is two facts in three fields — question, criterion, milestone — and no path, no value and no answer text (N5) || row-carries-an-answer: row {"question":"which check refuses a test that resolves a milestone path its own archive move deletes?","criterion":"SC1","milestone":"M044","answer":"The gate refuses that test."} is two facts in three fields — question, criterion, milestone — and no path, no value and no answer text (N5) || row-names-a-criterion-no-record-holds: every criterion id the index names is one the named record's own claims[].criterion fields carry, and M044 carries no SC9 (N4) — row {"question":"does the ship gate run the archive-path and fix-record checks, rather than print them as advice?","criterion":"SC9","milestone":"M044"} || row-question-carries-a-path: the index spells no path: its code and its rows carry no slash, and this text does — research/raw/m044-gate-shapes.json (N5) || artefact-hard-coded: the answer renders the record's own claims[].artefactPath, verbatim — never a hard-coded constant, never a path assembled from the record's prose, and never one composed by a path convention: the record states "research/raw/fixture-recording.json" and the answer rendered ["scripts/copy-check.test.mjs"] || answer-from-prose: the answer renders the record's own claims[].artefactPath, verbatim — never a hard-coded constant, never a path assembled from the record's prose, and never one composed by a path convention: the record states "research/raw/fixture-recording.json" and the answer rendered ["research/raw/decoy-template-prose.json"] || path-from-convention: the answer renders the record's own claims[].artefactPath, verbatim — never a hard-coded constant, never a path assembled from the record's prose, and never one composed by a path convention: the record states "research/raw/fixture-recording.json" and the answer rendered ["scripts/sc1.test.mjs"] || path-renormalised: each path is rendered as the record spells it — never re-rooted, normalised or shortened to make the render match: the record states ["research/raw/fixture-recording.json","scripts/fixture-suite.test.mjs"] and the answer rendered ["./fixture-recording.json","./fixture-suite.test.mjs"] || missing-field-answered: a record that carries the criterion but states no claims[].artefactPath renders no-artefact-named — never an answer with a composed path in it — and the join said "answered" for research/raw/fixture-m904-verdict-claims.json || missing-file-as-unanswered: held-out E4: every rendered path is read through the injected reader at answer time, so a record that states a file which is not where the record says it lives answers missing-artefact, naming the record and the missing path — and never no-matching-criterion. The join said "no-matching-criterion" || reader-ignored: held-out E4: every rendered path is read through the injected reader at answer time, so a record that states a file which is not where the record says it lives answers missing-artefact, naming the record and the missing path — and never no-matching-criterion. The join said "answered" || criterion-not-carried: the criterion rendered is the record's own claims[].criterion for the claim that carries it, and an id the record does not carry for the question is never rendered (N4): the row named SC2, the record carries SC2, and the answer rendered "SC1" || milestone-from-id: the milestone rendered is the answering record's own milestone field, verbatim: the record states "M046 copy-to-agent" and the answer rendered "M046" — a milestone composed from the record's path or from the id the row named is not the record's field || absences-folded: the absence "no row of the mapping carries the question" names which absence holds, among the three absences the surface renders distinctly: nothing answered here || always-refuses: the record research/raw/m023-verdict-claims.json states no claims[].artefactPath for SC2, so the answer is no-artefact-named — naming the field that is missing, and never a path composed from the record's prose — and a surface that always refuses is not a surface: the join said "no-matching-criterion" || unanswered-as-answer: an unanswered question is unanswered, with nothing beside it: the join said "answered" for a question no row carries || second-call-differs: a second answer to the same question over the same records names the same artefact, milestone and criterion — purity, and the answer is stable across calls: the first named ["research/raw/fixture-recording.json"] and the second named []
+✔ T002 — the index is two facts in three fields, and every criterion id is one the record on disk carries (6.3974ms)
+✔ T002 — a criterion id no record carries is refused by the join rather than rendered (N4) (1.3334ms)
+✔ T002 — the join answers every claim that carries the field and renders the 22 records that carry none as the absence (C4) (5.44ms)
+✔ T002 — a record present and not named outside the map still reddens the census (1.1016ms)
+✔ T006 — every map is read, and each may name outside itself only the record its own milestone owes (0.3113ms)
+✔ T006 — a third path named outside a map reddens, and a record no map names reddens naming it (0.6226ms)
+✔ T002 — the shipped index answers over the real records with a real reader, one row at a time (2.0904ms)
+✔ T002 — held-out E4: the dead-path state is constructed, because the recording measures no dead path (3.3358ms)
+✔ T002 — E1: a recording and a suite render through the same read, both answers carrying the same three fields (0.9412ms)
+✔ T002 — E2: one criterion whose record states more than one path renders each as the record spells it (0.8357ms)
+✔ T002 — E5: a second answer names the same artefact, milestone and criterion (0.7965ms)
+✔ T002 — the join is pure: no import, no filesystem, no network, no DOM, no clock, no prose field (1.6354ms)
+✔ T002 mutants — every anchor is one place in the shipped file and really changes it (0.3662ms)
+✔ T002 mutants — each defect reddens its pin, and the failure names the defect by string (37.5722ms)
+mutant: doctored citation -> records[research/raw/m023-verdict-claims.json].fields.criterionText (claim F3): cites research/raw/m023-verdict-claims.json:7 and searching the file for the quoted line finds it at 6 — the number is not where the line it quotes sits
+mutant: invented field -> records[research/raw/m023-verdict-claims.json].fields.artefactPath (claim F4): count is 4 and this head measures 0
+mutant: hidden field -> records[research/raw/m054-verdict-claims.json].fields.criterionText (claim F3): count is 0 and this head measures 3
+mutant: unmeasured record -> the table carries one entry per record present and no entry for a record that is not there, the records the maps name outside themselves excepted
+mutant: new unlisted record -> the map measures every surface record present, the records the maps name outside themselves excepted: the tree holds 13, and the maps name 6 outside themselves (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json)
+mutant research/raw/m057-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m057-record-shapes.json and is not one of the two records this milestone owes (research/raw/m057-surface.json, research/raw/m057-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m057-surface.json is this milestone's record and is present, and research/raw/m057-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m057-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m058-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m058-record-shapes.json and is not one of the two records this milestone owes (research/raw/m058-surface.json, research/raw/m058-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m058-surface.json is this milestone's record and is present, and research/raw/m058-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m058-surface.json in its inventory.outsideTheMap or measure it
+✔ the recording is the shape map this head measures (184.4025ms)
+ℹ 43 record(s), 602 citation(s), 44 artefact path(s)
+ℹ the map: milestone 34/34+9/9, criterion 34/34+0/9, criterionText 34/34+0/9, artefactPath 12/34+0/9, recordings 11/34+0/9, suitePath 11/34+0/9, captureRecords 12/34+0/9
+✔ every citation is the line its own number names, found by searching the file it quotes (17.1498ms)
+ℹ 602 citation(s) re-resolved by search; the longest line quoted is in research/raw/m056-verdict-claims.json
+✔ every record present is measured and every record measured is present (1.0196ms)
+ℹ 34 verdict-claims and 9 surface record(s) measured; 49 present, 2 named outside M055's map at T004 and 2 outside M057's map and 2 outside M058's map
+✔ the per-file per-field table states its own absences, and they are the absences this head holds (5.3346ms)
+ℹ artefactPath: absent from 31 record(s), each one stating the shape it uses instead
+ℹ recordings: absent from 32 record(s), each one stating the shape it uses instead
+ℹ suitePath: absent from 32 record(s), each one stating the shape it uses instead
+ℹ captureRecords: absent from 31 record(s), each one stating the shape it uses instead
+ℹ criterion: absent from 9 record(s), each one stating the shape it uses instead
+ℹ criterionText: absent from 9 record(s), each one stating the shape it uses instead
+✔ every artefact path a record names resolves at this head, and the recording states which do not (6.5205ms)
+ℹ 44 of 44 artefact path(s) resolve over 18 distinct file(s); 0 do not
+ℹ the missing-artefact state E4 renders has no live instance among them, and the index may never paper over a path that stops resolving
+ℹ m022-verdict-claims.json SC1 names .project/build/verify/sc1-overlay-rect/verdict.json, which is not there: verdictPath, not an artefact path
+ℹ m022-verdict-claims.json SC2 names .project/build/verify/sc2-picker-descriptor/verdict.json, which is not there: verdictPath, not an artefact path
+✔ no record carries an end-user question mapped to a criterion (22.1902ms)
+ℹ 34 verdict-claims record(s) carry 0 question-shaped key(s)
+ℹ m046-surface.json asks which surfaces the panel declares, which loader serves each one, and what the hand-off join states
+ℹ m047-surface.json asks which route renders the components surface, which LOADERS key serves it, which four states it renders, and which record field each state reads
+ℹ m048-surface.json asks which route renders the copy-check surface, its LOADERS key, its three states, and which answer field each state reads
+ℹ m049-surface.json asks which route renders the interaction-story surface, its two states, and the fifth answer field beside the four the contract names
+ℹ m050-surface.json asks which route renders the dead-click surface, its three states, and the fifth answer field beside the four the contract names
+ℹ m051-surface.json asks which route renders the what-changed surface, its three states, and how the pair is bound by the inspected tab rather than by a field of either record
+ℹ m052-surface.json asks which route reaches the webmcp surface, which LOADERS key resolves it, and what each of its three states reads off the reading the model context answered
+ℹ m053-surface.json asks which route reaches the webmcp-rehearsal surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+ℹ m054-surface.json asks which route reaches the visual-qa surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+✔ the C3 trap is quoted as a ruling, not repaired (21.6334ms)
+ℹ reason: 38 row(s) in 11 record(s), 1 template
+ℹ proves/capture: 46 row(s) in 13 record(s) cite scripts/navigation-blocking.test.mjs, and 0 record(s) name it in evidence.suites
+ℹ rulings: 2 required, 154 not-required
+✔ a doctored citation reddens naming the claim it belongs to (122.9997ms)
+✔ a record that claims a field it does not carry reddens naming the claim (100.235ms)
+✔ a record that hides a field it carries reddens naming the claim (192.9049ms)
+✔ a record the map does not measure reddens naming the record (127.7815ms)
+✔ a record present and not named outside the map reddens naming the record (0.6835ms)
+✔ every map read beside M055’s is its own statement, and the subtraction is what they state (1.1657ms)
+ℹ M057's map at research/raw/m057-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M058's map at research/raw/m058-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ the maps name 6 record(s) between them (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json)
+✔ each later map may name only its own records, and a record it neither measures nor names reddens naming it (1.1997ms)
+✔ the recording is a read: it names its head and nothing here writes (142.8518ms)
+ℹ head b450c28b is a commit this checkout carries, and the suite resolves it through git rev-parse HEAD
+✔ git was reachable, so the head check above measured something (60.7479ms)
+✔ fixture explainers unchanged: pinned files hash to base (2.9705ms)
+✔ pin is live: removing an explainer fails naming that file (1.6773ms)
+✔ pin is live: altering one byte fails naming that file (3.5963ms)
+✔ N1 "Why did this update?" answers on the fixture through its route (643.8643ms)
+✔ N2 "Signal Provenance" answers on the fixture through its route (327.6201ms)
+✔ N3 "DI Doctor" answers on the fixture through its route (291.0475ms)
+✔ the Error Explainer answers on the fixture through its route (290.2013ms)
+✔ the Error Explainer answers a code with no digest entry without asking its model (276.0493ms)
+✔ mutant: removing an explainer from the route table reddens the suite naming it (324.0005ms)
+✔ the panel sources and toolchain this suite drives are present, so their absence fails rather than skips (0.4531ms)
+ℹ tests 147
+ℹ suites 0
+ℹ pass 147
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29548.3757
+Checking formatting...
+All matched files use Prettier code style!
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+  .project\review\VERIFICATION.json
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages archive-paths
+gate-integrity: archive-paths clean - examined 17 live path reference(s) of 194 reference(s) in 165 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages fix-record
+gate-integrity: fix-record clean - examined 32 claim(s) in 9 task log(s) of .project/tasks (logs of M058) against 54 changed path(s) of 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41 (rule ship: M057's ship commit, 21fb7ccd (ship: M057 — tutor-signals); the head is this tree's HEAD, e7442525 (T008: Refuse a held-out mutant the plan cannot seed); claims: declared)
+gate-integrity: fix-record pins - 16 declared path(s) byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as changes
+gate-integrity: pin extension/panel/index.html at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin extension/panel/index.html at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:216 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin research/raw/m044-gate-shapes.json at .project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:155 (T004) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin research/raw/m056-gate-stability.json at .project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:155 (T004) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin research/raw/m058-verdict-claims.json at .project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:155 (T004) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:155 (T004) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:137 (T005) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:137 (T005) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-signals-shapes.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:139 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:142 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-signals-shapes.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:143 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:143 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:143 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-signals.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:143 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T008-refuse-a-held-out-mutant-the-plan-cannot-seed.md:144 (T008) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T008-refuse-a-held-out-mutant-the-plan-cannot-seed.md:144 (T008) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..e74425259507d9db50f625f01820cdfbef07df41, recorded and not judged as a change
+gate-integrity: mention app.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention copy-check.test.mjs at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m048-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:214 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m047-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:215 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m055-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:215 (T003) - recorded and not judged
+gate-integrity: mention scripts/prove-skills-audited.test.mjs at .project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:157 (T004) - recorded and not judged
+gate-integrity: mention apps/angular-ai-devtools/src/app/panel-demo.ts at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:135 (T005) - recorded and not judged
+gate-integrity: mention extension/tutor-routing.js at .project/tasks/T006-re-measure-the-signal-shape-record.md:139 (T006) - recorded and not judged
+gate-integrity: mention m058-record-shapes.json at .project/tasks/T006-re-measure-the-signal-shape-record.md:139 (T006) - recorded and not judged
+gate-integrity: mention m058-surface.json at .project/tasks/T006-re-measure-the-signal-shape-record.md:139 (T006) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 11 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check research/raw/m058-verdict-claims.json research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json scripts/gate-integrity.test.mjs
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .

@@ -1,0 +1,100 @@
+head: 3567751e3effa7494ae3be886e5e0325e7c58a6b at 2026-11-21T17:31:49.924Z
+T002 answered: NavigationEnd id 2 /redirect -> /landing, route {"path":"redirect","redirectTo":"landing"}, claims ["terminal","route","absence","absence","unconfigured"]
+T002 cannot-tell: cannot-tell, last class RouteConfigLoadStart, terminal/route/unconfigured null/null/null
+T002 unconfigured: ["this-route-does-not-exist"] beside 19 compared paths, route null
+held-out E5: ["no-guard-verdict","no-redirect-decision"] side by side on the redirect frame
+held-out E7: id 2 NavigationCancel carries ["RouteConfigLoadStart:claim","RouteConfigLoadEnd:claim"], id 3 NavigationEnd carries ["RouteConfigLoadStart:contract","RouteConfigLoadEnd:contract"]
+T002 mutants: no-artefact-path: no claim renders an empty artefact path: {"claim":"terminal","values":{"class":"NavigationEnd","id":2},"artefactPath":""} || terminal-class-not-recorded: the terminal names the class the stream recorded for the id asked about, and never a class the stream did not record: the superseded (abandoned) frame records NavigationCancel for id 2 and the answer named "NavigationEnd" || route-from-the-final-url: the route is the config entry the navigation's own url names, by that entry's own path and the fields it states — the terminal states url "/redirect", the config records the entry path "redirect" with redirectTo "landing" — and never the entry its final URL names, which is "landing": the answer rendered {"path":"landing","component":"[fn _LandingPage]"} || held-reported-landed: a navigation the stream recorded a start for and no terminal for the id asked about is reported cannot-tell, and never reported as landed: the join said "answered" || destination-from-the-address-bar: cannot-tell reads no destination from the address bar: a records object carrying an address bar changes nothing this module reports, and the answer rendered {"state":"cannot-tell","question":"With the chunk requests delayed, what does a navigation that has not ended look like from the page?","terminal":null,"route":null,"absences":[],"unconfigured":null,"claims":[{"claim":"cannot-tell","values":{"id":2,"lastClass":"RouteConfigLoadStart","url":"the-address-bar"},"artefactPath":"research/raw/m041-navigation.json"}],"detail":"the navigation record research/raw/m041-navigation.json records 2 events for navigation id 2 and the last of them is RouteConfigLoadStart; the stream records no terminal event for that id, so the navigation is not known to have landed at any route: no destination, no route node and no cause is named, not from the address bar, not from router.url and not from currentNavigation(), and no absences are decided about a navigation the stream never terminated"} || destination-from-router-url: cannot-tell reads no destination from router.url: the record states router.url still /home at the hold and 738.2 ms later, and the answer rendered {"state":"cannot-tell","question":"With the chunk requests delayed, what does a navigation that has not ended look like from the page?","terminal":null,"route":null,"absences":[],"unconfigured":null,"claims":[{"claim":"cannot-tell","values":{"id":2,"lastClass":"RouteConfigLoadStart"},"artefactPath":"research/raw/m041-navigation.json"}],"detail":"the navigation record research/raw/m041-navigation.json records 2 events for navigation id 2 and the last of them is RouteConfigLoadStart; the stream records no terminal event for that id, so the navigation is not known to have landed at any route; router.url still states /home: no destination, no route node and no cause is named, not from the address bar, not from router.url and not from currentNavigation(), and no absences are decided about a navigation the stream never terminated"} || destination-from-current-navigation: cannot-tell reads no destination from currentNavigation()'s fields: the record states finalUrl absent at the hold, and the answer rendered {"state":"cannot-tell","question":"With the chunk requests delayed, what does a navigation that has not ended look like from the page?{\"finalUrl\":\"the-final-url\",\"initialUrl\":\"/complaint/list\",\"targetBrowserUrl\":\"the-target-browser-url\"}","terminal":null,"route":null,"absences":[],"unconfigured":null,"claims":[{"claim":"cannot-tell","values":{"id":2,"lastClass":"RouteConfigLoadStart"},"artefactPath":"research/raw/m041-navigation.json"}],"detail":"the navigation record research/raw/m041-navigation.json records 2 events for navigation id 2 and the last of them is RouteConfigLoadStart; the stream records no terminal event for that id, so the navigation is not known to have landed at any route: no destination, no route node and no cause is named, not from the address bar, not from router.url and not from currentNavigation(), and no absences are decided about a navigation the stream never terminated"} || absences-folded: both absences hold on this one navigation and stay two states — never folded into one "no findings" answer nor into one absent-field list: the answer rendered ["no-findings"] || should-activate-as-a-verdict: the stream names no guard, so the absence asserts no guard's verdict: the answer rendered ["shouldActivate"] || refusal-inferred-from-the-terminal-class: the absence carries its own fields, so no verdict field and no refusal field is rendered beside them: {"state":"no-guard-verdict","guardsCheckEndKeys":["id","shouldActivate","state","type","url","urlAfterRedirects"],"guardFields":["shouldActivate"],"guardsNamed":[],"refused":false,"detail":"the absence no-guard-verdict holds: the stream records GuardsCheckEnd for this navigation and it adds 1 field over GuardsCheckStart (shouldActivate), which is the aggregate of the whole check, and the payload names 0 guards: no per-guard verdict is recorded here, so none is rendered and no refusal is inferred from the terminal class \"NavigationEnd\""} || redirect-to-as-the-decision: a route is the config entry by its own path and only the fields that entry states, so a redirectTo is a configuration fact and never the redirect that decided the navigation: the answer rendered {"path":"redirect","redirectTo":"landing","decidedBy":"the redirect that decided the navigation"} || unmatched-resolved-to-the-wildcard: a URL segment no configured path matches is never resolved to the `**` row, even when the config carries one: the answer rendered {"path":"**","component":"[fn _Unmatched]"} || unmatched-resolved-to-a-redirect-row: a URL segment no configured path matches is never resolved to a redirectTo row: the answer rendered {"path":"redirect","redirectTo":"landing"} || path-the-config-does-not-carry: no path is rendered that the config does not carry: the config records 18 paths and a portal address names none of them — the answer rendered {"path":"claim"} || route-config-attributed-by-arrival: the abandoned navigation owns the route-config events naming its own route path — its own RouteConfigLoadEnd arrived 1192.1 ms after its cancel and 314.8 ms before the successor's — because attribution is by route.path in the event's own payload and never by arrival position: the answer rendered ["RouteConfigLoadStart:claim","RouteConfigLoadStart:contract","RouteConfigLoadEnd:claim","RouteConfigLoadEnd:contract","RouteConfigLoadStart:list","RouteConfigLoadEnd:list"] || second-answer-differs: a second answer to the same question over the same records names the same terminal class, the same navigation id, the same config path and the same fields — purity, and the answer is stable across calls — and the second answer differs: first {"class":"NavigationEnd","id":2,"type":1,"url":"/claim/list","urlAfterRedirects":"/claim/list"} / null, second {"class":"NavigationEnd","id":2,"type":1,"url":"/claim/list","urlAfterRedirects":"/claim/list"} / null
+✔ T002 — the join is a bare-context module with the contract’s two states and two absences (3.0433ms)
+✔ T002 — the citations this suite rests on state what it claims, at this head (2.8088ms)
+✔ T002 — SC1, E1, E3, E10: the answer names what the terminal and the config entry state (3.8165ms)
+✔ T002 — SC3, E3, E4: the redirectTo and the guard name are configuration, not a decision (1.7291ms)
+✔ T002 — SC2, E2: a held navigation is cannot-tell, and it names nothing else (1.3017ms)
+✔ T002 — SC4, E6: an unmatched segment is named unconfigured, never resolved (1.2358ms)
+✔ T002 — SC6, E10: the join is pure and a second read answers the same (1.8957ms)
+✔ held-out E5: the two absences stay two states on one navigation (1.2334ms)
+✔ held-out E7: a reused id keeps two decisions apart by id and route.path, never by arrival position (1.9329ms)
+✔ T002 mutants — every anchor is one place in the shipped module and really changes it (0.5764ms)
+✔ T002 mutants — each defect reddens its pin, and the failure names the defect by string (50.525ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 204.0257
+Checking formatting...
+All matched files use Prettier code style!
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages archive-paths
+gate-integrity: archive-paths clean - examined 16 live path reference(s) of 187 reference(s) in 164 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages fix-record
+gate-integrity: fix-record clean - examined 4 claim(s) in 4 task log(s) of .project/tasks (logs of M058) against 23 changed path(s) of 21fb7ccdb2c18a433b597aef704bea02b9e04a69..3567751e3effa7494ae3be886e5e0325e7c58a6b (rule ship: M057's ship commit, 21fb7ccd (ship: M057 — tutor-signals); the head is this tree's HEAD, 3567751e (T001: Measure what the records and the reach state); claims: declared)
+gate-integrity: fix-record pins - 2 declared path(s) byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..3567751e3effa7494ae3be886e5e0325e7c58a6b, recorded and not judged as changes
+gate-integrity: pin extension/tutor-routing.js at .project/tasks/T002-answer-from-the-two-records-purely.md:178 (T002) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..3567751e3effa7494ae3be886e5e0325e7c58a6b, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-routing.test.mjs at .project/tasks/T002-answer-from-the-two-records-purely.md:178 (T002) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..3567751e3effa7494ae3be886e5e0325e7c58a6b, recorded and not judged as a change
+gate-integrity: pass - 0 finding(s), 0 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/tutor-routing.js scripts/tutor-routing.test.mjs
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .

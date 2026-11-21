@@ -1,0 +1,125 @@
+head: b56068a0dc8b8b72f294b449ba46630fd9599ca0 at 2026-11-21T20:02:27.728Z
+✔ the recording declares the two sides an answer may cite (1.0467ms)
+✔ the graph side is the serializer and the one per-check carry (1.608ms)
+✔ a node is read for index, kind and label and every other field is ignored (0.2033ms)
+✔ an edge is its two ends and nothing else (0.2409ms)
+✔ the serializer writes an id, never an index (1.9162ms)
+✔ the render/effect entry declares the effect finding and its read list (0.3353ms)
+✔ the three absences are declared and distinct (0.1945ms)
+✔ the two findings are never joined (0.165ms)
+✔ every citation carries the cited line’s own trimmed text (5.3646ms)
+✔ every citation is re-resolved by searching its file for the quoted line (6.7012ms)
+✔ every citation id is unique and every reference resolves (0.159ms)
+✔ no write record exists anywhere in extension/ (33.1963ms)
+✔ no edge carries a field to order a write in (20.5827ms)
+✔ the answer’s ordering vocabulary is the named absence and not a capture (0.0915ms)
+✔ the second measurement is re-run over the tree, not read back (12.8408ms)
+✔ exactly one record holds an effect node in the recorded shape (13.0694ms)
+✔ the closest record carries an indexed effect node, unlike the plan’s prose (0.3466ms)
+✔ the existing join answers from that record without authoring anything (1.0831ms)
+✔ the recording states what no record carries: an index in the serializer’s output (0.0656ms)
+✔ every premise the measurement refuted is stated as refuted (0.0567ms)
+✔ nothing was built (0.0471ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 208.9746
+Checking formatting...
+All matched files use Prettier code style!
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+  .project\review\VERIFICATION.json
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages archive-paths
+gate-integrity: archive-paths clean - examined 16 live path reference(s) of 187 reference(s) in 164 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages fix-record
+gate-integrity: fix-record clean - examined 24 claim(s) in 9 task log(s) of .project/tasks (logs of M058) against 51 changed path(s) of 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0 (rule ship: M057's ship commit, 21fb7ccd (ship: M057 — tutor-signals); the head is this tree's HEAD, b56068a0 (state: settle before T006); claims: declared)
+gate-integrity: fix-record pins - 12 declared path(s) byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as changes
+gate-integrity: pin extension/panel/index.html at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin extension/panel/index.html at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:216 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:137 (T005) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:137 (T005) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin research/raw/m057-record-shapes.json at .project/tasks/T006-re-measure-the-signal-shape-record.md:138 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-signals-shapes.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:139 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:142 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin research/raw/m057-record-shapes.json at .project/tasks/T006-re-measure-the-signal-shape-record.md:143 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-signals-shapes.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:143 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:143 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:143 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-signals.test.mjs at .project/tasks/T006-re-measure-the-signal-shape-record.md:143 (T006) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..b56068a0dc8b8b72f294b449ba46630fd9599ca0, recorded and not judged as a change
+gate-integrity: mention app.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention copy-check.test.mjs at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m048-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:214 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m047-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:215 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m055-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:215 (T003) - recorded and not judged
+gate-integrity: mention apps/angular-ai-devtools/src/app/panel-demo.ts at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:135 (T005) - recorded and not judged
+gate-integrity: mention extension/tutor-routing.js at .project/tasks/T006-re-measure-the-signal-shape-record.md:139 (T006) - recorded and not judged
+gate-integrity: mention m058-record-shapes.json at .project/tasks/T006-re-measure-the-signal-shape-record.md:139 (T006) - recorded and not judged
+gate-integrity: mention m058-surface.json at .project/tasks/T006-re-measure-the-signal-shape-record.md:139 (T006) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 10 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check research/raw/m057-record-shapes.json
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .

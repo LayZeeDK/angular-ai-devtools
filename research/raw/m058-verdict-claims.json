@@ -1,0 +1,168 @@
+{
+  "schema": "m058-verdict-claims/v1",
+  "milestone": "M058",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M058\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 6 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\",\"SC5\",\"SC6\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: 10 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\",\"SC5\",\"SC6\"] and the suites [\"scripts/tutor-routing.test.mjs\",\"scripts/tutor-routing-shapes.test.mjs\"]"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 6,
+    "why": [
+      "No row is required, and the list therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext - with the required rows together citing drawnRect, descriptor and noDevContext. Every fact the 6 criteria this milestone declares is written about is a reading of this repository's own gate: 10 edge row(s) held by [\"scripts/tutor-routing.test.mjs\",\"scripts/tutor-routing-shapes.test.mjs\"], against 12 stage(s) of the check chain. None of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each row cites the suite the milestone itself assigned its criterion, the reading that suite carries and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4",
+        "SC5",
+        "SC6"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": []
+    },
+    "edges": {
+      "rows": 10,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4",
+        "SC5",
+        "SC6"
+      ]
+    },
+    "suites": [
+      {
+        "path": "scripts/tutor-routing.test.mjs",
+        "tests": 11,
+        "groups": 0
+      },
+      {
+        "path": "scripts/tutor-routing-shapes.test.mjs",
+        "tests": 20,
+        "groups": 0
+      }
+    ],
+    "recordings": [
+      "research/raw/m058-record-shapes.json",
+      "research/raw/m058-surface.json"
+    ]
+  },
+  "capture": {
+    "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "records": "research/raw/m058-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3",
+      "SC4",
+      "SC5",
+      "SC6"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, the five-column edge coverage that intent declares and the suites the plan assigns each criterion, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "An answer for a navigation the stream records names the class of the terminal event that closed it and the navigation `id` that event carries, and names the route node the router config records for it by the entry's own `path` and by the `component`, `redirectTo`, `canActivate` or `loadChildren` that entry states, every field read from the recorded stream and the recorded config; each claim carries the event it rests on (class and `id`) and the config entry it rests on (`path`), in M055's answer shape (`.project/ROADMAP.md:2038`); a mutant that answers with no artefact path reddens the pin M055 shipped, a mutant that names a terminal class the stream did not record reddens, and a mutant that names the route from the final URL reddens.",
+      "criterionCharacters": 744,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"An answer for a navigation the stream records names the class of the terminal event that closed it and the navigation `id` that event carries, and names the route node the router config records for it by the entry's own `path` and by the `component`, `redirectTo`, `canActivate` or `loadChildren` that entry states, every field read from the recorded stream and the recorded config; each claim carries the event it rests on (class and `id`) and the config entry it rests on (`path`), in M055's answer shape (`.project/ROADMAP.md:2038`); a mutant that answers with no artefact path reddens the pin M055 shipped, a mutant that names a terminal class the stream did not record reddens, and a mutant that names the route from the final URL reddens.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E8\",\"E10\"] the intent itself assigns the criterion, held by [\"scripts/tutor-routing.test.mjs\",\"scripts/tutor-routing.test.mjs\",\"scripts/tutor-routing.test.mjs\"] and recorded as [\"criterion SC1\"].",
+      "artefactPath": "scripts/tutor-routing.test.mjs",
+      "artefact": "scripts/tutor-routing.test.mjs (edge [\"E1\",\"E8\",\"E10\"] of the intent's own coverage: E1 boundary criterion SC1: A completed navigation and a cancelled one render through the same read: `/claim/list` ended `NavigationEnd` with `id` 2 after 23 events (`research/raw/m041-navigation.json` `warm`), `/claim/list` was cancelled under the same `id` 2 with code 1 and the router's own reason (`superseded.cancel`), so the class the answer names is read from the terminal event, never from whether the navigation is thought to have succeeded.; E8 boundary criterion SC1: Portal versus fixture: the Insurance Portal is the default target and its `/claim/list` navigation is the terminal evidence (`guards.portal`, `warm`), while two shapes are the fixture's — a guard whose configured function carries a name, since the portal's 12 `canMatch` names are all `\"\"` and it declares 0 `canActivate` whereas `spikes/ng222-app` declares `canActivate` `redirectGuard` on `gated` (`guards.fixture`), and a redirect row whose `path` and `redirectTo` are both named paths, `redirect` to `landing`, where the portal's only `redirectTo` is the empty path (`research/raw/m030-router-config.json` `config`, `guards.portal.redirects`) — so such a verdict names the portal route tried, `/claim/list` and the root `/`, and the artefact the portal lacks.; E10 idempotency criterion SC1: A second answer to the same question over the same record names the same terminal class, the same navigation `id`, the same config `path` and the same fields: the answer is stable across runs, not re-derived differently from the address bar or from the live `router.url` on each pass.; the suite carries 11 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "11 test declaration(s) in scripts/tutor-routing.test.mjs hold SC1 through the 3 boundary edge row(s) the intent assigns it, [\"E1\",\"E8\",\"E10\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/tutor-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "Where the stream records a start and no terminal for the navigation asked about — `NavigationStart` then `RouteConfigLoadStart`, no terminal event, `router.url` unchanged at the hold and 738.2 ms later (`research/raw/m041-navigation.json` `held.inFlight`, `held.stillInFlightLater`) — the answer reports cannot-tell naming the last event class the stream recorded for that `id` and nothing else: no destination, no route node, no cause (`.project/ROADMAP.md:2050`); a mutant that reports the held navigation as landed, a mutant that names a destination from the address bar or from `router.url`, and a mutant that names `currentNavigation()`'s fields as a destination (`finalUrl` is absent at the hold, `held.currentNavigation.values`) each redden.",
+      "criterionCharacters": 748,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"Where the stream records a start and no terminal for the navigation asked about — `NavigationStart` then `RouteConfigLoadStart`, no terminal event, `router.url` unchanged at the hold and 738.2 ms later (`research/raw/m041-navigation.json` `held.inFlight`, `held.stillInFlightLater`) — the answer reports cannot-tell naming the last event class the stream recorded for that `id` and nothing else: no destination, no route node, no cause (`.project/ROADMAP.md:2050`); a mutant that reports the held navigation as landed, a mutant that names a destination from the address bar or from `router.url`, and a mutant that names `currentNavigation()`'s fields as a destination (`finalUrl` is absent at the hold, `held.currentNavigation.values`) each redden.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E2\"] the intent itself assigns the criterion, held by [\"scripts/tutor-routing.test.mjs\"] and recorded as [\"criterion SC2\"].",
+      "artefactPath": "scripts/tutor-routing.test.mjs",
+      "artefact": "scripts/tutor-routing.test.mjs (edge [\"E2\"] of the intent's own coverage: E2 empty criterion SC2: The navigation held at its lazy boundary recorded 2 events — `NavigationStart` then `RouteConfigLoadStart` — with no terminal, `router.url` still `/home`, identical 738.2 ms later (`held.inFlight`, `held.stillInFlightLater`): the answer is cannot-tell naming the last recorded class, never a landed route and never a destination read from `held.currentNavigation.values`, where `finalUrl` is `absent`.; the suite carries 11 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "11 test declaration(s) in scripts/tutor-routing.test.mjs hold SC2 through the 1 empty edge row(s) the intent assigns it, [\"E2\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/tutor-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "The two absences are two states, each with its own fields and never folded. `no-guard-verdict` is stated where the stream carries no per-guard verdict: `GuardsCheckEnd`'s only guard field is the aggregate `shouldActivate`, which the answer may not render as any guard's verdict, and a refusal is indistinguishable from an unmatched URL (`absences.guard-verdict-not-recorded`). `no-redirect-decision` is stated where `url` differs from `urlAfterRedirects` with zero `NavigationCancel` and no cancellation code 0 (`terminals.redirect`, `events.codes`). A guard's name may be read from the config entry that declares it (`research/raw/m030-router-config.json` `config`, `gated` → `canActivate: [\"[fn redirectGuard]\"]`) and never its verdict; a mutant that folds the two into one absence or one \"no findings\" answer, a mutant that renders `shouldActivate: true` as a guard's verdict, and a mutant that renders a config entry's `redirectTo` as the redirect that decided the navigation each redden.",
+      "criterionCharacters": 992,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"The two absences are two states, each with its own fields and never folded. `no-guard-verdict` is stated where the stream carries no per-guard verdict: `GuardsCheckEnd`'s only guard field is the aggregate `shouldActivate`, which the answer may not render as any guard's verdict, and a refusal is indistinguishable from an unmatched URL (`absences.guard-verdict-not-recorded`). `no-redirect-decision` is stated where `url` differs from `urlAfterRedirects` with zero `NavigationCancel` and no cancellation code 0 (`terminals.redirect`, `events.codes`). A guard's name may be read from the config entry that declares it (`research/raw/m030-router-config.json` `config`, `gated` → `canActivate: [\\\"[fn redirectGuard]\\\"]`) and never its verdict; a mutant that folds the two into one absence or one \\\"no findings\\\" answer, a mutant that renders `shouldActivate: true` as a guard's verdict, and a mutant that renders a config entry's `redirectTo` as the redirect that decided the navigation each redden.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\",\"E4\",\"E5\"] the intent itself assigns the criterion, held by [\"scripts/tutor-routing.test.mjs\",\"scripts/tutor-routing.test.mjs\",\"scripts/tutor-routing.test.mjs\"] and recorded as [\"criterion SC3\"].",
+      "artefactPath": "scripts/tutor-routing.test.mjs",
+      "artefact": "scripts/tutor-routing.test.mjs (edge [\"E3\",\"E4\",\"E5\"] of the intent's own coverage: E3 precision criterion SC3: A redirect-shaped entry names no redirect decision: `/redirect` to `/landing` emitted 11 events and `cancelCount: 0`, `NavigationCancellationCode.Redirect` (0) was produced by no run, and the redirect is \"only `url` differing from `urlAfterRedirects`\" (`terminals.redirect`, `events.codes.cancellation`), so the answer states the URL change the record holds beside `no-redirect-decision` rather than rendering the change as the decision.; E4 empty criterion SC3: The guard verdict is absent as a shape, not as a gap in one run: `GuardsCheckEnd` adds exactly one field over `GuardsCheckStart` — the aggregate `shouldActivate` — and a refused `canMatch` and an unmatched URL are the same 11 events with the same key sets and `guardNamesInEitherPayload: []` (`absences.guard-verdict-not-recorded`), so no answer may name a guard's verdict from the stream and none may infer a refusal from the terminal class.; E5 adjacency criterion SC3: Both absences occur on one navigation and stay two states: a terminal whose `url` differs from `urlAfterRedirects` and whose stream carries a `GuardsCheckEnd` renders `no-redirect-decision` and `no-guard-verdict` side by side, neither as the other (`terminals.redirect`, `absences.guard-verdict-not-recorded`), and the pair is never joined into one \"no findings\" line nor into one absent-field list.; the suite carries 11 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "11 test declaration(s) in scripts/tutor-routing.test.mjs hold SC3 through the 3 precision edge row(s) the intent assigns it, [\"E3\",\"E4\",\"E5\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/tutor-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "No claim names a route the config does not contain: every `path` the answer renders is one of the 18 the config records (`research/raw/m030-router-config.json` `config`), and a URL segment no configured path matches is named as unconfigured beside the paths that were compared, never resolved to the nearest route, to the wildcard or to a `redirectTo` row — the shape `extension/router-diagnostic.js:8-9` states for its own join and `:37-40` for its absences; a mutant that renders a path the config does not carry, and a mutant that resolves an unmatched segment to `**` or to a `redirectTo` row, redden.",
+      "criterionCharacters": 605,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC4 is \"No claim names a route the config does not contain: every `path` the answer renders is one of the 18 the config records (`research/raw/m030-router-config.json` `config`), and a URL segment no configured path matches is named as unconfigured beside the paths that were compared, never resolved to the nearest route, to the wildcard or to a `redirectTo` row — the shape `extension/router-diagnostic.js:8-9` states for its own join and `:37-40` for its absences; a mutant that renders a path the config does not carry, and a mutant that resolves an unmatched segment to `**` or to a `redirectTo` row, redden.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E6\"] the intent itself assigns the criterion, held by [\"scripts/tutor-routing.test.mjs\"] and recorded as [\"criterion SC4\"].",
+      "artefactPath": "scripts/tutor-routing.test.mjs",
+      "artefact": "scripts/tutor-routing.test.mjs (edge [\"E6\"] of the intent's own coverage: E6 precision criterion SC4: A URL whose path the config lacks is reported as compared, never resolved: the fixture's `this-route-does-not-exist` matched none of the 18 configured paths and its diagnostic carried `namesConfiguredRoutePath: false` (`research/raw/m033-router-diagnostic.json` `ngCodedMessages`), while on the portal an unmatched URL matches the `**` entry and ends `NavigationEnd` (`guards.portal.wildcard`, `absences.guard-verdict-not-recorded.refusedGuardVersusUnmatchedUrl`) — in both cases the answer names the wildcard or the absence the config states and names no route the config lacks.; the suite carries 11 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "11 test declaration(s) in scripts/tutor-routing.test.mjs hold SC4 through the 1 precision edge row(s) the intent assigns it, [\"E6\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/tutor-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC5",
+      "criterionText": "An answer never derives the destination from the final URL or the address bar: the destination it names is the `url` and `urlAfterRedirects` the terminal event itself carries, and where two navigations share an `id` their events are kept apart by the `id` and the `route.path` each event carries, never by arrival position — the abandoned navigation's own `RouteConfigLoadEnd` arrived 1192.1 ms after its cancel and 314.8 ms before the successor's, and the record's own attribution is \"by route.path in the event's own payload, never by position\" (`superseded.ordering`, `superseded.attribution`; `.project/ROADMAP.md:2053`); a mutant that reads the destination from the address bar, from `router.url` or from `currentNavigation()`, and a mutant that attributes a route-config event to the navigation that arrived beside it, redden.",
+      "criterionCharacters": 832,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC5 is \"An answer never derives the destination from the final URL or the address bar: the destination it names is the `url` and `urlAfterRedirects` the terminal event itself carries, and where two navigations share an `id` their events are kept apart by the `id` and the `route.path` each event carries, never by arrival position — the abandoned navigation's own `RouteConfigLoadEnd` arrived 1192.1 ms after its cancel and 314.8 ms before the successor's, and the record's own attribution is \\\"by route.path in the event's own payload, never by position\\\" (`superseded.ordering`, `superseded.attribution`; `.project/ROADMAP.md:2053`); a mutant that reads the destination from the address bar, from `router.url` or from `currentNavigation()`, and a mutant that attributes a route-config event to the navigation that arrived beside it, redden.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E7\"] the intent itself assigns the criterion, held by [\"scripts/tutor-routing.test.mjs\"] and recorded as [\"criterion SC5\"].",
+      "artefactPath": "scripts/tutor-routing.test.mjs",
+      "artefact": "scripts/tutor-routing.test.mjs (edge [\"E7\"] of the intent's own coverage: E7 ordering criterion SC5: A reused navigation `id` keeps two decisions apart: the abandoned `id` 2 was cancelled at 564.2 ms, its own `RouteConfigLoadEnd` arrived at 1756.3 ms — 1192.1 ms after that cancel and 314.8 ms before the successor's — and the record attributes by `route.path`, never by position (`superseded.ordering`, `superseded.attribution`), so an answer that ordered events by arrival would give a load end to the wrong navigation.; the suite carries 11 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "11 test declaration(s) in scripts/tutor-routing.test.mjs hold SC5 through the 1 ordering edge row(s) the intent assigns it, [\"E7\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/tutor-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC6",
+      "criterionText": "The answer is produced from the two observables the agent already holds — the recorded navigation stream and the router config it reads through the `Router` token its own injector walk resolves (`research/raw/m041-navigation.json` `reach.readFrom`: `routerTokenFrom` at `extension/agent-main.js:1750-1839` finds the token in entry 2 of a 5-entry path, resolving to the instance `ɵgetRouterInstance` returns, and the record states \"No new tap is needed\") — with no new page-side instrumentation, no second tap (`.project/ROADMAP.md:2049`) and nothing the record does not hold: no DOM, no console, no page global, no live page read (`extension/router-diagnostic.js:11-14`); a mutant that reads a live page value, starts its own tap, or answers from a field the record does not carry reddens.",
+      "criterionCharacters": 789,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC6 is \"The answer is produced from the two observables the agent already holds — the recorded navigation stream and the router config it reads through the `Router` token its own injector walk resolves (`research/raw/m041-navigation.json` `reach.readFrom`: `routerTokenFrom` at `extension/agent-main.js:1750-1839` finds the token in entry 2 of a 5-entry path, resolving to the instance `ɵgetRouterInstance` returns, and the record states \\\"No new tap is needed\\\") — with no new page-side instrumentation, no second tap (`.project/ROADMAP.md:2049`) and nothing the record does not hold: no DOM, no console, no page global, no live page read (`extension/router-diagnostic.js:11-14`); a mutant that reads a live page value, starts its own tap, or answers from a field the record does not carry reddens.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E9\"] the intent itself assigns the criterion, held by [\"scripts/tutor-routing-shapes.test.mjs\"] and recorded as [\"criterion SC6\"].",
+      "artefactPath": "scripts/tutor-routing-shapes.test.mjs",
+      "artefact": "scripts/tutor-routing-shapes.test.mjs (edge [\"E9\"] of the intent's own coverage: E9 precision criterion SC6: The Router is reachable from the agent's existing read and needs no new tap: entry 2 of the 5-entry injector path, the entry whose source is `Environment Injector`, holds the `Router` token and it resolves to the instance `ɵgetRouterInstance` returns (`reach.readFrom`, `reach.path`, `reach.note`), so the config half of every claim is read from a record the agent already produces.; the suite carries 20 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "20 test declaration(s) in scripts/tutor-routing-shapes.test.mjs hold SC6 through the 1 precision edge row(s) the intent assigns it, [\"E9\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/tutor-routing-shapes.test.mjs\"",
+        "npm run check"
+      ]
+    }
+  ]
+}

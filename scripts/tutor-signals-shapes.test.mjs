@@ -20,6 +20,8 @@
 //   the first negative
 //                "no write record, no order" is re-derived from the tree: the extension/ scan for
 //                the five write-record needles, and the union of every edge key under research/raw.
+//                The count it excluded as build output is re-derived too — the panel tree's own
+//                walk, which is the one number in the recording a panel build moves.
 //   the second negative
 //                re-derived too, and it did not hold as the plan stated it: records do carry effect
 //                nodes, one of them in the recorded shape with an index. The suite asserts the
@@ -255,9 +257,9 @@ test('every citation id is unique and every reference resolves', () => {
 // -------------------------------------------------------- the first negative ----
 
 test('no write record exists anywhere in extension/', () => {
-  const authored = walkDir('extension').filter(
-    (f) => !f.startsWith(BUILD_OUTPUT),
-  );
+  const walked = walkDir('extension');
+  const authored = walked.filter((f) => !f.startsWith(BUILD_OUTPUT));
+  const buildOutput = walked.filter((f) => f.startsWith(BUILD_OUTPUT));
   const found = [];
   for (const needle of WRITE_NEEDLES) {
     for (const f of authored) {
@@ -275,6 +277,11 @@ test('no write record exists anywhere in extension/', () => {
     authored.length,
     stated.filesScanned,
     'the number of authored files under extension/ moved',
+  );
+  assert.equal(
+    buildOutput.length,
+    stated.filesExcludedAsBuildOutput,
+    `negativeMeasurements.writeRecord.filesExcludedAsBuildOutput is ${stated.filesExcludedAsBuildOutput} but the ${BUILD_OUTPUT} build output this tree carries is ${buildOutput.length} file(s): the panel rebuild moved the count the recording excludes`,
   );
 
   const key = (m) => `${m.needle} ${m.path}:${m.line}`;

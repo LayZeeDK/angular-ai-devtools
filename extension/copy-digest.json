@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m057+t007",
+  "version": "m058+t003",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -967,6 +967,31 @@
       "surface": "tutor-signals",
       "key": "no-tutor-signals-answer",
       "text": "no-tutor-signals-answer: no answer was handed over, so no state, no question, no effect, no read, no unplaced reference, no ordering and no claim are reported"
+    },
+    {
+      "surface": "tutor-routing",
+      "key": "state-answered",
+      "text": "answered: the recorded navigation stream carries a terminal event for this navigation, named here by the class that event declares and by its own id and the fields that class states, beside the route node the recorded router config states for it by the entry’s own path and the fields that entry declares — with what no configured path matched beside the paths that were compared, and with the two absences the record cannot fill each in a sentence of its own; every other line here is a field of the answer under its own path and no field is composed by this pane"
+    },
+    {
+      "surface": "tutor-routing",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the recorded stream carries a start for this navigation and no terminal event, so the answer names the last event class the stream recorded for that id and nothing else — no destination, no route node and no cause, not from the address bar, not from router.url and not from currentNavigation() — and this pane renders no landed route for a navigation the record never ended"
+    },
+    {
+      "surface": "tutor-routing",
+      "key": "absence-no-guard-verdict",
+      "text": "no-guard-verdict: the stream carries no per-guard verdict, because GuardsCheckEnd adds exactly one field over GuardsCheckStart — the aggregate shouldActivate — which is never rendered here as any guard’s verdict and from which no refusal is inferred from the terminal class; a guard is nameable from the config entry that declares it and never from the stream, so this absence stands rather than being filled"
+    },
+    {
+      "surface": "tutor-routing",
+      "key": "absence-no-redirect-decision",
+      "text": "no-redirect-decision: the terminal event’s url differs from its urlAfterRedirects and the stream records zero NavigationCancel and no cancellation code 0, so the redirect is only the two urls differing — not a stage and not a terminal — and this absence states that change rather than rendering any config entry’s redirectTo as the redirect that decided this navigation"
+    },
+    {
+      "surface": "tutor-routing",
+      "key": "NO_ANSWER_SENTENCE_ID",
+      "text": "no-tutor-routing-answer: no answer was handed over, so no state, no question, no terminal event, no route node, no absence, no unconfigured segment and no claim are reported"
     }
   ]
 }

@@ -4,9 +4,9 @@
   "task": "T004",
   "title": "Measure the copy each panel surface declares and where it declares none",
   "question": "which sentences does each panel surface declare for itself, at which path:line, which does it render from a literal nobody keeps in a map, and which surface declares none at all?",
-  "head": "7f0033332ffc87f8d9817e692fb74466123f0584",
+  "head": "5da063c21307381d83cfcd412eecb243262a9cc1",
   "headCommand": "git rev-parse HEAD",
-  "measuredAt": "static: all twenty-six apps/angular-ai-devtools/src/app/panel-*.ts surfaces (the two *.spec.ts files are named in `excluded`) were read line by line at the head above, every non-comment line carrying a string literal was extracted with a throwaway script that prints `file:line|trimmed line` (kept in the session scratchpad and not checked in), and every citation below was re-read from the file when this record was re-measured. No browser was opened, no page was read, no build and no test of the app was run; the only commands executed against these files were that extraction and the verify suite named in `verify`, which re-reads all of them. T001 wrote this record over the nineteen surfaces that existed at cfdff389; T004 re-read every line over the twentieth, panel-copy-check.ts, at b428f068 and repaired the three citations in panel-demo.ts that the M048 T003 commit moved. At 72d6f7de T004 re-read every line again over the twenty-first surface, panel-interaction-story.ts, and repaired the three panel-demo.ts citations the M049 T003 commit moved a second time. At 173166b3 T004 re-read every line again over the twenty-second surface, panel-dead-click.ts, and repaired the same three panel-demo.ts citations the M050 T003 commit moved a third time. At this head T003 re-read every line again over the twenty-third surface, panel-what-changed.ts, and repaired the same three panel-demo.ts citations the M051 T003 commit moved a fourth time. At 2ece0b80 T004 re-read every line again over the twenty-fourth surface, panel-webmcp.ts, and repaired the three panel-demo.ts citations and the one panel-demo.spec.ts citation the M052 T003 commit moved a fifth time. At 0e0eba55 T004 re-read every line again over the twenty-fifth surface, panel-webmcp-rehearsal.ts, and repaired the citations the M053 T003 commit moved. At this head T004 re-read every line again over the twenty-sixth surface, `panel-visual-qa.ts`, added its five registry sentences, its two side-label constants and its fourteen labels, and re-resolved every citation of every surface by searching the file for the line it quotes, so a number that had moved was repaired by search rather than by a typed value. At this head T004 re-read every line again over the twenty-seventh surface, `panel-tutor-foundations.ts`, added its six registry sentences, its two reading-label constants and its six labels, and re-resolved every citation of every surface by searching the file for the line it quotes, so a number that had moved was repaired by search rather than by a typed value. This record was last measured at the head above; the previous head was 0e0eba55d22cc1a9a639dd03c777b374f3400a56. At this head T007 re-read every line again over the twenty-eighth surface, `panel-tutor-signals.ts` — M057 T004's pane — added its six registry sentences, its fifteen label constants and its one inline label, and re-resolved every citation the record already made by searching each file for the exact line it quotes rather than by shifting a number: the `tutor-signals` `LOADERS` key M057 T004 added to `panel-demo.ts` had moved three of that surface's citations by one line, and M057 T007 pays for that key with one line of its own there, so the citations are re-read and not moved. The counts are recomputed from the entries by `scripts/copy-check.test.mjs`, never typed here.",
+  "measuredAt": "static: all twenty-nine apps/angular-ai-devtools/src/app/panel-*.ts surfaces (the two *.spec.ts files are named in `excluded`) were read line by line at the head above, every non-comment line carrying a string literal was extracted with a throwaway script that prints `file:line|trimmed line` (kept in the session scratchpad and not checked in), and every citation below was re-read from the file when this record was re-measured. No browser was opened, no page was read, no build and no test of the app was run; the only commands executed against these files were that extraction and the verify suite named in `verify`, which re-reads all of them. T001 wrote this record over the nineteen surfaces that existed at cfdff389; T004 re-read every line over the twentieth, panel-copy-check.ts, at b428f068 and repaired the three citations in panel-demo.ts that the M048 T003 commit moved. At 72d6f7de T004 re-read every line again over the twenty-first surface, panel-interaction-story.ts, and repaired the three panel-demo.ts citations the M049 T003 commit moved a second time. At 173166b3 T004 re-read every line again over the twenty-second surface, panel-dead-click.ts, and repaired the same three panel-demo.ts citations the M050 T003 commit moved a third time. At this head T003 re-read every line again over the twenty-third surface, panel-what-changed.ts, and repaired the same three panel-demo.ts citations the M051 T003 commit moved a fourth time. At 2ece0b80 T004 re-read every line again over the twenty-fourth surface, panel-webmcp.ts, and repaired the three panel-demo.ts citations and the one panel-demo.spec.ts citation the M052 T003 commit moved a fifth time. At 0e0eba55 T004 re-read every line again over the twenty-fifth surface, panel-webmcp-rehearsal.ts, and repaired the citations the M053 T003 commit moved. At this head T004 re-read every line again over the twenty-sixth surface, `panel-visual-qa.ts`, added its five registry sentences, its two side-label constants and its fourteen labels, and re-resolved every citation of every surface by searching the file for the line it quotes, so a number that had moved was repaired by search rather than by a typed value. At this head T004 re-read every line again over the twenty-seventh surface, `panel-tutor-foundations.ts`, added its six registry sentences, its two reading-label constants and its six labels, and re-resolved every citation of every surface by searching the file for the line it quotes, so a number that had moved was repaired by search rather than by a typed value. This record was last measured at the head above; the previous head was 0e0eba55d22cc1a9a639dd03c777b374f3400a56. At this head T007 re-read every line again over the twenty-eighth surface, `panel-tutor-signals.ts` — M057 T004's pane — added its six registry sentences, its fifteen label constants and its one inline label, and re-resolved every citation the record already made by searching each file for the exact line it quotes rather than by shifting a number: the `tutor-signals` `LOADERS` key M057 T004 added to `panel-demo.ts` had moved three of that surface's citations by one line, and M057 T007 pays for that key with one line of its own there, so the citations are re-read and not moved. The counts are recomputed from the entries by `scripts/copy-check.test.mjs`, never typed here. At this head T003 re-read every line again over the twenty-ninth surface, `panel-tutor-routing.ts` — M058 T003’s pane — added its five registry sentences, its thirty-one label constants and its one inline label, and re-resolved every citation the record already made by searching each file for the exact line it quotes rather than by shifting a number: the `tutor-routing` `LOADERS` key M058 T003 added to `panel-demo.ts` is paid for by folding one comment line of the `fields` fact, so those citations are re-read and not moved, and the copy-check fact’s own count moved from 201 to 206 because this record now measures one more surface. The counts are recomputed from the entries by `scripts/copy-check.test.mjs`, never typed here.",
   "lineTextConvention": "every `lineText` is the cited line with its leading and trailing whitespace trimmed and nothing else removed, so a line that is a bare string literal carries its quotes and its trailing comma. `line` is 1-indexed. The suite re-reads each cited line and requires it to equal `lineText` exactly and to contain the sentence the record quotes.",
   "scope": [
     "Recorded per surface: (a) every sentence it declares in a map or a module constant, with the key it is declared under; (b) every sentence — fixed or interpolated — written inside a function body or a component template instead of being declared; (c) the label prefix of every line the surface builds from a label and a value, because that prefix is copy the surface writes; (d) the multi-word prose fragment a surface substitutes for a value it does not have.",
@@ -14,18 +14,18 @@
     "Not recorded at all: the `Error` messages `sentenceText` throws for an id the registry does not carry (panel-components.ts:170, panel-console.ts:268, panel-copy-to-agent.ts:159, panel-copy-check.ts:151, panel-dead-click.ts:225, panel-what-changed.ts:177). They are developer-facing throws and are never rendered to a reader."
   ],
   "counts": {
-    "surfaces": 28,
-    "surfacesWithMap": 15,
+    "surfaces": 29,
+    "surfacesWithMap": 16,
     "surfacesWithConstantsOnly": 11,
     "surfacesWithInlineOnly": 1,
     "surfacesWithNothing": 1,
-    "declaredSentences": 167,
-    "declaredLabels": 22,
+    "declaredSentences": 172,
+    "declaredLabels": 53,
     "declaredWordsAndFragments": 8,
     "inlineSentences": 34,
-    "inlineLabels": 192,
+    "inlineLabels": 193,
     "inlineWords": 7,
-    "citations": 511
+    "citations": 550
   },
   "surfaces": [
     {
@@ -4316,6 +4316,342 @@
         "The `Error` message `sentenceText` throws for an id the registry does not carry (`:224`) is never rendered, so it is not an entry; the doc comment (`:1`-`:96`) is prose that renders nothing; and the field names the pane reads out of the answer (`answer['state']`, `answer['effect']`, ...) are values of lines and not copy the pane writes.",
         "The pane is the display half of M057: it renders the join `extension/tutor-signals.js` over `research/raw/m039-render-phase.json`’s `/effect/freshRead`, handed to it as the demo’s sample fact, and `panel-demo.spec.ts` re-derives that answer from the record and the shipped join on every test run. It reads no record, opens no page and stats no file whose sentences are recorded here (`research/raw/m057-surface.json`)."
       ]
+    },
+    {
+      "id": "tutor-routing",
+      "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+      "renderer": "tutorRoutingPanel",
+      "declares": "map",
+      "declaration": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 193,
+        "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = [",
+        "holds": "PANE_SENTENCES",
+        "kind": "array-registry",
+        "name": "PANE_SENTENCES"
+      },
+      "alsoDeclares": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 138,
+          "lineText": "export const LABELS = {",
+          "holds": "LABELS",
+          "kind": "constant",
+          "name": "LABELS"
+        }
+      ],
+      "sentences": [
+        {
+          "key": "state-answered",
+          "text": "answered: the recorded navigation stream carries a terminal event for this navigation, named here by the class that event declares and by its own id and the fields that class states, beside the route node the recorded router config states for it by the entry’s own path and the fields that entry declares — with what no configured path matched beside the paths that were compared, and with the two absences the record cannot fill each in a sentence of its own; every other line here is a field of the answer under its own path and no field is composed by this pane",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 196,
+          "lineText": "text: 'answered: the recorded navigation stream carries a terminal event for this navigation, named here by the class that event declares and by its own id and the fields that class states, beside the route node the recorded router config states for it by the entry’s own path and the fields that entry declares — with what no configured path matched beside the paths that were compared, and with the two absences the record cannot fill each in a sentence of its own; every other line here is a field of the answer under its own path and no field is composed by this pane',",
+          "state": "ANSWERED"
+        },
+        {
+          "key": "state-cannot-tell",
+          "text": "cannot-tell: the recorded stream carries a start for this navigation and no terminal event, so the answer names the last event class the stream recorded for that id and nothing else — no destination, no route node and no cause, not from the address bar, not from router.url and not from currentNavigation() — and this pane renders no landed route for a navigation the record never ended",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 201,
+          "lineText": "text: 'cannot-tell: the recorded stream carries a start for this navigation and no terminal event, so the answer names the last event class the stream recorded for that id and nothing else — no destination, no route node and no cause, not from the address bar, not from router.url and not from currentNavigation() — and this pane renders no landed route for a navigation the record never ended',",
+          "state": "CANNOT_TELL"
+        },
+        {
+          "key": "absence-no-guard-verdict",
+          "text": "no-guard-verdict: the stream carries no per-guard verdict, because GuardsCheckEnd adds exactly one field over GuardsCheckStart — the aggregate shouldActivate — which is never rendered here as any guard’s verdict and from which no refusal is inferred from the terminal class; a guard is nameable from the config entry that declares it and never from the stream, so this absence stands rather than being filled",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 206,
+          "lineText": "text: 'no-guard-verdict: the stream carries no per-guard verdict, because GuardsCheckEnd adds exactly one field over GuardsCheckStart — the aggregate shouldActivate — which is never rendered here as any guard’s verdict and from which no refusal is inferred from the terminal class; a guard is nameable from the config entry that declares it and never from the stream, so this absence stands rather than being filled',",
+          "state": "NO_GUARD_VERDICT"
+        },
+        {
+          "key": "absence-no-redirect-decision",
+          "text": "no-redirect-decision: the terminal event’s url differs from its urlAfterRedirects and the stream records zero NavigationCancel and no cancellation code 0, so the redirect is only the two urls differing — not a stage and not a terminal — and this absence states that change rather than rendering any config entry’s redirectTo as the redirect that decided this navigation",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 211,
+          "lineText": "text: 'no-redirect-decision: the terminal event’s url differs from its urlAfterRedirects and the stream records zero NavigationCancel and no cancellation code 0, so the redirect is only the two urls differing — not a stage and not a terminal — and this absence states that change rather than rendering any config entry’s redirectTo as the redirect that decided this navigation',",
+          "state": "NO_REDIRECT_DECISION"
+        },
+        {
+          "key": "NO_ANSWER_SENTENCE_ID",
+          "text": "no-tutor-routing-answer: no answer was handed over, so no state, no question, no terminal event, no route node, no absence, no unconfigured segment and no claim are reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 216,
+          "lineText": "text: 'no-tutor-routing-answer: no answer was handed over, so no state, no question, no terminal event, no route node, no absence, no unconfigured segment and no claim are reported',",
+          "state": null
+        },
+        {
+          "key": "state",
+          "text": "state",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 139,
+          "lineText": "  state: 'state',"
+        },
+        {
+          "key": "question",
+          "text": "question",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 140,
+          "lineText": "  question: 'question',"
+        },
+        {
+          "key": "terminalClass",
+          "text": "terminal.class",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 141,
+          "lineText": "  terminalClass: 'terminal.class',"
+        },
+        {
+          "key": "terminalId",
+          "text": "terminal.id",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 142,
+          "lineText": "  terminalId: 'terminal.id',"
+        },
+        {
+          "key": "terminalType",
+          "text": "terminal.type",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 143,
+          "lineText": "  terminalType: 'terminal.type',"
+        },
+        {
+          "key": "terminalUrl",
+          "text": "terminal.url",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 144,
+          "lineText": "  terminalUrl: 'terminal.url',"
+        },
+        {
+          "key": "terminalUrlAfterRedirects",
+          "text": "terminal.urlAfterRedirects",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 145,
+          "lineText": "  terminalUrlAfterRedirects: 'terminal.urlAfterRedirects',"
+        },
+        {
+          "key": "terminalCode",
+          "text": "terminal.code",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 146,
+          "lineText": "  terminalCode: 'terminal.code',"
+        },
+        {
+          "key": "terminalReason",
+          "text": "terminal.reason",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 147,
+          "lineText": "  terminalReason: 'terminal.reason',"
+        },
+        {
+          "key": "terminalError",
+          "text": "terminal.error",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 148,
+          "lineText": "  terminalError: 'terminal.error',"
+        },
+        {
+          "key": "terminalTarget",
+          "text": "terminal.target",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 149,
+          "lineText": "  terminalTarget: 'terminal.target',"
+        },
+        {
+          "key": "routePath",
+          "text": "route.path",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 150,
+          "lineText": "  routePath: 'route.path',"
+        },
+        {
+          "key": "routeComponent",
+          "text": "route.component",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 151,
+          "lineText": "  routeComponent: 'route.component',"
+        },
+        {
+          "key": "routeRedirectTo",
+          "text": "route.redirectTo",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 152,
+          "lineText": "  routeRedirectTo: 'route.redirectTo',"
+        },
+        {
+          "key": "routeCanActivate",
+          "text": "route.canActivate",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 153,
+          "lineText": "  routeCanActivate: 'route.canActivate',"
+        },
+        {
+          "key": "routeLoadChildren",
+          "text": "route.loadChildren",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 154,
+          "lineText": "  routeLoadChildren: 'route.loadChildren',"
+        },
+        {
+          "key": "unconfiguredSegment",
+          "text": "unconfigured.segment",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 155,
+          "lineText": "  unconfiguredSegment: 'unconfigured.segment',"
+        },
+        {
+          "key": "unconfiguredCompared",
+          "text": "unconfigured.compared",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 156,
+          "lineText": "  unconfiguredCompared: 'unconfigured.compared',"
+        },
+        {
+          "key": "absenceState",
+          "text": "absence.state",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 157,
+          "lineText": "  absenceState: 'absence.state',"
+        },
+        {
+          "key": "absenceGuardsCheckEndKey",
+          "text": "absence.guardsCheckEndKeys",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 158,
+          "lineText": "  absenceGuardsCheckEndKey: 'absence.guardsCheckEndKeys',"
+        },
+        {
+          "key": "absenceGuardField",
+          "text": "absence.guardFields",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 159,
+          "lineText": "  absenceGuardField: 'absence.guardFields',"
+        },
+        {
+          "key": "absenceGuardsNamed",
+          "text": "absence.guardsNamed",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 160,
+          "lineText": "  absenceGuardsNamed: 'absence.guardsNamed',"
+        },
+        {
+          "key": "absenceUrl",
+          "text": "absence.url",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 161,
+          "lineText": "  absenceUrl: 'absence.url',"
+        },
+        {
+          "key": "absenceUrlAfterRedirects",
+          "text": "absence.urlAfterRedirects",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 162,
+          "lineText": "  absenceUrlAfterRedirects: 'absence.urlAfterRedirects',"
+        },
+        {
+          "key": "absenceCancels",
+          "text": "absence.cancels",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 163,
+          "lineText": "  absenceCancels: 'absence.cancels',"
+        },
+        {
+          "key": "absenceCancellationCodeZero",
+          "text": "absence.cancellationCodeZero",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 164,
+          "lineText": "  absenceCancellationCodeZero: 'absence.cancellationCodeZero',"
+        },
+        {
+          "key": "absenceDetail",
+          "text": "absence.detail",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 165,
+          "lineText": "  absenceDetail: 'absence.detail',"
+        },
+        {
+          "key": "claim",
+          "text": "claim.claim",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 166,
+          "lineText": "  claim: 'claim.claim',"
+        },
+        {
+          "key": "claimValues",
+          "text": "claim.values",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 167,
+          "lineText": "  claimValues: 'claim.values',"
+        },
+        {
+          "key": "artefactPath",
+          "text": "claim.artefactPath",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 168,
+          "lineText": "  artefactPath: 'claim.artefactPath',"
+        },
+        {
+          "key": "detail",
+          "text": "detail",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 169,
+          "lineText": "  detail: 'detail',"
+        }
+      ],
+      "inline": [
+        {
+          "text": "${label}: ${value}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+          "line": 301,
+          "lineText": "return `${label}: ${value}`;"
+        }
+      ],
+      "notes": [
+        "5 sentences in one registry (:196, :201, :206, :211, :216) and 31 label constants (`LABELS`, :139, :140, :141, :142, :143, :144, :145, :146, :147, :148, :149, :150, :151, :152, :153, :154, :155, :156, :157, :158, :159, :160, :161, :162, :163, :164, :165, :166, :167, :168, :169).",
+        "Every label in `LABELS` is the prefix a line is built from — the answer’s own paths (`state`, `question`, `terminal.class`, … `route.path`, `unconfigured.segment`, `absence.state`, `claim.claim`, `claim.values`, `claim.artefactPath`, `detail`) — so each is declared copy and each is recorded at its own line. The line itself is built once, in `line()`: `${label}: ${value}`, the one inline label this surface writes.",
+        "The two state words, the two absence words, `STATES`, `ABSENCES` and `NO_ANSWER_STATE` are module constants the pane holds its vocabulary in. A state or absence word is the value of a line and not a sentence, so it is named here rather than recorded as an entry, as `scope` states for the value words of other surfaces.",
+        "The `Error` message `sentenceText` throws for an id the registry does not carry is never rendered, so it is not an entry; the doc comment is prose that renders nothing; and the field names the pane reads out of the answer (`answer[’terminal’]`, `terminal[’url’]`, …) and the keys a claim’s own `values` carry are values of lines and not copy the pane writes.",
+        "The pane is the display half of M058: it renders the join `extension/tutor-routing.js` over `research/raw/m041-navigation.json`’s redirect frame beside `research/raw/m030-router-config.json`’s config, handed to it as the demo’s sample fact, and `panel-demo.spec.ts` re-derives that answer from the two records and the shipped join on every test run. It reads no record, opens no page and stats no file whose sentences are recorded here (`research/raw/m058-surface.json`)."
+      ]
     }
   ],
   "absences": [
@@ -4336,7 +4672,8 @@
     "webmcp-rehearsal",
     "visual-qa",
     "tutor-foundations",
-    "tutor-signals"
+    "tutor-signals",
+    "tutor-routing"
   ],
   "noMapSurfaces": [
     "navigation",
@@ -4380,8 +4717,8 @@
       "what": "no panel sentence is explained by a digest: how many of this record’s 168 literals occur in either digest the repository ships",
       "command": "node -e \"const fs=require('fs');const r=JSON.parse(fs.readFileSync('research/raw/m048-surface-copy.json','utf8'));const d=['extension/error-digest.json','extension/image-digest.json'].map(f=>fs.readFileSync(f,'utf8')).join('\\n');let hit=0,total=0;for(const s of r.surfaces)for(const x of s.sentences){total++;if(d.includes(x.text))hit++}console.log('sentences '+total);console.log('explainedByADigest '+hit)\"",
       "output": [
-        "sentences 197",
-        "explainedByADigest 2"
+        "sentences 233",
+        "explainedByADigest 3"
       ]
     }
   ],
@@ -4482,10 +4819,10 @@
     "The record does not judge the copy. It does not claim a sentence is accurate, consistent with its siblings, or supported by the record the pane was handed; it states where each sentence is and what it says, and the three surfaces whose wording the record singles out (panel-navigation.ts:283, panel-sanitizer.ts:180, panel-fields.ts:196) are described and not graded.",
     "No test of the app was run and no build was made for this record. The verify command below runs this record’s own suite and prettier, and the project verify T004 then runs is `npm run check && npm test`, stated in that task’s report; nothing else was executed against these files.",
     "Two counts of this record appear in files T004 does not own and were not edited to agree with it: `extension/copy-check.js:62-:63` names `declaredLabels` (3), `declaredWordsAndFragments` (8), `inlineLabels` (127) and `inlineWords` (7), where this record now measures 22, 8, 192 and 7; and `panel-copy-check.ts:48` states that the record compares 122 sentences against 121 distinct digest rows, where it now compares 201 against 193. Both are prose beside a measurement that moved, not a value either file reads at runtime, and both are stated here rather than repaired from a record’s task.",
-    "The verify command above does not send this file to prettier, because `.prettierignore` excludes every `*.json` (`*.json` is line 22 of that file) and `npx prettier --check research/raw/m048-surface-copy.json` therefore prints \"All matched files use Prettier code style!\" without reading a byte of it — exit 0 however the file is formatted. The gate that actually reads this record is `scripts/copy-check.test.mjs`, which re-reads all 511 citations it makes and re-derives every count it states; T001’s `verify` field claimed the prettier check as its second gate, and T004 states the limit rather than repeating the claim."
+    "The verify command above does not send this file to prettier, because `.prettierignore` excludes every `*.json` (`*.json` is line 22 of that file) and `npx prettier --check research/raw/m048-surface-copy.json` therefore prints \"All matched files use Prettier code style!\" without reading a byte of it — exit 0 however the file is formatted. The gate that actually reads this record is `scripts/copy-check.test.mjs`, which re-reads all 550 citations it makes and re-derives every count it states; T001’s `verify` field claimed the prettier check as its second gate, and T004 states the limit rather than repeating the claim."
   ],
   "verify": "node --test scripts/copy-check.test.mjs && node -e \"JSON.parse(require('fs').readFileSync('research/raw/m048-surface-copy.json','utf8'))\" && npx prettier --check scripts/copy-check.test.mjs",
-  "verdict": "measured: this repository has 28 panel-*.ts surfaces (two more files match the glob and are vitest specs, named in `excluded`). 15 declare their sentences in a map, 11 in loose module constants, 1 only inside a component template and a function, and 1 — panel-context.ts, the signal-to-context adapter — declares no sentence at all because it renders nothing. 167 sentences are declared in a map or a constant, 34 more are written inline where no map can reach them, and 192 label prefixes and 7 prose words are built into lines inline. The roadmap’s premise does not survive the reading: no surface compares anything against a copy digest, and of the 197 literals this record declares in a map or a constant exactly 2 occur in either digest the repository ships (extension/error-digest.json, extension/image-digest.json) — the single word `available` (error-boundary/RESET_TEXT) and the one-word label `state` (tutor-signals/label-state), each of which occurs inside a digest body and explains no rendered line. What exists is the copy measured here, and the digest T002 authored from this record — which T004 extended to the twentieth surface, again to the twenty-first, again to the twenty-second, again to the twenty-fourth and again to the twenty-seventh, and again to the twenty-eighth — is the first one that holds it.",
+  "verdict": "measured: this repository has 29 panel-*.ts surfaces (two more files match the glob and are vitest specs, named in `excluded`). 16 declare their sentences in a map, 11 in loose module constants, 1 only inside a component template and a function, and 1 — panel-context.ts, the signal-to-context adapter — declares no sentence at all because it renders nothing. 172 sentences are declared in a map or a constant, 34 more are written inline where no map can reach them, and 193 label prefixes and 7 prose words are built into lines inline. The roadmap’s premise does not survive the reading: no surface compares anything against a copy digest, and of the 233 literals this record declares in a map or a constant exactly 3 occur in either digest the repository ships (extension/error-digest.json, extension/image-digest.json) — the single word `available` (error-boundary/RESET_TEXT) and the one-word label `state`, which two surfaces declare (tutor-signals/label-state and tutor-routing/label-state), each of which occurs inside a digest body and explains no rendered line. What exists is the copy measured here, and the digest T002 authored from this record — which T004 extended to the twentieth surface, again to the twenty-first, again to the twenty-second, again to the twenty-fourth and again to the twenty-seventh, and again to the twenty-eighth, and again to the twenty-ninth — is the first one that holds it.",
   "revision": {
     "author": "T001",
     "head": "cfdff38990b7715e38a917976dad957b64840cd5",
@@ -4539,6 +4876,12 @@
         "head": "7f0033332ffc87f8d9817e692fb74466123f0584",
         "why": "panel-tutor-signals.ts shipped as the twenty-eighth surface in M057's T004, so the record measured twenty-seven of the twenty-eight `panel-*.ts` files the tree carried and the digest explained the 195 sentences those twenty-seven declare",
         "what": "every citation re-read and re-resolved by search, the twenty-eighth surface measured with its six registry sentences, its fifteen label constants and its one inline label, and its counts recomputed from its own entries"
+      },
+      {
+        "task": "T003",
+        "head": "5da063c21307381d83cfcd412eecb243262a9cc1",
+        "why": "panel-tutor-routing.ts shipped as the twenty-ninth surface in M058’s T003, so the record measured twenty-eight of the twenty-nine `panel-*.ts` files the tree carried and the digest explains the 206 sentences those twenty-eight declare",
+        "what": "every citation re-resolved by search at this head, the twenty-ninth surface measured with its five registry sentences, its thirty-one label constants and its one inline label, its counts recomputed from its own entries, and the two panel-demo.ts citations of the copy-check fact re-read with the count that fact now states"
       }
     ]
   }

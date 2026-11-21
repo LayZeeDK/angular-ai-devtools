@@ -9,7 +9,7 @@ Read a reference only when the task touches it.
   `node_modules/typescript/package.json`: a 7.x there means a stale install; run `npm ci`.
 - Checks: `npm run check` (type check, root and skills) and `npm test` (node:test, root and skills).
 - Nx CLI entry for this install: `node_modules/nx/dist/bin/nx.js` (Nx 23); invoke via `node` or `npx nx`.
-- GSD Path helpers: call `%USERPROFILE%\.commandcode\gsd.bat <verb>` (it runs `scripts/gsd/gsd.ts`). The `gsd`
+- GSD Path helpers: call `%USERPROFILE%\.commandcode\lars-gsd.bat <verb>` (it runs `scripts/gsd/lars-gsd.ts`). The `gsd`
   shim on PATH is a different global install whose `dist/loader.js` is missing, so bare `gsd <verb>` fails.
 
 ### Verify sidecar dependencies
@@ -69,7 +69,7 @@ sidecars, including worktree and branch).
   to complete the next milestone end-to-end without a human-in-the-loop, with full milestone
   decision authority." It applies to every milestone in this program, not to one of them. At each
   milestone's first legal boundary — `inspect/active` or `define/active` with `STATE.milestone:
-null` — record the grant once with `gsd.bat preapprove --repo <root> --grant
+null` — record the grant once with `lars-gsd.bat preapprove --repo <root> --grant
 intent,plan,rulings,ship`, quoting that instruction whenever a ruling is recorded as delegated.
   `STATE.milestone` must still be null at that moment: only `milestone intent approved` names it,
   so never set it in the next-milestone transition. Do not stop for the intent gate, the plan gate,
@@ -163,10 +163,10 @@ than batched. `<sha>` is a full 40-character SHA wherever one is taken.
    `--expect-archive`; an omitted expectation is an error, not a default.
 3. **Inspect is the chunked re-inspection.** `workflow_run.py prepare-inspect` refuses once
    `research/DOCS-AUDIT.md` exists, which is every programme after the first. Freeze the
-   inventory, create the docs sidecar, chunk with `gsd inspect chunks`, dispatch one brief per
-   chunk, then `gsd inspect lint`. Expect `chunk-NN.brief.md` for the briefs and `chunk-NN.md`
+   inventory, create the docs sidecar, chunk with `lars-gsd inspect chunks`, dispatch one brief per
+   chunk, then `lars-gsd inspect lint`. Expect `chunk-NN.brief.md` for the briefs and `chunk-NN.md`
    for the fragments — telling a reviewer to read `chunk-NN.md` gets a correct refusal.
-4. **`gsd inspect assemble` needs five arguments:** `--head`, `--inventory`, `--parts`,
+4. **`lars-gsd inspect assemble` needs five arguments:** `--head`, `--inventory`, `--parts`,
    `--audited` and `--prior-audit`. It asks for them one at a time.
 5. **Delete `<sidecar>/.project/research/parts/` before collecting.** The collector treats
    anything beyond the assigned artifact as an unexpected path.
@@ -188,7 +188,7 @@ than batched. `<sha>` is a full 40-character SHA wherever one is taken.
 
 ### Checking the state
 
-`gsd loop-guard --repo <root>` reports `terminal`, `remaining` and whether the programme is
+`lars-gsd loop-guard --repo <root>` reports `terminal`, `remaining` and whether the programme is
 complete. A roadmap with `remaining: 0` returns `STOP: programme complete`; a fresh generation
 puts a positive `remaining` back.
 
@@ -267,9 +267,9 @@ not the product work; it was four mechanical failures, each of which now has a c
 
 - **An undeclared path costs a full Verify.** `isolation.py land` refuses the allow-list after the
   Verify has run, so one path a task's `files:` omitted wasted an eighteen-minute verify — three
-  times. `gsd land` now checks the allow-list first and names every undeclared path at once.
-- **The Verify's output was invisible.** `gsd land` printed eight lines, and the harness wrote
-  zero-byte logs, so six attempts were made blind. `gsd land` now writes the whole output to
+  times. `lars-gsd land` now checks the allow-list first and names every undeclared path at once.
+- **The Verify's output was invisible.** `lars-gsd land` printed eight lines, and the harness wrote
+  zero-byte logs, so six attempts were made blind. `lars-gsd land` now writes the whole output to
   `.project/build/verify-<TASK>.log` and prints that path. **Read that file before re-running.**
 - **Recordings drift on every commit.** `research/raw/m044-gate-shapes.json` and
   `m056-gate-stability.json` derive their range from HEAD, so any commit after a capture makes them
@@ -289,12 +289,12 @@ clean, both recordings are re-derived, and every path the Verify writes is decla
 Each row pairs a rule this programme learned the expensive way with what now fails when it is broken.
 A rule with nothing in the second column is a rule that will be broken again.
 
-| Rule                                                                  | Enforced by                                                                                                                                                                                             |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A task that changes a table declares every suite that enumerates it   | `gsd plan-lint` refuses the plan: `pinned-file` is a blocker, not a warning (`lib/plan-lint.ts`)                                                                                                        |
-| A verify measures a build it produced, not whatever is on disk        | `scripts/panel-bundle-budget.test.mjs` refuses an output older than the newest source, naming the rebuild command                                                                                       |
-| A project verify builds before it measures                            | the plan's `Project verify:` line leads with the build; `prepare-final` runs that line and records its exit in the ledger                                                                               |
-| A bookkeeping artefact must not exist only in the working tree        | `.project/review/` is tracked; deleting it is a diff, not a loss                                                                                                                                        |
-| An archive is prepared, then rendered, then committed                 | `render_manifest` refuses an archive already in HEAD (`archive_milestone.py:1696`), so committing before rendering cannot happen twice                                                                  |
-| An identifier is read, never assembled                                | `--expected-head` must resolve; a padded SHA fails before it is recorded                                                                                                                                |
-| A wave review is written during build, not when a validator complains | `gsd build-guard --repo <root>` refuses build/done: every `## Wave <N>` in PLAN.md needs a `.project/review/wave-N.cycleC.md`, so M052's empty `review/` is named before `archive_milestone.py prepare` |
+| Rule                                                                  | Enforced by                                                                                                                                                                                                  |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A task that changes a table declares every suite that enumerates it   | `lars-gsd plan-lint` refuses the plan: `pinned-file` is a blocker, not a warning (`lib/plan-lint.ts`)                                                                                                        |
+| A verify measures a build it produced, not whatever is on disk        | `scripts/panel-bundle-budget.test.mjs` refuses an output older than the newest source, naming the rebuild command                                                                                            |
+| A project verify builds before it measures                            | the plan's `Project verify:` line leads with the build; `prepare-final` runs that line and records its exit in the ledger                                                                                    |
+| A bookkeeping artefact must not exist only in the working tree        | `.project/review/` is tracked; deleting it is a diff, not a loss                                                                                                                                             |
+| An archive is prepared, then rendered, then committed                 | `render_manifest` refuses an archive already in HEAD (`archive_milestone.py:1696`), so committing before rendering cannot happen twice                                                                       |
+| An identifier is read, never assembled                                | `--expected-head` must resolve; a padded SHA fails before it is recorded                                                                                                                                     |
+| A wave review is written during build, not when a validator complains | `lars-gsd build-guard --repo <root>` refuses build/done: every `## Wave <N>` in PLAN.md needs a `.project/review/wave-N.cycleC.md`, so M052's empty `review/` is named before `archive_milestone.py prepare` |

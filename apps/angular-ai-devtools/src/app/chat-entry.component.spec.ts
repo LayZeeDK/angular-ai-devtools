@@ -719,6 +719,7 @@ describe('the chat route', () => {
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
       'tutor-signals', // M057 SC1, SC3 surface: the effect node by label and index, its upstream nodes, the ordering absence, or the three absences named apart
+      'tutor-routing', // M058 SC1, SC3 surface: the terminal event by class and id, the route node by its own path and stated fields, the two absences side by side, or the cannot-tell state
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
@@ -757,6 +758,7 @@ describe('the chat route', () => {
       'visual-qa', // M054 SC1-3 surface
       'tutor-foundations', // M055 SC1-3 surface
       'tutor-signals', // M057 SC1, SC3 surface
+      'tutor-routing', // M058 SC1, SC3 surface
       'webmcp-rehearsal', // M053 SC1-3 surface
       'webmcp', // M052 SC1-2 surface
       'components', // M047 SC1-2 surface
@@ -822,6 +824,7 @@ describe('the chat route', () => {
       'visual-qa',
       'tutor-foundations',
       'tutor-signals',
+      'tutor-routing',
     ]) {
       const route = appRoutes.find((candidate) => candidate.path === surface);
       if (route?.loadComponent === undefined) {

@@ -1,0 +1,209 @@
+head: 5da063c21307381d83cfcd412eecb243262a9cc1 at 2026-11-21T18:06:08.179Z
+[7m[1m[36m NX [39m[22m[27m  [36mRunning target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on:[39m
+
+[2m[36m[39m[22m
+
+[2m> [22m[2mnx run[22m angular-ai-devtools:generate-error-digest
+
+[2m> [22mnode scripts/generate-error-digest.mjs
+
+wrote [33m64[39m entries to extension/error-digest.json
+
+[2m> [22m[2mnx run[22m angular-ai-devtools:build-extension
+
+[33m❯[39m Building...
+[32m✔[39m Building...
+[37m[1mInitial chunk files[22m[2m | [22m[1mNames[22m                  [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-B8BF8DsE.js[37m  [2m | [22m[2m-[22m                      [2m | [22m[36m326.56 kB[37m[2m | [22m               [36m93.44 kB[37m
+[32mmain.js[37m            [2m | [22m[2mmain[22m                   [2m | [22m[36m100.54 kB[37m[2m | [22m               [36m26.41 kB[37m
+[32mchunk-FCeS4p_v.js[37m  [2m | [22m[2m-[22m                      [2m | [22m [36m88.10 kB[37m[2m | [22m               [36m22.46 kB[37m
+[32mchunk-C9RC8o4w.js[37m  [2m | [22m[2m-[22m                      [2m | [22m  [36m8.95 kB[37m[2m | [22m                [36m3.01 kB[37m
+[32mchunk-CWnn2n5L.js[37m  [2m | [22m[2m-[22m                      [2m | [22m  [36m4.71 kB[37m[2m | [22m                [36m1.63 kB[37m
+[32mchunk-Di8Zy6Ss.js[37m  [2m | [22m[2m-[22m                      [2m | [22m  [36m2.60 kB[37m[2m | [22m              [36m936 bytes[37m
+[32mstyles.css[37m         [2m | [22m[2mstyles[22m                 [2m | [22m  [36m1.96 kB[37m[2m | [22m              [36m542 bytes[37m
+[32mchunk-BnQXArNS.js[37m  [2m | [22m[2m-[22m                      [2m | [22m[36m645 bytes[37m[2m | [22m              [36m645 bytes[37m
+[32mchunk-DJVAsKa_.js[37m  [2m | [22m[2m-[22m                      [2m | [22m[36m464 bytes[37m[2m | [22m              [36m464 bytes[37m
+[1m [22m                  [2m | [22m[1mInitial total[22m          [2m | [22m[1m[93m534.52 kB[37m[22m[2m | [22m              [1m149.55 kB[22m
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                  [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-470y0cjA.js[37m  [2m | [22m[2mcore[22m                   [2m | [22m [36m17.92 kB[37m[2m | [22m                [36m5.47 kB[37m
+[32mchunk-CPU-IOs9.js[37m  [2m | [22m[2mch[39m[37mat-entry-component[22m   [2m | [22m [36m16.42 kB[37m[2m | [22m                [36m4.80 kB[37m
+[32mchunk-C2S6V6qP.js[37m  [2m | [22m[2mpanel-demo[22m             [2m | [22m [36m15.79 kB[37m[2m | [22m                [36m5.08 kB[37m
+[32mchunk-BqGCQDFf.js[37m  [2m | [22m[2mpage-picker-component[22m  [2m | [22m  [36m7.17 kB[37m[2m | [22m                [36m2.12 kB[37m
+[32mchunk-DUS2vC9S2.js[37m [2m | [22m[2mpanel-tutor-routing[22m    [2m | [22m  [36m6.99 kB[37m[2m | [22m                [36m2.22 kB[37m
+[32mchunk-Ia5h4MhU2.js[37m [2m | [22m[2mpanel-dead-click[22m       [2m | [22m  [36m6.73 kB[37m[2m | [22m                [36m2.00 kB[37m
+[32mchunk-BBqh6Sha.js[37m  [2m | [22m[2minterop-component[22m      [2m | [22m  [36m6.46 kB[37m[2m | [22m                [36m2.34 kB[37m
+[32mchunk-CR66fmfE.js[37m  [2m | [22m[2mpanel-webmcp-rehearsal[22m [2m | [22m  [36m5.92 kB[37m[2m | [22m                [36m1.92 kB[37m
+[32mchunk-BBCO5qwI2.js[37m [2m | [22m[2mpanel-error-boundary[22m   [2m | [22m  [36m5.60 kB[37m[2m | [22m                [36m1.73 kB[37m
+[32mchunk-n9bOoi47.js[37m  [2m | [22m[2mpanel-tutor-signals[22m    [2m | [22m  [36m5.00 kB[37m[2m | [22m                [36m1.67 kB[37m
+[32mchunk-DdLcS6n3.js[37m  [2m | [22m[2mpanel-stability[22m        [2m | [22m  [36m4.72 kB[37m[2m | [22m                [36m1.67 kB[37m
+[32mchunk-80XCxlnE.js[37m  [2m | [22m[2mpanel-console[22m          [2m | [22m  [36m4.70 kB[37m[2m | [22m                [36m1.50 kB[37m
+[32mchunk-CeMoq-ym.js[37m  [2m | [22m[2mpanel-interaction-story[22m[2m | [22m  [36m4.68 kB[37m[2m | [22m                [36m1.51 kB[37m
+[32mchunk-Cg_a8sST2.js[37m [2m | [22m[2mpanel-what-changed[22m     [2m | [22m  [36m4.68 kB[37m[2m | [22m                [36m1.56 kB[37m
+[32mchunk-CkSEIBfj2.js[37m [2m | [22m[2mimage-budget[22m           [2m | [22m  [36m4.45 [39m[37mkB[39m[2m | [22m                [36m1.41 kB[37m
+[2m...and 23 more lazy chunks files. Use "--verbose" to show all the files.[22m
+Application bundle generation complete. [2.287 seconds] - 2026-11-21T18:05:23.688Z
+[39m
+[37mOutput location: D:\projects\sandbox\angular-ai-devtools\extension\panel
+[39m
+
+[2m[32m[39m[22m
+
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild-extension[22m for project angular-ai-devtools and [1m1[22m task it depends on[39m
+
+
+  Run duration:      3.2s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.1s (2 tasks)
+  Recoverable time:  <1ms
+
+[2m> [22m[2mnx run[22m angular-ai-devtools:test
+
+[33m❯[39m Building...
+[32m✔[39m Building...
+[37mApplication bundle generation complete. [2.238 seconds] - 2026-11-21T18:05:28.595Z
+[39m
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mD:/projects/sandbox/angular-ai-devtools[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/chunked-fact-list-job.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 219[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/extension-message.service.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/role-name.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/n1-update-cause.component.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/tool-registry.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/n3-di-doctor.component.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/hostile-tools.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/extension-prompt.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/error-digest.tool.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/message-ring-buffer.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/job-handles.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/read-tools.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/app-facts.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/app.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/worker-read.service.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 112[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/panel-environment.tool.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-groups.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/summarize-job.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/context-budget.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/feature-fingerprint.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/signal-provenance.service.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/companion.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/signal-provenance.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/panel-context.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/update-cause-chain.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/di-path-display.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/anti-pattern-detector.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/page-picker.component.spec.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 208[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 175[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/panel-demo.spec.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 1497[2mms[22m[39m
+[2m Test Files [22m [1m[32m31 passed[39m[22m[90m (31)[39m
+[2m      Tests [22m [1m[32m360 passed[39m[22m[90m (360)[39m
+[2m   Start at [22m 19:05:28
+[2m   Duration [22m 3.25s[2m (transform 2.29s, setup 3.29s, import 2.82s, tests 2.68s, environment 17.90s)[22m
+
+[2m[32m[39m[22m
+
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project angular-ai-devtools[39m
+
+
+  Run duration:      6.6s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     6.6s (1 task)
+  Recoverable time:  <1ms
+Checking formatting...
+All matched files use Prettier code style!
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages archive-paths
+gate-integrity: archive-paths clean - examined 16 live path reference(s) of 187 reference(s) in 164 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages fix-record
+gate-integrity: fix-record clean - examined 6 claim(s) in 4 task log(s) of .project/tasks (logs of M058) against 25 changed path(s) of 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1 (rule ship: M057's ship commit, 21fb7ccd (ship: M057 — tutor-signals); the head is this tree's HEAD, 5da063c2 (T002: Answer from the two records, purely); claims: declared)
+gate-integrity: fix-record pins - 15 declared path(s) byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as changes
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-tutor-routing.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-demo.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/app.routes.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/app.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/page-picker.component.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-demo.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin scripts/panel-routes.test.mjs at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin scripts/copy-check.test.mjs at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin extension/copy-digest.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin research/raw/m058-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin research/raw/m048-surface-copy.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin extension/panel/index.html at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin scripts/copy-check.test.mjs at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:214 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: pin extension/panel/index.html at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:216 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..5da063c21307381d83cfcd412eecb243262a9cc1, recorded and not judged as a change
+gate-integrity: mention app.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention copy-check.test.mjs at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m048-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:214 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m047-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:215 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m055-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:215 (T003) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 6 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run nx run angular-ai-devtools:build-extension --skip-nx-cache
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 520.00 kB was not met by 14.52 kB with a total of 534.52 kB.[0m
+[39m[22m
+npm notice run npx
+npm notice run nx run angular-ai-devtools:test --skip-nx-cache
+npm notice run npx
+npm notice run prettier --check apps/angular-ai-devtools/src/app/app.routes.ts apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/panel-tutor-routing.ts scripts/panel-routes.test.mjs research/raw/m058-surface.json research/raw/m048-surface-copy.json extension/copy-digest.json
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .
