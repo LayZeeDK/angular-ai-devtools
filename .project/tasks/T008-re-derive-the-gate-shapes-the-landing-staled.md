@@ -11,6 +11,7 @@ task_branch: null
 files:
   - research/raw/m044-gate-shapes.json
   - scripts/gate-integrity.test.mjs
+  - scripts/tutor-record-shapes.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
   - scripts/tutor-signals-shapes.test.mjs
 ---
