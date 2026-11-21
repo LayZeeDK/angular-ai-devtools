@@ -2,11 +2,11 @@
 id: T008
 title: Re-derive the gate shapes the landing staled
 wave: 5
-status: pending
+status: in-progress
 deps: [T007]
-agent: null
-base: null
-worktree: null
+agent: build_T008
+base: 227075202e42f620a1e8f0f03db3b62679002fd1
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - research/raw/m044-gate-shapes.json
@@ -81,4 +81,77 @@ node --test scripts/gate-integrity.test.mjs && npx prettier --check research/raw
 ## Log
 
 - pending.
-- Landed paths: `research/raw/m044-gate-shapes.json`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs` — each is read from this tree, ready.
+- Checkout proved: branch `gsd-path/M056`, HEAD `227075202e42f620a1e8f0f03db3b62679002fd1` = the
+  task's `base:`. Nothing was re-activated.
+- Re-derived `research/raw/m044-gate-shapes.json` through its own capture command only,
+  `set "M044_CAPTURE=1"&& node --experimental-strip-types --test "scripts/gate-integrity.test.mjs"`.
+  No captured value was hand-edited. What moved at this head: `archiveReferences.examined`
+  185→186, `filesExamined` 313→318, `suitesExamined` 159→162, `counts.undecided` 141→142,
+  `sites.pattern` 7→8, `movedSubtreesDerivedFrom.archivesExamined` 55→56; the two pinned
+  repo-path regex sites T006's ~35 inserted lines moved,
+  `scripts/tutor-answer.test.mjs` `references[178]` 92→125 and `references[179]` 420→529;
+  `fixRecord.claims[5].resolvesTo` 55→56 rows (M055's ship commit `1aff7555` landed after the
+  record was measured, so the SYNTHESIS subtree list gained `055-tutor-foundations`);
+  `suiteDiff.differing` 36→39 and `counts.added` 20→23 (the three suites below);
+  `wholeTree.examined` 189→192 and `declarations.tests` 2407→2453; `capture.at`
+  2026-11-20T12:17:13.362Z→2026-11-21T02:54:02.467Z. `skippedNavigations` and `drivenChecks`
+  derive identically, so they did not move.
+- Idempotence: a second armed run left the record byte-identical (`git hash-object`
+  `2b2e11a6197fc5b617b37c83bc4978e02109471e` both times), so the capture is a reading, not a write.
+- Declared the three suite-diff reason rows in `scripts/gate-integrity.test.mjs`, appended at the
+  true tail after the last line the M044 recording pins (a row added above one of those references
+  would stale it by moving it): `scripts/tutor-signals-shapes.test.mjs` (+568/-0, assertions
+  +83/-0), `scripts/tutor-signals.test.mjs` (+1478/-0, +111/-0) and
+  `scripts/tutor-signals-graph.test.mjs` (+976/-0, +92/-0). Each is a reading of its own suite —
+  the recording it re-reads, the join it pins and what it refuses — not a name admitted to the
+  list. No earlier row was loosened, removed or reworded.
+- Repaired T001's stale mutant in `scripts/tutor-record-shapes.test.mjs`: the mutant appended
+  `research/raw/m057-surface.json` to the present list and asserted `validateOwnMap(OWN, present)`
+  throws, which became false by construction once T007's map began naming that record in
+  `inventory.outsideTheMap`. It now asserts against
+  `{ ...OWN, inventory: { ...OWN.inventory, outsideTheMap: [] } }`, so the property tested is
+  "an unnamed record reddens" rather than "this record is unnamed"; the block below it still pins
+  that the real map names the record on purpose. No assertion was deleted or relaxed. Kept
+  load-bearing: with the empty-map variant swapped back to the real `OWN`, the test reddens
+  (`fail 1`) with `a record the map neither measures nor names outside itself must redden rather
+  than read as an unmeasured record, and with inventory.outsideTheMap emptied this record is that
+  record`; restoring the variant returns it to green.
+- T009 will add `research/raw/m057-verdict-claims.json`. That record is not in this milestone's
+  map (`research/raw/m057-record-shapes.json` names only `m057-surface.json` in
+  `inventory.outsideTheMap`) and this task does not add it — the second owed record is T009's to
+  land and its map entry is T009's to declare.
+- Suite totals. `scripts/tutor-record-shapes.test.mjs` 16 tests / 15 pass / 1 fail → 16 / 16 / 0.
+  `scripts/gate-integrity.test.mjs` (default, unarmed) 40 tests / 28 pass / 12 fail → 40 / 38 / 2.
+  The re-derivation and the three declared rows cleared ten of the twelve; the two that remain are
+  T003's `E5, E7` and `E8`, and they are not recording-derived.
+- The remaining two are a plan-premise defect, not a recording drift, and they cannot be green at
+  this head. `UNSHIPPED_MILESTONE = 'M056'` is documented as "the milestone whose numerically
+  previous id carries no ship commit", which was true when M055 was unshipped; M055's ship commit
+  `1aff7555` (2026-11-20 15:22) landed afterwards, so `workRange(ROOT, 'M056')` now answers by the
+  `ship` rule and `run.code === 0` is measured over that shipped-predecessor range. These two tests
+  never open `research/raw/m044-gate-shapes.json`, so no armed capture can move them, contrary to
+  the Approach's "the record they guard is what moves".
+- The milestone that now instantiates the premise is `M058`: `workRange(ROOT, 'M058')` answers
+  `mode: newest-ship`, `base 1aff7555` (the newest ship the log carries), rule
+  `git log names no ship commit for M057 …`, and under `MUTANTS.workRange` it answers `mode: none`
+  with `the numeric-predecessor rule cannot answer: git log names no ship commit for M057 …`, which
+  is exactly what E5/E7 and E8 assert. The sole obstacle is the stage-exit-0 assertion: for any
+  fallback milestone the range is `1aff7555..HEAD`, and `gate({milestone:'M058', check:'fix-record'})`
+  refuses with one finding — `T009 claims research/raw/m057-verdict-claims.json … and git diff
+  --name-status -M 1aff7555…22707520 carries no such path` — because T008 runs before T009
+  (`T009.deps: [T008]`) and that record does not exist yet. Proved by running the same stage over the
+  same corpus with T009's task log excluded: `code 0`, printed `rule newest-ship: git log names no
+  ship commit for M057 …`. So the re-point (better: a derivation, exactly as
+  `NEWEST_SHIPPED_MILESTONE` is derived for this same reason) plus the two
+  `/no ship commit for M055/` spellings and E8's title becomes correct the moment T009 lands its
+  record; it is not reachable from T008's head without either weakening that assertion or editing a
+  fixture the Approach places out of scope.
+- Verify run exactly as written. Leg 1 `node --test scripts/gate-integrity.test.mjs` exits 1 on the
+  two T003 tests above; leg 2 `npx prettier --check research/raw/m044-gate-shapes.json
+  scripts/gate-integrity.test.mjs` exits 0 (`All matched files use Prettier code style!`), and
+  `scripts/tutor-record-shapes.test.mjs` is clean under the same check.
+- Not landed: the declared Verify is red for a reason outside this task's mandate, and a green run
+  was not bought by loosening, deleting or re-homing an assertion.
+- Verdict: blocked — the mutant repair, the three declared reason rows and the idempotent
+  re-derivation are done and read from this tree, but T003's `E5, E7` and `E8` cannot be green
+  before T009 lands `research/raw/m057-verdict-claims.json`.
