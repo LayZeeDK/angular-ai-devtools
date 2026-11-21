@@ -2,10 +2,10 @@
 id: T007
 title: Pin the proof skills in the audit
 wave: 6
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T007
+base: 100e11599233674fa1b4e9c267a6d6b343474a46
 worktree: null
 task_branch: null
 files:
@@ -142,3 +142,8 @@ node --test scripts/prove-skills-audited.test.mjs && npx prettier --check script
 ## Log
 
 - pending.
+- Landed path: `scripts/prove-skills-audited.test.mjs`.
+- Three cases, 3/3 at this head: the audit covers all four proof skills (each as a `## Descriptive docs` entry, 4 of 4, of 5 entries and 113 `## Doc:` sections); the Summary's descriptive count equals the list's own length, counted from the bullets rather than typed; and the mutant that removes one bullet — the line and its two indented continuations, as a unit — refuses with `the docs audit must cover <skill>: neither a ## Doc: heading nor a ## Descriptive docs entry names it`, measured to leave the tally unchanged while the list shrinks by one.
+- The audit is resolved the way the disposition suite resolves it (live copy while the milestone is live, newest archive copy after the ship move), so one `.project` literal is a naming, not a read, and `gate:archive-paths` stays clean.
+- The suite reads the audit and writes nothing: the bytes are re-read at the end of the case to prove it.
+- Landed paths: `scripts/prove-skills-audited.test.mjs` — each is read from this tree, ready.
