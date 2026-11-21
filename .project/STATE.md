@@ -1154,3 +1154,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — build — build started
 - 2026-11-21 — ship — build done; final review pending
 - 2026-11-21 — shipped — archive preflight passed; shipment recorded
+- 2026-11-21 — shipped — milestone M057 shipped; handoff to the next roadmap entry
