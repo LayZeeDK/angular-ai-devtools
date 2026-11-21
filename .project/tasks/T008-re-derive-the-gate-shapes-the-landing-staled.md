@@ -2,11 +2,11 @@
 id: T008
 title: Re-derive the gate shapes the landing staled
 wave: 5
-status: in-progress
+status: done
 deps: [T007]
 agent: build_T008
-base: 227075202e42f620a1e8f0f03db3b62679002fd1
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: cbca600c0350c1e5ff8d0e50ff2f804d1f61e25a
+worktree: null
 task_branch: null
 files:
   - research/raw/m044-gate-shapes.json
@@ -155,3 +155,37 @@ node --test scripts/gate-integrity.test.mjs && npx prettier --check research/raw
 - Verdict: blocked — the mutant repair, the three declared reason rows and the idempotent
   re-derivation are done and read from this tree, but T003's `E5, E7` and `E8` cannot be green
   before T009 lands `research/raw/m057-verdict-claims.json`.
+- Blockers cleared at `cbca600c`. Both failures the entry above names are gone at this head, and
+  neither was bought by editing a declared file in this entry: the working tree carries no change to
+  `research/raw/m044-gate-shapes.json` or to any of the four declared suites. What cleared them is
+  the derivation `d6ffafb6` already carries plus T009's landing.
+- `scripts/gate-integrity.test.mjs` is 40 of 40 (exit 0). The two T003 tests no longer name `M056`:
+  `UNSHIPPED_MILESTONE` is derived from the log — the lowest id `git log --grep=^ship: M` records no
+  shipment for, plus one — so it instantiates `M058` today, and E7 prints
+  `M058 derives 1aff7555a201e78ad10c1e450b3cf4b61c8663cc..cbca600c0350c1e5ff8d0e50ff2f804d1f61e25a
+  by rule newest-ship`; under `MUTANTS.workRange` E8's refusal reads `the numeric-predecessor rule
+  cannot answer: git log names no ship commit for M057` and the repair answers that derived range.
+  E5, E7's stage-exit-0 assertion is green because T009's `research/raw/m057-verdict-claims.json`
+  landed: the gate prints `fix-record clean - examined 63 claim(s) in 9 task log(s) of .project/tasks
+  (logs of M057) against 42 changed path(s) of 1aff7555..cbca600c (rule newest-ship: git log names no
+  ship commit for M057 …)`, where the entry above measured one finding — that exact claim, absent
+  from `1aff7555..22707520`.
+- `scripts/tutor-record-shapes.test.mjs` is 16 tests / 16 pass / 0 fail (exit 0), so the T001 mutant
+  repair reads green at this head rather than honest-red on a naming that has since become
+  deliberate.
+- The record still re-derives and a default run is still a read:
+  `the recording still re-derives from the tree, the range and the stream this head carries` passes,
+  and `research/raw/m044-gate-shapes.json` hashes
+  `61943e374e550ae025dabfc0fa304a2f885bcc927edd9e3ac0de45bc58d4db6e` (144680 bytes) both at load and
+  after the run, so E6 holds. No armed capture was needed and none was run: the bytes T008 committed
+  are the bytes `cbca600c` derives.
+- Verify run exactly as written at `cbca600c`. Leg 1 `node --test scripts/gate-integrity.test.mjs`
+  exits 0 (`tests 40`, `pass 40`, `fail 0`, `cancelled 0`, `skipped 0`, `todo 0`); leg 2
+  `npx prettier --check research/raw/m044-gate-shapes.json scripts/gate-integrity.test.mjs` exits 0
+  (`All matched files use Prettier code style!`); the `&&` chain exits 0.
+- Landed paths: `research/raw/m044-gate-shapes.json`, `scripts/gate-integrity.test.mjs`,
+  `scripts/tutor-record-shapes.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`,
+  `scripts/tutor-signals-shapes.test.mjs` — each is read from this tree.
+- Verdict: the four suites and the re-derived record read green at `cbca600c` with nothing loosened,
+  deleted or re-homed, and the two failures the earlier entry named cleared in T009's landing while
+  this task's record and its four suites stayed as committed — ready.
