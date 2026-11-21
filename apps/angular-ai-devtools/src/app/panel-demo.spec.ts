@@ -233,6 +233,18 @@ import {
   STATE_TEXTS as TUTOR_STATE_TEXTS,
   tutorFoundationsPanel,
 } from './panel-tutor-foundations';
+import {
+  ANSWERED as TUTOR_SIGNALS_ANSWERED,
+  GRAPH_UNREADABLE as TUTOR_SIGNALS_GRAPH_UNREADABLE,
+  LABELS as TUTOR_SIGNALS_LABELS,
+  NO_ANSWER_STATE as TUTOR_SIGNALS_NO_ANSWER_STATE,
+  NO_ANSWER_TEXT as TUTOR_SIGNALS_NO_ANSWER_TEXT,
+  NO_EFFECT_NODE as TUTOR_SIGNALS_NO_EFFECT_NODE,
+  NO_RENDER_ENTRY as TUTOR_SIGNALS_NO_RENDER_ENTRY,
+  ORDERING_TEXT as TUTOR_SIGNALS_ORDERING_TEXT,
+  STATE_TEXTS as TUTOR_SIGNALS_STATE_TEXTS,
+  tutorSignalsPanel,
+} from './panel-tutor-signals';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -280,6 +292,7 @@ interface RenderPhaseRecording {
     effectEvent: { matchingNames: string[]; count: number; absent: boolean };
   };
   effect: {
+    question: string;
     freshRead: {
       nodeIndex: number;
       kind: string;
@@ -287,6 +300,8 @@ interface RenderPhaseRecording {
       labelEmpty: boolean;
       signalsTheEdgesName: string[];
       edges: { consumer: number; producer: number }[];
+      nodes: RecordedSignalNode[];
+      allEdges: RecordedSignalEdge[];
     };
   };
   changeDetection: {
@@ -298,6 +313,19 @@ interface RenderPhaseRecording {
       entryIndex: number;
     };
   };
+}
+
+/** One node of the recorded signal graph, for the three fields the tutor-signals answer reads. */
+interface RecordedSignalNode {
+  readonly index: number;
+  readonly kind: string;
+  readonly label: string;
+}
+
+/** One recorded edge: the two index ends the recorded shape holds. */
+interface RecordedSignalEdge {
+  readonly consumer: number;
+  readonly producer: number;
 }
 
 /** The part of the shipped error digest this spec reads. */
@@ -2916,7 +2944,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — thirty-one paths, the same ordered list
+    // The whole table, in order and to the count — thirty-six paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -2949,6 +2977,7 @@ describe('the panel demo', () => {
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
+      'tutor-signals', // M057 SC1, SC3 surface: the effect node by label and index, its upstream nodes, the ordering absence, or the three absences named apart
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
@@ -2957,7 +2986,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(35);
+    expect(appRoutes).toHaveLength(36);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -5605,5 +5634,388 @@ describe('the tutor-foundations surface', () => {
     expect(tutorFoundationsPanel({ state: 'constructor' }).lines).toEqual([
       'state: constructor',
     ]);
+  });
+});
+
+// ------------------------------------------------------------------------------------------------
+// M057 T004 — the tutor-signals surface: the shipped join's own answer over the record T003 pins
+// ------------------------------------------------------------------------------------------------
+//
+// The pane this section holds is the display half of a join that reads two records and computes
+// nothing else: `extension/tutor-signals.js` (T002) answers from the serialized signal graph and the
+// render/effect entry, and the demo's sample fact is its answer over
+// `research/raw/m039-render-phase.json`'s `/effect/freshRead` — the one record on disk that carries an
+// effect node with a numeric `index` (PLAN C8), and the record T003's suite pins. So the join is
+// evaluated here from its own committed text, the record is inlined from disk, the line the record
+// states its graph at is located in the record's own bytes, and the fact the demo ships is held to
+// that answer field for field: a fact that drifted from the record, from the join or from the tree
+// reddens here rather than shipping.
+
+/** The record the tutor-signals fact is the join's answer over. */
+const TUTOR_SIGNALS_RECORD = 'research/raw/m039-render-phase.json';
+
+/** One claim of the join's answer, for the fields this spec reads. */
+interface TutorSignalsClaim {
+  readonly claim: string;
+  readonly values: unknown;
+  readonly artefactPath: string;
+  readonly line: number;
+}
+
+/** The join's answer: the eight fields every state carries. */
+interface TutorSignalsAnswer {
+  readonly state: string;
+  readonly question: string;
+  readonly effect: {
+    readonly label: string;
+    readonly index: number | null;
+    readonly namedBy: string;
+  } | null;
+  readonly reads: readonly {
+    readonly index: number | null;
+    readonly label: string;
+  }[];
+  readonly unplaced: readonly {
+    readonly end: string;
+    readonly value: unknown;
+  }[];
+  readonly ordering: { readonly state: string; readonly absence: string };
+  readonly claims: readonly TutorSignalsClaim[];
+  readonly detail: string;
+}
+
+/** The page's own join namespace, as `extension/tutor-signals.js` publishes it. */
+interface TutorSignalsJoin {
+  tutorSignals(records: unknown): TutorSignalsAnswer;
+  STATES: readonly string[];
+  ABSENCES: readonly string[];
+}
+
+/**
+ * The join `extension/tutor-signals.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `tutor-signals` fact is held to the join's answer for the record
+ * inlined from disk, not to a copy of that answer written in this spec. The module is an IIFE with no
+ * imports, so running it is the whole of loading it.
+ */
+function tutorSignalsJoin(): TutorSignalsJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/tutor-signals.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/tutor-signals.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as { angularAiTutorSignals?: TutorSignalsJoin }
+  ).angularAiTutorSignals;
+  if (join === undefined || typeof join.tutorSignals !== 'function') {
+    throw new Error('extension/tutor-signals.js published no tutorSignals');
+  }
+  return join;
+}
+
+/**
+ * The line the record states its indexed graph at, read out of the record's own bytes rather than
+ * trusted as a number written here: the line whose trimmed text opens `"freshRead"`, which is the
+ * line every graph-side claim the answer carries cites.
+ */
+function graphLineOf(text: string): number {
+  const found = text
+    .split(/\r?\n/)
+    .findIndex((candidate) => candidate.trim() === '"freshRead": {');
+  if (found < 0) {
+    throw new Error(
+      `${TUTOR_SIGNALS_RECORD} states no "freshRead" object, so the answer has no graph line to cite`,
+    );
+  }
+  return found + 1;
+}
+
+/**
+ * The two records the join is handed: the record's own `nodes` and `allEdges` under the path and the
+ * line it states them at, the render/effect entry named by the edge whose consumer end is the effect
+ * node's own `index`, and the record's own question. Every value here is one the record carries, so
+ * the answer the demo ships is the join's answer over the record and not over a fact this spec wrote.
+ */
+function tutorSignalsRecords(recording: RenderPhaseRecording, text: string) {
+  const fresh = recording.effect.freshRead;
+  const effects = fresh.nodes.filter((node) => node.kind === 'effect');
+  if (effects.length !== 1) {
+    throw new Error(
+      `${TUTOR_SIGNALS_RECORD} carries ${effects.length} nodes of kind effect, and the answer names exactly one`,
+    );
+  }
+  const effect = effects[0];
+  if (effect === undefined) {
+    throw new Error(`${TUTOR_SIGNALS_RECORD} carries no effect node to name`);
+  }
+  return {
+    graph: {
+      path: TUTOR_SIGNALS_RECORD,
+      line: graphLineOf(text),
+      graph: { nodes: fresh.nodes, edges: fresh.allEdges },
+    },
+    effect: { edge: { consumer: effect.index } },
+    question: recording.effect.question,
+  };
+}
+
+describe('the tutor-signals surface', () => {
+  it('names the effect node by its own index and the label the graph spells, each upstream node and the ordering absence, and holds the sample fact to the join’s own answer', async () => {
+    const { recording, text } = readRenderPhaseRecording();
+    const join = tutorSignalsJoin();
+    const records = tutorSignalsRecords(recording, text);
+    const answer = join.tutorSignals(records);
+    const fresh = recording.effect.freshRead;
+
+    // The answer is the join's own over the record, and its vocabulary is the join's own list.
+    expect(Object.keys(answer).sort()).toEqual([
+      'claims',
+      'detail',
+      'effect',
+      'ordering',
+      'question',
+      'reads',
+      'state',
+      'unplaced',
+    ]);
+    expect([...join.STATES]).toEqual([
+      TUTOR_SIGNALS_ANSWERED,
+      TUTOR_SIGNALS_GRAPH_UNREADABLE,
+      TUTOR_SIGNALS_NO_RENDER_ENTRY,
+      TUTOR_SIGNALS_NO_EFFECT_NODE,
+    ]);
+    expect(answer.state).toBe(TUTOR_SIGNALS_ANSWERED);
+    expect(answer.question).toBe(recording.effect.question);
+
+    // The effect: the record's own node index — never its position in the nodes array — and the
+    // label the graph spells, which in this record is the empty string (E1, E2, SC1).
+    const effect = answer.effect;
+    if (effect === null || effect.index === null) {
+      throw new Error(
+        `the record's effect node must be named at its own index, and the answer said ${JSON.stringify(effect)}`,
+      );
+    }
+    expect(effect.index).toBe(fresh.nodeIndex);
+    expect(effect.label).toBe(fresh.label);
+    expect(effect.label).toBe('');
+    expect(effect.namedBy).toBe('recorded-edge');
+
+    // The upstream node is the one the record's own edge states, by index and by label.
+    const effectEdges = fresh.allEdges.filter(
+      (edge) => edge.consumer === effect.index,
+    );
+    expect(effectEdges).toHaveLength(1);
+    const producerIndex = effectEdges[0]?.producer;
+    const producer = fresh.nodes.find((node) => node.index === producerIndex);
+    if (producer === undefined) {
+      throw new Error(
+        `${TUTOR_SIGNALS_RECORD} carries no node at index ${String(producerIndex)}`,
+      );
+    }
+    expect(answer.reads).toEqual([
+      { index: producer.index, label: producer.label },
+    ]);
+    expect(producer.label).toBe(fresh.signalsTheEdgesName[0] ?? producer.label);
+
+    expect(answer.unplaced).toEqual([]);
+    // The ordering is the named absence and no field beside it (SC2).
+    expect(answer.ordering).toEqual({
+      state: 'absent',
+      absence: 'no-write-record-no-order',
+    });
+
+    // Every claim carries an artefact path, and the graph-side ones cite the record and the line the
+    // record states its graph at (SC1).
+    expect(answer.claims.map((claim) => claim.claim)).toEqual([
+      'effect',
+      'read',
+      'ordering',
+    ]);
+    for (const claim of answer.claims) {
+      expect(typeof claim.artefactPath).toBe('string');
+    }
+    for (const claim of answer.claims.filter(
+      (one) => one.claim === 'effect' || one.claim === 'read',
+    )) {
+      expect(claim.artefactPath).toBe(TUTOR_SIGNALS_RECORD);
+      expect(claim.line).toBe(graphLineOf(text));
+      expect(text.split(/\r?\n/)[claim.line - 1]?.trim()).toBe(
+        '"freshRead": {',
+      );
+    }
+
+    // The demo's sample fact is that answer, field for field — no field of it written here.
+    expect(FACTS['tutor-signals']).toEqual(answer);
+
+    // The route is the one a user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'tutor-signals',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the tutor-signals surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('tutor-signals');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'tutor-signals'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo('tutor-signals');
+    const pane = tutorSignalsPanel(FACTS['tutor-signals']);
+    expect(demo.state()).toBe(TUTOR_SIGNALS_ANSWERED);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(pane.state).toBe(TUTOR_SIGNALS_ANSWERED);
+    expect(pane.lines[0]).toBe(`state: ${TUTOR_SIGNALS_ANSWERED}`);
+    expect(pane.lines[1]).toBe(
+      TUTOR_SIGNALS_STATE_TEXTS[TUTOR_SIGNALS_ANSWERED],
+    );
+
+    // E2: the empty label prints as empty, beside the node's own index and never as a name minted
+    // from the position, the epoch or a source string.
+    const labelAt = pane.lines.indexOf(`${TUTOR_SIGNALS_LABELS.effectLabel}: `);
+    expect(labelAt).toBeGreaterThan(-1);
+    expect(pane.lines[labelAt + 1]).toBe(
+      `${TUTOR_SIGNALS_LABELS.effectIndex}: ${effect.index}`,
+    );
+    expect(pane.text).not.toContain(`${TUTOR_SIGNALS_LABELS.effectLabel}: ""`);
+    expect(pane.text).not.toMatch(/position|unnamed|anonymous/i);
+
+    // The upstream node, by index and label, and the ordering as the named absence beside it.
+    expect(pane.lines).toContain(
+      `${TUTOR_SIGNALS_LABELS.readIndex}: ${producer.index}`,
+    );
+    expect(pane.lines).toContain(
+      `${TUTOR_SIGNALS_LABELS.readLabel}: ${producer.label}`,
+    );
+    expect(pane.lines).toContain(TUTOR_SIGNALS_ORDERING_TEXT);
+    expect(pane.lines).toContain(
+      `${TUTOR_SIGNALS_LABELS.orderingState}: ${answer.ordering.state}`,
+    );
+    expect(pane.lines).toContain(
+      `${TUTOR_SIGNALS_LABELS.orderingAbsence}: ${answer.ordering.absence}`,
+    );
+    // Every claim's artefact path is on the pane, so no claim is stated without its evidence (SC1).
+    for (const claim of answer.claims) {
+      expect(pane.lines).toContain(
+        `${TUTOR_SIGNALS_LABELS.claim}: ${claim.claim}`,
+      );
+      expect(pane.lines).toContain(
+        `${TUTOR_SIGNALS_LABELS.artefactPath}: ${claim.artefactPath}`,
+      );
+      expect(pane.lines).toContain(
+        `${TUTOR_SIGNALS_LABELS.claimLine}: ${claim.line}`,
+      );
+    }
+
+    // The pane's own registry rule: every line is either a registered sentence or a field of the
+    // answer under its own path, so no wording and no field can be composed outside the two tables.
+    const sentences = new Set<string>([
+      ...Object.values(TUTOR_SIGNALS_STATE_TEXTS),
+      TUTOR_SIGNALS_ORDERING_TEXT,
+    ]);
+    const labels = new Set<string>(Object.values(TUTOR_SIGNALS_LABELS));
+    for (const line of pane.lines) {
+      if (sentences.has(line)) continue;
+      const colon = line.indexOf(': ');
+      expect(colon, line).toBeGreaterThan(0);
+      expect(labels, line).toContain(line.slice(0, colon));
+    }
+
+    // SC3: three absences, three states and three sentences — never one blank answer, and never a
+    // page reported as carrying no effects.
+    const graphUnreadable = join.tutorSignals({
+      effect: records.effect,
+      question: records.question,
+    });
+    const noRenderEntry = join.tutorSignals({
+      graph: records.graph,
+      question: records.question,
+    });
+    const noEffectNode = join.tutorSignals({
+      graph: {
+        ...records.graph,
+        graph: {
+          nodes: fresh.nodes.filter((node) => node.kind !== 'effect'),
+          edges: records.graph.graph.edges,
+        },
+      },
+      effect: records.effect,
+    });
+    expect(graphUnreadable.state).toBe(TUTOR_SIGNALS_GRAPH_UNREADABLE);
+    expect(noRenderEntry.state).toBe(TUTOR_SIGNALS_NO_RENDER_ENTRY);
+    expect(noEffectNode.state).toBe(TUTOR_SIGNALS_NO_EFFECT_NODE);
+    // The reference no node can place is named unplaced, by end and by the value the record states.
+    expect(noEffectNode.unplaced).toEqual([
+      { end: 'effect', value: effect.index },
+    ]);
+
+    const absences = [graphUnreadable, noRenderEntry, noEffectNode].map((one) =>
+      tutorSignalsPanel(one),
+    );
+    expect(new Set(absences.map((one) => one.state)).size).toBe(3);
+    expect(new Set(absences.map((one) => one.lines[1])).size).toBe(3);
+    for (const absent of absences) {
+      // Each names its own absence in its own sentence, and states nothing the answer lacks.
+      expect(absent.lines[0]).toBe(`state: ${absent.state}`);
+      expect(absent.lines[1]?.startsWith(`${absent.state}:`)).toBe(true);
+      expect(absent.text.trim().length).toBeGreaterThan(0);
+      expect(
+        absent.lines.some(
+          (line) =>
+            line.startsWith(`${TUTOR_SIGNALS_LABELS.effectLabel}:`) ||
+            line.startsWith(`${TUTOR_SIGNALS_LABELS.readIndex}:`),
+        ),
+      ).toBe(false);
+      // The ordering claim the join carries is rendered with its own artefact, in every state.
+      expect(absent.lines).toContain(`${TUTOR_SIGNALS_LABELS.claim}: ordering`);
+    }
+    const noEffectPane = tutorSignalsPanel(noEffectNode);
+    expect(noEffectPane.lines).toContain(
+      `${TUTOR_SIGNALS_LABELS.unplacedEnd}: effect`,
+    );
+    expect(noEffectPane.lines).toContain(
+      `${TUTOR_SIGNALS_LABELS.unplacedValue}: ${effect.index}`,
+    );
+    // An unplaced reference prints as unplaced and is never rendered as a node at that index.
+    expect(noEffectPane.lines).not.toContain(
+      `${TUTOR_SIGNALS_LABELS.effectIndex}: ${effect.index}`,
+    );
+
+    // The pane's own absence for an answer nobody gave is a fourth, distinct rendering, and a state
+    // word this pane was not written for is rendered as the bare word it was given.
+    const noAnswer = tutorSignalsPanel(undefined);
+    expect(noAnswer.state).toBe(TUTOR_SIGNALS_NO_ANSWER_STATE);
+    expect(noAnswer.lines).toEqual([TUTOR_SIGNALS_NO_ANSWER_TEXT]);
+    expect(tutorSignalsPanel({}).lines).toEqual([TUTOR_SIGNALS_NO_ANSWER_TEXT]);
+    expect(
+      new Set([pane.state, ...absences.map((one) => one.state), noAnswer.state])
+        .size,
+    ).toBe(5);
+    expect(
+      new Set([
+        pane.lines[1],
+        ...absences.map((one) => one.lines[1]),
+        noAnswer.lines[0],
+      ]).size,
+    ).toBe(5);
+    expect(tutorSignalsPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+
+    // Idempotency: the same fact renders the same lines in the same order, twice.
+    expect(tutorSignalsPanel(FACTS['tutor-signals'])).toEqual(pane);
+    // No DOM is added to an inspected page by this pane's own text.
+    expect(pane.text).not.toMatch(/<\/?[a-z]/i);
   });
 });

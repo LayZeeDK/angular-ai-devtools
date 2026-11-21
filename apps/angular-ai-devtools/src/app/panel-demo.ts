@@ -62,6 +62,7 @@ const LOADERS: Record<
   'webmcp-rehearsal': () => import('./panel-webmcp-rehearsal') as never,
   'visual-qa': () => import('./panel-visual-qa') as never,
   'tutor-foundations': () => import('./panel-tutor-foundations') as never,
+  'tutor-signals': () => import('./panel-tutor-signals') as never,
 };
 
 // The sample facts each surface renders; the spec holds each one to the recording it came from.
@@ -800,4 +801,54 @@ FACTS['tutor-foundations'] = {
   artefactPaths: ['scripts/visual-qa-style-read.test.mjs'],
   detail:
     'the record research/raw/m054-verdict-claims.json states "scripts/visual-qa-style-read.test.mjs" as its own claims[].artefactPath for criterion SC1, and the injected reader reported each present at answer time',
+};
+
+// The join's own answer (`extension/tutor-signals.js`, T002) for the graph record T003 pins, entered
+// here after the component for the reason the `visual-qa` and `tutor-foundations` facts above are:
+// every cited line of this file is pinned where it sits, so a fact added inside the literal would move
+// the template, the loader resolution and the earlier facts those records quote.
+//
+// The record is `research/raw/m039-render-phase.json`'s `/effect/freshRead` (PLAN C8): six nodes, every
+// one carrying a numeric `index`, and one node of kind `effect` at index 5 whose label is the empty
+// string. The answer is not written here by hand: `panel-demo.spec.ts` re-reads that record, locates the
+// graph by the line the record states it at, evaluates the shipped join from its own committed text and
+// runs it over the record's own `nodes` and `allEdges` with that effect node's own `index` as the edge
+// the render/effect entry holds, then holds this fact to that answer field for field — so a fact that
+// drifted from the record, the join or the tree reddens there rather than shipping. The empty label is
+// the record's own reading and stays empty here: the pane prints `effect.label` as a blank beside
+// `effect.index: 5` and mints no name for the node (E2). Each claim carries the record's own path and
+// the line its graph sits at, and the join's own path and line for the ordering it states, so no
+// artefact path is composed here (SC1). This is a different answer over that record than the
+// `render-phase` pane renders — that pane keeps the effect, the phase absence and the change-detection
+// finding apart and names no index at all — so the two panes stay two answers over one record.
+FACTS['tutor-signals'] = {
+  state: 'answered',
+  question:
+    'What does the signal graph carry for an effect: its kind, its label, its epoch, its edges and the signals those edges name?',
+  effect: { label: '', index: 5, namedBy: 'recorded-edge' },
+  reads: [{ index: 2, label: 'count' }],
+  unplaced: [],
+  ordering: { state: 'absent', absence: 'no-write-record-no-order' },
+  claims: [
+    {
+      claim: 'effect',
+      values: { label: '', index: 5, namedBy: 'recorded-edge' },
+      artefactPath: 'research/raw/m039-render-phase.json',
+      line: 399,
+    },
+    {
+      claim: 'read',
+      values: { index: 2, label: 'count' },
+      artefactPath: 'research/raw/m039-render-phase.json',
+      line: 399,
+    },
+    {
+      claim: 'ordering',
+      values: { state: 'absent', absence: 'no-write-record-no-order' },
+      artefactPath: 'extension/render-phase.js',
+      line: 18,
+    },
+  ],
+  detail:
+    'the graph record research/raw/m039-render-phase.json:399 states the effect node labelled "" at index 5, reached by the edge the record holds, and 1 upstream node in the order its edges appear; the record carries no write record, so the ordering is the named absence no-write-record-no-order and this answer names no write, no owner and no cause',
 };
