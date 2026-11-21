@@ -227,8 +227,9 @@ and no configured route (`ngCodedMessages`, `namesConfiguredRoutePath: false`,
 `digestCarriesCode: false`), which is why the join's route half reads the config and never a
 captured diagnostic (C2). **The reach**, which is the page's say and no new read:
 `extension/agent-main.js:1750-1839` resolves the `Router` token from entry 2 of the 5-entry
-injector path to the instance `ɵgetRouterInstance` returns, and `reach.note` states "No new tap is
-needed" — recorded as the answer's only Router access (SC6, N6). It records
+injector path to the instance `ɵgetRouterInstance` returns, and `reach.finding` states "No new tap
+is needed" — recorded as the answer's only Router access (SC6, N6); `reach.note` states the
+token-field measurement instead, which T001 measured and the recording carries as `carriedBy`. It records
 `research/raw/m058-record-shapes.json` with the field map, the two absences as named states, the
 attribution rule and `inventory.outsideTheMap` naming the two records this milestone owes
 (the surface record T003 writes, the verdict-claims record T004 writes). Because the map is
