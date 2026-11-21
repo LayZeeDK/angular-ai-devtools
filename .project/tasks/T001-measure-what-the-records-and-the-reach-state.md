@@ -2,10 +2,10 @@
 id: T001
 title: Measure what the records and the reach state
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: 53a0d992121ee965304e1a91203e64b981b59f01
 worktree: null
 task_branch: null
 files:
@@ -164,3 +164,6 @@ node --test scripts/tutor-routing-shapes.test.mjs scripts/tutor-answer.test.mjs 
 ## Log
 
 - pending.
+- Landed paths: `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `research/raw/m058-record-shapes.json`, `scripts/tutor-routing-shapes.test.mjs`.
+- AC3 correction, measured: the reach sentence "No new tap is needed." is carried by `reach.finding` (m041 line 689), not `reach.note` (line 765). The recording states `reach.noNewTap.carriedBy: ["finding"]` and the E9 test prints where the sentence sits rather than repeating the contract's attribution.
+- Smaller measurements: the config's `component` field is carried by 14 of 18 rows (not 15), and the plan names decisions D1-D7 and risks R1-R5.

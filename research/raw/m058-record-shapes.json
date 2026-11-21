@@ -1,0 +1,1091 @@
+{
+  "schema": "m058-record-shapes/v1",
+  "milestone": "M058",
+  "task": "T001",
+  "title": "Measure what the records and the reach state",
+  "question": "which fields do the recorded navigation stream and the recorded router config state, what does the one reachable Router token and the one coded diagnostic state instead, and which two members the roadmap’s answer promises are in no record at all?",
+  "verdict": "the stream side names 16 event classes and 4 terminals, each with its own key set; the config side names 5 fields over 18 rows, 3 of them redirect-shaped and 1 carrying a named guard; the diagnostic side names the segment it could not match and 0 configured routes; the reach resolves the Router token from entry 2 of a 5-entry injector path with 0 new taps; and no record carries a guard verdict or a redirect decision, so no-guard-verdict and no-redirect-decision are states the answer renders rather than gaps.",
+  "head": "de82058907cdad21f83cf1432080c58b3ec49d89",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "2026-11-21T16:44:38.448Z",
+  "instrument": {
+    "reads": [
+      "research/raw/m041-navigation.json",
+      "research/raw/m030-router-config.json",
+      "research/raw/m033-router-diagnostic.json",
+      "extension/agent-main.js"
+    ],
+    "how": "statically: each record is parsed, and each line a claim rests on is found by searching its file for the text the citation quotes — never by trusting a typed number, and never by trusting the quotation either",
+    "holds": "a field map entry holds where the record’s own key list carries every name it states and this head re-derives the same value; a citation holds where searching the file for the quoted line finds it on exactly the line the recording names, and on no second line",
+    "nothingRun": "no page is opened, no build is run and no browser is started: the reach is the page’s say, recorded by research/raw/m041-navigation.json, and the agent’s own source bounds it"
+  },
+  "records": [
+    {
+      "path": "research/raw/m041-navigation.json",
+      "carries": "the navigation stream: sixteen event classes with the key sets the installed chunk declares, four terminal classes, the held and superseded frames, the guard-verdict absence, and the reach",
+      "task": "T001",
+      "capturedAt": "2026-11-09T00:21:25.019Z",
+      "captureCommand": "set \"M041_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-capture.test.mjs\"",
+      "citationIds": [
+        "navEnumerated",
+        "navObservedClassCount",
+        "terminalEnd",
+        "terminalCancel",
+        "terminalError",
+        "terminalSkip",
+        "redirectProducedNoCancel",
+        "redirectFrameEvents",
+        "redirectNoCancelFinding",
+        "guardVerdictNamed",
+        "guardsCheckEndKeys",
+        "guardFieldsInThatPayload",
+        "guardFieldsAreAggregateOnly",
+        "guardVerdictFinding",
+        "guardNamesInEitherPayload",
+        "refusedVersusUnmatchedSameClassSequence",
+        "noCancelInEither",
+        "attribution",
+        "cancelToLoadEndMs",
+        "loadEndToSuccessorMs",
+        "reachFunction",
+        "reachCite",
+        "reachTokenField",
+        "reachPathEntryCount",
+        "reachRouterTokenEntry",
+        "reachRouterTokenEntrySource",
+        "reachResolvesToTheRouterInstance",
+        "reachNote",
+        "reachNoNewTap",
+        "reachNotTheFirstEntry",
+        "reachProvidesAreNotTheField"
+      ]
+    },
+    {
+      "path": "research/raw/m030-router-config.json",
+      "carries": "the router config: the five fields a configured row states, read over every row of the fixture’s table",
+      "task": null,
+      "capturedAt": "2026-11-07T02:11:13.832Z",
+      "captureCommand": "node --test scripts/router-config-capture.test.mjs",
+      "citationIds": [
+        "configFieldsPresent",
+        "configRedirectRow",
+        "configRedirectTo",
+        "configLoopARow",
+        "configLoopATo",
+        "configLoopBRow",
+        "configGatedRow",
+        "configGuardName",
+        "configLazyRow",
+        "configLoadChildren"
+      ]
+    },
+    {
+      "path": "research/raw/m033-router-diagnostic.json",
+      "carries": "the one coded console message the router emits for a URL no configured path matches, with the segment it names and the route it does not",
+      "task": null,
+      "capturedAt": "2026-11-07T02:11:30.180Z",
+      "captureCommand": "set M033_CAPTURE=1 && node --test scripts/router-diagnostic-capture.test.mjs",
+      "citationIds": [
+        "diagnosticCodedMessage",
+        "diagnosticDigest",
+        "diagnosticCarriesNoCode",
+        "diagnosticNamesNoConfiguredRoute",
+        "diagnosticRestatesTheFields"
+      ]
+    }
+  ],
+  "fieldMap": {
+    "stream": {
+      "carriedBy": "research/raw/m041-navigation.json",
+      "enumerated": 16,
+      "observedClassCount": 16,
+      "classCount": 16,
+      "scrollOutsideTheSixteen": true,
+      "scrollRecordedAsOutsideTheSixteen": true,
+      "everyKeySetObservedAsDeclared": true,
+      "terminals": [
+        {
+          "class": "NavigationEnd",
+          "type": 1,
+          "keys": [
+            "id",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7,
+          "sharesItsKeySetWith": [],
+          "citationId": "terminalEnd"
+        },
+        {
+          "class": "NavigationCancel",
+          "type": 2,
+          "keys": [
+            "code",
+            "id",
+            "reason",
+            "type",
+            "url"
+          ],
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 1,
+          "sharesItsKeySetWith": [
+            "NavigationSkipped"
+          ],
+          "citationId": "terminalCancel"
+        },
+        {
+          "class": "NavigationError",
+          "type": 3,
+          "keys": [
+            "error",
+            "id",
+            "target",
+            "type",
+            "url"
+          ],
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 1,
+          "sharesItsKeySetWith": [],
+          "citationId": "terminalError"
+        },
+        {
+          "class": "NavigationSkipped",
+          "type": 16,
+          "keys": [
+            "code",
+            "id",
+            "reason",
+            "type",
+            "url"
+          ],
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 1,
+          "sharesItsKeySetWith": [
+            "NavigationCancel"
+          ],
+          "citationId": "terminalSkip"
+        }
+      ],
+      "classes": [
+        {
+          "name": "NavigationStart",
+          "type": 0,
+          "keys": [
+            "id",
+            "navigationTrigger",
+            "restoredState",
+            "type",
+            "url"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 9
+        },
+        {
+          "name": "RouteConfigLoadStart",
+          "type": 9,
+          "keys": [
+            "route",
+            "type"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 8
+        },
+        {
+          "name": "RouteConfigLoadEnd",
+          "type": 10,
+          "keys": [
+            "route",
+            "type"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 6
+        },
+        {
+          "name": "RoutesRecognized",
+          "type": 4,
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "GuardsCheckStart",
+          "type": 7,
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "GuardsCheckEnd",
+          "type": 8,
+          "keys": [
+            "id",
+            "shouldActivate",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "ResolveStart",
+          "type": 5,
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "ResolveEnd",
+          "type": 6,
+          "keys": [
+            "id",
+            "state",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "ChildActivationStart",
+          "type": 11,
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "ActivationStart",
+          "type": 13,
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "ActivationEnd",
+          "type": 14,
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "ChildActivationEnd",
+          "type": 12,
+          "keys": [
+            "snapshot",
+            "type"
+          ],
+          "terminal": false,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "NavigationEnd",
+          "type": 1,
+          "keys": [
+            "id",
+            "type",
+            "url",
+            "urlAfterRedirects"
+          ],
+          "terminal": true,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 7
+        },
+        {
+          "name": "NavigationCancel",
+          "type": 2,
+          "keys": [
+            "code",
+            "id",
+            "reason",
+            "type",
+            "url"
+          ],
+          "terminal": true,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 1
+        },
+        {
+          "name": "NavigationError",
+          "type": 3,
+          "keys": [
+            "error",
+            "id",
+            "target",
+            "type",
+            "url"
+          ],
+          "terminal": true,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 1
+        },
+        {
+          "name": "NavigationSkipped",
+          "type": 16,
+          "keys": [
+            "code",
+            "id",
+            "reason",
+            "type",
+            "url"
+          ],
+          "terminal": true,
+          "observedKeysEqualDeclared": true,
+          "observedInFrames": 1
+        }
+      ],
+      "attribution": {
+        "rule": "by route.path in the event’s own payload, never by position",
+        "by": [
+          "id",
+          "route.path"
+        ],
+        "ordering": {
+          "cancelAt": 564.2,
+          "abandonedLoadEndAt": 1756.3,
+          "successorLoadEndAt": 2071.1,
+          "cancelToAbandonedLoadEndMs": 1192.1,
+          "abandonedLoadEndToSuccessorLoadEndMs": 314.8,
+          "abandonedLoadEndIsAfterItsOwnCancel": true,
+          "abandonedLoadEndIsBeforeTheSuccessorLoadEnd": true
+        },
+        "citationIds": [
+          "attribution",
+          "cancelToLoadEndMs",
+          "loadEndToSuccessorMs"
+        ]
+      },
+      "citationIds": [
+        "navEnumerated",
+        "navObservedClassCount",
+        "terminalEnd",
+        "terminalCancel",
+        "terminalError",
+        "terminalSkip"
+      ]
+    },
+    "config": {
+      "carriedBy": "research/raw/m030-router-config.json",
+      "fields": [
+        "path",
+        "component",
+        "redirectTo",
+        "canActivate",
+        "loadChildren"
+      ],
+      "rows": 18,
+      "rowsCarrying": {
+        "path": 18,
+        "component": 14,
+        "redirectTo": 3,
+        "canActivate": 1,
+        "loadChildren": 1
+      },
+      "fieldsCarriedByNoRow": [],
+      "keysOutsideTheFive": [],
+      "configuredPaths": [
+        "stale-view",
+        "stale-view-deferred",
+        "components",
+        "image-budget",
+        "after-render",
+        "trust-bypass",
+        "field-form",
+        "lint-observability",
+        "router-lint",
+        "legacy-module",
+        "onpush-ready",
+        "resource-states",
+        "redirect",
+        "landing",
+        "gated",
+        "lazy",
+        "loop-a",
+        "loop-b"
+      ],
+      "redirectShaped": [
+        {
+          "path": "redirect",
+          "redirectTo": "landing",
+          "carriesComponent": false
+        },
+        {
+          "path": "loop-a",
+          "redirectTo": "loop-b",
+          "carriesComponent": false
+        },
+        {
+          "path": "loop-b",
+          "redirectTo": "loop-a",
+          "carriesComponent": false
+        }
+      ],
+      "guardCarrying": [
+        {
+          "path": "gated",
+          "component": "[fn _LandingPage]",
+          "canActivate": [
+            "[fn redirectGuard]"
+          ],
+          "guardName": "redirectGuard"
+        }
+      ],
+      "restatedBy": {
+        "path": "research/raw/m033-router-diagnostic.json",
+        "rows": 18,
+        "fields": [
+          "path",
+          "component",
+          "redirectTo",
+          "canActivate",
+          "loadChildren"
+        ],
+        "sameRows": true,
+        "sameFields": true,
+        "citationId": "diagnosticRestatesTheFields"
+      },
+      "citationIds": [
+        "configFieldsPresent",
+        "configRedirectRow",
+        "configRedirectTo",
+        "configLoopARow",
+        "configLoopATo",
+        "configLoopBRow",
+        "configGatedRow",
+        "configGuardName",
+        "configLazyRow",
+        "configLoadChildren"
+      ]
+    },
+    "diagnostic": {
+      "carriedBy": "research/raw/m033-router-diagnostic.json",
+      "codedMessages": 1,
+      "consoleMessages": 4,
+      "code": "NG04002",
+      "segment": "this-route-does-not-exist",
+      "statesItNamesNoConfiguredRoutePath": true,
+      "configuredPathsNamedByTheMessage": [],
+      "configuredPathsCompared": 18,
+      "statesTheDigestCarriesNoCode": true,
+      "codesNotCarried": [
+        "NG04002"
+      ],
+      "readsASegmentAndNoRoute": true,
+      "citationIds": [
+        "diagnosticCodedMessage",
+        "diagnosticDigest",
+        "diagnosticCarriesNoCode",
+        "diagnosticNamesNoConfiguredRoute"
+      ]
+    }
+  },
+  "absences": {
+    "notGaps": "Both are states the answer renders, never a gap a capture could fill: no record this repository holds carries a guard verdict or a redirect decision, so no later run can add one and neither is stated as something missing.",
+    "no-guard-verdict": {
+      "state": "no-guard-verdict",
+      "carriedBy": "research/raw/m041-navigation.json",
+      "guardsCheckEndKeys": [
+        "id",
+        "shouldActivate",
+        "state",
+        "type",
+        "url",
+        "urlAfterRedirects"
+      ],
+      "guardsCheckStartKeys": [
+        "id",
+        "state",
+        "type",
+        "url",
+        "urlAfterRedirects"
+      ],
+      "guardsCheckEndAddsOverGuardsCheckStart": [
+        "shouldActivate"
+      ],
+      "removedByGuardsCheckEnd": [],
+      "guardFieldsInThatPayload": [
+        "shouldActivate"
+      ],
+      "guardFieldsAreAggregateOnly": true,
+      "guardNamesInEitherPayload": [],
+      "refusedVersusUnmatched": {
+        "eventCount": 11,
+        "eventCountEqual": true,
+        "classSequenceEqual": true,
+        "keySequenceEqual": true,
+        "terminalClass": [
+          "NavigationEnd"
+        ],
+        "hasNavigationCancelInEither": false,
+        "differingPayloadPaths": 25,
+        "differingPathsAreTheNavigationsOwn": true
+      },
+      "finding": "GuardsCheckEnd adds exactly 1 field over GuardsCheckStart — shouldActivate, a boolean aggregate of the whole check — and the stream names no guard and no per-guard verdict.",
+      "citationIds": [
+        "guardVerdictNamed",
+        "guardsCheckEndKeys",
+        "guardFieldsInThatPayload",
+        "guardFieldsAreAggregateOnly",
+        "guardVerdictFinding",
+        "guardNamesInEitherPayload",
+        "refusedVersusUnmatchedSameClassSequence",
+        "noCancelInEither"
+      ]
+    },
+    "no-redirect-decision": {
+      "state": "no-redirect-decision",
+      "carriedBy": "research/raw/m041-navigation.json",
+      "cancellationCode": {
+        "enum": "NavigationCancellationCode",
+        "name": "Redirect",
+        "value": 0,
+        "producedByARun": false
+      },
+      "producedCancellationCodes": [
+        "SupersededByNewNavigation"
+      ],
+      "frame": {
+        "frame": "redirect",
+        "events": 11,
+        "cancelCount": 0,
+        "url": "/redirect",
+        "urlAfterRedirects": "/landing"
+      },
+      "eventsInTheFrame": 11,
+      "cancelsInTheFrame": 0,
+      "terminalClass": "NavigationEnd",
+      "differsOnlyIn": [
+        "url",
+        "urlAfterRedirects"
+      ],
+      "finding": "A route redirect from /redirect to /landing emitted 11 events and 0 NavigationCancel: the redirect is only `url` differing from `urlAfterRedirects`, so it is not a stage and not a terminal.",
+      "citationIds": [
+        "redirectProducedNoCancel",
+        "redirectFrameEvents",
+        "redirectNoCancelFinding"
+      ]
+    }
+  },
+  "reach": {
+    "question": "Is the Router reachable from the read the agent already produces, and does that read need a tap of its own?",
+    "finding": "The config half of every claim is read through the Router token the agent’s own injector walk already resolves, and the stream half through the one subscription that walk already makes: the reach adds nothing to the page and asks it nothing new.",
+    "readFrom": {
+      "source": "extension/agent-main.js",
+      "function": "routerTokenFrom",
+      "cite": "extension/agent-main.js:1750-1839",
+      "calls": [
+        "ng.getInjector(el) (else ng.ɵgetInjectorFromNode)",
+        "ng.ɵgetInjectorResolutionPath(injector)",
+        "ng.ɵgetInjectorProviders(entry)"
+      ],
+      "tokenField": "record.token",
+      "citationIds": [
+        "reachFunction",
+        "reachCite",
+        "reachTokenField"
+      ]
+    },
+    "pathEntryCount": 5,
+    "pathEntryCountAsTheRecordStatesIt": 5,
+    "path": [
+      {
+        "index": 0,
+        "metadataSource": "NG-JOURNAL-ROOT",
+        "hasRouterToken": 0,
+        "routerTokenResolvesToTheRouterInstance": null
+      },
+      {
+        "index": 1,
+        "metadataSource": "Standalone[_AppComponent]",
+        "hasRouterToken": 0,
+        "routerTokenResolvesToTheRouterInstance": null
+      },
+      {
+        "index": 2,
+        "metadataSource": "Environment Injector",
+        "hasRouterToken": 1,
+        "routerTokenResolvesToTheRouterInstance": true
+      },
+      {
+        "index": 3,
+        "metadataSource": null,
+        "hasRouterToken": 0,
+        "routerTokenResolvesToTheRouterInstance": null
+      },
+      {
+        "index": 4,
+        "metadataSource": null,
+        "hasRouterToken": 0,
+        "routerTokenResolvesToTheRouterInstance": null
+      }
+    ],
+    "routerTokenEntry": 2,
+    "routerTokenEntryAsTheRecordStatesIt": 2,
+    "routerTokenEntrySource": "Environment Injector",
+    "oneEntryHoldsTheRouterToken": true,
+    "tokenFieldIsTheFieldThatFindsIt": true,
+    "providerProvideIsNotTheField": true,
+    "appInjectorIsNotTheFirstEntry": true,
+    "noNewTap": {
+      "sentence": "No new tap is needed.",
+      "carriedBy": [
+        "finding"
+      ],
+      "citationId": "reachNoNewTap"
+    },
+    "note": "In the entry that holds Router, `record.token` yields 90 token names, one of them `Router`; `record.provider.provide` yields 33 names and `Router` is not one of them. The first entry is the element injector on the host element (`NG-JOURNAL-ROOT`, 6 providers), so the app's environment injector is not the first entry.",
+    "reads": [
+      {
+        "observable": "router.events",
+        "where": "extension/agent-main.js",
+        "citationId": "agentReadsTheStream"
+      },
+      {
+        "observable": "router.config",
+        "where": "research/raw/m030-router-config.json",
+        "citationId": "configFieldsPresent"
+      }
+    ],
+    "taps": [],
+    "agentRange": {
+      "cite": "extension/agent-main.js:1750-1839",
+      "startLine": 1750,
+      "endLine": 1839,
+      "lineCount": 90,
+      "holdsTheWalk": true,
+      "tapNeedlesInTheRange": []
+    },
+    "citationIds": [
+      "reachFunction",
+      "reachCite",
+      "reachTokenField",
+      "reachPathEntryCount",
+      "reachRouterTokenEntry",
+      "reachRouterTokenEntrySource",
+      "reachResolvesToTheRouterInstance",
+      "reachNote",
+      "reachNoNewTap",
+      "reachNotTheFirstEntry",
+      "reachProvidesAreNotTheField",
+      "agentRouterTokenFrom",
+      "agentTokenField",
+      "agentResolvesTheInstance",
+      "agentReadsTheStream",
+      "agentNoNewTap"
+    ]
+  },
+  "inventory": {
+    "measured": "No record under `research/raw/` is measured by this map: its citations are lines of the two records this milestone’s answer reads, of the one diagnostic record it refuses to read a route from, and of the agent’s own walk, so the map measures the fields the later waves cite rather than a census of records.",
+    "outsideTheMap": [
+      {
+        "path": "research/raw/m058-surface.json",
+        "why": "the surface record M058 T003 writes — the route, the loader key and each state with the answer field it reads — is captured after this map was measured, so it is named outside the map rather than read as an unmeasured record"
+      },
+      {
+        "path": "research/raw/m058-verdict-claims.json",
+        "why": "the verdict-claims record M058 T004 writes, ruling the criteria this milestone’s intent declares, is captured after this map was measured, so it is named outside the map rather than read as an unmeasured record"
+      }
+    ]
+  },
+  "citations": [
+    {
+      "id": "navEnumerated",
+      "path": "research/raw/m041-navigation.json",
+      "line": 113,
+      "text": "\"enumerated\": 16,"
+    },
+    {
+      "id": "navObservedClassCount",
+      "path": "research/raw/m041-navigation.json",
+      "line": 577,
+      "text": "\"observedClassCount\": 16,"
+    },
+    {
+      "id": "terminalEnd",
+      "path": "research/raw/m041-navigation.json",
+      "line": 469,
+      "text": "\"name\": \"NavigationEnd\","
+    },
+    {
+      "id": "terminalCancel",
+      "path": "research/raw/m041-navigation.json",
+      "line": 499,
+      "text": "\"name\": \"NavigationCancel\","
+    },
+    {
+      "id": "terminalError",
+      "path": "research/raw/m041-navigation.json",
+      "line": 525,
+      "text": "\"name\": \"NavigationError\","
+    },
+    {
+      "id": "terminalSkip",
+      "path": "research/raw/m041-navigation.json",
+      "line": 551,
+      "text": "\"name\": \"NavigationSkipped\","
+    },
+    {
+      "id": "redirectProducedNoCancel",
+      "path": "research/raw/m041-navigation.json",
+      "line": 650,
+      "text": "\"redirectProducedNoCancel\": {"
+    },
+    {
+      "id": "redirectFrameEvents",
+      "path": "research/raw/m041-navigation.json",
+      "line": 652,
+      "text": "\"events\": 11,"
+    },
+    {
+      "id": "redirectNoCancelFinding",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2650,
+      "text": "\"finding\": \"A route redirect from /redirect to /landing emitted 11 events and 0 NavigationCancel: the redirect is only `url` differing from `urlAfterRedirects`, so it is not a stage and not a terminal.\""
+    },
+    {
+      "id": "guardVerdictNamed",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2742,
+      "text": "\"named\": \"guard-verdict-not-recorded\","
+    },
+    {
+      "id": "guardsCheckEndKeys",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2744,
+      "text": "\"guardsCheckEndKeys\": ["
+    },
+    {
+      "id": "guardFieldsInThatPayload",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2760,
+      "text": "\"guardFieldsInThatPayload\": ["
+    },
+    {
+      "id": "guardFieldsAreAggregateOnly",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2764,
+      "text": "\"guardFieldsAreAggregateOnly\": true,"
+    },
+    {
+      "id": "guardVerdictFinding",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2896,
+      "text": "\"finding\": \"GuardsCheckEnd adds exactly 1 field over GuardsCheckStart — shouldActivate, a boolean aggregate of the whole check — and the stream names no guard and no per-guard verdict.\""
+    },
+    {
+      "id": "guardNamesInEitherPayload",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2892,
+      "text": "\"guardNamesInEitherPayload\": []"
+    },
+    {
+      "id": "refusedVersusUnmatchedSameClassSequence",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2805,
+      "text": "\"classSequenceEqual\": true,"
+    },
+    {
+      "id": "noCancelInEither",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2891,
+      "text": "\"hasNavigationCancelInEither\": false,"
+    },
+    {
+      "id": "attribution",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2186,
+      "text": "\"attribution\": \"by route.path in the event’s own payload, never by position\""
+    },
+    {
+      "id": "cancelToLoadEndMs",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2183,
+      "text": "\"cancelToAbandonedLoadEndMs\": 1192.1,"
+    },
+    {
+      "id": "loadEndToSuccessorMs",
+      "path": "research/raw/m041-navigation.json",
+      "line": 2184,
+      "text": "\"abandonedLoadEndToSuccessorLoadEndMs\": 314.8"
+    },
+    {
+      "id": "reachFunction",
+      "path": "research/raw/m041-navigation.json",
+      "line": 692,
+      "text": "\"function\": \"routerTokenFrom\","
+    },
+    {
+      "id": "reachCite",
+      "path": "research/raw/m041-navigation.json",
+      "line": 693,
+      "text": "\"cite\": \"extension/agent-main.js:1750-1839\","
+    },
+    {
+      "id": "reachTokenField",
+      "path": "research/raw/m041-navigation.json",
+      "line": 699,
+      "text": "\"tokenField\": \"record.token\""
+    },
+    {
+      "id": "reachPathEntryCount",
+      "path": "research/raw/m041-navigation.json",
+      "line": 759,
+      "text": "\"pathEntryCount\": 5,"
+    },
+    {
+      "id": "reachRouterTokenEntry",
+      "path": "research/raw/m041-navigation.json",
+      "line": 760,
+      "text": "\"routerTokenEntry\": 2,"
+    },
+    {
+      "id": "reachRouterTokenEntrySource",
+      "path": "research/raw/m041-navigation.json",
+      "line": 761,
+      "text": "\"routerTokenEntrySource\": \"Environment Injector\","
+    },
+    {
+      "id": "reachResolvesToTheRouterInstance",
+      "path": "research/raw/m041-navigation.json",
+      "line": 734,
+      "text": "\"routerTokenResolvesToTheRouterInstance\": true"
+    },
+    {
+      "id": "reachNote",
+      "path": "research/raw/m041-navigation.json",
+      "line": 765,
+      "text": "\"note\": \"In the entry that holds Router, `record.token` yields 90 token names, one of them `Router`; `record.provider.provide` yields 33 names and `Router` is not one of them. The first entry is the element injector on the host element (`NG-JOURNAL-ROOT`, 6 providers), so the app's environment injector is not the first entry.\""
+    },
+    {
+      "id": "reachNoNewTap",
+      "path": "research/raw/m041-navigation.json",
+      "line": 689,
+      "text": "\"finding\": \"The node injector on the host element resolves to a 5-entry path; entry 2, whose metadata source is `Environment Injector` and which carries 90 provider records, holds the `Router` token, and that token resolves to the very instance `ɵgetRouterInstance` returns. No new tap is needed.\","
+    },
+    {
+      "id": "reachNotTheFirstEntry",
+      "path": "research/raw/m041-navigation.json",
+      "line": 764,
+      "text": "\"appInjectorIsTheFirstEntry\": false,"
+    },
+    {
+      "id": "reachProvidesAreNotTheField",
+      "path": "research/raw/m041-navigation.json",
+      "line": 763,
+      "text": "\"providerProvideIsTheFieldThatFindsIt\": false,"
+    },
+    {
+      "id": "configFieldsPresent",
+      "path": "research/raw/m030-router-config.json",
+      "line": 30,
+      "text": "\"fieldsPresent\": ["
+    },
+    {
+      "id": "configRedirectRow",
+      "path": "research/raw/m030-router-config.json",
+      "line": 87,
+      "text": "\"path\": \"redirect\","
+    },
+    {
+      "id": "configRedirectTo",
+      "path": "research/raw/m030-router-config.json",
+      "line": 88,
+      "text": "\"redirectTo\": \"landing\""
+    },
+    {
+      "id": "configLoopARow",
+      "path": "research/raw/m030-router-config.json",
+      "line": 106,
+      "text": "\"path\": \"loop-a\","
+    },
+    {
+      "id": "configLoopATo",
+      "path": "research/raw/m030-router-config.json",
+      "line": 107,
+      "text": "\"redirectTo\": \"loop-b\""
+    },
+    {
+      "id": "configLoopBRow",
+      "path": "research/raw/m030-router-config.json",
+      "line": 110,
+      "text": "\"path\": \"loop-b\","
+    },
+    {
+      "id": "configGatedRow",
+      "path": "research/raw/m030-router-config.json",
+      "line": 95,
+      "text": "\"path\": \"gated\","
+    },
+    {
+      "id": "configGuardName",
+      "path": "research/raw/m030-router-config.json",
+      "line": 98,
+      "text": "\"[fn redirectGuard]\""
+    },
+    {
+      "id": "configLazyRow",
+      "path": "research/raw/m030-router-config.json",
+      "line": 102,
+      "text": "\"path\": \"lazy\","
+    },
+    {
+      "id": "configLoadChildren",
+      "path": "research/raw/m030-router-config.json",
+      "line": 103,
+      "text": "\"loadChildren\": \"[fn loadChildren]\""
+    },
+    {
+      "id": "diagnosticCodedMessage",
+      "path": "research/raw/m033-router-diagnostic.json",
+      "line": 49,
+      "text": "\"withAnNgCode\": 1,"
+    },
+    {
+      "id": "diagnosticDigest",
+      "path": "research/raw/m033-router-diagnostic.json",
+      "line": 129,
+      "text": "\"codesNotCarried\": ["
+    },
+    {
+      "id": "diagnosticCarriesNoCode",
+      "path": "research/raw/m033-router-diagnostic.json",
+      "line": 119,
+      "text": "\"digestCarriesCode\": false,"
+    },
+    {
+      "id": "diagnosticNamesNoConfiguredRoute",
+      "path": "research/raw/m033-router-diagnostic.json",
+      "line": 120,
+      "text": "\"namesConfiguredRoutePath\": false"
+    },
+    {
+      "id": "diagnosticRestatesTheFields",
+      "path": "research/raw/m033-router-diagnostic.json",
+      "line": 138,
+      "text": "\"fieldsPresent\": ["
+    },
+    {
+      "id": "agentRouterTokenFrom",
+      "path": "extension/agent-main.js",
+      "line": 1750,
+      "text": "function routerTokenFrom(element, getInjector, getPath, getProviders) {"
+    },
+    {
+      "id": "agentTokenField",
+      "path": "extension/agent-main.js",
+      "line": 1780,
+      "text": "if (routerTokenNameOf(token) !== ROUTER_TOKEN_NAME) continue;"
+    },
+    {
+      "id": "agentResolvesTheInstance",
+      "path": "extension/agent-main.js",
+      "line": 1819,
+      "text": "router = found.injector.get(found.token);"
+    },
+    {
+      "id": "agentReadsTheStream",
+      "path": "extension/agent-main.js",
+      "line": 1826,
+      "text": "stream = router.events;"
+    },
+    {
+      "id": "agentNoNewTap",
+      "path": "extension/agent-main.js",
+      "line": 1787,
+      "text": "// The router instance and its stream, reached from the page's own debug API and no new tap. Every ɵ"
+    }
+  ],
+  "capture": {
+    "task": "T001",
+    "command": "set \"M058_CAPTURE=1\"&& node --test scripts/tutor-routing-shapes.test.mjs",
+    "check": "node --test scripts/tutor-routing-shapes.test.mjs",
+    "records": "research/raw/m058-record-shapes.json",
+    "head": "de82058907cdad21f83cf1432080c58b3ec49d89",
+    "criteria": [
+      "SC1",
+      "SC6"
+    ],
+    "reads": [
+      "research/raw/m041-navigation.json",
+      "research/raw/m030-router-config.json",
+      "research/raw/m033-router-diagnostic.json",
+      "extension/agent-main.js"
+    ],
+    "remeasured": [
+      "absences.no-guard-verdict",
+      "absences.no-redirect-decision",
+      "absences.notGaps",
+      "fieldMap.config",
+      "fieldMap.diagnostic",
+      "fieldMap.stream",
+      "inventory.measured",
+      "inventory.outsideTheMap",
+      "reach.agentRange",
+      "reach.appInjectorIsNotTheFirstEntry",
+      "reach.citationIds",
+      "reach.finding",
+      "reach.noNewTap",
+      "reach.note",
+      "reach.oneEntryHoldsTheRouterToken",
+      "reach.path",
+      "reach.pathEntryCount",
+      "reach.pathEntryCountAsTheRecordStatesIt",
+      "reach.providerProvideIsNotTheField",
+      "reach.question",
+      "reach.readFrom",
+      "reach.reads",
+      "reach.routerTokenEntry",
+      "reach.routerTokenEntryAsTheRecordStatesIt",
+      "reach.routerTokenEntrySource",
+      "reach.taps",
+      "reach.tokenFieldIsTheFieldThatFindsIt"
+    ],
+    "reading": "an armed run derives every field above from the four files it names and writes only when a byte moved; a default run derives the same values and asserts the recording on disk is exactly what this head states, so a record that drifts from the tree reddens rather than misleading a later wave"
+  },
+  "builtNothing": {
+    "built": [],
+    "description": "No join, no surface, no route and no capture: this task measures what the records state, and the only file it writes is this recording."
+  }
+}
