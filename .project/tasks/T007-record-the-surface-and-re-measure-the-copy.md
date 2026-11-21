@@ -10,6 +10,8 @@ worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - research/raw/m057-surface.json
+  - research/raw/m048-surface.json
+  - research/raw/m057-record-shapes.json
   - research/raw/m048-surface-copy.json
   - extension/copy-digest.json
   - scripts/copy-check.test.mjs
