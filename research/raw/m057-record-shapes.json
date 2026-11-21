@@ -790,6 +790,15 @@
       "addition": true
     }
   ],
+  "inventory": {
+    "measured": "This recording measures no record under `research/raw/`: its 54 citations are lines of the join, the reader and the serializer, not another record's own claims, so the map it states is read over records the two inventories name rather than over records this file quotes.",
+    "outsideTheMap": [
+      {
+        "path": "research/raw/m057-surface.json",
+        "why": "M057's T004 rendered the answer and landed the route, the loader key and the pane this milestone's surface record states, and T007 measured that record after this map was written, so the record is subtracted from the map by name rather than read as an unmeasured record — the refusal M055's T004 hit twice."
+      }
+    ]
+  },
   "builtNothing": {
     "built": [],
     "description": "No join, no capture, no surface and no route: nothing was built and no page was opened. This file and scripts/tutor-signals-shapes.test.mjs are the whole of what T001 writes, and this file is a static reading, not a capture."
