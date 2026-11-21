@@ -40,8 +40,10 @@ Record `research/raw/m057-surface.json`: the route `tutor-signals`, its `LOADERS
 the pane renders, each with the answer field it reads, and the named absence
 `no-write-record-no-order` with the sentence it is rendered in. Every citation is a `path:line`
 carrying the cited line's own text, re-resolved by search at this head, and the record names the
-join, the display module and the captured graph record as its sources. Nothing is captured from a
-page: the answer the surface renders is the join's own, derived node-side, and the record says so.
+join, the display module and the graph record the answer is read from —
+`research/raw/m039-render-phase.json`'s `/effect/freshRead`, the record T003 pins (PLAN C8) — as its
+sources. Nothing is captured from a page and this milestone takes no capture at all: the answer the
+surface renders is the join's own, derived node-side over that record, and the record says so.
 
 Re-derive `research/raw/m048-surface-copy.json` with its own capture command over every panel surface
 on disk, so it measures the new pane's sentences and its own counts are recomputed by its suite rather

@@ -5,7 +5,7 @@ milestone: tutor-signals
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M056
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1135,3 +1135,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — plan — planning started
 - 2026-11-21 — plan — plan approved
 - 2026-11-21 — build — build started
+- 2026-11-21 — build — build blocked: T001 measured that a record already carries the indexed graph, so the plan returns for a repair

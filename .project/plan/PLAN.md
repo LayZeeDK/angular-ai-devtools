@@ -100,6 +100,36 @@ working-tree diff of a file that is a build artifact and never an edit.
   T006 neither declares nor authors it, so the brief now names it by owner ("the surface record lands
   in T007") rather than by path. The brief still states what both suites must survive; no task,
   acceptance criterion, dependency or record moved.
+- C8 2026-11-21: **T001 refuted C1's premise at `05c2f022`, and the ruling retargets T003 from a
+  capture to a read.** Measured by T001, recorded in `research/raw/m057-record-shapes.json` and
+  re-derived over the tree by `scripts/tutor-signals-shapes.test.mjs`: 16 objects under
+  `research/raw/` carry `kind: "effect"` across six records and 10 of them sit inside a `nodes` array,
+  so C1's "no record on disk carries a node of kind `effect`" is false; and
+  `research/raw/m039-render-phase.json`'s `/effect/freshRead` **is** the recorded shape the reader
+  needs — 6 nodes all carrying a numeric `index`, 6 `allEdges` with numeric `consumer`/`producer`
+  ends, the effect at `index 5` with `label ""` and one consumer edge `5 -> 2` — from which the
+  existing join already answers
+  `{"findings":[{"state":"effect","effect":null,"namedBy":"recorded-edge","reads":["count"]}],"phase":{"state":"cannot-tell","absence":"no-effect-event"}}`.
+  What no record carries is an `index` in the serializer's own output: `extension/agent-main.js:958`
+  pushes `id: String(n.id)` and resolves each edge end to a node id, so a fresh `serializeGraph`
+  capture reproduces the missing-`index` defect rather than curing it. The ruling — recorded here,
+  not re-litigated — is that **T003 retargets** to reading that record's `/effect/freshRead`, and its
+  **capture leg is deleted**: the task takes no live, portal-first read, because every field the
+  answer reads (`index`, `kind`, `label`, the two edge ends) is one the record already holds, so there
+  is no field a live read could supply — and the task says so in its own words. Carried through here:
+  C1's conclusion is superseded (the graph is a record, and the absence is the serializer's missing
+  `index`); Wave 1's goal and the negative measurement it named now state the refutation; Wave 3 is
+  retitled to the read it performs, with the deleted leg and its reason stated; T003 keeps its wave-3
+  slot, its two intent-coverage rows (SC1 on AC2, SC5 on AC3) and its sanctioned brief filename, and
+  now declares one suite that pins the record instead of a capture suite and a record it would have
+  written; T002's real-record leg and `claims` wording follow the record rather than a capture; T004's
+  sample fact is the shipped join's own answer over that record's `/effect/freshRead` rather than over
+  a record this milestone would have written, and says it is a different answer over that record than
+  the `render-phase` pane renders; T007 names that record as the surface's graph source; the surface
+  contract's walkthrough names the record, its empty-label effect at `index 5` and its `count`
+  producer instead of claiming a portal read the milestone does not take; and T008's suite-diff
+  allowance names the retargeted suite, because this milestone adds three suites and not two. No held-out
+  row named T003's capture, so `## Held-out checks` is unchanged.
 
 ## Intent coverage
 
@@ -155,9 +185,9 @@ States: `answered` — the answer names the effect node by the label the graph g
 
 Walkthrough:
 
-1. Open the panel at route `tutor-signals` against the Insurance Portal's inspected tab: the surface answers the demo question by naming the effect node the captured graph carries — its label as the graph spells it, which on the portal is `Resource.loadEffect`, and its own `index` — then the upstream nodes its edges state, each by index and label, then the sentence that says the record carries no ordering.
+1. Open the panel at route `tutor-signals`: the surface answers the demo question from the graph the record carries (`research/raw/m039-render-phase.json`'s `/effect/freshRead`, the record T003 pins, C8) by naming the effect node — its label as the graph spells it, which in that record is the empty label, beside its own `index` 5 — then the upstream node its one edge states (index 2, the node the graph labels `count`), then the sentence that says the record carries no ordering. The portal's labelled `Resource.loadEffect` is not in that record with an `index` and no record carries it with one, so the pane names no label it was not given and claims no page read this milestone did not take.
 2. Read the absence beside the effect: the surface states `no-write-record, no order` as its own named absence and names no write, no owner and no cause anywhere in the answer (SC2).
-3. Take the captured graph away from the fact and reload: the surface states `graph-unreadable` in its own sentence, with no effect, no label and no read beside it, and never as a page with no effects (SC3).
+3. Take the graph away from the fact and reload: the surface states `graph-unreadable` in its own sentence, with no effect, no label and no read beside it, and never as a page with no effects (SC3).
 4. Hand the fact a graph and no render/effect entry: the surface states `no-render-entry`, distinct from the graph absence and from the empty-effect absence (SC3).
 5. Hand it a readable graph holding no node of kind `effect`: the surface states `no-effect-node`, the third absence, in its own sentence (SC3).
 
@@ -167,7 +197,8 @@ Criteria: SC1, SC3
 
 Goal: the milestone's claim rests on fields two records already hold and on one absence the roadmap's
 premise denied. Both are on disk, with citations, before anything is built on them — and the second
-negative measurement decides that one graph must be captured rather than read.
+negative measurement, re-run over the tree, refutes the premise this plan was written on and decides
+that the graph is read from a record rather than captured (C8).
 
 Review depth: full
 
@@ -183,21 +214,28 @@ an unlabelled effect is reached (the recorded edge, never an index), and which f
 ignores — `id`, `epoch`, `value`, `debuggableFn` and any cause a later capture might add
 (`extension/render-phase.js:31-35`) — so no later wave reads a field the recording does not declare.
 
-**The negative measurement that decides the milestone's shape** (C1): no record on disk carries a
-node of kind `effect`, so the graph the surface answers from must be captured. **The second negative
+**The negative measurement this plan's shape rested on, refuted by measurement** (C1, superseded by
+C8): the plan held that no record on disk carries a node of kind `effect`, so the graph the surface
+answers from had to be captured. T001 measured the opposite — 16 objects carry `kind: "effect"` across
+six records, and one of them sits in the shape an answer reads, `research/raw/m039-render-phase.json`'s
+`/effect/freshRead`, whose 6 nodes each carry a numeric `index` and whose 6 `allEdges` each carry
+numeric ends — so the graph the surface answers from is read from that record and not captured. What no
+record carries is an `index` in the serializer's own output (`extension/agent-main.js:958` pushes
+`id: String(n.id)`), which is the sharper absence the recording states. **The second negative
 measurement, which is the intent's own C1**: no write record exists anywhere in `extension/` — the
-five searches the intent records find a sanitizer binding's `writes` field and a test title, and
-nothing else — and an edge has no field to order a write in, so the ordering is a named absence and
-not a capture this milestone could add. It records `research/raw/m057-record-shapes.json` with
-citations and instrument metadata, and `scripts/tutor-signals-shapes.test.mjs` parses the recording
-and re-checks each citation at this head. Nothing is built: no join, no capture, no surface, no route.
+five searches the intent records find a sanitizer binding's `writes` field, a test title and three
+`matchDirectWrites:` identifiers, and nothing else — and an edge has no field to order a write in, so
+the ordering is a named absence and not a capture this milestone could add. It records
+`research/raw/m057-record-shapes.json` with citations and instrument metadata, and
+`scripts/tutor-signals-shapes.test.mjs` parses the recording and re-checks each citation at this head.
+Nothing is built: no join, no capture, no surface, no route.
 
 ## Wave 2 — answer from the two records, purely
 
-Goal: one pure join reads the captured graph and the render/effect entry and returns exactly the
-fields the graph states, the absence the record forces, and unplaced for what it cannot place — with
-no page, no clock and no field the reader ignores, and a suite that reddens every way the answer
-could lie.
+Goal: one pure join reads the graph record the answer comes from and the render/effect entry and
+returns exactly the fields the graph states, the absence the record forces, and unplaced for what it
+cannot place — with no page, no clock and no field the reader ignores, and a suite that reddens every
+way the answer could lie.
 
 Review depth: full
 
@@ -224,30 +262,37 @@ as a page with no effects; an answer that changes when the fact gains `id`, `epo
 or a cause; and an answer that changes on a second read of the same fact. This task owns held-out E7
 and E8.
 
-## Wave 3 — capture the one graph no record holds
+## Wave 3 — read the one graph record that holds the indexed shape
 
-Goal: the graph the surface answers from is a record, captured portal-first with the route tried and
-the artefact the portal lacks named, and captured without one new page-side instrument.
+Goal: the graph the surface answers from is a record already on disk — `research/raw/m039-render-phase.json`'s
+`/effect/freshRead` — read at this head with the shape the answer needs pinned, and read with no
+capture leg at all: no page opened, no profiler tap, no `serializeGraph` call.
 
 Review depth: full
 
-T003 captures `research/raw/m057-signal-graph.json` with its own command,
-`scripts/tutor-signals-capture.test.mjs`, armed by its own environment flag: the serialized graph the
-agent already produces (`extension/agent-main.js:912`, `:1070`), read on the Insurance Portal first
-(`control-angular-dev-app up --target portal`), the portal route tried named (`/home` first), and —
-because the portal's record carries one labelled effect, `Resource.loadEffect`, whose producer is the
-`linkedSignal` labelled `Resource.extRequest`, while the empty-label shape is the fixture's
-(`extension/render-phase.js:13-16`) — a verdict that reaches the counter fixture names `/home`, the
-labelled effect the portal's record carries and the empty-label effect node the portal lacks. The
-capture adds no instrumentation: it calls the read the agent already performs and writes what it
-returned, and the suite asserts the profiler taps and page-side listeners the capture path carries
-are the ones it already had (SC5).
+T003 reads `research/raw/m039-render-phase.json`'s `/effect/freshRead` in
+`scripts/tutor-signals-graph.test.mjs`: six nodes, every one carrying a numeric `index`, six `allEdges`
+carrying numeric `consumer`/`producer` ends, the effect at `index 5` with `label ""` and one consumer
+edge to producer index `2`, the node the graph labels `count`; and the suite runs the shipped join over
+those two lists, so the answer SC1 asks for is proved from the record rather than assumed. The capture
+leg is **deleted**, and the task says so (C8): T001 measured that a fresh `serializeGraph` capture
+writes `id: String(n.id)` where the reader reads `index` (`extension/agent-main.js:958`) and resolves
+each edge end to a node id, so a capture reproduces the defect instead of curing it, and no field the
+answer reads — `index`, `kind`, `label`, the two edge ends — is left for a live read to supply. So no
+live read is taken and the record a capture would have written, `research/raw/m057-signal-graph.json`,
+is never created. The record's own `capture` block states where it was read — its command, route, URL,
+element, component and head — and the suite pins that provenance rather than restating it, so a
+re-derivation of the record reddens in T003 rather than in a later wave. The labelled
+`Resource.loadEffect` the portal carries is not in that record with an `index`, and no record carries
+it with one, for the reason above; the empty-label effect is the shape this milestone reads, and the
+task names the portal's labelled effect as the shape a portal read would offer in its place
+(`extension/render-phase.js:13-16`) without claiming a page it did not open (SC5, E6).
 
 ## Wave 4 — render the answer and pin the route table
 
-Goal: the four states render on a panel surface whose answer is the shipped join's own over the
-captured record, and the two suites that read the route table and the loader map own the change
-before they are asked, not after a landing refuses.
+Goal: the four states render on a panel surface whose answer is the shipped join's own over the graph
+record T003 pins, and the two suites that read the route table and the loader map own the change before
+they are asked, not after a landing refuses.
 
 Review depth: full
 
@@ -257,8 +302,10 @@ each upstream node by index and label, then the named absence; `graph-unreadable
 and `no-effect-node` each in its own sentence, distinct; no field composed that the answer does not
 carry, and no sentence outside a `PANE_SENTENCES` registry. The demo's `tutor-signals` sample fact in
 `apps/angular-ai-devtools/src/app/panel-demo.ts` is the shipped join's own answer over
-`research/raw/m057-signal-graph.json`, held field-for-field to `tutorSignals` re-run node-side by
-`panel-demo.spec.ts` on every test run. It adds the `LOADERS` key and the `PANEL_SURFACES` entry
+`research/raw/m039-render-phase.json`'s `/effect/freshRead` — the record T003 pins (C8) — held
+field-for-field to `tutorSignals` re-run node-side by `panel-demo.spec.ts` on every test run. It is a
+different answer over that record than the `render-phase` pane renders, so the two panes stay two
+answers over one record. It adds the `LOADERS` key and the `PANEL_SURFACES` entry
 line-neutral (C3), updates the four app specs, and declares `scripts/component-search.test.mjs`,
 `tests/held-out/fixture-explainers-unchanged.test.mjs`, `scripts/gate-integrity.test.mjs` and
 `scripts/gate-integrity-default-tasks.test.mjs` — the four suites the route file's pin closure

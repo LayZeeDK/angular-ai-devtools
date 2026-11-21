@@ -12,6 +12,7 @@ files:
   - research/raw/m044-gate-shapes.json
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
+  - scripts/tutor-signals-shapes.test.mjs
 ---
 
 # T008 — Re-derive the gate shapes the landing staled
@@ -36,11 +37,11 @@ armed run changes no byte, which is the idempotence pin the suite carries rather
 this task makes by eye.
 
 The suite is edited only where its own derived sections demand it, never to reach green: the
-suite-diff reason table is an allow-list that refuses a new suite by name, and this milestone adds two
-— `scripts/tutor-signals-shapes.test.mjs` and `scripts/tutor-signals.test.mjs` — so both get their
-declared rows here, exactly as M055's third task did for its own pair. No check is loosened, no reason
-text is invented for a suite that was not read, and the two mutants the suite carries are left as they
-are: the record they guard is what moves.
+suite-diff reason table is an allow-list that refuses a new suite by name, and this milestone adds
+three — `scripts/tutor-signals-shapes.test.mjs`, `scripts/tutor-signals.test.mjs` and
+`scripts/tutor-signals-graph.test.mjs` — so each gets its declared row here, exactly as M055's third
+task did for its own pair. No check is loosened, no reason text is invented for a suite that was not
+read, and the two mutants the suite carries are left as they are: the record they guard is what moves.
 
 Declare `scripts/gate-integrity-default-tasks.test.mjs` because its sibling names it (PLAN C4), and
 edit neither that suite nor any other.
@@ -58,6 +59,7 @@ edit neither that suite nor any other.
 - research/raw/m044-gate-shapes.json
 - scripts/gate-integrity.test.mjs
 - scripts/gate-integrity-default-tasks.test.mjs
+- scripts/tutor-signals-shapes.test.mjs
 
 ## Acceptance criteria
 

@@ -55,8 +55,13 @@ registry, so a new sentence is a deliberate edit rather than a wording that slip
 Add the `tutor-signals` key to `LOADERS` and a `FACTS` sample in
 `apps/angular-ai-devtools/src/app/panel-demo.ts`, and the `tutor-signals` name to the
 `PANEL_SURFACES` list in `apps/angular-ai-devtools/src/app/app.routes.ts`. The fact is the shipped
-join's own answer over the captured graph record, entered after the component rather than inside the
-`FACTS` literal. The entry costs one line, and the list has no blank line to pay with: the M028
+join's own answer over `research/raw/m039-render-phase.json`'s `/effect/freshRead` — the record T003
+pins, and the one record on disk that carries an effect node with a numeric `index` (PLAN C8) — entered
+after the component rather than inside the `FACTS` literal. It is a different answer over that record
+than the `render-phase` pane renders: this join reports the question, the read list, the claims and the
+named absence, so the two panes stay two answers over one record rather than one answer twice.
+
+The entry costs one line, and the list has no blank line to pay with: the M028
 entry's own comment is folded into the list's paragraph and deleted, so `appRoutes` stays the cited
 line and the mapped literal's `loadComponent` and `data: { surface }` lines stay where the M047 to
 M055 surface records say they are (PLAN C3). That is a constraint, not a style choice: the copy suite
@@ -114,10 +119,11 @@ hand.
 2. `graph-unreadable`, `no-render-entry` and `no-effect-node` render as three distinct states, each in
    its own sentence, and none of them renders as a page with no effects or as one blank answer (SC3).
 3. The route `tutor-signals`, its `LOADERS` key and its `FACTS` sample exist, the sample is the shipped
-   join's own answer over the captured graph record held field-for-field by `panel-demo.spec.ts`, the
-   four app specs are green at this head through the project's unit-test target, and the two route-file
-   suites that pin the route table are green at the head this task leaves — they are declared here and
-   run by T005, which depends on this task (PLAN C6).
+   join's own answer over `research/raw/m039-render-phase.json`'s `/effect/freshRead` held
+   field-for-field by `panel-demo.spec.ts`, the four app specs are green at this head through the
+   project's unit-test target, and the two route-file suites that pin the route table are green at the
+   head this task leaves — they are declared here and run by T005, which depends on this task (PLAN
+   C6).
 4. The entry is line-neutral: `appRoutes`, `loadComponent: loadPanelDemo,` and `data: { surface },`
    are the lines the earlier surface records cite, and the declaration line
    `scripts/component-search.test.mjs` pins is the one this entry leaves — green in T005, which runs

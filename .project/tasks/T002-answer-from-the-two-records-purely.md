@@ -12,6 +12,7 @@ files:
   - extension/tutor-signals.js
   - scripts/tutor-signals.test.mjs
   - research/raw/m057-record-shapes.json
+  - scripts/tutor-signals-shapes.test.mjs
 ---
 
 # T002 — Answer from the two records, purely
@@ -30,10 +31,10 @@ refuse.
 ## Approach
 
 Build `extension/tutor-signals.js` on `globalThis.angularAiTutorSignals`: the pure join
-`tutorSignals(records)`, where `records` is the two captured records and nothing else — the
-serialized graph, and the render/effect entry the join answers at `extension/render-phase.js:304`.
-Anything else on `records` is ignored, so a caller cannot smuggle a page value, a clock or a cause
-into the answer.
+`tutorSignals(records)`, where `records` is the two records and nothing else — the signal graph as the
+page agent serialized it, and the render/effect entry the join answers at
+`extension/render-phase.js:304`. Anything else on `records` is ignored, so a caller cannot smuggle a
+page value, a clock or a cause into the answer.
 
 The answer is one object: `{ state, question, effect, reads, unplaced, ordering, claims, detail }`.
 
@@ -52,8 +53,8 @@ The answer is one object: `{ state, question, effect, reads, unplaced, ordering,
 - `ordering` is always the one object `{ state: 'absent', absence: 'no-write-record-no-order' }` and
   is never a finding, so there is no field a cause could be smuggled into (SC2).
 - `claims` carries one entry per rendered claim, each with the artefact path and line that states it
-  — the capture path for the graph, the join path for the entry — in M055's answer shape, so an
-  answer with no path is not an answer this module can produce (SC1).
+  — the graph record's path for the graph, the join's path for the entry — in M055's answer shape, so
+  an answer with no path is not an answer this module can produce (SC1).
 - `detail` is the join's own sentence about what it read or which absence holds, never a record
   field.
 
@@ -69,11 +70,12 @@ graph does not carry that is numbered or dropped instead of named unplaced; the 
 causation; an order read out of an edge's direction; a write the record does not carry; the three
 absences folded into one blank answer; an unreadable graph reported as a page with no effects; an
 answer that changes when the fact gains `id`, `epoch`, `value`, `debuggableFn` or a cause; and an
-answer that changes on a second read of the same fact. It also runs a real-record leg: the captured
-graph record T003 lands is not read here, so the leg reads `research/raw/m039-render-phase.json`'s
-own node and edge lists — the recorded shape without indices — and asserts the join's answer for it
-is an answer with `unplaced` rather than a numbered node, which is the honest reading of a record
-that carries no index. This task owns held-out E7 and E8.
+answer that changes on a second read of the same fact. It also runs a real-record leg: the indexed
+graph T003 pins is not read here, so the leg reads `research/raw/m039-render-phase.json`'s derived
+reading (`effect.fromRecording`), whose nodes carry `kind` and `label` and no `index`, and asserts the
+join's answer for it is an answer with `unplaced` rather than a numbered node — the honest reading of a
+graph that carries no index, and the leg that keeps that record's two readings apart (PLAN C8). This
+task owns held-out E7 and E8.
 
 ## Intent coverage
 
@@ -92,6 +94,7 @@ that carries no index. This task owns held-out E7 and E8.
 - extension/tutor-signals.js
 - scripts/tutor-signals.test.mjs
 - research/raw/m057-record-shapes.json
+- scripts/tutor-signals-shapes.test.mjs
 
 ## Acceptance criteria
 
