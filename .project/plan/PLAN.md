@@ -4,14 +4,18 @@ Milestone: tutor-signals · Branch: gsd-path/M056 · Baseline: ad561fb6
 
 ## Config
 
-Project verify: `npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm run check && npm test && git checkout -- extension/panel/index.html`
+Project verify: `npx nx run ai-devtools-companion:build --skip-nx-cache && npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm run check && npm test && git checkout -- extension/panel/index.html`
 
 The build leads for the reason M054 and M055 stated, and this milestone sharpens it:
 `scripts/panel-bundle-budget.test.mjs` refuses an output older than the newest source, and this
 milestone edits the route table and the loader map the artifact is built from, so a stale output is
 exactly what it would hit. `--skip-nx-cache` stays because a cached replay restores its recorded
 output without refreshing the timestamp that assertion reads, and the `git checkout` discards the
-working-tree diff of a file that is a build artifact and never an edit.
+working-tree diff of a file that is a build artifact and never an edit. The companion build leads too
+(C9): the verify's `npm test` leg runs `scripts/ng-context-dev-build.test.mjs`, whose first
+measurement builds `ai-devtools-companion` itself, so the tree the suite measures must already hold
+`packages/ai-devtools-companion/dist/index.js` — the primary carries it from its own builds and a
+verify sidecar does not.
 
 - max_review_cycles: 3
 - wave_budget: none
@@ -130,6 +134,23 @@ working-tree diff of a file that is a build artifact and never an edit.
   producer instead of claiming a portal read the milestone does not take; and T008's suite-diff
   allowance names the retargeted suite, because this milestone adds three suites and not two. No held-out
   row named T003's capture, so `## Held-out checks` is unchanged.
+- C9 2026-11-21 (P001 patch, from `.project/review/PATCH-FINDINGS.md` at the reviewed head
+  `53c6a77a`): **the stability record was born stale at the head that ships, and the project
+  verify's sidecar leg missed the companion build.** Measured at the reviewed head: the project
+  verify failed 2 of 1834, and the first leg is `scripts/gate-stability-record.test.mjs` refusing
+  `archive.detail.plainRun.summary: "gate-integrity: pass - 0 finding(s), 87 mention(s)" ->
+  "… 88 mention(s)"` — T009 re-derived the record at its own landing (`cbca600c`) but appended Log
+  lines after that capture, and T008's landing (`53c6a77a`) followed, so this milestone's own task
+  logs moved the mention count the record states, and the tree's derivation at the shipping head is
+  88 while the record says 87. The suite's stated remedy is the repair: re-capture with
+  `M056_CAPTURE=1` at the head that ships, after naming what moved — never a hand edit, and never a
+  widened tolerance. The second leg, `scripts/ng-context-dev-build.test.mjs:522` "the build target
+  must emit `packages/ai-devtools-companion/dist/index.js`", is sidecar-only and measured in the
+  primary as a build-target that emits from a clean tree (cold run exits 0 and emits the entry,
+  437 ms); the verify sidecar carries no `dist`, so the Project verify line now leads with the
+  companion build rather than leaning on a primary-only artifact, per the rule that a project verify
+  builds before it measures. T010 performs the re-capture as the last byte before the ship head; no
+  assertion is widened, no check is deleted, and no capture-owned value is typed by hand.
 
 ## Intent coverage
 
@@ -152,6 +173,7 @@ working-tree diff of a file that is a build artifact and never an edit.
 | SC5 | T003 | AC3 |
 | SC5 | T006 | AC2 |
 | SC5 | T008 | AC1 |
+| SC2 | T010 | AC2 |
 
 The ordering is load-bearing and not aesthetic. `scripts/navigation-blocking.test.mjs` resolves an
 in-scope edge to the suite the *first* coverage row of its criterion names, and refuses a criterion
@@ -349,3 +371,9 @@ with their own commands — the stability record last, because one value it deri
 this milestone's own task logs — then runs the project verify as the last action, re-deriving nothing
 after it: the build first, then `npm run check`, then `npm test`, then the checkout that discards the
 working-tree diff of a build artifact.
+
+T010 is the P001 patch task (C9): it re-derives `research/raw/m056-gate-stability.json` with its own
+command at the head that ships — after this wave's last byte of prose, because the value that moved
+is a function of this milestone's own task logs — proves the capture idempotent on a second armed
+run, and writes nothing else. The record is capture-owned: the suite's own refusal names the
+re-capture command, and no value in it is typed by hand.

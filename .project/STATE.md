@@ -5,7 +5,7 @@ milestone: tutor-signals
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M057
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1150,3 +1150,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — ship — build done; final review pending
 - 2026-11-21 — ship — ship blocked: project verify red at the reviewed head — the sidecar npm test fails gate-stability-record (archive.detail.plainRun.summary derives 88 mention(s) against the record's 87; npm run gate:fix-record reproduces 88 in the primary) and ng-context-dev-build misses the companion dist in the sidecar only; finding set in .project/review/PATCH-FINDINGS.md
 - 2026-11-21 — plan — patch plan reopened
+- 2026-11-21 — plan — plan approved
