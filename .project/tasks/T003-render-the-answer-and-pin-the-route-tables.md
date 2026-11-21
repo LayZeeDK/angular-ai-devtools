@@ -134,7 +134,7 @@ T001 publishes `research/raw/m058-record-shapes.json`: the field map whose termi
 config five fields, absence names `no-guard-verdict` and `no-redirect-decision`, attribution rule
 (by `id` and `route.path`, never by position) and `reach.readFrom` are the only fields T002's join
 may read, and whose `inventory.outsideTheMap` names exactly `research/raw/m058-surface.json` and
-`research/raw/m058-verdict-claims.json`. T002 publishes `extension/tutor-routing.js`:
+`the milestones verdict-claims record (produced by T004, listed in its files:)`. T002 publishes `extension/tutor-routing.js`:
 `tutorRouting(records)` on `globalThis.angularAiTutorRouting`, `records` = `{ navigation, config }`,
 one object out — `{ state, question, terminal, route, absences, unconfigured, claims, detail }`,
 every field present in every state, each `claims[]` entry carrying `artefactPath` — which T003's

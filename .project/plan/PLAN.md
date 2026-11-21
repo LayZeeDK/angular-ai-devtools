@@ -216,7 +216,7 @@ injector path to the instance `ɵgetRouterInstance` returns, and `reach.note` st
 needed" — recorded as the answer's only Router access (SC6, N6). It records
 `research/raw/m058-record-shapes.json` with the field map, the two absences as named states, the
 attribution rule and `inventory.outsideTheMap` naming the two records this milestone owes
-(`research/raw/m058-surface.json`, `research/raw/m058-verdict-claims.json`). Because the map is
+(`research/raw/m058-surface.json`, `the milestones verdict-claims record (produced by T004, listed in its files:)`). Because the map is
 what excuses this milestone's records from the two inventories' census, T001 also edits
 `scripts/tutor-answer.test.mjs` and `scripts/tutor-record-shapes.test.mjs` to read M058's map
 beside M055's and M057's — each milestone's map excuses its own records, a record neither map names
@@ -325,7 +325,7 @@ re-derived after it.
 Review depth: full
 
 T004 re-derives, each by its own stated command and no other:
-`research/raw/m058-verdict-claims.json` via `set "M044_CAPTURE=1"&& node --experimental-strip-types
+`the milestones verdict-claims record (produced by T004, listed in its files:)` via `set "M044_CAPTURE=1"&& node --experimental-strip-types
 --test "scripts/navigation-blocking.test.mjs"` — the command the record itself states;
 `research/raw/m044-gate-shapes.json` via its own armed capture; `research/raw/m056-gate-stability.json`
 via `set "M056_CAPTURE=1"&& node --test scripts/gate-stability-record.test.mjs`, **last**, after
