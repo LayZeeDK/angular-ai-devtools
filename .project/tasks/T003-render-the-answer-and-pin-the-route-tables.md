@@ -2,10 +2,10 @@
 id: T003
 title: Render the answer and pin the route tables
 wave: 3
-status: pending
+status: done
 deps: [T001, T002]
-agent: null
-base: null
+agent: build_T003
+base: 06beda6c622c9db0f82bade4c1b9ef312efc039b
 worktree: null
 task_branch: null
 files:
@@ -209,3 +209,8 @@ npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npx nx run ang
 ## Log
 
 - pending.
+- Landed paths: `apps/angular-ai-devtools/src/app/panel-tutor-routing.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/copy-check.test.mjs`, `extension/copy-digest.json`, `research/raw/m058-surface.json`, `research/raw/m048-surface-copy.json`, `extension/panel/index.html`.
+- Pins moved: `PANEL_SURFACES` 27->28 rows, ordered paths 36->37 in `app.spec.ts` and the two specs that carry `toHaveLength`, surfaces 28->29 in `panel-demo.spec.ts` and `copy-check.test.mjs`, digest rows 193->198, sentences 201->206, citations 511->550.
+- Unresolved at this head, measured, not caused here: `research/raw/m048-surface.json` quotes the copy-check fact at `panel-demo.ts:450` and its comment at `:444` as `checked: 201`, and `scripts/copy-check.test.mjs` re-reads those citations — 30 pass, 29 pass, 1 fail. Correcting four values in that record turns it 30/30 (probed, then reverted). That record is outside this task's `files:` and outside T004's, so the repair is a plan patch declaring it, not a widened task.
+- Already unresolved at the base, verified against `git show HEAD:.../panel-demo.ts`: `research/raw/m047-surface.json` (`:427/:488/:495/:496`) and `research/raw/m055-surface.json` (`holds: "claims[].artefactPath"`). Not edited.
+- `extension/panel/index.html`: a fresh build reproduces the same seven eager preload links in a different order, so the Verify's own `git checkout --` leg discards it; `panel-bundle-budget` is green either way.

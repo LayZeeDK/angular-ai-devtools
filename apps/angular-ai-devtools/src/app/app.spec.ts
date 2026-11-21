@@ -44,7 +44,10 @@ describe('App', () => {
  * M055's `tutor-foundations` follows `visual-qa` for the same reason, which is why the count moves
  * from thirty-four to thirty-five without moving one. M057's `tutor-signals` follows
  * `tutor-foundations` for the same reason and is paid for out of that paragraph's own note, which is
- * why the count moves from thirty-five to thirty-six without moving a citation.
+ * why the count moves from thirty-five to thirty-six without moving a citation. M058's
+ * `tutor-routing` follows `tutor-signals` for the same reason and is paid for by folding the M053
+ * note into that paragraph and deleting its line, which is why the count moves from thirty-six to
+ * thirty-seven without moving one.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -78,6 +81,7 @@ describe('the route table', () => {
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
       'tutor-signals', // M057 SC1, SC3 surface: the effect node by label and index, its upstream nodes, the ordering absence, or the three absences named apart
+      'tutor-routing', // M058 SC1, SC3 surface: the terminal event by class and id, the route node by its own path and stated fields, the two absences side by side, or the cannot-tell state
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
@@ -360,6 +364,22 @@ describe('the route table', () => {
     // One entry, so the route this task appends is the only one that answers at that path.
     expect(
       appRoutes.filter((route) => route.path === 'tutor-signals'),
+    ).toHaveLength(1);
+
+    const tutorRouting = appRoutes.find(
+      (route) => route.path === 'tutor-routing',
+    );
+    expect(tutorRouting?.component).toBeUndefined();
+    if (tutorRouting?.loadComponent === undefined) {
+      throw new Error('the tutor-routing surface must load lazily');
+    }
+    expect(await tutorRouting.loadComponent()).toBe(PanelDemoComponent);
+    expect(tutorRouting.data?.['surface']).toBe('tutor-routing');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(tutorRouting.data?.['surface']).not.toBe('tutor-signals');
+    // One entry, so the route this task appends is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'tutor-routing'),
     ).toHaveLength(1);
   });
 });

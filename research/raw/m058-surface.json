@@ -1,0 +1,843 @@
+{
+  "schema": "m058-surface/v1",
+  "milestone": "M058 tutor-routing",
+  "task": "T003",
+  "title": "Record the tutor-routing route, its loader key, the two states the pane renders and the two absences it states side by side",
+  "question": "which route reaches the tutor-routing surface, which LOADERS key resolves it, what does each of the two states the pane renders read off the answer the shipped join gave, and in which sentence is each of the two absences stated where both hold on one navigation?",
+  "head": "5da063c21307381d83cfcd412eecb243262a9cc1",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: every citation below was read out of the file it names in this task’s tree — the base above plus T003’s own edits, which are the working tree this record was measured in — and re-resolved by searching that file for the exact line it quotes rather than by trusting a typed number; the answer the record states is `extension/tutor-routing.js` run node-side in a bare `node:vm` context over `research/raw/m041-navigation.json`’s redirect frame beside `research/raw/m030-router-config.json`’s `config`, printed by the `measurement` command below. The three readings this record describes are the route table (`app.routes.ts`), the loader map and the sample fact (`panel-demo.ts`) and the display module (`panel-tutor-routing.ts`); the two records it reads are the ones T001 pins and T002’s join reads. No browser was opened for this record, no page was read, no capture was taken and no build or test of the app was run: the same answer is re-derived node-side by `panel-demo.spec.ts` on every test run.",
+  "measurement": {
+    "what": "the shipped join’s own answer over the two records T001 pins, run in a bare vm context: the state, the terminal event the stream records for the navigation, the route node the config records for it, the two absences, what no configured path matched beside the paths compared, and the claims the answer carries",
+    "command": "node -e \"const fs=require('fs'),vm=require('vm');const n=JSON.parse(fs.readFileSync('research/raw/m041-navigation.json','utf8'));const c=JSON.parse(fs.readFileSync('research/raw/m030-router-config.json','utf8'));const f=n.terminals.redirect;const ctx=vm.createContext({});vm.runInContext(fs.readFileSync('extension/tutor-routing.js','utf8'),ctx);const a=ctx.angularAiTutorRouting.tutorRouting({navigation:{path:'research/raw/m041-navigation.json',id:f.terminal.payload.id,question:n.terminals.question,events:f.events},config:{path:'research/raw/m030-router-config.json',config:c.config}});console.log(JSON.stringify({state:a.state,terminal:a.terminal,route:a.route,absences:a.absences.map(x=>x.state),unconfigured:{segments:a.unconfigured.segments,compared:a.unconfigured.compared.length},claims:a.claims.length,detail:a.detail}))\"",
+    "output": [
+      "{\"state\":\"answered\",\"terminal\":{\"class\":\"NavigationEnd\",\"id\":2,\"type\":1,\"url\":\"/redirect\",\"urlAfterRedirects\":\"/landing\"},\"route\":{\"path\":\"redirect\",\"redirectTo\":\"landing\"},\"absences\":[\"no-guard-verdict\",\"no-redirect-decision\"],\"unconfigured\":{\"segments\":[],\"compared\":18},\"claims\":5,\"detail\":\"the navigation record research/raw/m041-navigation.json states NavigationEnd for navigation id 2 with url \\\"/redirect\\\" and urlAfterRedirects \\\"/landing\\\", so the destination it names is the url the terminal event itself carries and never the address bar, router.url or currentNavigation(); the config record research/raw/m030-router-config.json states the entry path \\\"redirect\\\" with 1 stated field (redirectTo), and that redirectTo is a configuration fact and never the redirect that decided this navigation; every url segment this navigation names matches a configured path beside the 18 paths that were compared; the two absences hold side by side on this one navigation and stay two states, neither as the other and neither folded: no-guard-verdict and no-redirect-decision\"}"
+    ]
+  },
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+    "join": "extension/tutor-routing.js",
+    "navigation": "research/raw/m041-navigation.json",
+    "config": "research/raw/m030-router-config.json",
+    "copy": "research/raw/m048-surface-copy.json"
+  },
+  "route": {
+    "name": "tutor-routing",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 85,
+      "lineText": "'tutor-routing',",
+      "holds": "tutor-routing"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadPanelDemo"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "surface"
+    },
+    "table": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "appRoutes"
+    },
+    "closure": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "loadPanelDemo"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "panel-demo"
+      }
+    ],
+    "statement": "one entry of the `PANEL_SURFACES` list, spread into the `appRoutes` table by the one mapped literal the table ends with, lazy through the shared `loadPanelDemo` closure the table defines once, and naming its surface in `data.surface` as every demo-backed route does. It sits directly after `tutor-signals` rather than after `what-changed`, for the reason the list’s own note states: every citation of `m047`..`m057` and of `scripts/component-search.test.mjs` is pinned to its line, so an entry appended at the end would move them. The entry cost the list one line and moved no cited line, because M058’s T003 folded the M053 note into that paragraph and deleted its line (PLAN R1): `visual-qa`, `tutor-foundations`, `tutor-signals`, `webmcp-rehearsal`, `webmcp`, `components`, `copy-check`, `interaction-story`, `dead-click`, `what-changed`, the `appRoutes` declaration and the mapped literal’s `loadComponent` and `data` lines all kept their numbers. The route registers nothing and measures nothing: it reaches the pane that renders the join’s answer, and the sweep of every `research/raw` citation into this file reports 64 citations and zero unresolved at this head."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "LOADERS"
+    },
+    "key": "tutor-routing",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 66,
+      "lineText": "'tutor-routing': () => import('./panel-tutor-routing') as never,",
+      "holds": "'./panel-tutor-routing'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 717,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 723,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 724,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 725,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 726,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 887,
+      "lineText": "FACTS['tutor-routing'] = {",
+      "holds": "FACTS['tutor-routing']"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 888,
+        "lineText": "state: 'answered',",
+        "holds": "state: 'answered'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 889,
+        "lineText": "question:",
+        "holds": "question:"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 891,
+        "lineText": "terminal: {",
+        "holds": "terminal: {"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 898,
+        "lineText": "route: { path: 'redirect', redirectTo: 'landing' },",
+        "holds": "redirectTo: 'landing'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 899,
+        "lineText": "absences: [",
+        "holds": "absences: ["
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 901,
+        "lineText": "state: 'no-guard-verdict',",
+        "holds": "no-guard-verdict"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 916,
+        "lineText": "state: 'no-redirect-decision',",
+        "holds": "no-redirect-decision"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 948,
+        "lineText": "claims: [",
+        "holds": "claims: ["
+      }
+    ],
+    "sampleFactComment": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 859,
+        "lineText": "// The join's own answer (`extension/tutor-routing.js`, T002) for the two records T001 pins, entered",
+        "holds": "extension/tutor-routing.js"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 864,
+        "lineText": "// The records are `research/raw/m041-navigation.json`'s redirect frame — eleven recorded events,",
+        "holds": "m041-navigation.json"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 866,
+        "lineText": "// `GuardsCheckEnd` carrying the aggregate `shouldActivate` and zero `NavigationCancel` — beside",
+        "holds": "NavigationCancel"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 883,
+        "lineText": "// The one `LOADERS` line that key added above this component is paid for by folding the `fields`",
+        "holds": "LOADERS"
+      }
+    ],
+    "statement": "the `tutor-routing` key is the last entry of the `LOADERS` map and it is the only path to `panel-tutor-routing.ts`: the demo looks the key up by the name the route’s `data.surface` states, awaits the dynamic import, calls the module’s default export with the sample fact, and sets the state and the lines the module answers. The key cost one line, and that line is paid for by folding the `fields` fact’s comment into one line rather than by adding a line — the loader resolution block, the component template and every earlier fact keep their numbers, so the surface records which pin this file’s lines re-resolve at this head. The fact is the join’s own answer over the redirect frame beside the config’s eighteen rows — `state: answered`, the terminal `NavigationEnd` with `id` 2, the route node `redirect` with its `redirectTo`, both absences side by side, no unconfigured segment and five claims — and `panel-demo.spec.ts` re-reads both records, evaluates the shipped join from its committed text and holds this fact to that answer field for field, so a fact that drifted reddens there rather than shipping."
+  },
+  "answer": {
+    "shape": "{ state, question, terminal, route, absences, unconfigured, claims, detail }",
+    "joinAt": {
+      "file": "extension/tutor-routing.js",
+      "line": 897,
+      "lineText": "function tutorRouting(records) {",
+      "holds": "tutorRouting(records)"
+    },
+    "publish": [
+      {
+        "file": "extension/tutor-routing.js",
+        "line": 994,
+        "lineText": "tutorRouting: tutorRouting,",
+        "holds": "tutorRouting"
+      },
+      {
+        "file": "extension/tutor-routing.js",
+        "line": 1007,
+        "lineText": "globalThis.angularAiTutorRouting = namespace;",
+        "holds": "angularAiTutorRouting"
+      }
+    ],
+    "records": {
+      "navigation": {
+        "record": "research/raw/m041-navigation.json",
+        "frame": "terminals.redirect",
+        "events": 11,
+        "cancelCount": 0,
+        "terminal": "NavigationEnd",
+        "terminalId": 2,
+        "url": "/redirect",
+        "urlAfterRedirects": "/landing",
+        "terminalKeys": [
+          "id",
+          "type",
+          "url",
+          "urlAfterRedirects"
+        ],
+        "finding": "A route redirect from /redirect to /landing emitted 11 events and 0 NavigationCancel: the redirect is only `url` differing from `urlAfterRedirects`, so it is not a stage and not a terminal."
+      },
+      "config": {
+        "record": "research/raw/m030-router-config.json",
+        "rows": 18,
+        "fieldsPresent": "path, component, redirectTo, canActivate, loadChildren",
+        "readFrom": "the record’s own `config` rows, under the path the record states them at — never a page, never a live `Router` read by this record"
+      }
+    },
+    "measured": {
+      "state": "answered",
+      "terminal": {
+        "class": "NavigationEnd",
+        "id": 2
+      },
+      "route": {
+        "path": "redirect",
+        "redirectTo": "landing"
+      },
+      "absences": [
+        "no-guard-verdict",
+        "no-redirect-decision"
+      ],
+      "unconfigured": {
+        "segments": [],
+        "compared": 18
+      },
+      "claims": [
+        "terminal",
+        "route",
+        "absence",
+        "absence",
+        "unconfigured"
+      ],
+      "detail": "the navigation record research/raw/m041-navigation.json states NavigationEnd for navigation id 2 with url \"/redirect\" and urlAfterRedirects \"/landing\", so the destination it names is the url the terminal event itself carries and never the address bar, router.url or currentNavigation(); the config record research/raw/m030-router-config.json states the entry path \"redirect\" with 1 stated field (redirectTo), and that redirectTo is a configuration fact and never the redirect that decided this navigation; every url segment this navigation names matches a configured path beside the 18 paths that were compared; the two absences hold side by side on this one navigation and stay two states, neither as the other and neither folded: no-guard-verdict and no-redirect-decision"
+    },
+    "labels": {
+      "table": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 138,
+        "lineText": "export const LABELS = {",
+        "holds": "LABELS"
+      },
+      "count": 31,
+      "values": [
+        [
+          "0",
+          "state"
+        ],
+        [
+          "1",
+          "question"
+        ],
+        [
+          "2",
+          "terminal.class"
+        ],
+        [
+          "3",
+          "terminal.id"
+        ],
+        [
+          "4",
+          "terminal.type"
+        ],
+        [
+          "5",
+          "terminal.url"
+        ],
+        [
+          "6",
+          "terminal.urlAfterRedirects"
+        ],
+        [
+          "7",
+          "terminal.code"
+        ],
+        [
+          "8",
+          "terminal.reason"
+        ],
+        [
+          "9",
+          "terminal.error"
+        ],
+        [
+          "10",
+          "terminal.target"
+        ],
+        [
+          "11",
+          "route.path"
+        ],
+        [
+          "12",
+          "route.component"
+        ],
+        [
+          "13",
+          "route.redirectTo"
+        ],
+        [
+          "14",
+          "route.canActivate"
+        ],
+        [
+          "15",
+          "route.loadChildren"
+        ],
+        [
+          "16",
+          "unconfigured.segment"
+        ],
+        [
+          "17",
+          "unconfigured.compared"
+        ],
+        [
+          "18",
+          "absence.state"
+        ],
+        [
+          "19",
+          "absence.guardsCheckEndKeys"
+        ],
+        [
+          "20",
+          "absence.guardFields"
+        ],
+        [
+          "21",
+          "absence.guardsNamed"
+        ],
+        [
+          "22",
+          "absence.url"
+        ],
+        [
+          "23",
+          "absence.urlAfterRedirects"
+        ],
+        [
+          "24",
+          "absence.cancels"
+        ],
+        [
+          "25",
+          "absence.cancellationCodeZero"
+        ],
+        [
+          "26",
+          "absence.detail"
+        ],
+        [
+          "27",
+          "claim.claim"
+        ],
+        [
+          "28",
+          "claim.values"
+        ],
+        [
+          "29",
+          "claim.artefactPath"
+        ],
+        [
+          "30",
+          "detail"
+        ]
+      ],
+      "statement": "every path the pane prints is one of these, enumerated once, so a line is either a registered sentence or a field of the answer under its own path — which is what makes \"no field is rendered that the answer does not carry\" a reading of this table. `claim.values` is the one prefix: a claim’s own `values` keys vary with the claim, so the line is `claim.values.<the key the claim carries>` and the path it names is the answer’s own (`claims[i].values[key]`)."
+    },
+    "registry": {
+      "table": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 193,
+        "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = [",
+        "holds": "PANE_SENTENCES"
+      },
+      "sentences": 5,
+      "statement": "five sentences, enumerated once and rendered from the registry rather than from the renderer: the two state sentences in the order `STATES` names them, the two absences in the order `ABSENCES` names them and each in a sentence of its own, and the pane’s own absence for an answer it was not handed. A state word the pane was not written for renders as the bare word it was given, and `sentenceText` throws for an id the registry does not carry rather than rendering nothing where a sentence belongs."
+    }
+  },
+  "states": [
+    {
+      "key": "state-answered",
+      "word": "answered",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 196,
+        "lineText": "text: 'answered: the recorded navigation stream carries a terminal event for this navigation, named here by the class that event declares and by its own id and the fields that class states, beside the route node the recorded router config states for it by the entry’s own path and the fields that entry declares — with what no configured path matched beside the paths that were compared, and with the two absences the record cannot fill each in a sentence of its own; every other line here is a field of the answer under its own path and no field is composed by this pane',",
+        "holds": "answered: the recorded navigation stream"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 108,
+        "lineText": "export const ANSWERED = 'answered';",
+        "holds": "ANSWERED"
+      },
+      "joinAt": {
+        "file": "extension/tutor-routing.js",
+        "line": 120,
+        "lineText": "const ANSWERED = 'answered';",
+        "holds": "ANSWERED"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 505,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 331,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "terminal",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 337,
+            "lineText": "const terminal = answer['terminal'];",
+            "holds": "answer['terminal']"
+          }
+        },
+        {
+          "field": "terminal.class",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 340,
+            "lineText": "const cls = writtenString(terminal['class']);",
+            "holds": "terminal['class']"
+          }
+        },
+        {
+          "field": "terminal.id",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 343,
+            "lineText": "id: LABELS.terminalId,",
+            "holds": "LABELS.terminalId"
+          }
+        },
+        {
+          "field": "terminal.url",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 345,
+            "lineText": "url: LABELS.terminalUrl,",
+            "holds": "LABELS.terminalUrl"
+          }
+        },
+        {
+          "field": "terminal.urlAfterRedirects",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 346,
+            "lineText": "urlAfterRedirects: LABELS.terminalUrlAfterRedirects,",
+            "holds": "LABELS.terminalUrlAfterRedirects"
+          }
+        },
+        {
+          "field": "route",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 372,
+            "lineText": "const route = answer['route'];",
+            "holds": "answer['route']"
+          }
+        },
+        {
+          "field": "route.path",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 375,
+            "lineText": "const path = writtenString(route['path']);",
+            "holds": "route['path']"
+          }
+        },
+        {
+          "field": "route.redirectTo",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 379,
+            "lineText": "redirectTo: LABELS.routeRedirectTo,",
+            "holds": "LABELS.routeRedirectTo"
+          }
+        },
+        {
+          "field": "absences",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 415,
+            "lineText": "const absences = answer['absences'];",
+            "holds": "answer['absences']"
+          }
+        },
+        {
+          "field": "unconfigured",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 394,
+            "lineText": "const unconfigured = answer['unconfigured'];",
+            "holds": "answer['unconfigured']"
+          }
+        },
+        {
+          "field": "unconfigured.segments[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 400,
+            "lineText": "lines.push(line(LABELS.unconfiguredSegment, valueText(segment)));",
+            "holds": "LABELS.unconfiguredSegment"
+          }
+        },
+        {
+          "field": "unconfigured.compared[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 404,
+            "lineText": "lines.push(line(LABELS.unconfiguredCompared, valueText(path)));",
+            "holds": "LABELS.unconfiguredCompared"
+          }
+        },
+        {
+          "field": "claims[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 469,
+            "lineText": "const claims = answer['claims'];",
+            "holds": "answer['claims']"
+          }
+        },
+        {
+          "field": "claim.values",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 484,
+            "lineText": "lines.push(line(LABELS.claimValues + '.' + key, valueText(value)));",
+            "holds": "LABELS.claimValues"
+          }
+        },
+        {
+          "field": "claim.artefactPath",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 475,
+            "lineText": "const artefactPath = writtenString(entry['artefactPath']);",
+            "holds": "entry['artefactPath']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 493,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ]
+    },
+    {
+      "key": "state-cannot-tell",
+      "word": "cannot-tell",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 201,
+        "lineText": "text: 'cannot-tell: the recorded stream carries a start for this navigation and no terminal event, so the answer names the last event class the stream recorded for that id and nothing else — no destination, no route node and no cause, not from the address bar, not from router.url and not from currentNavigation() — and this pane renders no landed route for a navigation the record never ended',",
+        "holds": "cannot-tell: the recorded stream carries a start"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 109,
+        "lineText": "export const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "joinAt": {
+        "file": "extension/tutor-routing.js",
+        "line": 121,
+        "lineText": "const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 505,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "question",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 331,
+            "lineText": "const question = writtenString(answer['question']);",
+            "holds": "answer['question']"
+          }
+        },
+        {
+          "field": "claims[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 469,
+            "lineText": "const claims = answer['claims'];",
+            "holds": "answer['claims']"
+          }
+        },
+        {
+          "field": "claim.values.lastClass",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 484,
+            "lineText": "lines.push(line(LABELS.claimValues + '.' + key, valueText(value)));",
+            "holds": "LABELS.claimValues"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 493,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ]
+    }
+  ],
+  "absences": [
+    {
+      "key": "absence-no-guard-verdict",
+      "word": "no-guard-verdict",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 206,
+        "lineText": "text: 'no-guard-verdict: the stream carries no per-guard verdict, because GuardsCheckEnd adds exactly one field over GuardsCheckStart — the aggregate shouldActivate — which is never rendered here as any guard’s verdict and from which no refusal is inferred from the terminal class; a guard is nameable from the config entry that declares it and never from the stream, so this absence stands rather than being filled',",
+        "holds": "no-guard-verdict: the stream carries no per-guard verdict"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 118,
+        "lineText": "export const NO_GUARD_VERDICT = 'no-guard-verdict';",
+        "holds": "NO_GUARD_VERDICT"
+      },
+      "decidedBy": {
+        "file": "extension/tutor-routing.js",
+        "line": 597,
+        "lineText": "function noGuardVerdictOf(guardsCheckEnd, guardsCheckStart, terminalClass) {",
+        "holds": "noGuardVerdictOf("
+      },
+      "decidedAt": {
+        "file": "extension/tutor-routing.js",
+        "line": 648,
+        "lineText": "if (guardsCheckEnd !== null) {",
+        "holds": "guardsCheckEnd"
+      },
+      "reads": [
+        {
+          "field": "absence.state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 432,
+            "lineText": "lines.push(line(LABELS.absenceState, word));",
+            "holds": "LABELS.absenceState"
+          }
+        },
+        {
+          "field": "absence.guardFields[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 420,
+            "lineText": "guardFields: LABELS.absenceGuardField,",
+            "holds": "LABELS.absenceGuardField"
+          }
+        },
+        {
+          "field": "absence.guardsCheckEndKeys[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 419,
+            "lineText": "guardsCheckEndKeys: LABELS.absenceGuardsCheckEndKey,",
+            "holds": "LABELS.absenceGuardsCheckEndKey"
+          }
+        },
+        {
+          "field": "absence.detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 426,
+            "lineText": "detail: LABELS.absenceDetail,",
+            "holds": "LABELS.absenceDetail"
+          }
+        }
+      ]
+    },
+    {
+      "key": "absence-no-redirect-decision",
+      "word": "no-redirect-decision",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 211,
+        "lineText": "text: 'no-redirect-decision: the terminal event’s url differs from its urlAfterRedirects and the stream records zero NavigationCancel and no cancellation code 0, so the redirect is only the two urls differing — not a stage and not a terminal — and this absence states that change rather than rendering any config entry’s redirectTo as the redirect that decided this navigation',",
+        "holds": "no-redirect-decision: the terminal event’s url differs"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+        "line": 119,
+        "lineText": "export const NO_REDIRECT_DECISION = 'no-redirect-decision';",
+        "holds": "NO_REDIRECT_DECISION"
+      },
+      "decidedBy": {
+        "file": "extension/tutor-routing.js",
+        "line": 624,
+        "lineText": "function noRedirectDecisionOf(terminal, cancels) {",
+        "holds": "noRedirectDecisionOf("
+      },
+      "decidedAt": {
+        "file": "extension/tutor-routing.js",
+        "line": 661,
+        "lineText": "terminal.url !== terminal.urlAfterRedirects &&",
+        "holds": "terminal.url !== terminal.urlAfterRedirects"
+      },
+      "reads": [
+        {
+          "field": "absence.state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 432,
+            "lineText": "lines.push(line(LABELS.absenceState, word));",
+            "holds": "LABELS.absenceState"
+          }
+        },
+        {
+          "field": "absence.url",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 422,
+            "lineText": "url: LABELS.absenceUrl,",
+            "holds": "LABELS.absenceUrl"
+          }
+        },
+        {
+          "field": "absence.urlAfterRedirects",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 423,
+            "lineText": "urlAfterRedirects: LABELS.absenceUrlAfterRedirects,",
+            "holds": "LABELS.absenceUrlAfterRedirects"
+          }
+        },
+        {
+          "field": "absence.cancels",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 424,
+            "lineText": "cancels: LABELS.absenceCancels,",
+            "holds": "LABELS.absenceCancels"
+          }
+        },
+        {
+          "field": "absence.cancellationCodeZero",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 425,
+            "lineText": "cancellationCodeZero: LABELS.absenceCancellationCodeZero,",
+            "holds": "LABELS.absenceCancellationCodeZero"
+          }
+        },
+        {
+          "field": "absence.detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-tutor-routing.ts",
+            "line": 426,
+            "lineText": "detail: LABELS.absenceDetail,",
+            "holds": "LABELS.absenceDetail"
+          }
+        }
+      ]
+    }
+  ],
+  "notCaptured": [
+    "Nothing here was rendered, clicked or captured: every value is a static read of the files the `sources` block names, at the tree above, and the answer the record states is the shipped join run node-side over two records already on disk. No browser was opened, no page was read, no profiler was tapped and no `serializeGraph` call was made.",
+    "No page read produced this answer and none could: the record’s own reach states that the `Router` token arrives through the injector walk the agent already performs (`research/raw/m041-navigation.json` `reach.readFrom`, \"No new tap is needed\"), so the config half of every claim is read from a record the agent already produces rather than from a live read this milestone would have to add (SC6, N6).",
+    "The record does not measure what the pane looks like. The five sentences it renders are enumerated in `panel-tutor-routing.ts`’s `PANE_SENTENCES` and measured for copy in `research/raw/m048-surface-copy.json`, which this record names as a source; this record names the states and the field each reads rather than reproducing the sentences’ rendering.",
+    "The record pins no total for the route table or the `LOADERS` map: a later milestone appends to both on purpose, and a recorded total would go stale without changing what this record says about this route. The numbers it does state — 64 citations into `app.routes.ts`, 18 config rows, the redirect frame’s 11 events and 0 cancels — are the ones its own citations and its own two records carry, and the sweep and the measurement command above re-derive them.",
+    "The record does not claim the demo’s `tutor-routing` fact was written by hand. It is the join’s answer over the two records, cited here with the lines that state it, and `panel-demo.spec.ts` holds it to that answer on every test run; this record states the same answer from the same two sources and does not restate the fact."
+  ],
+  "verdict": "measured: the panel route `tutor-routing` is one lazy route — a `PANEL_SURFACES` entry spread into `appRoutes` by the one mapped literal, costing the list one line and no cited line (PLAN R1) — whose `data.surface` names the `tutor-routing` key of `panel-demo.ts`’s `LOADERS`, and that key is the only path to `panel-tutor-routing.ts`: the demo looks it up, awaits the import, calls the module’s default export with the sample fact and sets the state and the lines it answers. The pane renders the join’s two states and the two absences as separate sentences: `answered` reads `state`, `question`, `terminal` and that class’s own fields, `route` and the four fields an entry may state, `unconfigured.segments[]` beside `unconfigured.compared[]`, `absences[]` with each absence’s own name, sentence and fields, `claims[]` with each claim’s `values` and `artefactPath`, and `detail`; `cannot-tell` reads `state`, `question`, `claims[]` — the last event class the stream recorded is that claim’s `lastClass` — and `detail`, and names no destination, no route node and no cause; `no-guard-verdict` and `no-redirect-decision` are two sentences rendered side by side where both hold, never folded, with `shouldActivate` never rendered as any guard’s verdict and a `redirectTo` never rendered as the decision. The answer the demo ships is the join’s own over `research/raw/m041-navigation.json`’s redirect frame beside `research/raw/m030-router-config.json`’s 18 rows: the terminal `NavigationEnd` with `id` 2, `url` `/redirect` and `urlAfterRedirects` `/landing`, the route node `redirect` with `redirectTo` `landing`, both absences, no unconfigured segment beside 18 compared paths and 5 claims — derived node-side and not read off a page.",
+  "revision": {
+    "author": "T003",
+    "head": "5da063c21307381d83cfcd412eecb243262a9cc1",
+    "why": "M058’s T003 ships the twenty-ninth panel surface, `panel-tutor-routing.ts`, with its route, loader key and sample fact, and the milestone’s record of that surface is owed before the milestone ships",
+    "what": "the route, the loader key, the join’s two states and the two absences with the answer field each reads and the sentence each is rendered in, the registry and the label table that make \"no composed field\" a reading, the join’s measured answer over the redirect frame beside the config record, and the copy record re-measured over the surface"
+  }
+}

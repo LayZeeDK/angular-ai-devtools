@@ -245,6 +245,19 @@ import {
   STATE_TEXTS as TUTOR_SIGNALS_STATE_TEXTS,
   tutorSignalsPanel,
 } from './panel-tutor-signals';
+import {
+  ABSENCES as TUTOR_ROUTING_ABSENCES,
+  ANSWERED as TUTOR_ROUTING_ANSWERED,
+  CANNOT_TELL as TUTOR_ROUTING_CANNOT_TELL,
+  LABELS as TUTOR_ROUTING_LABELS,
+  NO_ANSWER_STATE as TUTOR_ROUTING_NO_ANSWER_STATE,
+  NO_ANSWER_TEXT as TUTOR_ROUTING_NO_ANSWER_TEXT,
+  NO_GUARD_VERDICT as TUTOR_ROUTING_NO_GUARD_VERDICT,
+  NO_REDIRECT_DECISION as TUTOR_ROUTING_NO_REDIRECT_DECISION,
+  PANE_SENTENCES as TUTOR_ROUTING_SENTENCES,
+  STATE_TEXTS as TUTOR_ROUTING_STATE_TEXTS,
+  tutorRoutingPanel,
+} from './panel-tutor-routing';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -2978,6 +2991,7 @@ describe('the panel demo', () => {
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
       'tutor-signals', // M057 SC1, SC3 surface: the effect node by label and index, its upstream nodes, the ordering absence, or the three absences named apart
+      'tutor-routing', // M058 SC1, SC3 surface: the terminal event by class and id, the route node by its own path and stated fields, the two absences side by side, or the cannot-tell state
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
@@ -2986,7 +3000,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(36);
+    expect(appRoutes).toHaveLength(37);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -3490,19 +3504,19 @@ describe('the panel demo', () => {
     // The measured record's answer: every string it declares is explained, and the count is the
     // join's own comparison — not a count written in this spec or in the demo fact. The count is
     // larger than the digest's row count because one sentence is declared by six surfaces, three more
-    // by two surfaces each, and an explanation of one string is still one row: 201 sentences
-    // compared, 193 distinct rows.
+    // by two surfaces each, and an explanation of one string is still one row: 206 sentences
+    // compared, 198 distinct rows.
     expect(answer).toEqual({
       state: COPY_CLEAN,
       unexplained: [],
-      checked: 201,
+      checked: 206,
     });
     expect(answer.checked).toBe(
       recording.counts.declaredSentences + recording.counts.inlineSentences,
     );
     expect(digest.entries.length).toBeLessThan(answer.checked);
     expect(recording.counts.surfaces).toBe(recording.surfaces.length);
-    expect(recording.counts.surfaces).toBe(28);
+    expect(recording.counts.surfaces).toBe(29);
 
     // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
     // with its own reason, while the record stays clean. Both answers are the join's.
@@ -6015,6 +6029,616 @@ describe('the tutor-signals surface', () => {
 
     // Idempotency: the same fact renders the same lines in the same order, twice.
     expect(tutorSignalsPanel(FACTS['tutor-signals'])).toEqual(pane);
+    // No DOM is added to an inspected page by this pane's own text.
+    expect(pane.text).not.toMatch(/<\/?[a-z]/i);
+  });
+});
+
+// ------------------------------------------------------------------------------------------------
+// M058 T003 — the tutor-routing surface: the shipped join's own answer over the two records T001 pins
+// ------------------------------------------------------------------------------------------------
+//
+// The pane this section holds is the display half of a join that reads two records and computes
+// nothing else: `extension/tutor-routing.js` (T002) answers from the recorded navigation stream and
+// the recorded router config, and the demo's sample fact is its answer over
+// `research/raw/m041-navigation.json`'s redirect frame beside `research/raw/m030-router-config.json`'s
+// `config` — the two records T001 pins and T002's join reads. So the join is evaluated here from its
+// own committed text, both records are inlined from disk, and the fact the demo ships is held to
+// that answer field for field: a fact that drifted from either record, from the join or from the
+// tree reddens here rather than shipping.
+//
+// The redirect frame is the interesting one and it is why the demo carries it: eleven events ending
+// `NavigationEnd` with `url` `/redirect` and `urlAfterRedirects` `/landing`, one `GuardsCheckEnd`
+// carrying the aggregate `shouldActivate` and zero `NavigationCancel` — so both absences hold on one
+// navigation and the pane has to keep them two states (E5, SC3).
+
+/** The navigation record the answer is read from. */
+const TUTOR_ROUTING_NAVIGATION = 'research/raw/m041-navigation.json';
+
+/** The router config record the answer is read from. */
+const TUTOR_ROUTING_CONFIG = 'research/raw/m030-router-config.json';
+
+/** One claim of the join's answer, for the fields this spec reads. */
+interface TutorRoutingClaim {
+  readonly claim: string;
+  readonly values: Readonly<Record<string, unknown>>;
+  readonly artefactPath: string;
+}
+
+/** One absence of the join's answer: its own name, its own sentence and the fields it carries. */
+interface TutorRoutingAbsence {
+  readonly state: string;
+  readonly detail: string;
+  readonly [field: string]: unknown;
+}
+
+/** The join's answer: the eight fields every state carries. */
+interface TutorRoutingAnswer {
+  readonly state: string;
+  readonly question: string;
+  readonly terminal: Readonly<Record<string, unknown>> | null;
+  readonly route: Readonly<Record<string, unknown>> | null;
+  readonly absences: readonly TutorRoutingAbsence[];
+  readonly unconfigured: {
+    readonly segments: readonly string[];
+    readonly compared: readonly string[];
+  } | null;
+  readonly claims: readonly TutorRoutingClaim[];
+  readonly detail: string;
+}
+
+/** The page's own join namespace, as `extension/tutor-routing.js` publishes it. */
+interface TutorRoutingJoin {
+  tutorRouting(records: unknown): TutorRoutingAnswer;
+  STATES: readonly string[];
+  ABSENCES: readonly string[];
+}
+
+/** One recorded frame of the M041 recording, for the three this section reads. */
+interface TutorRoutingFrame {
+  readonly events: readonly unknown[];
+  readonly terminal?: {
+    readonly class?: string;
+    readonly payload?: { readonly id?: number };
+  };
+  readonly eventCount?: number;
+  readonly cancelCount?: number;
+}
+
+/** The frames and the question of the M041 recording this section reads. */
+interface TutorRoutingNavigationRecording {
+  readonly terminals: {
+    readonly question: string;
+    readonly redirect: TutorRoutingFrame;
+  };
+  readonly held: {
+    readonly inFlight: {
+      readonly events: readonly unknown[];
+      readonly lastEventClass: string;
+    };
+  };
+  readonly warm: TutorRoutingFrame;
+}
+
+/** The one part of the M030 router config record this section reads. */
+interface TutorRoutingConfigRecording {
+  readonly config: readonly { readonly path: string }[];
+}
+
+/** The M041 navigation recording and its text, inlined from disk at build time. */
+function readTutorRoutingNavigation(): {
+  recording: TutorRoutingNavigationRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m041-navigation.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m041-navigation.json was not inlined above this spec file',
+    );
+  }
+  return {
+    recording: JSON.parse(text) as TutorRoutingNavigationRecording,
+    text,
+  };
+}
+
+/** The M030 router config recording and its text, inlined from disk the same way. */
+function readTutorRoutingConfig(): {
+  recording: TutorRoutingConfigRecording;
+  text: string;
+} {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m030-router-config.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m030-router-config.json was not inlined above this spec file',
+    );
+  }
+  return { recording: JSON.parse(text) as TutorRoutingConfigRecording, text };
+}
+
+/**
+ * The join `extension/tutor-routing.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `tutor-routing` fact is held to the join's answer for the two records
+ * inlined from disk, not to a copy of that answer written in this spec. The module is an IIFE with no
+ * imports, so running it is the whole of loading it.
+ */
+function tutorRoutingJoin(): TutorRoutingJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/tutor-routing.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/tutor-routing.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as { angularAiTutorRouting?: TutorRoutingJoin }
+  ).angularAiTutorRouting;
+  if (join === undefined || typeof join.tutorRouting !== 'function') {
+    throw new Error('extension/tutor-routing.js published no tutorRouting');
+  }
+  return join;
+}
+
+/**
+ * The two records the join is handed: one recorded frame's own `events` under the navigation
+ * record's own path and the id asked about, the frame's own question, and the config record's own
+ * rows under its own path. Every value here is one a record carries — no event, no row and no id is
+ * written by this spec — so an answer the demo ships is the join's answer over the records.
+ */
+function tutorRoutingRecords(
+  frame: TutorRoutingFrame,
+  id: number,
+  question: string,
+  config: TutorRoutingConfigRecording,
+) {
+  return {
+    navigation: {
+      path: TUTOR_ROUTING_NAVIGATION,
+      id,
+      question,
+      events: frame.events,
+    },
+    config: { path: TUTOR_ROUTING_CONFIG, config: config.config },
+  };
+}
+
+describe('the tutor-routing surface', () => {
+  it('names the terminal event by class and id, the route node by its own path and stated fields, both absences side by side, and holds the sample fact to the join’s own answer', async () => {
+    const navigation = readTutorRoutingNavigation().recording;
+    const config = readTutorRoutingConfig().recording;
+    const join = tutorRoutingJoin();
+    const frame = navigation.terminals.redirect;
+    const terminalId = frame.terminal?.payload?.id;
+    if (typeof terminalId !== 'number') {
+      throw new Error(
+        `${TUTOR_ROUTING_NAVIGATION}'s redirect frame states no terminal id`,
+      );
+    }
+    const records = tutorRoutingRecords(
+      frame,
+      terminalId,
+      navigation.terminals.question,
+      config,
+    );
+    const answer = join.tutorRouting(records);
+
+    // The answer is the join's own over the two records, and its vocabulary is the join's own lists.
+    expect(Object.keys(answer).sort()).toEqual([
+      'absences',
+      'claims',
+      'detail',
+      'question',
+      'route',
+      'state',
+      'terminal',
+      'unconfigured',
+    ]);
+    expect([...join.STATES]).toEqual([
+      TUTOR_ROUTING_ANSWERED,
+      TUTOR_ROUTING_CANNOT_TELL,
+    ]);
+    expect([...join.ABSENCES]).toEqual([
+      TUTOR_ROUTING_NO_GUARD_VERDICT,
+      TUTOR_ROUTING_NO_REDIRECT_DECISION,
+    ]);
+    expect(answer.state).toBe(TUTOR_ROUTING_ANSWERED);
+    expect(answer.question).toBe(navigation.terminals.question);
+
+    // SC1: the terminal class is the one the recorded event declares, and the id is the event's own.
+    const terminal = answer.terminal;
+    if (terminal === null) {
+      throw new Error('the redirect frame must answer with a terminal event');
+    }
+    expect(terminal['class']).toBe(frame.terminal?.class);
+    expect(terminal['id']).toBe(terminalId);
+    // Only that class's own fields are carried: `NavigationEnd` states its four keys and no other.
+    expect(Object.keys(terminal).sort()).toEqual([
+      'class',
+      'id',
+      'type',
+      'url',
+      'urlAfterRedirects',
+    ]);
+    // The destination is the terminal event's own, never the address bar or `router.url`.
+    expect(terminal['url']).toBe('/redirect');
+    expect(terminal['urlAfterRedirects']).toBe('/landing');
+
+    // SC1: the route node is the config entry the address names, by its own `path` and the fields
+    // that entry states — and by no field it does not state.
+    const route = answer.route;
+    if (route === null) {
+      throw new Error('the redirect frame must answer with a route node');
+    }
+    const configured = config.config.find(
+      (row) =>
+        row.path ===
+        String(terminal['url']).replace(/^\/+/, '').replace(/\/+$/, ''),
+    );
+    if (configured === undefined) {
+      throw new Error(
+        `${TUTOR_ROUTING_CONFIG} carries no entry whose path is the terminal's own url`,
+      );
+    }
+    expect(route['path']).toBe(configured.path);
+    expect(Object.keys(route).sort()).toEqual(Object.keys(configured).sort());
+    expect(route['redirectTo']).toBe('landing');
+
+    // SC3 / E5: both absences hold on this one navigation and stay two states, in the join's order.
+    expect(answer.absences.map((absence) => absence.state)).toEqual([
+      TUTOR_ROUTING_NO_GUARD_VERDICT,
+      TUTOR_ROUTING_NO_REDIRECT_DECISION,
+    ]);
+    expect(answer.absences).toHaveLength(2);
+    expect(answer.absences[0]?.detail).not.toBe(answer.absences[1]?.detail);
+
+    // SC4: the compared paths are the config's own, in its own order, and no segment is unmatched.
+    expect(answer.unconfigured?.compared).toEqual(
+      config.config.map((row) => row.path),
+    );
+    expect(answer.unconfigured?.segments).toEqual([]);
+
+    // SC1: every claim carries the artefact path that states it, and the two identifying ones name
+    // the event and the config entry they rest on.
+    for (const claim of answer.claims) {
+      expect(typeof claim.artefactPath).toBe('string');
+      expect([TUTOR_ROUTING_NAVIGATION, TUTOR_ROUTING_CONFIG]).toContain(
+        claim.artefactPath,
+      );
+    }
+    const terminalClaim = answer.claims.find((one) => one.claim === 'terminal');
+    expect(terminalClaim?.values).toEqual({
+      class: terminal['class'],
+      id: terminal['id'],
+    });
+    expect(terminalClaim?.artefactPath).toBe(TUTOR_ROUTING_NAVIGATION);
+    const routeClaim = answer.claims.find((one) => one.claim === 'route');
+    expect(routeClaim?.values).toEqual({ path: route['path'] });
+    expect(routeClaim?.artefactPath).toBe(TUTOR_ROUTING_CONFIG);
+
+    // The demo's sample fact is that answer, field for field — no field of it written here.
+    expect(FACTS['tutor-routing']).toEqual(answer);
+
+    // The route is the one a user clicks: lazy, installed through the demo, named in route data.
+    const routeEntry = appRoutes.find(
+      (candidate) => candidate.path === 'tutor-routing',
+    );
+    if (routeEntry === undefined || routeEntry.loadComponent === undefined) {
+      throw new Error('the tutor-routing surface must exist and load lazily');
+    }
+    expect(routeEntry.component).toBeUndefined();
+    expect(await routeEntry.loadComponent()).toBe(PanelDemoComponent);
+    expect(routeEntry.data?.['surface']).toBe('tutor-routing');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'tutor-routing'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo('tutor-routing');
+    const pane = tutorRoutingPanel(FACTS['tutor-routing']);
+    expect(demo.state()).toBe(TUTOR_ROUTING_ANSWERED);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(pane.state).toBe(TUTOR_ROUTING_ANSWERED);
+    expect(pane.lines[0]).toBe(`state: ${TUTOR_ROUTING_ANSWERED}`);
+    expect(pane.lines[1]).toBe(
+      TUTOR_ROUTING_STATE_TEXTS[TUTOR_ROUTING_ANSWERED],
+    );
+
+    // SC1: the event the claim rests on and the config entry it rests on are on the pane, each
+    // under its own path, beside the class and the `id` the event itself carries.
+    expect(pane.lines).toContain(
+      `${TUTOR_ROUTING_LABELS.terminalClass}: ${String(terminal['class'])}`,
+    );
+    expect(pane.lines).toContain(
+      `${TUTOR_ROUTING_LABELS.terminalId}: ${String(terminal['id'])}`,
+    );
+    expect(pane.lines).toContain(
+      `${TUTOR_ROUTING_LABELS.routePath}: ${String(route['path'])}`,
+    );
+    for (const key of [
+      'component',
+      'redirectTo',
+      'canActivate',
+      'loadChildren',
+    ])
+      if (route[key] !== undefined)
+        expect(pane.lines).toContain(
+          `${TUTOR_ROUTING_LABELS.routePath.replace('path', key)}: ${String(route[key])}`,
+        );
+    for (const claim of answer.claims) {
+      expect(pane.lines).toContain(
+        `${TUTOR_ROUTING_LABELS.claim}: ${claim.claim}`,
+      );
+      expect(pane.lines).toContain(
+        `${TUTOR_ROUTING_LABELS.artefactPath}: ${claim.artefactPath}`,
+      );
+      for (const [key, value] of Object.entries(claim.values)) {
+        const printed = Array.isArray(value)
+          ? JSON.stringify(value)
+          : String(value);
+        expect(pane.lines).toContain(
+          `${TUTOR_ROUTING_LABELS.claimValues}.${key}: ${printed}`,
+        );
+      }
+    }
+
+    // SC3 / E5: the two absences are two states on one pane, each in its own sentence, side by side
+    // and neither folded into one "no findings" line nor into one absent-field list.
+    const guardAt = pane.lines.indexOf(
+      `${TUTOR_ROUTING_LABELS.absenceState}: ${TUTOR_ROUTING_NO_GUARD_VERDICT}`,
+    );
+    const redirectAt = pane.lines.indexOf(
+      `${TUTOR_ROUTING_LABELS.absenceState}: ${TUTOR_ROUTING_NO_REDIRECT_DECISION}`,
+    );
+    expect(
+      guardAt,
+      'the pane must render no-guard-verdict as its own absence.state line',
+    ).toBeGreaterThan(-1);
+    expect(
+      redirectAt,
+      'the pane must render no-redirect-decision as its own absence.state line, beside the other absence rather than folded into it',
+    ).toBeGreaterThan(guardAt);
+    expect(
+      pane.lines[guardAt + 1],
+      'the absence state must be followed by that absence’s own sentence',
+    ).toBe(TUTOR_ROUTING_STATE_TEXTS[TUTOR_ROUTING_NO_GUARD_VERDICT]);
+    expect(
+      pane.lines[redirectAt + 1],
+      'the second absence must be followed by its own sentence',
+    ).toBe(TUTOR_ROUTING_STATE_TEXTS[TUTOR_ROUTING_NO_REDIRECT_DECISION]);
+    expect(
+      pane.lines[guardAt + 1],
+      'the two absences must not share one sentence',
+    ).not.toBe(pane.lines[redirectAt + 1]);
+    // Each absence carries its own sentence and its own fields, and each states its own name.
+    for (const word of [
+      TUTOR_ROUTING_NO_GUARD_VERDICT,
+      TUTOR_ROUTING_NO_REDIRECT_DECISION,
+    ]) {
+      expect(
+        TUTOR_ROUTING_STATE_TEXTS[word]?.startsWith(`${word}:`),
+        `the sentence for ${word} must name that absence and no other`,
+      ).toBe(true);
+    }
+    expect(
+      pane.lines.filter(
+        (line) =>
+          line ===
+          `${TUTOR_ROUTING_LABELS.absenceDetail}: ${String(answer.absences[0]?.detail)}`,
+      ),
+      'the first absence must carry its own fields under its own name',
+    ).toHaveLength(1);
+    expect(
+      pane.lines.filter(
+        (line) =>
+          line ===
+          `${TUTOR_ROUTING_LABELS.absenceDetail}: ${String(answer.absences[1]?.detail)}`,
+      ),
+      'the second absence must carry its own fields under its own name',
+    ).toHaveLength(1);
+    // The registry states the two absences as two ids with two texts, never as one.
+    expect(
+      TUTOR_ROUTING_SENTENCES.filter(
+        (entry) =>
+          entry.state === TUTOR_ROUTING_NO_GUARD_VERDICT ||
+          entry.state === TUTOR_ROUTING_NO_REDIRECT_DECISION,
+      ).map((entry) => entry.id),
+      'the registry must carry one sentence per absence, in the order the join decides them',
+    ).toEqual(['absence-no-guard-verdict', 'absence-no-redirect-decision']);
+
+    // SC3 / N3: `shouldActivate` is never rendered as any guard's verdict — not as a guard line, not
+    // as a terminal field and not as a value the pane prints on its own.
+    expect(
+      pane.text,
+      'shouldActivate is the aggregate of the whole check and must never be rendered as a verdict',
+    ).not.toContain('shouldActivate: true');
+    expect(
+      pane.text,
+      'shouldActivate is the aggregate of the whole check and must never be rendered as a false verdict either',
+    ).not.toContain('shouldActivate: false');
+    expect(
+      pane.lines.filter((line) => /^guard\b/.test(line)),
+      'no line may be labelled as a guard, because the stream carries no per-guard verdict',
+    ).toEqual([]);
+    expect(Object.keys(terminal)).not.toContain('shouldActivate');
+    expect(Object.values(TUTOR_ROUTING_LABELS)).not.toContain(
+      'terminal.shouldActivate',
+    );
+    // A guard is nameable from the config entry that declares it — that is configuration — and the
+    // pane renders it under the route's own field, never as a verdict.
+    expect(
+      pane.lines.filter((line) =>
+        line.startsWith(TUTOR_ROUTING_LABELS.routeCanActivate + ': '),
+      ),
+    ).toHaveLength(0);
+    // N3: a config entry's `redirectTo` renders as a configuration fact — under the route's own
+    // field — and the redirect the record states is the absence's own sentence.
+    expect(
+      pane.lines.filter((line) =>
+        line.startsWith(TUTOR_ROUTING_LABELS.routeRedirectTo + ': '),
+      ),
+      'a redirectTo may print once, as the route entry´s own configuration field, and never as a decision',
+    ).toEqual([`${TUTOR_ROUTING_LABELS.routeRedirectTo}: landing`]);
+
+    // The pane's own registry rule: every line is either a registered sentence or a field of the
+    // answer under its own path, so no wording and no field can be composed outside the two tables.
+    const sentences = new Set<string>([
+      ...Object.values(TUTOR_ROUTING_STATE_TEXTS),
+      ...TUTOR_ROUTING_SENTENCES.map((entry) => entry.text),
+    ]);
+    const labels = new Set<string>(Object.values(TUTOR_ROUTING_LABELS));
+    for (const line of pane.lines) {
+      if (sentences.has(line)) continue;
+      const colon = line.indexOf(': ');
+      expect(colon, line).toBeGreaterThan(0);
+      const label = line.slice(0, colon);
+      const known =
+        labels.has(label) ||
+        label.startsWith(`${TUTOR_ROUTING_LABELS.claimValues}.`);
+      expect(known, line).toBe(true);
+    }
+
+    // SC2 through the same pane: a navigation the stream held at its lazy boundary records a start
+    // and no terminal, so the answer is cannot-tell naming the last recorded class and nothing else.
+    const held = navigation.held.inFlight;
+    const heldAnswer = join.tutorRouting(
+      tutorRoutingRecords(
+        { events: held.events },
+        terminalId,
+        navigation.terminals.question,
+        config,
+      ),
+    );
+    expect(heldAnswer.state).toBe(TUTOR_ROUTING_CANNOT_TELL);
+    expect(heldAnswer.terminal).toBeNull();
+    expect(heldAnswer.route).toBeNull();
+    expect(heldAnswer.absences).toEqual([]);
+    expect(heldAnswer.unconfigured).toBeNull();
+    const heldPane = tutorRoutingPanel(heldAnswer);
+    expect(heldPane.state).toBe(TUTOR_ROUTING_CANNOT_TELL);
+    expect(heldPane.lines[1]).toBe(
+      TUTOR_ROUTING_STATE_TEXTS[TUTOR_ROUTING_CANNOT_TELL],
+    );
+    // The last event class the stream recorded, and nothing else: no destination, no route node, no
+    // cause — and never the held navigation rendered as landed.
+    expect(heldPane.lines).toContain(
+      `${TUTOR_ROUTING_LABELS.claimValues}.lastClass: ${held.lastEventClass}`,
+    );
+    expect(
+      heldPane.lines.filter((line) => line.startsWith('terminal.')),
+    ).toEqual([]);
+    expect(heldPane.lines.filter((line) => line.startsWith('route.'))).toEqual(
+      [],
+    );
+    expect(
+      heldPane.lines.filter((line) =>
+        line.startsWith(`${TUTOR_ROUTING_LABELS.absenceState}:`),
+      ),
+    ).toEqual([]);
+    expect(heldPane.lines).not.toContain(
+      `${TUTOR_ROUTING_LABELS.terminalUrl}: /complaint/list`,
+    );
+
+    // SC4 through the same pane: a frame whose address names no configured path is named as the
+    // segments it carries, beside the paths that were compared, and never resolved to the wildcard
+    // or to a `redirectTo` row. The portal's own frame is paired with the fixture's own config, and
+    // both are records: no value here is composed by this spec.
+    const unmatched = join.tutorRouting(
+      tutorRoutingRecords(
+        navigation.warm,
+        terminalId,
+        navigation.terminals.question,
+        config,
+      ),
+    );
+    expect(unmatched.route).toBeNull();
+    expect(unmatched.unconfigured?.segments).toEqual(['claim', 'list']);
+    const unmatchedPane = tutorRoutingPanel(unmatched);
+    for (const segment of unmatched.unconfigured?.segments ?? [])
+      expect(unmatchedPane.lines).toContain(
+        `${TUTOR_ROUTING_LABELS.unconfiguredSegment}: ${segment}`,
+      );
+    expect(
+      unmatchedPane.lines.filter((line) =>
+        line.startsWith(`${TUTOR_ROUTING_LABELS.unconfiguredCompared}: `),
+      ),
+    ).toEqual(
+      config.config.map(
+        (row) => `${TUTOR_ROUTING_LABELS.unconfiguredCompared}: ${row.path}`,
+      ),
+    );
+    expect(
+      unmatchedPane.lines.filter((line) => line.startsWith('route.')),
+    ).toEqual([]);
+    expect(unmatchedPane.text).not.toContain(
+      `${TUTOR_ROUTING_LABELS.routePath}: **`,
+    );
+
+    // The pane's own absence for an answer nobody gave, and a state word it was not written for.
+    const noAnswer = tutorRoutingPanel(undefined);
+    expect(noAnswer.state).toBe(TUTOR_ROUTING_NO_ANSWER_STATE);
+    expect(noAnswer.lines).toEqual([TUTOR_ROUTING_NO_ANSWER_TEXT]);
+    expect(tutorRoutingPanel({}).lines).toEqual([TUTOR_ROUTING_NO_ANSWER_TEXT]);
+    expect(tutorRoutingPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+
+    // Two states, two absences and the pane's own absence: five distinct words and five distinct
+    // sentences, so no absence is a synonym for another and none is a blank answer.
+    expect(
+      new Set([
+        pane.state,
+        heldPane.state,
+        ...answer.absences.map((absence) => absence.state),
+        noAnswer.state,
+      ]).size,
+    ).toBe(5);
+    expect(
+      new Set([
+        pane.lines[1],
+        heldPane.lines[1],
+        pane.lines[guardAt + 1],
+        pane.lines[redirectAt + 1],
+        noAnswer.lines[0],
+      ]).size,
+    ).toBe(5);
+    expect(TUTOR_ROUTING_SENTENCES.map((entry) => entry.id)).toEqual([
+      'state-answered',
+      'state-cannot-tell',
+      'absence-no-guard-verdict',
+      'absence-no-redirect-decision',
+      TUTOR_ROUTING_NO_ANSWER_STATE,
+    ]);
+    expect([...TUTOR_ROUTING_ABSENCES]).toEqual([
+      TUTOR_ROUTING_NO_GUARD_VERDICT,
+      TUTOR_ROUTING_NO_REDIRECT_DECISION,
+    ]);
+
+    // Idempotency (E10): the same fact renders the same lines in the same order, twice.
+    expect(tutorRoutingPanel(FACTS['tutor-routing'])).toEqual(pane);
     // No DOM is added to an inspected page by this pane's own text.
     expect(pane.text).not.toMatch(/<\/?[a-z]/i);
   });
