@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: tutor-signals
-phase: define
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M056
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1132,3 +1132,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-20 — roadmap — program roadmap approved
 - 2026-11-20 — define — roadmap approved; define opened for tutor-signals
 - 2026-11-21 — define — milestone intent approved
+- 2026-11-21 — plan — planning started
