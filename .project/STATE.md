@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: tutor-routing
-phase: plan
+phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M058
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1156,3 +1156,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — shipped — archive preflight passed; shipment recorded
 - 2026-11-21 — shipped — milestone M057 shipped; handoff to the next roadmap entry
 - 2026-11-21 — plan — plan approved
+- 2026-11-21 — build — build started
