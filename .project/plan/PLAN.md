@@ -1,6 +1,7 @@
 # PLAN — M059 teardown-leak
 
 Milestone: teardown-leak · Branch: gsd-path/M059 · Baseline: 23736c46471a613db1bf5a2cf9e62a454a8fbbc1
+Entry: M059
 
 ## Config
 
@@ -94,18 +95,34 @@ carries it, and the task's acceptance criteria state the edge id and this ruling
 
 ### panel — T003
 
-T003 adds one surface and touches every table that enumerates surfaces:
+Criteria: SC1, SC3, SC6
 
-- `apps/angular-ai-devtools/src/app/panel-teardown-leak.ts` — the pane component, exporting
-  `teardownLeakPanel`, four states (`finding`, `absent`, `cannot-tell`, `empty`), rendering only the code,
-  the message body and the named absences the join returns.
-- `apps/angular-ai-devtools/src/app/app.routes.ts` — one entry appended to `PANEL_SURFACES` and one route
-  in `appRoutes`, surface key `'teardown-leak'`.
-- `apps/angular-ai-devtools/src/app/panel-demo.ts` — one `LOADERS` key `'teardown-leak'` and one `FACTS`
-  key beside it.
-- `extension/copy-digest.json` — the pane's sentences, added by the digest's own set.
-- Pins that enumerate those tables: `app.spec.ts`, `page-picker.component.spec.ts`,
-  `scripts/panel-routes.test.mjs`, `scripts/after-render-fixture.test.mjs`, `scripts/panel-copy.test.mjs`.
+Entry: the panel route `teardown-leak`, rendered through the `teardown-leak` key in `panel-demo.ts`
+`LOADERS`, its sample in `FACTS`, and the `PANEL_SURFACES` entry in `app.routes.ts` that the shared
+`loadPanelDemo` closure installs lazily.
+
+States: `finding` — the answer names the console code `NG0205`, the message body the record carries and,
+only where a message field attributes it, the owning component, every claim carrying the artefact it rests
+on (SC1); `absent` — no `NG0205` in the record, rendered as the code searched for and the count read,
+never as "no leak found" (SC1, E2); `cannot-tell` — the record does not state what the answer asked,
+naming the reason it states and nothing else; `empty` — no record at all. `owner-not-in-the-message` and
+`handle-record-not-held` render as two separate sentences wherever they hold, never folded into one line
+(SC3, E5), and a released handle followed by the diagnostic renders as the release then the diagnostic,
+never as a cause (SC3).
+
+Walkthrough:
+
+1. Open the panel at route `teardown-leak`: the surface answers the demo question from the console record
+   the pane is handed (the shape `research/raw/m059-record-shapes.json` states, captured from the
+   portal's own console) by naming the code, the body and — where the message carries one — the owner.
+   The sample is the shipped join's own answer, derived node-side, not a hand-written object.
+2. Read the two absences beside a message that carries the code and no owner: the surface states
+   `owner-not-in-the-message` and `handle-record-not-held` as two sentences, neither as the other
+   (SC3, E5).
+3. Hand the pane a record with no `NG0205`: the surface states `absent`, naming the code it searched for
+   and the count it read — never a clean bill of health (SC1, E2).
+4. Hand the pane a record that states a released handle before the diagnostic: the surface renders the
+   release then the diagnostic and names no handle as the cause (SC3).
 
 ## Risks
 

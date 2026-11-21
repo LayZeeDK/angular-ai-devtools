@@ -53,7 +53,7 @@ re-derived `research/raw/m044-gate-shapes.json` and `research/raw/m056-gate-stab
 
 ## Intent coverage
 
-- SC5 — AC1: the records the gate reads are re-derived from this tree and are idempotent on a second run.
+- SC5
 
 ## Acceptance criteria
 

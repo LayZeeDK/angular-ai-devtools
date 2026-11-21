@@ -57,8 +57,8 @@ returns; T004's claims record cites `artefactPath` into this record.
 
 ## Intent coverage
 
-- SC6 — AC3: the record states that the reading is the console subscription the agent already holds, with
-  no second tap, and the held-out row E9 asserts the default run writes nothing.
+- SC1
+- SC6
 
 ## Acceptance criteria
 

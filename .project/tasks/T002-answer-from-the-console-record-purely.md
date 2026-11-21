@@ -48,12 +48,11 @@ object and only that object, and T004's claims record re-derives against it.
 
 ## Intent coverage
 
-- SC1 — AC1: a record carrying `NG0205` yields a finding naming the code and the body, and an unowned
-  message yields `owner-not-in-the-message` beside the code.
-- SC2 — AC2: the join reads the record the agent already holds and nothing else.
-- SC3 — AC3: a released handle followed by the diagnostic is rendered as that sequence, never as a leak.
-- SC4 — AC4: no handle identity is named, and the absence `handle-record-not-held` is always present.
-- SC5 — AC5: the join publishes a contract the surface and the claims record can read.
+- SC1
+- SC2
+- SC3
+- SC4
+- SC5
 
 ## Acceptance criteria
 

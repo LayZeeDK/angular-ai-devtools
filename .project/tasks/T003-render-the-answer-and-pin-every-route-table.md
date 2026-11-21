@@ -63,11 +63,9 @@ with its hash re-derived, and the surface record `research/raw/m059-surface.json
 
 ## Intent coverage
 
-- SC1 — AC1: the pane shows the code and the body, and shows an owner only when the join carried one.
-- SC3 — AC2: the pane renders the release-then-diagnostic sequence the join returns, never a causal
-  sentence about a handle.
-- SC6 — AC3: the pane reads the record on the panel side; nothing is asked of the inspected page at read
-  time and no DOM is added to it.
+- SC1
+- SC3
+- SC6
 
 ## Acceptance criteria
 

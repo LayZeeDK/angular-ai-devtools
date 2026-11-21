@@ -52,8 +52,8 @@ record `research/raw/m059-surface.json`. T004 publishes `research/raw/m059-verdi
 
 ## Intent coverage
 
-- SC5 — AC1: every claim re-derives against the tree, and a claim that does not is a named mismatch.
-- SC6 — AC2: the project verify runs at this head and its exit status is recorded.
+- SC5
+- SC6
 
 ## Acceptance criteria
 
