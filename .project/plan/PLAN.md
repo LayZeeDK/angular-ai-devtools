@@ -445,3 +445,29 @@ fixture suite its first leg runs rewrites and restores the route file, and the b
 `npm test`'s own budget leg refuse the artifact T003 landed as a stale build, so the build is
 re-run here and the artifact it writes is what `npm test` measures, before the checkout discards
 the working-tree diff.
+
+## Wave 8 — re-measure the census and run the project verify
+
+Goal: the recording census the shapes record states is a function of the record set, and T004's
+capture moves it, so the census is re-derived after that capture and before the project verify, and
+the project verify runs last over the head that ships with nothing re-derived after it.
+
+Why this wave exists, measured rather than feared: `research/raw/m057-record-shapes.json` counts
+the JSON recordings under `research/raw/` excluding itself — 144 at this head, where the record
+still states 142 until T006 re-derives it. T004's capture writes the verdict-claims record, one
+more recording, so the census measures 145 at the head T004 leaves and
+`scripts/tutor-signals-shapes.test.mjs` reddens again — at the head that ships. T006's
+re-derivation runs before T004's capture and cannot see the moved count, and T004 cannot own the
+repair: its four recordings plus its own Log are five authored artefacts against `verify-weight`'s
+ceiling of four. The ordering is the repair, never a widened ceiling and never a dropped recording:
+T004 stays wave 7 and loses the project-verify half — its Verify keeps the nine-suite leg, the
+formatting check, the typecheck and the trailing checkout, and drops the build leg and `npm test`,
+both of which move here — and the re-derivation becomes this wave's task, T009, behind
+`deps: [T004]`, owning the census record, the shapes suite it greens (declared, edited not at all)
+and the build artifact the verify rebuilds, with whatever pin closure the lint demands declared and
+never edited. T009 is the milestone's last task and the one that proves the tree ships green: it
+re-derives the census record after T004's capture, runs the shapes suite green, and then runs the
+project verify — the extension build, `npm run check`, `npm test` and the trailing checkout — as
+its last action, with nothing re-derived after it.
+
+Review depth: full
