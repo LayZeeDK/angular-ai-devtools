@@ -2,10 +2,10 @@
 id: T003
 title: Read the graph record the answer comes from
 wave: 3
-status: pending
+status: done
 deps: [T001, T002]
-agent: null
-base: null
+agent: build_T003
+base: beb69b97acad146fcb96bcc1cf6e0b7bb2e9b481
 worktree: null
 task_branch: null
 files:
@@ -114,3 +114,11 @@ node --test scripts/tutor-signals-graph.test.mjs && npx prettier --check scripts
 
 - pending.
 - Landed paths: `scripts/tutor-signals-graph.test.mjs` — read from this tree, ready. The capture leg is deleted by PLAN C8: this task reads `research/raw/m039-render-phase.json`'s `/effect/freshRead` and writes no record of its own.
+- 2026-11-21: built at `beb69b97` as `build_T003`. `scripts/tutor-signals-graph.test.mjs` (one file, 976 lines) reads the record and moves nothing else; no capture, no page, no browser, no build, no listener, no record written.
+- The pinned shape, from the suite's own output: `research/raw/m039-render-phase.json` `/effect/freshRead` at line `399` — **6 nodes**, indices `[0,1,2,3,4,5]`, every one numeric; **6 edges**, every one with numeric `consumer`/`producer` ends; **one** node of kind `effect` at `index 5` with `label ""`; its **one** consumer edge `5 -> 2` reaching the signal labelled `"count"`.
+- The pinned provenance, from `capture`: command `set "M039_CAPTURE=1"&& node --experimental-strip-types --test "scripts/render-phase-capture.test.mjs"`; route `"/"`; page `"http://localhost:4222/"`; element `"app-counter"`; component `"_Counter"`; build `{"app":"spikes/ng222-app","angular":"22.2.2","configuration":"development"}`; instance `{"name":"chrome-beta-gemma4","cdp":9334}`; at `"2026-11-08T07:19:56.846Z"`; **`head`: absent** — the block's own key set is pinned, so a field this milestone would compose has nowhere to sit. The graph's `url`/`element`/`component` are held equal to the capture block's, so the graph is the record's own statement.
+- The join's answer over that record, run in a bare `node:vm` context: `{"state":"answered","effect":{"label":"","index":5,"namedBy":"recorded-edge"},"reads":[{"index":2,"label":"count"}],"unplaced":[],"ordering":{"state":"absent","absence":"no-write-record-no-order"}}`; claims `["effect","read","ordering"]`, the two graph-side claims citing `research/raw/m039-render-phase.json:399` and the ordering claim `extension/render-phase.js:18`. The same node is placed by the label `""` (`namedBy: "label"`), and the record's own nodes reversed still answer `index 5` with `index 2` upstream — the answer reads an `index`, never a position.
+- No capture leg, proved: imports are `["node:assert/strict","node:fs","node:path","node:test","node:url","node:vm"]` and nothing else (6 of 6 node builtins); the bare context holds `document`, `window`, `fetch`, `XMLHttpRequest`, `WebSocket`, `process`, `location`, `navigator`, `chrome` all `undefined` (9 of 9); `research/raw/m057-signal-graph.json` does not exist (an `existsSync` on the path PLAN C8 names is false, and the suite enumerates no directory). The suite names the portal's labelled `Resource.loadEffect` as the shape a portal read would offer in its place (`extension/render-phase.js:15-16`) and claims no portal read: the record's effect label is `""` and no answer field carries `Resource.loadEffect`, `Resource.extRequest`, `localhost`, `http://` or `/home`.
+- The three mutants each redden their pin and name the defect: `effect-by-position` → "the effect sits at position 0 of this list and the record states index 5 for it: a position in the nodes array is not an index the record states, and the answer rendered 0"; `portal-read-claimed` → "no page was opened for this task, so the answer does not claim a portal read: "Resource.loadEffect" appears in …"; `provenance-invented` → "a claim carries artefactPath, claim, line, values and nothing else, so no provenance field the record does not carry is invented beside it — no head, no route and no clock: this claim rendered {"head":"beb69b97…","claim":"effect",…}".
+- Verify, run exactly: `node --test scripts/tutor-signals-graph.test.mjs` → `tests 9`, `pass 9`, `fail 0`; `npx prettier --check scripts/tutor-signals-graph.test.mjs` → "All matched files use Prettier code style!". Exit 0.
+- Verdict: the record is the one graph the answer needs, the answer is proved from it rather than assumed, no capture leg exists and both Verify legs are green — ready.
