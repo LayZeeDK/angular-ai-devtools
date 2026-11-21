@@ -36,6 +36,7 @@ const surfaces = [
   'console-read',
   'visual-qa',
   'tutor-foundations',
+  'tutor-signals',
   'webmcp-rehearsal',
   'webmcp',
   'components',
@@ -591,6 +592,24 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
       String(err.message).includes('route tutor-foundations must exist'),
     'a table without the tutor-foundations route must fail naming the missing surface',
   );
+
+  // Mutant: the M057 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the tutor-signals pane — the effect the graph carries and the node its edge names,
+  // or the state that names why it cannot be told — so the per-surface half must name it rather than
+  // pass on the older surfaces alone.
+  const withoutTutorSignals = source.replace("  'tutor-signals',\n", '');
+  assert.notEqual(
+    withoutTutorSignals,
+    source,
+    'the removed-tutor-signals-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutTutorSignals),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route tutor-signals must exist'),
+    'a table without the tutor-signals route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -618,6 +637,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'what-changed': ['panel-what-changed', 'whatChangedPanel'],
     'visual-qa': ['panel-visual-qa', 'visualQaPanel'],
     'tutor-foundations': ['panel-tutor-foundations', 'tutorFoundationsPanel'],
+    'tutor-signals': ['panel-tutor-signals', 'tutorSignalsPanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -667,6 +687,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'whatChangedPanel(',
     'visualQaPanel(',
     'tutorFoundationsPanel(',
+    'tutorSignalsPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -1165,5 +1186,31 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: tutor-foundations'),
     'removing the tutor-foundations loader must fail naming the missing surface tutor-foundations',
+  );
+
+  // Mutant: remove the tutor-signals key from LOADERS. The M057 route is the one this task pins, so
+  // the check must name it when its loader is gone rather than pass on the surfaces before it. It is
+  // a quoted key whose import is the only reference to `panel-tutor-signals.ts`, so a route that
+  // dropped it would leave the tutor-signals surface unreachable while every earlier surface still
+  // loaded. The assertion reads the failure's whole message: the missing-key sentence and the
+  // surface it names.
+  const withoutTutorSignals = demoSource.replace(
+    "  'tutor-signals': () => import('./panel-tutor-signals') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutTutorSignals,
+    demoSource,
+    'the tutor-signals loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutTutorSignals),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: tutor-signals'),
+    'removing the tutor-signals loader must fail naming the missing surface tutor-signals',
   );
 });
