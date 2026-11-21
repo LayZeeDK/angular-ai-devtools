@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: tutor-routing
-phase: define
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
