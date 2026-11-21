@@ -1,16 +1,15 @@
 ---
 id: T004
 title: Re-derive the recordings and run the project verify
-wave: 4
+wave: 5
 status: pending
-deps: [T003]
+deps: [T003, T005]
 agent: null
 base: null
 worktree: null
 task_branch: null
 files:
   - research/raw/m058-verdict-claims.json
-  - research/raw/m048-surface.json
   - research/raw/m044-gate-shapes.json
   - research/raw/m056-gate-stability.json
   - scripts/gate-integrity.test.mjs
@@ -72,15 +71,6 @@ so the route T003 landed and the copy it re-measured are proven green at the hea
 (the M057 C6 pattern). The artifact is freshly landed by T003 and this task edits no source it is
 built from, so the builds stay in the Config project verify at ship and `npm test`'s own budget leg
 re-proves the artifact fresh here.
-
-The copy suite is red at the base this task starts from, and this task owns the record that makes it
-red: `research/raw/m048-surface.json` quotes the copy-check fact and its comment at their pre-M058
-lines, so its four recorded values still say `checked: 201` where the fact now says `206`. Correct
-those four values in that record — `sampleFact.lineText` and `.holds`, and the two fields of
-`sampleFactComment` — from the lines the file carries at this head, re-reading nothing else in it,
-and run `scripts/copy-check.test.mjs` green with no assertion loosened. The record is declared for
-this purpose alone, and the two records already unresolved at this base (their own milestones') are
-not touched here.
 
 Then run the project verify's remaining legs as the last action and re-derive nothing after it:
 `npm run check`, `npm test`, and the checkout that discards any working-tree diff of a build

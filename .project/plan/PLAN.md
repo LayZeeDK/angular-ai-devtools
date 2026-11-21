@@ -91,6 +91,10 @@ whose first row names T001: SC1's edges, SC2's one edge, SC3's two in-scope edge
 SC5's one all resolve to `scripts/tutor-routing.test.mjs`, and SC6's one edge resolves to
 `scripts/tutor-routing-shapes.test.mjs` — the same suite the held-out prose above names for E9.
 
+T005 appears in no row, and the omission is the statement: it repairs a stale citation inside a
+record T002 and T003 read, so it owns no acceptance criterion, claims none and is in the plan because
+the authored ceiling (R6) forced the repair out of T004 — not because it covers anything.
+
 ## Held-out checks
 
 D2's rows, recorded as prose because the approved INTENT marks no edge `held-out` (see D2):
@@ -183,6 +187,17 @@ Walkthrough:
   that `gsd plan-lint` strips the node id and that `check_handoffs.py plan` accepts the form; both
   gates are run on this plan before approval, and a blocker in either is fixed here, not by
   dropping the title.
+- R6 — the split exists because the authored-artefact ceiling was measured, not feared. `gsd
+  verify-weight` refused T004 at 5 authored artefacts — the verdict-claims record,
+  `research/raw/m048-surface.json`, `research/raw/m044-gate-shapes.json`,
+  `research/raw/m056-gate-stability.json` and the task's own Log — against a ceiling of 4, so the
+  stale-citation repair moves to T005 in wave 4, where one recording, the three declared suites its
+  pin closure reaches and the Log sit inside the ceiling, and T004 returns to its three recordings in
+  wave 5 behind `deps: [T003, T005]` so the project verify still runs last. The repair is the split,
+  never a widened ceiling and never a dropped recording: the four values T005 corrects are why its
+  `files:` names the record, the three suites are declared there only because the closure from the
+  record pins them (R2's class, not authored work), and T004's `files:` loses exactly the one entry
+  the patch added.
 
 ## Wave 1 — measure what the records and the reach state
 
@@ -315,7 +330,26 @@ text, none duplicating a text another surface declares), and moves the copy-chec
 `apps/angular-ai-devtools/src/app/panel-demo.spec.ts` and read by `scripts/copy-check.test.mjs`
 with no assertion loosened and no count lowered.
 
-## Wave 4 — the records, the gate and the project verify
+## Wave 4 — repair the stale citation in the surface record
+
+Goal: the record the copy suite re-reads states the lines the demo carries at this head, so that
+suite is green at the head the project verify is asked over, and no task in the plan carries more
+authored artefacts than the ceiling allows (R6).
+
+Review depth: full
+
+T005 corrects four values in `research/raw/m048-surface.json` — `sampleFact.lineText` and
+`sampleFact.holds`, and the two fields of `sampleFactComment` — from the lines
+`apps/angular-ai-devtools/src/app/panel-demo.ts` carries at this head (`checked: 206`, not
+`checked: 201`), writes nothing else in the record, and runs `node --test scripts/copy-check.test.mjs`
+green (30 pass, 0 fail) with no assertion loosened. Its `files:` is that record beside the three
+suites its pin closure reaches — `scripts/copy-check.test.mjs`, `scripts/gate-integrity.test.mjs` and
+`scripts/gate-integrity-default-tasks.test.mjs`, declared and edited not at all, which is R2's class
+and not authored work — its Verify is the copy suite, `npx prettier --check` on the record and
+`npm run check`, and it owns no criterion of its own: the repair is a citation, so the coverage table
+above names no row for it.
+
+## Wave 5 — the records, the gate and the project verify
 
 Goal: every machine-derived record this milestone's suites move is re-derived with its own command
 at the head that ships, the inventories already excuse this milestone's records through the map
