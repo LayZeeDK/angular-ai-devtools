@@ -11,6 +11,8 @@ task_branch: null
 files:
   - research/raw/m057-record-shapes.json
   - research/raw/m056-gate-stability.json
+  - scripts/gate-stability-record.test.mjs
+  - scripts/tutor-routing-shapes.test.mjs
   - scripts/tutor-signals-shapes.test.mjs
   - extension/panel/index.html
   - scripts/gate-integrity.test.mjs
