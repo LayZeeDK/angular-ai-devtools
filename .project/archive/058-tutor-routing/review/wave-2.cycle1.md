@@ -230,7 +230,7 @@ Reviewed HEAD: 1d3aa1d5acadc350c89dd3a1c1304efe8607928e
   hands every load to whichever navigation exists), plus the three destination mutants quoted under
   SC2.
 
-### GAP 1 — the no-guard-verdict detail sentence can misstate the diff when GuardsCheckStart is not in the record
+#### GAP 1 — the no-guard-verdict detail sentence can misstate the diff when GuardsCheckStart is not in the record
 
 - The absence itself stays correct, but its sentence does not: `noGuardVerdictOf` computes
   `guardFields` only `if (guardsCheckStart !== null)` (`extension/tutor-routing.js:600-604`), so on
@@ -246,7 +246,7 @@ Reviewed HEAD: 1d3aa1d5acadc350c89dd3a1c1304efe8607928e
 - Unverified: no truncated-stream fixture exists to prove the misstatement renders — the path was
   read from the code (`:600-614`), not run, because no record supplies the shape.
 
-### GAP 2 — the suite asserts the mutant battery is at least 12, not exactly 16
+#### GAP 2 — the suite asserts the mutant battery is at least 12, not exactly 16
 
 - The battery carries 16 mutants (`scripts/tutor-routing.test.mjs:1499-1726`) and this review
   confirmed all sixteen redden, but the count pin asserts `MUTATIONS.length >= 12`

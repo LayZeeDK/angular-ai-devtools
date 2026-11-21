@@ -1,0 +1,147 @@
+head: 8b50e92cb910fc689bf764ed03189f6912aa3336 at 2026-11-21T18:40:32.994Z
+T001 surfaces: 29 surfaces, 172 declared sentences, 34 inline sentences, 1 absence
+T001 citations: 550 lines re-read
+T001 verbatim: 233 sentences found in their files
+T001 coverage: 29 surfaces and 2 specs on disk
+T001 absence: context declares nothing, 13 single-token literals, 0 templates, and cites 5 lines
+T001 boundary: the copy is measured and the digest is T002’s, not this record’s
+T002 digest: 198 rows for 206 sentences (8 repeat(s)), 41743 bytes against the record's 252498
+T002 scope: 172 declared + 34 inline sentences read, 261 labels and value words read past
+T002 not digested: sanitizer "${count} ${noun}${count === 1 ? '' : 's'}" (composed-at-render)
+T002 per surface: components: clean, 9 sentences | console: clean, 11 sentences | console-read: clean, 7 sentences | stability: clean, 15 sentences | error-boundary: clean, 14 sentences | fields: clean, 6 sentences | navigation: clean, 6 sentences | performance: clean, 2 sentences | render-phase: clean, 7 sentences | linked-state: clean, 2 sentences | lint: clean, 3 sentences | router: clean, 3 sentences | resource: clean, 3 sentences | onpush: clean, 3 sentences | legacy: clean, 3 sentences | redirect: clean, 6 sentences | sanitizer: clean, 11 sentences | panel-demo: clean, 2 sentences | context: cannot-tell (surface-declares-nothing) | copy-check: clean, 9 sentences | interaction-story: clean, 13 sentences | dead-click: clean, 19 sentences | what-changed: clean, 11 sentences | webmcp: clean, 9 sentences | webmcp-rehearsal: clean, 10 sentences | visual-qa: clean, 5 sentences | tutor-foundations: clean, 6 sentences | tutor-signals: clean, 6 sentences | tutor-routing: clean, 5 sentences
+T002 record: clean, 206 sentences compared, 0 unexplained; context row: cannot-tell (surface-declares-nothing)
+T002 precedence: no digest → cannot-tell (no-digest), checked 0
+T002 precedence: zero strings → cannot-tell (surface-declares-nothing), checked 0
+T002 precedence: one unexplained string → unexplained, naming "listed: the record names…" (components)
+T002 precedence: fully explained record → clean (206 compared), context row → cannot-tell (surface-declares-nothing)
+T002 exact text: "filtered: the typed text kept the rows below, and the count states how many rows match" and "unstable: the page's isStable emitted false" are reported rather than explained
+T002 idempotency: 11 rows, twice, identical and in record order
+T002 mutants: digest-entry-dropped: every sentence the copy-bearing surfaces declare is in the digest, and the answer is "unexplained" naming "listed: the record names these components, and every row below is one the record carries" (components) as unexplained || similarity-match: a sentence is explained by the digest's own text and never by similarity, and this near-miss was explained: "filtered: the typed text kept the rows below, and the count states how many rows match" (components) || invented-row: an invented row is not an explanation, and this module explains "cannot tell: no panel copy can be named", which no surface in the record renders || missing-digest-reported-clean: a surface with strings and no digest reports cannot-tell with the reason "no-digest", because nobody compared the strings; this reported "clean"
+T004 surface: copy-check declares 9 sentences and builds 7 labels; the digest holds 198 rows for 206 sentences, eight of them one text
+T004 route record: 58 citations re-read, 3 states, loader key "copy-check", fields ["state","checked","unexplained","unexplained[].string","unexplained[].surface","reason"]
+T004 interaction-story record: 72 citations re-read, 2 states, loader key "interaction-story", fields ["state","steps","steps[].stream","steps[].at","steps[].fields","cannotTell","reason","bounded"]
+T004 dead-click record: 97 citations re-read, 3 states, loader key "dead-click", fields ["state","findings","findings[].chain","findings[].event","findings[].window","findings[].window.field","findings[].window.kind","findings[].window.length","findings[].window.final","considered","refusals","reason","chain"]
+✔ the record is every panel surface, the copy each declares, and the absence (10.5796ms)
+✔ every cited path and line is the one the record read (4.2667ms)
+✔ every declared sentence appears verbatim in the file it is cited in (1.1919ms)
+✔ every surface on disk is in the record, and the specs are named as excluded (1.0502ms)
+✔ the counts the record states are the counts its entries carry (0.262ms)
+✔ a surface that declares no sentences is recorded as an absence, not skipped (0.3403ms)
+✔ the record states what it does not claim (0.1191ms)
+✔ a citation that slid off its line, or lost its text, is refused (1.358ms)
+✔ a surface that declares copy cannot be recorded as declaring nothing (1.1904ms)
+✔ the record names the task that authors the digest, and measures no join itself (0.1915ms)
+✔ T002 — the digest is the record’s sentences, under the surface and key each is declared under (1.1817ms)
+✔ T002 — the scope reads the sentences and reads past the labels and value words by count (0.9478ms)
+✔ T002 — the pluralised word the pane never renders whole is a recorded decision, not a digest row (0.941ms)
+✔ T002 — every sentence a surface declares is explained, and the surface that renders no copy is cannot-tell (7.4771ms)
+✔ T002 — the record as measured is clean, and the surface that renders no copy is its own row (2.5645ms)
+✔ T002 / precedence 1 — a missing digest is cannot-tell with "no-digest", before anything else (3.2503ms)
+✔ T002 / precedence 2 — zero strings compared is cannot-tell with "surface-declares-nothing" (1.1282ms)
+✔ T002 / precedence 3 — one unexplained string is "unexplained" even when a surface renders no copy (1.6735ms)
+✔ T002 / precedence 4 — a fully explained record with an absent surface is clean, and its absent row is cannot-tell (8.9997ms)
+✔ T002 — the states and the reasons are closed lists the module publishes (3.2076ms)
+✔ T002 / E4 — a surface with strings and no digest is cannot-tell, and the same surface beside a stale digest is reported (0.8106ms)
+✔ T002 — a match is the digest’s own text: a near-miss sentence and a respelled apostrophe are reported (0.9367ms)
+✔ T002 / E6 — the same record and digest answer identical rows in identical order, and the join writes neither (3.9635ms)
+✔ T002 — the join is one implementation, reads no page, and reads no file (3.6781ms)
+✔ T002 mutants — every anchor is one place in the shipped module and really changes it (0.1466ms)
+✔ T002 mutants — each defect reddens its pin, and the failure names the defect by string (15.3515ms)
+✔ T004 — the twentieth surface is measured, and the digest explains every sentence the record carries (2.856ms)
+✔ T004 — the route record names the route, the loader key, the three states and what each reads (1.0748ms)
+✔ T004 — the interaction-story route record names the route, the loader key, the two states, what each reads and the fifth field (1.0005ms)
+✔ T004 — the dead-click route record names the route, the loader key, the three states, what each reads and the fifth field (1.0768ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 204.8327
+Checking formatting...
+All matched files use Prettier code style!
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+  .project\review\VERIFICATION.json
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages archive-paths
+gate-integrity: archive-paths clean - examined 16 live path reference(s) of 187 reference(s) in 164 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M058; stages fix-record
+gate-integrity: fix-record clean - examined 20 claim(s) in 5 task log(s) of .project/tasks (logs of M058) against 41 changed path(s) of 21fb7ccdb2c18a433b597aef704bea02b9e04a69..8b50e92cb910fc689bf764ed03189f6912aa3336 (rule ship: M057's ship commit, 21fb7ccd (ship: M057 — tutor-signals); the head is this tree's HEAD, 8b50e92c (state: settle before T005); claims: declared)
+gate-integrity: fix-record pins - 6 declared path(s) byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..8b50e92cb910fc689bf764ed03189f6912aa3336, recorded and not judged as changes
+gate-integrity: pin extension/panel/index.html at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:212 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..8b50e92cb910fc689bf764ed03189f6912aa3336, recorded and not judged as a change
+gate-integrity: pin extension/panel/index.html at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:216 (T003) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..8b50e92cb910fc689bf764ed03189f6912aa3336, recorded and not judged as a change
+gate-integrity: pin research/raw/m048-surface.json at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:134 (T005) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..8b50e92cb910fc689bf764ed03189f6912aa3336, recorded and not judged as a change
+gate-integrity: pin research/raw/m048-surface.json at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:137 (T005) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..8b50e92cb910fc689bf764ed03189f6912aa3336, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:137 (T005) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..8b50e92cb910fc689bf764ed03189f6912aa3336, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:137 (T005) - declared and byte-identical across 21fb7ccdb2c18a433b597aef704bea02b9e04a69..8b50e92cb910fc689bf764ed03189f6912aa3336, recorded and not judged as a change
+gate-integrity: mention app.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention copy-check.test.mjs at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:213 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m048-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:214 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m047-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:215 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m055-surface.json at .project/tasks/T003-render-the-answer-and-pin-the-route-tables.md:215 (T003) - recorded and not judged
+gate-integrity: mention apps/angular-ai-devtools/src/app/panel-demo.ts at .project/tasks/T005-repair-the-stale-citation-in-the-surface-record.md:135 (T005) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 7 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check research/raw/m048-surface.json
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .
