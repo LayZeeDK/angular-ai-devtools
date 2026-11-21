@@ -30,6 +30,17 @@
 //
 // Nothing here builds: no index, no join, no surface and no route. It reads the records, the files
 // they name and git, and it writes nothing.
+//
+// M057 T006 reads this milestone's own map, `research/raw/m057-record-shapes.json`, beside M055's (C2,
+// C7), because two suites reading one recording by two rules is the defect M055's T004 hit twice. The
+// inventory check below subtracts the union of the paths the two recordings name in
+// `inventory.outsideTheMap` — read from the records themselves, never from a list this suite holds —
+// and each map may name outside itself only the record its own milestone owes, so a third record
+// cannot be excused by editing a recording and a record another map measures is never subtracted here.
+// A record present and named by neither map still reddens naming it. This milestone's map carries no
+// inventory at this head, so it measures no record and names none outside itself: the two records the
+// milestone still owes (the surface T007 records, the claims T009 records) are absent now, and the
+// first one to land reddens here naming itself until that recording names it outside its own map.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -43,6 +54,28 @@ const RAW = 'research/raw';
 const SCHEMA = 'm055-record-shapes/v1';
 const VC_PATTERN = /^m0\d\d-verdict-claims\.json$/;
 const SF_PATTERN = /^m0\d\d-surface\.json$/;
+
+/** This milestone's own map, read beside M055's on every run (C2, C7). */
+const OWN_RECORD = 'research/raw/m057-record-shapes.json';
+const OWN = JSON.parse(
+  readFileSync(join(ROOT, ...OWN_RECORD.split('/')), 'utf8'),
+);
+
+/**
+ * The two records each milestone owes, and so the only paths its map may name outside itself: a map
+ * may excuse its own record and never another milestone's, which is what keeps a third record from
+ * being excused by naming it in a recording.
+ */
+const PINNED_OUTSIDE = Object.freeze({
+  M055: [
+    'research/raw/m055-surface.json',
+    'research/raw/m055-verdict-claims.json',
+  ],
+  M057: [
+    'research/raw/m057-surface.json',
+    'research/raw/m057-verdict-claims.json',
+  ],
+});
 
 /** The seven fields the map is measured over, in the order the recording states them. */
 const FIELD_IDS = Object.freeze([
@@ -471,20 +504,57 @@ function validateHead(candidate) {
 }
 
 /**
- * The records the map is measured over: every record present except the ones the recording names
- * in `inventory.outsideTheMap`. T004's two records are captured after the map was measured, so they
- * are named there on purpose rather than omitted — and only they are subtracted, so a record that
- * appears later without being named is still held against the map and reddens.
+ * The paths one recording names in `inventory.outsideTheMap`: the records it measured its map before,
+ * which it names on purpose rather than omitting. A map that carries no inventory at all names nothing
+ * outside itself, which is a statement too — it measures no record yet.
+ * @param {any} map
+ * @returns {string[]}
+ */
+function outsideTheMapOf(map) {
+  return (map.inventory?.outsideTheMap ?? []).map(
+    (/** @type {any} */ entry) => entry.path,
+  );
+}
+
+/**
+ * The paths the two recordings name outside themselves: the whole subtraction. Each map contributes
+ * only what its own record states, so a path is subtracted because a recording says so and never
+ * because this suite lists it.
  * @param {any} candidate
+ * @returns {string[]}
+ */
+function outsideEither(candidate) {
+  return [...new Set([...outsideTheMapOf(candidate), ...outsideTheMapOf(OWN)])];
+}
+
+/**
+ * The records one map measures, by the lists its inventory carries. A map that carries no inventory
+ * measures nothing, so every record of its own milestone which is present would have to be named
+ * outside it.
+ * @param {any} map
+ * @returns {string[]}
+ */
+function measuredByMap(map) {
+  return [
+    ...(map.inventory?.verdictClaims?.paths ?? []),
+    ...(map.inventory?.surface?.paths ?? []),
+  ];
+}
+
+/**
+ * The records the map is measured over: every record present except the ones the two recordings name
+ * in `inventory.outsideTheMap`. M055's T004 captured its two records after the map was measured and
+ * named them there on purpose rather than omitting them; M057's map is read by the same rule rather
+ * than by a second one. Only the named paths are subtracted, so a record that appears later without
+ * being named is still held against the map and reddens.
+ * @param {any} candidate the map to read, M055's on the default path
  * @param {{ verdictClaims: string[], surface: string[] }} [present] the records the tree holds, by
  *   default read from disk; a mutant passes a synthetic list so a record that is not on disk can
- *   still be held against the map
+ *   still be held against the maps
  * @returns {{ verdictClaims: string[], surface: string[] }}
  */
 function mappedRecords(candidate, present = presentRecords()) {
-  const outside = (candidate.inventory?.outsideTheMap ?? []).map(
-    (entry) => entry.path,
-  );
+  const outside = outsideEither(candidate);
   return {
     verdictClaims: present.verdictClaims.filter(
       (path) => !outside.includes(path),
@@ -494,10 +564,52 @@ function mappedRecords(candidate, present = presentRecords()) {
 }
 
 /**
- * Every record present is measured, and every record measured is present. The two records this
- * milestone captures at T004 are named outside the map on purpose, so T004 landing them cannot
- * silently outgrow a map that was measured before they existed — and a record of another milestone
- * that appears later is a red test rather than an unmeasured record.
+ * This milestone's own map, held by the same rules M055's is, in the same code path — because two
+ * suites reading one recording by two rules is the defect this task repairs (C2, C7):
+ *
+ *   only its own     the map may name outside itself only a record its own milestone owes, so a third
+ *                    record cannot be excused by editing a recording and a record another map measures
+ *                    is never subtracted.
+ *   nothing unmeasured
+ *                    a record of its own milestone which is present and which the map does not measure
+ *                    must be named outside it, so nothing this milestone lands reads as unmeasured and
+ *                    the refusal names the record rather than a bare count.
+ *
+ * At this head the map states no inventory at all, so it names nothing outside itself and measures
+ * nothing: both records this milestone owes are absent, and the first one to land reddens here naming
+ * itself until the recording that measured the map names it.
+ * @param {any} [map] the map to hold, by default this milestone's
+ * @param {{ verdictClaims: string[], surface: string[] }} [present] see {@link mappedRecords}
+ */
+function validateOwnMap(map = OWN, present = presentRecords()) {
+  assert.equal(
+    map.milestone,
+    'M057',
+    `the map read beside M055's is this milestone's, and it says ${String(map.milestone)}`,
+  );
+  const named = outsideTheMapOf(map);
+  const pinned = PINNED_OUTSIDE.M057;
+  for (const path of named)
+    assert.ok(
+      pinned.includes(path),
+      `${path} is named outside ${OWN_RECORD} and is not one of the two records this milestone owes (${pinned.join(', ')}): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording`,
+    );
+  const measured = measuredByMap(map);
+  for (const path of [...present.verdictClaims, ...present.surface]) {
+    if (ownIdOf(path) !== 'M057' || measured.includes(path)) continue;
+    assert.ok(
+      named.includes(path),
+      `${path} is this milestone's record and is present, and ${OWN_RECORD} measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name ${path} in its inventory.outsideTheMap or measure it`,
+    );
+  }
+}
+
+/**
+ * Every record present is measured, and every record measured is present. The two records each
+ * milestone captures after its map was measured are named outside that map on purpose, so landing them
+ * cannot silently outgrow a map that was measured before they existed — and a record of another
+ * milestone that appears later is a red test rather than an unmeasured record. Both recordings are
+ * held here by one rule (C2, C7).
  * @param {any} candidate
  * @param {{ verdictClaims: string[], surface: string[] }} [present] see {@link mappedRecords}
  */
@@ -507,7 +619,7 @@ function validateInventory(candidate, present = presentRecords()) {
     inventory !== null && typeof inventory === 'object',
     'the recording carries an inventory',
   );
-  const outside = (inventory.outsideTheMap ?? []).map((entry) => entry.path);
+  const own = outsideTheMapOf(candidate);
   for (const entry of inventory.outsideTheMap ?? []) {
     assert.ok(
       typeof entry.why === 'string' && entry.why.includes('T004'),
@@ -515,20 +627,22 @@ function validateInventory(candidate, present = presentRecords()) {
     );
   }
   assert.deepEqual(
-    [...outside].sort(),
-    [`${RAW}/m055-surface.json`, `${RAW}/m055-verdict-claims.json`],
+    [...own].sort(),
+    [...PINNED_OUTSIDE.M055].sort(),
     'the records outside the map are exactly the two this milestone captures at T004, so a record of another milestone cannot be excused by naming it outside the map',
   );
+  validateOwnMap(OWN, present);
+  const outside = outsideEither(candidate);
   const mapped = mappedRecords(candidate, present);
   assert.deepEqual(
     inventory.verdictClaims?.paths,
     mapped.verdictClaims,
-    `the map measures every verdict-claims record present, the records named outside it excepted: the tree holds ${present.verdictClaims.length}, and ${outside.length} are named outside the map`,
+    `the map measures every verdict-claims record present, the records the two maps name outside themselves excepted: the tree holds ${present.verdictClaims.length}, and the maps name ${outside.length} outside themselves (${outside.join(', ')})`,
   );
   assert.deepEqual(
     inventory.surface?.paths,
     mapped.surface,
-    `the map measures every surface record present, the records named outside it excepted: the tree holds ${present.surface.length}, and ${outside.length} are named outside the map`,
+    `the map measures every surface record present, the records the two maps name outside themselves excepted: the tree holds ${present.surface.length}, and the maps name ${outside.length} outside themselves (${outside.join(', ')})`,
   );
   assert.equal(
     inventory.verdictClaims?.count,
@@ -550,7 +664,7 @@ function validateInventory(candidate, present = presentRecords()) {
   assert.deepEqual(
     [...measured].sort(),
     [...mapped.verdictClaims, ...mapped.surface].sort(),
-    'the table carries one entry per record present and no entry for a record that is not there, the records the map names outside it excepted',
+    'the table carries one entry per record present and no entry for a record that is not there, the records the maps name outside themselves excepted',
   );
   for (const entry of candidate.records ?? [])
     assert.ok(
@@ -1422,7 +1536,7 @@ test('every record present is measured and every record measured is present', (t
   const present = presentRecords();
   const mapped = mappedRecords(RECORDING, present);
   t.diagnostic(
-    `${mapped.verdictClaims.length} verdict-claims and ${mapped.surface.length} surface record(s) measured; ${present.verdictClaims.length + present.surface.length} present, ${RECORDING.inventory.outsideTheMap.length} named outside the map for T004`,
+    `${mapped.verdictClaims.length} verdict-claims and ${mapped.surface.length} surface record(s) measured; ${present.verdictClaims.length + present.surface.length} present, ${outsideTheMapOf(RECORDING).length} named outside M055's map at T004 and ${outsideTheMapOf(OWN).length} outside M057's map`,
   );
   for (const expected of [
     ['verdict-claims', 34],
@@ -1638,6 +1752,114 @@ test('a record present and not named outside the map reddens naming the record',
   );
   console.log(
     `mutant: new unlisted record -> ${failure.message.split('\n')[0]}`,
+  );
+});
+
+test('this milestone’s map is read beside M055’s, and the subtraction is the two recordings’ own statements', (t) => {
+  validateOwnMap();
+  const outside = outsideEither(RECORDING);
+  assert.deepEqual(
+    [...outside].sort(),
+    [...new Set([...PINNED_OUTSIDE.M055, ...outsideTheMapOf(OWN)])].sort(),
+    `the subtraction is M055's map's own two plus whatever this milestone's map names outside itself, read from the two recordings rather than listed here: the maps name ${JSON.stringify(outside)}`,
+  );
+  for (const map of [RECORDING, OWN])
+    for (const path of outsideTheMapOf(map))
+      assert.ok(
+        (
+          PINNED_OUTSIDE[/** @type {'M055'|'M057'} */ (map.milestone)] ?? []
+        ).includes(path),
+        `${String(map.milestone)}'s map names ${path} outside itself, and that is not a record ${String(map.milestone)} owes`,
+      );
+  assert.deepEqual(
+    mappedRecords(RECORDING),
+    {
+      verdictClaims: presentRecords().verdictClaims.filter(
+        (path) => !outside.includes(path),
+      ),
+      surface: presentRecords().surface.filter(
+        (path) => !outside.includes(path),
+      ),
+    },
+    'the table is measured over every record present except the ones the two recordings name outside themselves, and over no other',
+  );
+  t.diagnostic(
+    `${OWN.milestone}'s map names ${outsideTheMapOf(OWN).length} record(s) outside itself and measures ${measuredByMap(OWN).length}; the two maps name ${outside.length} between them (${outside.join(', ')})`,
+  );
+});
+
+test('this milestone’s map may name only its own record, and a record it neither measures nor names reddens naming it', () => {
+  const third = {
+    ...OWN,
+    inventory: {
+      ...(OWN.inventory ?? {}),
+      outsideTheMap: [
+        {
+          path: `${RAW}/m901-surface.json`,
+          why: 'a record this milestone does not owe',
+        },
+      ],
+    },
+  };
+  const excused = (() => {
+    try {
+      validateOwnMap(third);
+      return null;
+    } catch (error) {
+      assert.ok(error instanceof Error, 'the check fails with an Error');
+      return error;
+    }
+  })();
+  assert.ok(
+    excused !== null,
+    'a map naming a path its own milestone does not owe must redden, and it reddened nothing',
+  );
+  assert.ok(
+    excused.message.includes(`${RAW}/m901-surface.json`),
+    `the refusal names the path it refuses to subtract, and it says ${JSON.stringify(excused.message)}`,
+  );
+
+  const owed = `${RAW}/m057-surface.json`;
+  const present = presentRecords();
+  present.surface = [...present.surface, owed].sort();
+  const unmeasured = (() => {
+    try {
+      validateOwnMap(OWN, present);
+      return null;
+    } catch (error) {
+      assert.ok(error instanceof Error, 'the check fails with an Error');
+      return error;
+    }
+  })();
+  assert.ok(
+    unmeasured !== null,
+    'a record this milestone owes, once present, is neither measured by its own map nor named outside it, so it must redden rather than read as an unmeasured record',
+  );
+  assert.ok(
+    unmeasured.message.includes(owed),
+    `the refusal names the record it will not read as unmeasured, and it says ${JSON.stringify(unmeasured.message)}`,
+  );
+
+  const naming = {
+    ...OWN,
+    inventory: {
+      ...(OWN.inventory ?? {}),
+      outsideTheMap: [{ path: owed, why: 'recorded by T007' }],
+    },
+  };
+  validateOwnMap(naming, present);
+  assert.equal(
+    outsideEither(naming).includes(owed),
+    true,
+    `once the recording names it outside itself the record this milestone owes is subtracted rather than read as unmeasured: ${owed}`,
+  );
+  assert.equal(
+    mappedRecords(naming, present).surface.includes(owed),
+    false,
+    `the subtracted record is not measured, so it never reaches the table as an unmeasured record: ${owed}`,
+  );
+  console.log(
+    `mutant: third path -> ${String(excused.message).split('\n')[0]} || owed record -> ${String(unmeasured.message).split('\n')[0]}`,
   );
 });
 

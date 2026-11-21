@@ -28,6 +28,16 @@
 // `artefactPath` values resolve at the head T001 recorded, so the missing-artefact input here is
 // constructed, the recording is asserted to say so, and the state is demanded to be `missing-artefact`
 // naming the record and the missing path — never `no-matching-criterion`.
+//
+// M057 T006 reads this milestone's own map, `research/raw/m057-record-shapes.json`, beside M055's (C2,
+// C7), because two suites reading one recording by two rules is the defect M055's T004 hit twice. The
+// subtraction below is the union of the paths the two recordings name in `inventory.outsideTheMap`,
+// read from the records themselves — never a list of paths this suite holds — and each map may name
+// outside itself only the record its own milestone owes. A record present and named by neither map
+// still reddens naming it, so nothing is excused by adding it here. This milestone's map carries no
+// inventory at this head, so it measures no record and names none outside itself: the two records the
+// milestone still owes (the surface T007 records, the claims T009 records) are absent now, and the
+// first one to land reddens here naming itself until that recording names it outside its own map.
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -49,6 +59,29 @@ const CLAIM_SUFFIX = '-verdict-claims.json';
 const INDEX_SOURCE = readFileSync(join(ROOT, INDEX), 'utf8');
 const JOIN_SOURCE = readFileSync(join(ROOT, JOIN), 'utf8');
 const RECORDING_DATA = JSON.parse(readFileSync(join(ROOT, RECORDING), 'utf8'));
+
+/** This milestone's own map, read beside M055's on every run (C2, C7). */
+const OWN_MAP = 'research/raw/m057-record-shapes.json';
+const OWN_MAP_DATA = JSON.parse(readFileSync(join(ROOT, OWN_MAP), 'utf8'));
+
+/** The two maps the census is read from, in the order the maps were measured. */
+const MAPS = [RECORDING_DATA, OWN_MAP_DATA];
+
+/**
+ * The two records each milestone owes, and so the only paths its map may name outside itself: a map
+ * may excuse its own record and never another milestone's, which is what keeps a third record from
+ * being excused by naming it in a recording.
+ */
+const PINNED_OUTSIDE = Object.freeze({
+  M055: [
+    'research/raw/m055-surface.json',
+    'research/raw/m055-verdict-claims.json',
+  ],
+  M057: [
+    'research/raw/m057-surface.json',
+    'research/raw/m057-verdict-claims.json',
+  ],
+});
 
 /** A row's three fields, sorted: exactly these and nothing else (N5). */
 const ROW_FIELDS = ['criterion', 'milestone', 'question'];
@@ -162,31 +195,107 @@ const presentRecords = readdirSync(join(ROOT, RECORD_DIR))
   }));
 
 /**
- * The paths the recording names in `inventory.outsideTheMap`: the records T001 measured the map
- * before, which it names on purpose rather than omitting.
- * @param {any} [recording] the map to read, by default T001's
+ * The paths one recording names in `inventory.outsideTheMap`: the records it measured its map
+ * before, which it names on purpose rather than omitting. A map that carries no inventory at all
+ * names nothing outside itself, which is a statement too — it measures no record yet.
+ * @param {any} recording the map to read
  * @returns {string[]}
  */
-function outsideTheMap(recording = RECORDING_DATA) {
+function outsideTheMapOf(recording) {
   const named = recording.inventory?.outsideTheMap ?? [];
   return named.map((/** @type {any} */ entry) => entry.path);
 }
 
 /**
- * The records the map is measured over: every verdict-claims record present except the ones the
- * recording names in `inventory.outsideTheMap` — the same subtraction
+ * The paths the two maps name outside themselves: the whole subtraction, read from the records. Each
+ * map contributes only what its own recording states, so a path is subtracted because a recording says
+ * so and never because this suite lists it.
+ * @returns {string[]}
+ */
+function outsideTheMap() {
+  const all = [];
+  for (const map of MAPS)
+    for (const path of outsideTheMapOf(/** @type {any} */ (map)))
+      all.push(path);
+  return [...new Set(all)];
+}
+
+/**
+ * The records one map measures, by the lists its inventory carries. A map that carries no inventory
+ * measures nothing, so every record present in its own milestone would have to be named outside it.
+ * @param {any} recording
+ * @returns {string[]}
+ */
+function measuredByMap(recording) {
+  return [
+    ...(recording.inventory?.verdictClaims?.paths ?? []),
+    ...(recording.inventory?.surface?.paths ?? []),
+  ];
+}
+
+/** The milestone a record's own file name states, e.g. `M055`. */
+/** @param {string} path */
+function milestoneOf(path) {
+  const found = /m(\d{3})-/.exec(path);
+  return found === null ? '' : 'M' + found[1];
+}
+
+/**
+ * The named-outside set, pinned per milestone and read from the maps (C2, C7). Three rules, applied to
+ * both recordings by one code path because two suites reading one recording by two rules is the defect
+ * this task repairs:
+ *
+ *   only its own   a map may name outside itself only a record its own milestone owes — a path the
+ *                  pinned pair of that milestone holds — so a third record cannot be excused by
+ *                  editing a recording, and a record another map measures cannot be subtracted here.
+ *   nothing unmeasured
+ *                  a record of that milestone which is present and which its map does not measure must
+ *                  be named outside it, so nothing a milestone lands reads as an unmeasured record and
+ *                  the refusal names the record rather than a bare count.
+ *   read, not listed
+ *                  the set subtracted below is what the two recordings state, so a path leaves the
+ *                  census because a map says so and never because this suite forgot to list it.
+ * @param {{path: string, record: any}[]} [present] the records present, by default read from disk
+ * @param {any[]} [maps] the maps to hold, by default the two on disk
+ */
+function pinNamedOutside(present = presentRecords, maps = MAPS) {
+  for (const map of maps) {
+    const pinned =
+      PINNED_OUTSIDE[/** @type {'M055'|'M057'} */ (map.milestone)] ?? [];
+    const named = outsideTheMapOf(map);
+    for (const path of named)
+      assert.ok(
+        pinned.includes(path),
+        `${map.milestone}'s own map names ${path} outside itself, and the records ${map.milestone} owes are ${pinned.join(', ')}: a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording and a record another map measures is never subtracted here`,
+      );
+    const measured = measuredByMap(map);
+    for (const entry of present)
+      if (
+        milestoneOf(entry.path) === map.milestone &&
+        !measured.includes(entry.path)
+      )
+        assert.ok(
+          named.includes(entry.path),
+          `${entry.path} is ${map.milestone}'s own record and is present, and ${map.milestone}'s map measures it nowhere and names it nowhere outside itself: the census below reads it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name ${entry.path} in its inventory.outsideTheMap or measure it`,
+        );
+  }
+}
+
+/**
+ * The records the map is measured over: every verdict-claims record present except the ones the two
+ * recordings name in `inventory.outsideTheMap` — the same subtraction
  * `scripts/tutor-record-shapes.test.mjs` makes through its `mappedRecords`, made here so the two
- * suites hold the tree to one map. T004 captures `research/raw/m055-verdict-claims.json` after the
- * 34 beneath it were measured and names it outside the map for exactly that reason. Only the named
- * paths are subtracted, so a record that is present and not named outside the map is still measured
- * and still reddens the census below — which is what the census mutant proves.
+ * suites hold the tree to one rule. M055's T004 captured `research/raw/m055-verdict-claims.json`
+ * after the 34 beneath it were measured and named it outside the map for exactly that reason, and
+ * this milestone's map is read the same way rather than by a second rule. Only the named paths are
+ * subtracted, so a record that is present and not named outside either map is still measured and
+ * still reddens the census below — which is what the census mutant proves.
  * @param {{path: string, record: any}[]} [present] the records the tree holds, by default read from
- *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the map too
- * @param {any} [recording] the map to read `outsideTheMap` from, by default T001's
+ *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the maps too
  * @returns {{path: string, record: any}[]}
  */
-function mappedRecords(present = presentRecords, recording = RECORDING_DATA) {
-  const outside = outsideTheMap(recording);
+function mappedRecords(present = presentRecords) {
+  const outside = outsideTheMap();
   return present.filter((entry) => !outside.includes(entry.path));
 }
 
@@ -916,28 +1025,29 @@ test('T002 — a criterion id no record carries is refused by the join rather th
 
 /**
  * The census this suite reads through: the map measures every verdict-claims record present, the
- * records it names outside itself excepted — the pin `scripts/tutor-record-shapes.test.mjs` makes
- * over the same map. It is made here too because the join answers over these records and over no
- * others, and it is strict in both directions: a record present and not named outside the map must
- * be on the map, and a record the map measures must be present. A bare count is not enough, because
- * a count of 34 is satisfied by the wrong 34.
+ * records the two recordings name outside themselves excepted — the pin
+ * `scripts/tutor-record-shapes.test.mjs` makes over the same maps. It is made here too because the
+ * join answers over these records and over no others, and it is strict in both directions: a record
+ * present and not named outside either map must be on the map, and a record the map measures must be
+ * present. A bare count is not enough, because a count of 34 is satisfied by the wrong 34.
  * @param {{path: string, record: any}[]} [present] the records the tree holds, by default read from
- *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the map too
+ *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the maps too
  * @returns {{path: string, record: any}[]} the records the map measures
  */
 function pinRecordCensus(present = presentRecords) {
+  pinNamedOutside(present);
   const outside = outsideTheMap();
   const measured = mappedRecords(present);
   const mapped = RECORDING_DATA.inventory.verdictClaims.paths;
   for (const entry of measured)
     assert.ok(
       mapped.includes(entry.path),
-      `${entry.path} is present and is not named outside the map, so the map must measure it: T001 measured ${mapped.length} verdict-claims record(s) and ${outside.length} are named outside the map (${outside.join(', ')})`,
+      `${entry.path} is present and is not named outside the map by either recording, so the map must measure it: T001 measured ${mapped.length} verdict-claims record(s) and the two maps name ${outside.length} outside themselves (${outside.join(', ')})`,
     );
   for (const path of mapped)
     assert.ok(
       measured.some((entry) => entry.path === path),
-      `the map measures ${path}, so that record is present and is not named outside the map`,
+      `the map measures ${path}, so that record is present and is not named outside the map by either recording`,
     );
   assert.equal(
     measured.length,
@@ -1102,10 +1212,99 @@ test('T002 — a record present and not named outside the map still reddens the 
   assert.equal(
     presentRecords.length - realRecords.length,
     outsideTheMap().filter((path) => path.endsWith(CLAIM_SUFFIX)).length,
-    'the census subtracts exactly the verdict-claims records the map names outside itself and no others, so the exclusion is the map’s own rather than this suite’s',
+    'the census subtracts exactly the verdict-claims records the two maps name outside themselves and no others, so the exclusion is the recordings’ own rather than this suite’s',
   );
   pinRecordCensus();
   console.log(`T002 census mutant: ${failure.message.split('\n')[0]}`);
+});
+
+test('T006 — both maps are read, and each may name outside itself only the record its own milestone owes', () => {
+  pinNamedOutside();
+  const outside = outsideTheMap();
+  for (const map of MAPS) {
+    const named = outsideTheMapOf(map);
+    const pinned =
+      PINNED_OUTSIDE[/** @type {'M055'|'M057'} */ (map.milestone)] ?? [];
+    for (const path of named)
+      assert.ok(
+        pinned.includes(path),
+        `${map.milestone}'s map names ${path} outside itself, which is not a record ${map.milestone} owes`,
+      );
+    assert.ok(
+      Array.isArray(named) && named.every((path) => outside.includes(path)),
+      `${map.milestone}'s own named-outside set is part of the subtraction`,
+    );
+  }
+  assert.deepEqual(
+    [...outside].sort(),
+    [
+      ...new Set([...PINNED_OUTSIDE.M055, ...outsideTheMapOf(OWN_MAP_DATA)]),
+    ].sort(),
+    `the subtraction is M055's map's own two plus whatever this milestone's map names outside itself, read from the two recordings: the maps name ${JSON.stringify(outside)}`,
+  );
+  console.log(
+    `T006 maps: M055 ${RECORDING_DATA.milestone} names ${outsideTheMapOf(RECORDING_DATA).length} outside itself, ${OWN_MAP_DATA.milestone} names ${outsideTheMapOf(OWN_MAP_DATA).length}, the subtraction is ${outside.length} path(s) and the census reads ${realRecords.length} record(s)`,
+  );
+});
+
+test('T006 — a third path named outside a map reddens, and a record neither map names reddens naming it', () => {
+  const third = {
+    ...OWN_MAP_DATA,
+    inventory: {
+      ...(OWN_MAP_DATA.inventory ?? {}),
+      outsideTheMap: [
+        {
+          path: 'research/raw/m901-verdict-claims.json',
+          why: 'a third record',
+        },
+      ],
+    },
+  };
+  const excused = failureOf(() => pinNamedOutside(presentRecords, [third]));
+  assert.ok(
+    excused !== null,
+    'a map naming a path its own milestone does not owe must redden, and it reddened nothing',
+  );
+  assert.ok(
+    excused.message.includes('research/raw/m901-verdict-claims.json'),
+    `the refusal names the path it refuses to subtract: ${excused.message.split('\n')[0]}`,
+  );
+
+  const owed = {
+    path: `${RECORD_DIR}/m057-verdict-claims.json`,
+    record: { milestone: 'M057', claims: [{ criterion: 'SC1' }] },
+  };
+  const unmeasured = failureOf(() =>
+    pinNamedOutside([...presentRecords, owed]),
+  );
+  assert.ok(
+    unmeasured !== null,
+    'the record this milestone still owes, once present, is not measured by its own map and not named outside it, so it must redden rather than read as unmeasured',
+  );
+  assert.ok(
+    unmeasured.message.includes(owed.path),
+    `the refusal names the record it will not read as unmeasured: ${unmeasured.message.split('\n')[0]}`,
+  );
+  const named = {
+    ...OWN_MAP_DATA,
+    inventory: {
+      ...(OWN_MAP_DATA.inventory ?? {}),
+      outsideTheMap: [{ path: owed.path, why: 'recorded by T009' }],
+    },
+  };
+  pinNamedOutside([...presentRecords, owed], [RECORDING_DATA, named]);
+  const subtracted = [
+    ...outsideTheMapOf(RECORDING_DATA),
+    ...outsideTheMapOf(named),
+  ];
+  assert.equal(
+    subtracted.includes(owed.path),
+    true,
+    `once the recording names it outside itself the record this milestone owes is subtracted rather than read as unmeasured: ${owed.path}`,
+  );
+  console.log(
+    `T006 mutants: third path -> ${excused.message.split('\n')[0]} || unmeasured record -> ${unmeasured.message.split('\n')[0]}`,
+  );
 });
 
 test('T002 — the shipped index answers over the real records with a real reader, one row at a time', () => {
