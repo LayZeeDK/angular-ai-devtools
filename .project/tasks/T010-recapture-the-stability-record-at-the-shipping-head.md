@@ -2,10 +2,10 @@
 id: T010
 title: Re-capture the stability record at the shipping head
 wave: 5
-status: pending
+status: done
 deps: [T009]
-agent: null
-base: null
+agent: build_T010
+base: fd2ba07723a8cf41bae06786c3b2ed855a4e2fee
 worktree: null
 task_branch: null
 files:
@@ -79,3 +79,23 @@ node --test scripts/gate-stability-record.test.mjs && npx prettier --check resea
 ## Log
 
 - pending.
+- What moved, named before the re-capture: T009 re-derived `research/raw/m056-gate-stability.json` at
+  its own landing (`cbca600c`) and appended Log lines after that capture, and T008's landing
+  (`53c6a77a`) followed, so the archive stage's live run at the shipping head counts one more
+  task-log path token than the record states — `archive.detail.plainRun.summary` moved from
+  `gate-integrity: pass - 0 finding(s), 87 mention(s)` to `… 88 mention(s)` while the record still
+  says 87. `gsd capture-check` at this head reports the record born stale and names the re-capture
+  command. The repair is the suite's own remedy: re-capture with the armed command, never a hand
+  edit; `capture.head` and `capture.at` are preserved, so the record still pins the commit it was
+  measured at, and the moved summary is the only value that re-derives differently. Nothing after
+  the armed capture below names an undeclared path, so the count the record states is the count the
+  landed tree derives.
+- The armed capture ran exactly as the suite and the ship gate name it and wrote 6568 bytes, sha256
+  57f8332c5f1e35822df253472ed9755bffdaefcd808f313c23ff5206646826a7. The moved value is the one the
+  entry above names: the summary the archive stage's live run prints now reads 88 mention(s) where
+  the record said 87, and nothing else in the record re-derived differently. `capture.head` stays
+  5290d939497448823ca0f5d1ce5c1d777805ddb8 and `capture.at` stays 2026-11-15T01:09:35.719Z, so the
+  record still pins the commit it was measured at rather than HEAD. No value was typed by hand.
+- The second armed run changed no byte (the same sha256 before and after), so the capture is a
+  reading and the Log this task appended did not move the derivation the record states.
+- Landed paths: `research/raw/m056-gate-stability.json`, `scripts/gate-stability-record.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs` — each is read from this tree, ready.
