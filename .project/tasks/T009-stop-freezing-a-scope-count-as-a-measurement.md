@@ -2,10 +2,10 @@
 id: T009
 title: Stop freezing a scope count as a measurement
 wave: 9
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T009
+base: bf8e66ac669fc1a202b440afbd3b3948d94185fc
 worktree: null
 task_branch: null
 files:
@@ -70,3 +70,17 @@ node --test scripts/tutor-signals-shapes.test.mjs && npx prettier --check script
 ## Log
 
 - pending.
+- Landed paths: `scripts/tutor-signals-shapes.test.mjs`.
+- The ship gate found the family: `scripts/tutor-signals-shapes.test.mjs` compared the number of JSON records
+  under `research/raw/` to 145, the count M057 froze, and this head carries 148 — M058 landed three records and
+  M059 three more. A second pin froze the authored modules under `extension/`, which M059's join moved from 59
+  to 60. Both are scope descriptions, not measurements of the tree, and each turned every later milestone's
+  landing into a false red.
+- Both are now floors with a message that names the captured number and this head's, and says why a shrink is
+  the state worth reddening while growth is the milestone pattern. The content counts that *are* measurements —
+  `graphBearingObjects` 8, `objectsCarryingKindEffect` 16, the write record's `filesExcludedAsBuildOutput` —
+  stay strict equalities.
+- `node --test scripts/tutor-signals-shapes.test.mjs` is 21 pass / 0 fail at this head.
+- Not closed here, and named: `scripts/tutor-answer.test.mjs` (2 failures) and `scripts/tutor-record-shapes.test.mjs`
+  (8 failures) carry the same class — they count records and census entries the same way — and they sit outside
+  this task's `files:`. They are the next repair, and `npm test` cannot be green until they are.
