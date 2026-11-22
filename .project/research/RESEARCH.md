@@ -18,6 +18,10 @@ at this head.
 - `pitfalls` — skipped → none — R3: an unnamed outlet and `primary` are the same outlet.
 - `similar` — skipped → none — M033 and M041 each joined a router-shaped record; the plan declares those suites up front.
 
+## Question assignments
+
+None: the roadmap entry lists no open questions.
+
 ## What the tree carries
 
 - `grep -ri "\boutlet\b" extension/` over the extension source returns **0** matches. The only repository hits are the
