@@ -20,6 +20,7 @@ files:
   - scripts/navigation-blocking.test.mjs
   - scripts/teardown-leak-shapes.test.mjs
   - scripts/tutor-answer.test.mjs
+  - scripts/tutor-record-shapes.test.mjs
 ---
 
 # T004 — Write the verdict claims the census derives
