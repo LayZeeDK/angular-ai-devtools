@@ -2,10 +2,10 @@
 id: T002
 title: Answer from the console record, purely
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 551c999b492ec2a784941af54a36bae9742b4d35
 worktree: null
 task_branch: null
 files:
@@ -77,3 +77,8 @@ node --test scripts/teardown-leak.test.mjs && npx prettier --check extension/tea
 ## Log
 
 - pending.
+- Landed paths: `extension/teardown-leak.js`, `scripts/teardown-leak.test.mjs`.
+- `teardownLeak(records)` publishes on `globalThis.angularAiTeardownLeak` and returns `{ state, code, message, owner, absences, claims, detail }` in all four states — `finding`, `absent`, `cannot-tell`, `empty` — with all seven fields present in each and `handle-record-not-held` standing in every one of them. Seven `cannot-tell` reasons are named, and `owner` is filled only from a message's own `owner` field, which no shipped capture writes, so a measured record always renders `owner-not-in-the-message` beside the code.
+- `scripts/teardown-leak.test.mjs` is 18 tests: one per acceptance criterion, the two held-out rows with the plan's titles, and seven mutant blocks that pin the shipped answer first and then name the defect by string — the code suppression, the last-component attribution, the leaked-subscription rendering for a released handle, a dropped field, a live page read, the two absences folded into one, and the body read from `message` instead of `text`.
+- `npm run check` exit 0, every leg green at this head.
+- Known drift, named rather than hidden: `scripts/teardown-leak-shapes.test.mjs` (T001's own suite) counts `extension/*.js` and `scripts/*.mjs` on disk and excludes only T001's two files, so this landing moves its `filesSearched` 38 → 39 and 136 → 137 and three of its tests fail. The occurrence counts stay 0, so the milestone's central claim holds; the counts and the derived verdict sentence need a repair task that owns both T001 artefacts, because they sit outside this task's `files:`.
