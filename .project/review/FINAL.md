@@ -1,6 +1,7 @@
+Overall verdict: pass
 # Final review — M060 error-routing
 
-Reviewed HEAD: 819f16885dea37ab2ff39b93b543b7b0f2f3b584
+Reviewed HEAD: 0bc29d52f2ffb77b42756924159c449d5a7a3662
 Milestone: M060 — error-routing
 Verdict: pass
 
@@ -9,7 +10,7 @@ and the claims record describes its edge source as a table where the plan carrie
 
 ## Success criteria
 
-### SC1 — An error the global listener recorded, with a resolved `ErrorHandler` in force and no boundary entry carrying the same text, produces a finding naming the message, the code where the message carries one, and `handler-in-force`; a mutant that drops the boundary comparison reports `cannot-tell` and reddens the suite by name.: pass
+### SC1 — An error the global listener recorded, with a resolved `ErrorHandler` in force and no boundary entry carrying the same text, produces a finding naming the message, the code where the message carries one, and `handler-in-force`; a mutant that drops the boundary comparison reports `cannot-tell` and reddens the suite by name.
 
 - **Surface**: panel
 - **Check**: `node --test scripts/error-routing.test.mjs`
@@ -19,7 +20,7 @@ and the claims record describes its edge source as a table where the plan carrie
 - **Verdict**: met
 - **Reference**: .project/review/wave-2.cycle1.md, scripts/error-routing.test.mjs
 
-### SC2 — An error a boundary entry carries produces `reached-handler` and no finding; a mutant that treats every global error as uncaught reddens it.: pass
+### SC2 — An error a boundary entry carries produces `reached-handler` and no finding; a mutant that treats every global error as uncaught reddens it.
 
 - **Surface**: panel
 - **Check**: `node --test scripts/error-routing.test.mjs`
@@ -29,7 +30,7 @@ and the claims record describes its edge source as a table where the plan carrie
 - **Verdict**: met
 - **Reference**: .project/review/wave-2.cycle1.md, scripts/error-routing.test.mjs
 
-### SC3 — An error recorded while no `ErrorHandler` resolves reports `no-handler-provided` as a named absence, never a finding and never a handler name; a mutant that names any handler reddens it.: pass
+### SC3 — An error recorded while no `ErrorHandler` resolves reports `no-handler-provided` as a named absence, never a finding and never a handler name; a mutant that names any handler reddens it.
 
 - **Surface**: panel
 - **Check**: `node --test scripts/error-routing.test.mjs`
@@ -39,7 +40,7 @@ and the claims record describes its edge source as a table where the plan carrie
 - **Verdict**: met
 - **Reference**: .project/review/wave-2.cycle1.md, scripts/error-routing.test.mjs
 
-### SC4 — The answer states a phase only where the record states one and reports `phase-not-recorded` otherwise; a mutant that derives a phase from the message reddens it.: pass
+### SC4 — The answer states a phase only where the record states one and reports `phase-not-recorded` otherwise; a mutant that derives a phase from the message reddens it.
 
 - **Surface**: panel
 - **Check**: `node --test scripts/error-routing.test.mjs`
@@ -49,7 +50,7 @@ and the claims record describes its edge source as a table where the plan carrie
 - **Verdict**: met
 - **Reference**: .project/review/wave-2.cycle1.md, scripts/error-routing.test.mjs
 
-### SC5 — The finding is produced from observables the agent already holds — the global listener record, M042's boundary entries and the injector walk — with no new page-side instrumentation, no second tap and no second global listener.: pass
+### SC5 — The finding is produced from observables the agent already holds — the global listener record, M042's boundary entries and the injector walk — with no new page-side instrumentation, no second tap and no second global listener.
 
 - **Surface**: panel
 - **Check**: `node --test scripts/error-routing.test.mjs`
@@ -59,7 +60,7 @@ and the claims record describes its edge source as a table where the plan carrie
 - **Verdict**: met
 - **Reference**: .project/review/wave-2.cycle1.md, scripts/error-routing.test.mjs
 
-### SC6 — The panel renders exactly the object the join returns: one new surface, its loader key, its route-table and digest pins moved in the same task, and the answer contains no remedy, no cause and no handler identity it was not given.: pass
+### SC6 — The panel renders exactly the object the join returns: one new surface, its loader key, its route-table and digest pins moved in the same task, and the answer contains no remedy, no cause and no handler identity it was not given.
 
 - **Surface**: panel
 - **Check**: `node --test apps/angular-ai-devtools/src/app/app.spec.ts`
