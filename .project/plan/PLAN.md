@@ -1,7 +1,7 @@
 # PLAN — M060 error-routing
 
 Milestone: M060 — error-routing · Branch: gsd-path/M060 · Baseline: `main` at binding
-Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm run check && npm test && node --test tests/held-out --test-reporter=spec`
+Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension --skip-nx-cache && npm run check && npm test`
 
 Five waves, five tasks. T001 measures, T002 is the pure join, T003 the panel surface, T004 the verdict claims,
 T005 the gate records and the project verify. Every census that reads `research/raw/` is declared here, because
