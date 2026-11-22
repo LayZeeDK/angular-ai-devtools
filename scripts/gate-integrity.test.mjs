@@ -3221,12 +3221,24 @@ test('AC7: a log token is a claim only where its task declares it, and claims: l
   // measuring the logs its assertions are about; `DOTTED` keeps the path off this file's recorded
   // reference list. The gate's default input is exercised by AC2 below.
   const ownTasks = `${DOTTED}/archive/044-gate-integrity/tasks`;
-  // The gate's own derivation of the range this milestone has written so far, so no range is
-  // remembered here: `gate` reads it from the previous ship commit to this head.
+  // The range M044's own logs are held to, derived from the two ship commits git records rather than
+  // read to this tree's head as `gate` does when no range is given. A milestone's logs claim what
+  // that milestone changed, and a range that reached this head credits M044 with every later
+  // milestone's change: M061's cache-policy commit edits `nx.json`, so the drifted range carries the
+  // path M044's T001 claims and the absent-claim half of this test would state the opposite of what
+  // the tree does. Holding the logs to M044's own range keeps every assertion below true and makes
+  // it about M044's own changes rather than about every change since.
+  const ownRange = shipRange({ root: ROOT, milestone: LIVE_MILESTONE });
+  assert.equal(
+    ownRange.error,
+    '',
+    `M044's own range must derive, or the claims below are held to nothing: ${String(ownRange.error)}`,
+  );
   const declaredRun = gate({
     root: ROOT,
     milestone: LIVE_MILESTONE,
     check: 'fix-record',
+    range: ownRange.range,
     tasks: ownTasks,
   });
   assert.equal(
@@ -3282,6 +3294,7 @@ test('AC7: a log token is a claim only where its task declares it, and claims: l
     root: ROOT,
     milestone: LIVE_MILESTONE,
     check: 'fix-record',
+    range: ownRange.range,
     claims: 'log',
     tasks: ownTasks,
   });
@@ -5736,4 +5749,21 @@ Object.assign(SUITE_DIFF_REASONS, {
     'wholly added at this head: M060 T001 measured what the two records the join may read actually carry — the global error listener’s record at `extension/agent-main.js:2550-2561` with the two listeners N4 wires and the payload `captureErrorPayload` reduces each arrival to, the boundary record at `extension/agent-main.js:1904-1944` with its `BOUNDARY_ENTRY_LIMIT` 128 page-health guard and the two `details` shapes whose absent fields read as null — in `research/raw/m060-record-shapes.json`, written only by an armed `M060_CAPTURE=1` capture that states its own byte total and derives its head from `git rev-parse HEAD`, and the suite re-reads the record field by field against the source at that head: the listener list, the limit, the phase absence’s count and its no-listeners-added sentence, the inventory whose four outside-the-map entries each cite the task that owns them, the absence of any numeric bytes field, and the scans that exclude the milestone’s own four files; a second armed run is byte-identical, a default run is asserted to be a read that leaves the record where it was, and nothing here builds, opens a page or starts a browser; a reading the measured commit carries no file to edit',
   'scripts/error-routing.test.mjs':
     'wholly added at this head: M060 T002 pins the pure join `extension/error-routing.js`, `errorRouting(records)`, over the two records T001 measured — an uncaught text beside a handler in force is `uncaught-with-handler` naming the message, the code the message’s own text carries and the owner the arrival’s own record states, a text a boundary entry carries is `reached-handler` with no finding, no handler resolved is `no-handler-provided` with no handler name invented, the phase is a record’s own field or the absence `phase-not-recorded` and never the message’s, an empty boundary record is its own `no-boundary-entry` absence beside the other, and whatever the records do not name is `cannot-tell` — every answer carrying exactly the eight contract fields in every state, the owner never borrowed from a neighbouring arrival or from the live page. Purity is proved by running the module in a bare `node:vm` context with every host global a trap, by a token scan of its code for every reach a pure join must not have, and by an answer that does not move on a second read; seven in-memory mutants each redden the pin that names its defect by string, and the assertion lines are all additions with none removed, a reading the measured commit carries no file to edit',
+});
+
+// The reasons for the four suites M061 and its cache-policy commit added. They travel here, appended
+// after the last line the M044 recording pins in this file, for the same reason the blocks above do:
+// a row added above one of those pinned references would stale it by moving it. Each is a reading of
+// its own diff — what the suite is, which record it reads and what it refuses — rather than a name
+// admitted to the list. The policy suite is not a task suite: it landed with the commit that made the
+// build uncacheable, so the first capture after it is the one that owes it a reason.
+Object.assign(SUITE_DIFF_REASONS, {
+  'scripts/locale-correctness-shapes.test.mjs':
+    'wholly added at this head by M061 T001 and re-cut by T005: T001 measured the provider entry the injector walk carries and the formatter no record in this tree names — the four fields the reduction keeps and no fifth, the kind probes and their order, the token rule with its comment, every line range, the call sites of the one provider read, and the censuses of records and of words — in `research/raw/m061-record-shapes.json`, written only by an armed `M061_CAPTURE=1` capture; the default run re-derives every measured section from `extension/agent-main.js` at this checkout, executes the reduction the record reports over the fixture whose token is the installed `@angular/core` `LOCALE_ID`, and asserts the committed bytes against a fresh serialization, so a second armed run is byte-identical and a default run is a read; every `path:line` citation the record makes is re-read against the tree. T005 then re-cut the same suite so the word scan excludes this milestone’s own files by a named `OWN_FILES` constant rather than by a filter inside the scan, the recorded command is built from that list so the scan the record states and the scan it performed cannot drift apart, a fourth mutant reddens when the module that names the locale token is added back, and the census sentence names the exclusion; four mutants in all — an entry matched by position instead of by token, an entry that carries the `useValue`, a second provider read and the scan with the module added back — each redden the pin that names them, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit',
+  'scripts/locale-correctness.test.mjs':
+    'wholly added at this head: M061 T002 pins the join `extension/locale-correctness.js`, `localeCorrectness(records)` published on `globalThis.angularAiLocaleCorrectness`, over the provider record T001 measured — one object of six fields in every state, `locale-provider-entry`, `locale-token-absent`, `formatted-outside-i18n` and `cannot-tell`, with `token` and `provider` filled only from fields a record carries and `locale-value-not-recorded` present whenever `provider` is not null; the record under test is the committed measurement handed over as it stands, and the token the answer must name is derived from the installed `@angular/core` as `String(LOCALE_ID)` rather than from the literal `LOCALE_ID`, so a literal-matching join matches nothing on a real page and reddens by name here; purity is proved in two `node:vm` contexts whose `navigator`, `window`, `document`, `performance` and `Intl` are throw-on-touch traps, shown to bite before anything is asserted through them, and every mutant is applied to a copy of the module source after the unmutated module is pinned with the same function, so a surviving mutant would be a vacuous pin; nothing here builds, opens a page or starts a browser, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit',
+  'scripts/nx-config-policy.test.mjs':
+    'wholly added at this head by the cache-policy commit that edits `nx.json`, not by a task suite: it holds the policy SC4 states as a check rather than as a comment — `build-extension` and the app unit-test target set `"cache": false`, `targetDefaults["@angular/build:unit-test"]` sets it too so a later test target cannot inherit a cacheable verdict, the unit-test inputs include the `extensionArtifacts` and `projectBookkeeping` named inputs `nx.json` defines, `generate-error-digest` declares the output it writes so the digest is in the graph, and no live source asks a reader to skip the cache or disable the daemon; each assertion carries the reason it is a correctness rule rather than a preference, measured in M060 when a cache restore left the built panel at its checkout mtime and the freshness suites refused a current build; five tests, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit',
+  'scripts/panel-copy.test.mjs':
+    'wholly added at this head: M061 T003 pins the copy of the locale-correctness surface — the record it writes, `research/raw/m061-surface.json`, the pane it records, `panel-locale-correctness.ts`, the route and loader key that reach the pane, and the copy the pane does not declare; every `{ file, line, lineText }` citation the record makes is re-read from the tree and the quotation must sit on the line it names; the record must name one `PANEL_SURFACES` entry, one `LOADERS` key pointing at the pane and one `FACTS` entry whose keys are exactly the six contract fields; the four states and the four absences the record and the pane name must be the words the shipped join answers with; the pane declares no sentence — its code is scanned with comments stripped and every line it renders over the join’s answers must be one of its own labels joined to a value the answer carries, and a seventh field renders no line at all; and the copy record does not grow by this surface, so the shipped copy join handed the pane’s labels answers `cannot-tell / surface-declares-nothing` rather than `clean`; every pin carries an in-memory mutant — a sentence added to the pane, a page read added to it, a citation one line off, a state word the join does not answer and a label the answer does not carry — each asserted to change the text it mutates and to redden the pin that names its defect; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit',
 });

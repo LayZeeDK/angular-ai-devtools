@@ -8,9 +8,9 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 331,
-    "suitesExamined": 169,
-    "examined": 195,
+    "filesExamined": 337,
+    "suitesExamined": 173,
+    "examined": 196,
     "movedSubtrees": [
       "build",
       "intent",
@@ -21,17 +21,17 @@
     ],
     "movedSubtreesDerivedFrom": {
       "command": "readdir .project\\archive/<NNN>-<slug>",
-      "archivesExamined": 59,
+      "archivesExamined": 60,
       "rule": "every directory name any archived milestone directory carries is a subtree the archive move relocates; a file the archive writes there (MANIFEST.md) is not"
     },
     "counts": {
       "archived-by-the-move": 17,
       "deliberate-archive-read": 29,
-      "undecided": 149
+      "undecided": 150
     },
     "sites": {
       "path": 11,
-      "comment": 72,
+      "comment": 73,
       "segment": 62,
       "citation": 8,
       "message": 33,
@@ -880,7 +880,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3417,
+        "line": 3430,
         "path": ".project/STATE.md",
         "site": "path",
         "class": "undecided",
@@ -888,7 +888,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3421,
+        "line": 3434,
         "path": ".project/STATE.md",
         "site": "message",
         "class": "undecided",
@@ -896,7 +896,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3811,
+        "line": 3824,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1226,7 +1226,7 @@
       },
       {
         "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2842,
+        "line": 2890,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1234,7 +1234,7 @@
       },
       {
         "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2843,
+        "line": 2891,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1381,6 +1381,14 @@
         "reason": "is built on root, which this file does not bind to its own module root, so it names a directory the suite creates rather than this repository's live .project/intent/INTENT.md, and the archive move deletes nothing it names here - .project/intent is a subtree the move relocates, but not this path",
         "root": "root",
         "construct": "call"
+      },
+      {
+        "file": "scripts/nx-config-policy.test.mjs",
+        "line": 29,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
       },
       {
         "file": "scripts/overlay-hit-test-recording.test.mjs",
@@ -1644,7 +1652,7 @@
       },
       {
         "file": "scripts/tutor-answer.test.mjs",
-        "line": 183,
+        "line": 206,
         "path": null,
         "site": "pattern",
         "class": "undecided",
@@ -1652,7 +1660,7 @@
       },
       {
         "file": "scripts/tutor-answer.test.mjs",
-        "line": 589,
+        "line": 615,
         "path": null,
         "site": "pattern",
         "class": "undecided",
@@ -1906,7 +1914,7 @@
           ".project/archive/057-tutor-signals/research/SYNTHESIS.md",
           ".project/archive/058-tutor-routing/research/SYNTHESIS.md",
           ".project/archive/059-teardown-leak/research/SYNTHESIS.md",
-          ".project/research/SYNTHESIS.md",
+          ".project/archive/060-error-routing/research/SYNTHESIS.md",
           "research/SYNTHESIS.md"
         ],
         "presentInTheTree": true
@@ -1922,7 +1930,7 @@
         "cache": true
       },
       "workingTree": {
-        "cache": true
+        "cache": false
       },
       "command": "git show d94502d174aff31b0b1ebbab200d5e47939dec39:nx.json"
     },
@@ -2147,16 +2155,16 @@
       "named": "d94502d1",
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
-    "examined": 199,
-    "filesListed": 506,
+    "examined": 203,
+    "filesListed": 512,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 233,
+        "addedLines": 254,
         "removedLines": 1,
-        "addedAssertionLines": 65,
+        "addedAssertionLines": 70,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2167,7 +2175,7 @@
         "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 45,
+        "addedLines": 48,
         "removedLines": 0,
         "addedAssertionLines": 0,
         "removedAssertionLines": 0,
@@ -2180,9 +2188,9 @@
         "file": "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 89,
+        "addedLines": 92,
         "removedLines": 3,
-        "addedAssertionLines": 17,
+        "addedAssertionLines": 18,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2193,11 +2201,11 @@
         "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 6623,
-        "removedLines": 739,
-        "addedAssertionLines": 1024,
-        "removedAssertionLines": 169,
-        "recutAssertionLines": 169,
+        "addedLines": 6984,
+        "removedLines": 755,
+        "addedAssertionLines": 1075,
+        "removedAssertionLines": 171,
+        "recutAssertionLines": 171,
         "droppedAssertionLines": 0,
         "recutAssertions": [
           "expect(demo.state()",
@@ -2317,6 +2325,8 @@
           "expect(",
           "expect(",
           "expect(",
+          "expect(route.component",
+          "expect(await route.loadComponent()",
           "expect(surfaceName",
           "expect(FACTS['stability']",
           "expect(answer.state",
@@ -2441,9 +2451,9 @@
         "file": "scripts/copy-check.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 3312,
+        "addedLines": 3499,
         "removedLines": 0,
-        "addedAssertionLines": 365,
+        "addedAssertionLines": 384,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2587,9 +2597,9 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5739,
+        "addedLines": 5769,
         "removedLines": 0,
-        "addedAssertionLines": 346,
+        "addedAssertionLines": 347,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2623,12 +2633,38 @@
         "reason": "wholly added at this head: M049 T001 measures the three arrival-ordered streams in `research/raw/m049-streams.json` and T002 pins the narration `extension/interaction-story.js` over the interleaved order, the one-empty and all-empty refusals, the equal-`at` instant and the unreadable record, a reading the measured commit carries no file to edit"
       },
       {
+        "file": "scripts/locale-correctness-shapes.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1586,
+        "removedLines": 0,
+        "addedAssertionLines": 93,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head by M061 T001 and re-cut by T005: T001 measured the provider entry the injector walk carries and the formatter no record in this tree names — the four fields the reduction keeps and no fifth, the kind probes and their order, the token rule with its comment, every line range, the call sites of the one provider read, and the censuses of records and of words — in `research/raw/m061-record-shapes.json`, written only by an armed `M061_CAPTURE=1` capture; the default run re-derives every measured section from `extension/agent-main.js` at this checkout, executes the reduction the record reports over the fixture whose token is the installed `@angular/core` `LOCALE_ID`, and asserts the committed bytes against a fresh serialization, so a second armed run is byte-identical and a default run is a read; every `path:line` citation the record makes is re-read against the tree. T005 then re-cut the same suite so the word scan excludes this milestone’s own files by a named `OWN_FILES` constant rather than by a filter inside the scan, the recorded command is built from that list so the scan the record states and the scan it performed cannot drift apart, a fourth mutant reddens when the module that names the locale token is added back, and the census sentence names the exclusion; four mutants in all — an entry matched by position instead of by token, an entry that carries the `useValue`, a second provider read and the scan with the module added back — each redden the pin that names them, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/locale-correctness.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1373,
+        "removedLines": 0,
+        "addedAssertionLines": 112,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M061 T002 pins the join `extension/locale-correctness.js`, `localeCorrectness(records)` published on `globalThis.angularAiLocaleCorrectness`, over the provider record T001 measured — one object of six fields in every state, `locale-provider-entry`, `locale-token-absent`, `formatted-outside-i18n` and `cannot-tell`, with `token` and `provider` filled only from fields a record carries and `locale-value-not-recorded` present whenever `provider` is not null; the record under test is the committed measurement handed over as it stands, and the token the answer must name is derived from the installed `@angular/core` as `String(LOCALE_ID)` rather than from the literal `LOCALE_ID`, so a literal-matching join matches nothing on a real page and reddens by name here; purity is proved in two `node:vm` contexts whose `navigator`, `window`, `document`, `performance` and `Intl` are throw-on-touch traps, shown to bite before anything is asserted through them, and every mutant is applied to a copy of the module source after the unmutated module is pinned with the same function, so a surviving mutant would be a vacuous pin; nothing here builds, opens a page or starts a browser, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
         "file": "scripts/navigation-blocking.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 1550,
+        "addedLines": 1943,
         "removedLines": 4,
-        "addedAssertionLines": 84,
+        "addedAssertionLines": 113,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2651,6 +2687,19 @@
         "reason": "the live intent path is asked of `verdict-claims-intent.mjs` rather than spelled, so the suite decides nothing about the archive move itself; one assertion line was re-cut to the resolver’s answer with its call and its subject unchanged, and none was dropped"
       },
       {
+        "file": "scripts/nx-config-policy.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 92,
+        "removedLines": 0,
+        "addedAssertionLines": 8,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head by the cache-policy commit that edits `nx.json`, not by a task suite: it holds the policy SC4 states as a check rather than as a comment — `build-extension` and the app unit-test target set `\"cache\": false`, `targetDefaults[\"@angular/build:unit-test\"]` sets it too so a later test target cannot inherit a cacheable verdict, the unit-test inputs include the `extensionArtifacts` and `projectBookkeeping` named inputs `nx.json` defines, `generate-error-digest` declares the output it writes so the digest is in the graph, and no live source asks a reader to skip the cache or disable the daemon; each assertion carries the reason it is a correctness rule rather than a preference, measured in M060 when a cache restore left the built panel at its checkout mtime and the freshness suites refused a current build; five tests, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
         "file": "scripts/panel-bundle-budget.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
@@ -2664,12 +2713,25 @@
         "reason": "the suite gained the freshness rule M050 T005 added: a present extension/panel build older than the newest source file the panel build reads is refused by name, with the rebuild command in the message, instead of being compared as current — proven in both directions by doctoring the build index.html mtime and restoring it; the baseline constant, the synthetic measurement and the real comparison are untouched and the five added assertion lines are all additions, none removed"
       },
       {
+        "file": "scripts/panel-copy.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 968,
+        "removedLines": 0,
+        "addedAssertionLines": 91,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M061 T003 pins the copy of the locale-correctness surface — the record it writes, `research/raw/m061-surface.json`, the pane it records, `panel-locale-correctness.ts`, the route and loader key that reach the pane, and the copy the pane does not declare; every `{ file, line, lineText }` citation the record makes is re-read from the tree and the quotation must sit on the line it names; the record must name one `PANEL_SURFACES` entry, one `LOADERS` key pointing at the pane and one `FACTS` entry whose keys are exactly the six contract fields; the four states and the four absences the record and the pane name must be the words the shipped join answers with; the pane declares no sentence — its code is scanned with comments stripped and every line it renders over the join’s answers must be one of its own labels joined to a value the answer carries, and a seventh field renders no line at all; and the copy record does not grow by this surface, so the shipped copy join handed the pane’s labels answers `cannot-tell / surface-declares-nothing` rather than `clean`; every pin carries an in-memory mutant — a sentence added to the pane, a page read added to it, a citation one line off, a state word the join does not answer and a label the answer does not carry — each asserted to change the text it mutates and to redden the pin that names its defect; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
         "file": "scripts/panel-routes.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 756,
+        "addedLines": 792,
         "removedLines": 89,
-        "addedAssertionLines": 89,
+        "addedAssertionLines": 92,
         "removedAssertionLines": 4,
         "recutAssertionLines": 4,
         "droppedAssertionLines": 0,
@@ -2763,9 +2825,9 @@
         "file": "scripts/tutor-answer.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1874,
+        "addedLines": 1940,
         "removedLines": 0,
-        "addedAssertionLines": 120,
+        "addedAssertionLines": 126,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2776,7 +2838,7 @@
         "file": "scripts/tutor-record-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1981,
+        "addedLines": 1992,
         "removedLines": 0,
         "addedAssertionLines": 181,
         "removedAssertionLines": 0,
@@ -2956,32 +3018,32 @@
       }
     ],
     "counts": {
-      "differing": 46,
+      "differing": 50,
       "edited": 16,
-      "added": 30,
-      "removedAssertionLines": 201,
-      "recutAssertionLines": 201,
+      "added": 34,
+      "removedAssertionLines": 203,
+      "recutAssertionLines": 203,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 5501
+      "addedAssertionLines": 5920
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
-    "examined": 199,
-    "filesListed": 506,
+    "examined": 203,
+    "filesListed": 512,
     "suites": {
-      "scripts": 124,
+      "scripts": 128,
       "extension": 11,
       "apps": 34,
       "src": 2,
       "skills": 28,
-      "total": 199
+      "total": 203
     },
     "declarations": {
-      "tests": 2553,
-      "describes": 333,
-      "total": 2886
+      "tests": 2611,
+      "describes": 337,
+      "total": 2948
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -3055,6 +3117,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-22T16:50:13.767Z"
+    "at": "2026-11-22T21:49:21.169Z"
   }
 }

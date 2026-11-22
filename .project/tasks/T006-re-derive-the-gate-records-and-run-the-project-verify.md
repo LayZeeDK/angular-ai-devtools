@@ -2,10 +2,10 @@
 id: T006
 title: Re-derive the gate records and run the project verify
 wave: 6
-status: pending
+status: done
 deps: [T005]
-agent: null
-base: null
+agent: build_T006
+base: 45e856458d49e7e9a9d19fd863fa5208ed37b996
 worktree: null
 task_branch: null
 files:
