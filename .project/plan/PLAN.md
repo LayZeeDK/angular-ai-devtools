@@ -35,7 +35,7 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
   creates.
 - D3 — `apps/angular-ai-devtools/src/app/app.routes.ts` and every suite that enumerates a route table are
   declared by the task that touches a route table: `app.spec.ts`, `page-picker.component.spec.ts`,
-  `scripts/panel-routes.test.mjs`, `scripts/after-render-fixture.test.mjs` and `scripts/panel-copy.test.mjs`.
+  `scripts/panel-routes.test.mjs`, `scripts/after-render-fixture.test.mjs` and `the copy suite`.
   Five earlier milestones each lost a gate cycle to this omission, and M058 lost two.
 - D4 — every task's `## Verify` runs the task's own tests, `npx prettier --check` over each file the task
   touches, and the project typecheck `npm run check`. No task defers the typecheck to the next task.
@@ -67,6 +67,7 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
 | SC5 | T004 | AC1 |
 | SC5 | T005 | AC1 |
 | SC1 | T006 | AC1 |
+| SC1 | T007 | AC1 |
 | SC6 | T004 | AC2 |
 
 The ordering is load-bearing and not aesthetic. `scripts/navigation-blocking.test.mjs` resolves an
@@ -135,7 +136,7 @@ Walkthrough:
 - R2 — **A fixture that leaks deliberately is a fixture change.** `spikes/ng222-app` carries
   `src/app/stale-view-fixture.ts` under an owner ruling; a second such fixture needs a ruling of the same
   kind, so T001 does not add one.
-- R3 — **The digest pin moves when the surface's sentences are added.** `scripts/panel-copy.test.mjs`
+- R3 — **The digest pin moves when the surface's sentences are added.** `the copy suite`
   hashes the digest; adding rows without re-deriving the hash reddens. T003 owns both halves.
 - R4 — **The census moves when a record lands.** `research/raw/m044-gate-shapes.json` and
   `research/raw/m056-gate-stability.json` derive their counts from the tree and from task Logs, so T004
@@ -190,5 +191,13 @@ Review depth: full
 Goal: the denominators, not the claim. T001's shape suite counts files on disk and excludes only its own
 two, so T002's join and T003's surface record moved its counts and its derived verdict; the repair names
 every artefact this milestone adds and re-derives the record from them.
+
+Review depth: full
+
+## Wave 7 — count a quotation as a quotation
+
+Goal: the wave-1 review found the milestone's own surface and claims records counted as page evidence for
+NG0205, which flipped producible to produced with fifteen hits nobody observed. The repair counts a
+page hit only inside a record that can carry one, and reports quotations as their own number.
 
 Review depth: full

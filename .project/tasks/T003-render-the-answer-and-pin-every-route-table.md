@@ -42,7 +42,7 @@ pin declared in a later task (plan D3).
 The panel carries 28 surfaces at this head (`PANEL_SURFACES`). Each surface has a route, a `LOADERS` key,
 a `FACTS` key and digest rows, and the suites that enumerate them are `app.spec.ts`,
 `page-picker.component.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/after-render-fixture.test.mjs`
-and `scripts/panel-copy.test.mjs`. The pane renders only what T002 returns: the code, the message body and
+and the copy-check suite. The pane renders only what T002 returns: the code, the message body and
 the two named absences.
 
 ## Approach

@@ -11,6 +11,10 @@ task_branch: null
 files:
   - scripts/teardown-leak-shapes.test.mjs
   - research/raw/m059-record-shapes.json
+  - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+  - scripts/gate-integrity.test.mjs
+  - scripts/teardown-leak.test.mjs
+  - scripts/gate-integrity-default-tasks.test.mjs
 ---
 
 # T007 — Count a quotation as a quotation, not as a page hit
