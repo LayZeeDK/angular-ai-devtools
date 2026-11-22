@@ -68,3 +68,19 @@ node --test scripts/teardown-leak-shapes.test.mjs && npx prettier --check script
 ## Log
 
 - pending.
+- Landed paths: `scripts/teardown-leak-shapes.test.mjs`, `research/raw/m059-record-shapes.json`.
+- The wave-1 review found this at `fce943d5` — `tests 13, pass 9, fail 4` — and its root cause was not
+  the exclusion list: `ng0205InResearchRaw` told the digest's enumeration from a capture by matching two
+  literal line shapes, so every other line naming the code counted as a page hit, and this milestone's
+  own surface and claims records turned `producible` into `produced` with fifteen hits nobody observed.
+- The rule is now a record's capacity to state an observation rather than the shape of a line: a page hit
+  counts only inside a record that carries a `producible` section, and every other record naming the code
+  is reported as a quotation. The record re-derives to `producible: not-produced`, `produced: 0`,
+  `onAPage: 0`, `quotationsOutsideARecordShape: 17`, `recordsSearched: 148`.
+- `node --test scripts/teardown-leak-shapes.test.mjs` is 13 pass / 0 fail on a default run and 14 pass /
+  0 fail armed; a second armed run is byte-identical.
+- Open, and named rather than hidden: `lars-gsd plan-lint` reports one blocker this milestone cannot
+  clear from inside a build — `[path-phantom] T003 Context: scripts/panel-copy.test.mjs does not exist`.
+  T003 landed with that sentence, `build recovery must preserve landed task` refuses to let it be
+  corrected, and the file has never existed. The milestone's own review found no product defect behind
+  it; the resolver belongs in the lint rule (a `done` task's prose is history) or in an owner waiver.
