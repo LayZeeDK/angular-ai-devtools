@@ -2,10 +2,10 @@
 id: T014
 title: State the digest byte total in the record's prose
 wave: 14
-status: pending
+status: done
 deps: [T013]
-agent: null
-base: null
+agent: build_T014
+base: 843609e692a0456f317c0bafd3321b1700b79d64
 worktree: null
 task_branch: null
 files:
@@ -68,3 +68,8 @@ node --test scripts/recording-consistency.test.mjs scripts/teardown-leak-shapes.
 ## Log
 
 - pending.
+- Landed paths: `scripts/teardown-leak-shapes.test.mjs`, `research/raw/m059-record-shapes.json`, `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`.
+- The verdict now opens "the digest is ${digest.bytes} bytes and carries …", so the record states in prose the byte total it records and the consistency scan has something to compare. The clause is in `verdictOf()`, not in the JSON, because the armed run writes the verdict and would drop a hand-added sentence.
+- `scripts/recording-consistency.test.mjs` 6 pass / 1 fail -> 7 pass / 0 fail; `scripts/teardown-leak-shapes.test.mjs` 13 pass on a default run and 14 armed.
+- Both gate records re-derived in this task, stability last: `gate-integrity` 41 armed / 40 default, `gate-stability-record` 9 armed / 8 default.
+- Sixth census discovery of this milestone, and the last one owed. Every one of them was a suite that reads `research/raw/` and derives a shape the milestone had not been told to satisfy.

@@ -1708,7 +1708,7 @@ function verdictOf(sections) {
   const absences = sections.absences;
   const handle = absences[ABSENCE_HANDLE];
   return [
-    `the digest carries ${digest.entry.code} “${digest.entry.title}” and the installed build prints “${digest.printedByTheInstalledBuild.printedAs}”`,
+    `the digest is ${digest.bytes} bytes and carries ${digest.entry.code} “${digest.entry.title}” and the installed build prints “${digest.printedByTheInstalledBuild.printedAs}”`,
     `a joined console message carries ${message.joins.consoleJoin.findingFields.length} fields with the stack kept inside \`text\` and ${message.joins.lintJoin.findingFields.length} with it dropped, and neither join carries the capture's \`location\` or \`component\``,
     `driving the portal over ${producible.targets.portal.routesTried.length} routes (${producible.targets.portal.console.total} console lines) and spikes/ng222-app over ${producible.targets.fixture.routesTried.length} routes (${producible.targets.fixture.console.total} console lines) produced ${producible.produced} ${producible.codeSearched}`,
     `and ${handle.scan.extension.matches.handleRecord}+${handle.scan.scripts.matches.handleRecord}+${handle.scan.researchRaw.matches.handleRecord} handleRecord and ${handle.scan.extension.matches.postDestroy}+${handle.scan.scripts.matches.postDestroy}+${handle.scan.researchRaw.matches.postDestroy} postDestroy occurrences across ${handle.scan.extension.filesSearched} extension modules, ${handle.scan.scripts.filesSearched} suites and ${handle.scan.researchRaw.filesSearched} records (the ${handle.scan.extension.excluded.length + handle.scan.scripts.excluded.length + handle.scan.researchRaw.excluded.length} files this milestone adds are excluded from the count)`,
