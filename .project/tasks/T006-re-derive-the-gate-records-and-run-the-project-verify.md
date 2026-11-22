@@ -38,9 +38,7 @@ cache or daemon workaround.
 
 ## Approach
 
-`M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs` and `M056_CAPTURE=1 node --test
-scripts/gate-stability-record.test.mjs`, each followed by an unarmed run that must find no differing value. Then run the
-project verify exactly as the plan states it and record it with `lars-gsd verify-final`.
+`M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs` and `M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs`, each followed by an unarmed run that must find no differing value. Then run the project verify exactly as the plan states it and record it with `lars-gsd verify-final`.
 
 ## Interface contract
 
@@ -54,14 +52,19 @@ project verify exactly as the plan states it and record it with `lars-gsd verify
 ## Acceptance criteria
 
 1. SC1: both gate records re-derive at this head — each suite reads the record it produced and finds no differing value; a mutant that changes one counted denominator without re-capturing reddens by field name.
-2. SC4: the project verify builds before it measures and passes with no cache or daemon workaround; its command is the plan’s line verbatim and its output is recorded in the ledger.
+2. SC4: the project verify builds before it measures and passes with no cache or daemon workaround; its command is the plan's line verbatim and its output is recorded in the ledger.
 
 ## Verify
 
 ```bash
-M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs && node --test scripts/gate-integrity.test.mjs scripts/gate-stability-record.test.mjs && npx prettier --check research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json
+M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs && node --test scripts/gate-integrity.test.mjs scripts/gate-stability-record.test.mjs
 ```
 
 ## Log
 
-- pending.
+- Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`, `scripts/gate-integrity.test.mjs`.
+- The record was not merely stale but underivable: four suites added since `d94502d1` had no `SUITE_DIFF_REASONS` row, so `deriveSuiteDiff()` refused before any value was derived and no armed capture could write. Four reasons were added, each read from its own diff; `droppedAssertionLines` is 0 for all 50 differing suites.
+- AC7's premise was falsified by this milestone: M061's cache-policy commit edited `nx.json`, so the claim M044 recorded is carried by the range `gate()` derives to HEAD. Every assertion was kept; both runs are now held to M044's own range, where declared mode is clean and log mode refuses five claims including `nx.json`.
+- Both records re-derive and read back clean: 48/48 with stable hashes. m044 moved 46 to 50 differing suites, 199 to 203 examined, 2553 to 2611 declared tests; m056 moved only its live milestone and mention count.
+- Acceptance criterion 2 is unmet at this head and is why the coder reported blocked rather than ready: the project verify exits 1 with 8 failures in three suites, none of which any T006 path reaches. Three are the D6 cascade (re-capturing m044 moved the line `research/raw/m059-record-shapes.json` pins), one is T002's `extension/locale-correctness.js` entering the write-record scan, four are M061's `project.json` edit against `research/raw/m054-style-read.json`'s citation of line 74. T007 owns them.
+- `research/raw/m061-record-shapes.json`'s `inventory.measured` is now false (it credits the gate records to T005). The lines that fix it are `scripts/locale-correctness-shapes.test.mjs:827` and `:829`; the record then needs `M061_CAPTURE=1`. Neither file is declared here.
