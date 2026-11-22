@@ -5,7 +5,7 @@ milestone: error-routing
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M060
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1248,3 +1248,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — decide — decide opened; the entry lists no open decisions
 - 2026-11-22 — decide — no decisions to take; the entry lists none
 - 2026-11-22 — plan — planning started
+- 2026-11-22 — plan — plan approved
