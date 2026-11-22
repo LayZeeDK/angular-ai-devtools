@@ -1,5 +1,14 @@
 {
   "analytics": false,
+  "namedInputs": {
+    "extensionArtifacts": [
+      "{workspaceRoot}/extension/panel/**",
+      "{workspaceRoot}/packages/ai-devtools-companion/dist/**"
+    ],
+    "projectBookkeeping": [
+      "{workspaceRoot}/.project/**"
+    ]
+  },
   "targetDefaults": {
     "build": {
       "cache": true
@@ -15,10 +24,12 @@
       ]
     },
     "@angular/build:unit-test": {
-      "cache": true,
+      "cache": false,
       "inputs": [
         "default",
-        "^default"
+        "^default",
+        "extensionArtifacts",
+        "projectBookkeeping"
       ]
     }
   },
