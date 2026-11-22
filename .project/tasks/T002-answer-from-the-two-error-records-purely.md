@@ -2,10 +2,10 @@
 id: T002
 title: Answer from the two error records, purely
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: a0536254523c9e8279da6549675947045a0266a5
 worktree: null
 task_branch: null
 files:
@@ -70,3 +70,11 @@ node --test scripts/error-routing.test.mjs && npx prettier --check extension/err
 ## Log
 
 - pending.
+- Landed paths: `extension/error-routing.js`, `scripts/error-routing.test.mjs`.
+- `errorRouting(records)` publishes on `globalThis.angularAiErrorRouting` and returns `{ state, message, code, owner, phase, absences, claims, detail }` in all four states — `uncaught-with-handler`, `reached-handler`, `no-handler-provided`, `cannot-tell`.
+- The join compares texts only, never arrival order, so two identical arrivals with one boundary entry leave the second unmatched and the answer states which arrival it matched.
+- `owner` is read from the arrival's own `component` field and is `null` when unnamed; `code` is re-derived from the message via `/NG0\d{3,}/`; `phase` is echoed from a record's own field or reported as `phase-not-recorded`.
+- `no-boundary-entry` is claimed only when the boundary record is present and empty; an unknown boundary record answers `cannot-tell`, because unknown is not empty.
+- 16 tests, all passing. Seven dedicated mutant blocks pin the shipped behaviour first, then mutate an in-memory copy and assert both the defect and the pin's reddening with the defect named in the failure string; an eighth mutation covers the purity criterion.
+- Purity is proved rather than asserted: the module is evaluated in bare `node:vm` contexts whose host globals are throw-on-touch proxies, so any environment read fails the test.
+- `npx prettier --check` clean on both files; `npm run check` green, including the typecheck over the new module.
