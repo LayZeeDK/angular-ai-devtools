@@ -13,6 +13,7 @@ files:
   - apps/angular-ai-devtools/src/app/panel-teardown-leak.ts
   - extension/teardown-leak.js
   - research/raw/m059-surface.json
+  - scripts/teardown-leak.test.mjs
 ---
 
 # T004 — Re-derive the verdict claims and run the project verify

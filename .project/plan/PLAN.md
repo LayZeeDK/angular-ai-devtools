@@ -66,6 +66,7 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
 | SC6 | T003 | AC3 |
 | SC5 | T004 | AC1 |
 | SC5 | T005 | AC1 |
+| SC1 | T006 | AC1 |
 | SC6 | T004 | AC2 |
 
 The ordering is load-bearing and not aesthetic. `scripts/navigation-blocking.test.mjs` resolves an
@@ -181,5 +182,13 @@ Review depth: full
 
 Goal: the two records the ship gate reads, re-derived from the tree that ships, stability last because its
 count follows the task Logs this milestone writes.
+
+Review depth: full
+
+## Wave 6 — repair the shape suite the milestone's own artefacts moved
+
+Goal: the denominators, not the claim. T001's shape suite counts files on disk and excludes only its own
+two, so T002's join and T003's surface record moved its counts and its derived verdict; the repair names
+every artefact this milestone adds and re-derives the record from them.
 
 Review depth: full

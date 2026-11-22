@@ -26,6 +26,8 @@ files:
   - scripts/gate-integrity-default-tasks.test.mjs
   - tests/held-out/fixture-explainers-unchanged.test.mjs
   - research/raw/m059-surface.json
+  - research/raw/m048-surface-copy.json
+  - scripts/teardown-leak.test.mjs
 ---
 
 # T003 — Render the answer and pin every route table
