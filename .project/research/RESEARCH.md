@@ -13,6 +13,11 @@ No subagent was dispatched: the roadmap entry lists **no open questions**, and t
 asked are answered by a grep and by the router's own semantics, both recorded below. Every dimension was read directly
 at this head.
 
+- `domain` — skipped → none — R1: no record carries an outlet name; the observable must be added.
+- `stack` — skipped → none — R2: the router record M033 reads has no outlet field.
+- `pitfalls` — skipped → none — R3: an unnamed outlet and `primary` are the same outlet.
+- `similar` — skipped → none — M033 and M041 each joined a router-shaped record; the plan declares those suites up front.
+
 ## What the tree carries
 
 - `grep -ri "\boutlet\b" extension/` over the extension source returns **0** matches. The only repository hits are the
