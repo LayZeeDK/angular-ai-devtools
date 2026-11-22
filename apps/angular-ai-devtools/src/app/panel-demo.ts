@@ -64,14 +64,14 @@ const LOADERS: Record<
   'tutor-foundations': () => import('./panel-tutor-foundations') as never,
   'tutor-signals': () => import('./panel-tutor-signals') as never,
   'tutor-routing': () => import('./panel-tutor-routing') as never,
+  'teardown-leak': () => import('./panel-teardown-leak') as never,
 };
 // The sample facts each surface renders; the spec holds each one to the recording it came from.
 export const FACTS: Record<string, unknown> = {
   // The join's own field answer for the cross-field case (extension/field-state.js): every field valid, while the root carries its own error kind. The submit state is the recording's, not a
   // label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact
   // shape in `research/raw/m031-field-state.json` and names the element it was read off
-  // (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured
-  // boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
+  // (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
   fields: {
     fields: {
       name: { valid: true, invalid: false, errors: [] },
@@ -441,13 +441,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 206 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 212 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
-  // written by hand, and the twenty-nine surfaces it measures include this milestone's own
-  // `panel-tutor-routing.ts`. `panel-demo.spec.ts` holds this fact to that join field for field.
-  'copy-check': { state: 'clean', unexplained: [], checked: 206 },
+  // written by hand, and the thirty surfaces it measures include this milestone's own
+  // `panel-teardown-leak.ts`. `panel-demo.spec.ts` holds this fact to that join field for field.
+  'copy-check': { state: 'clean', unexplained: [], checked: 212 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the
@@ -974,4 +974,83 @@ FACTS['tutor-routing'] = {
   ],
   detail:
     'the navigation record research/raw/m041-navigation.json states NavigationEnd for navigation id 2 with url "/redirect" and urlAfterRedirects "/landing", so the destination it names is the url the terminal event itself carries and never the address bar, router.url or currentNavigation(); the config record research/raw/m030-router-config.json states the entry path "redirect" with 1 stated field (redirectTo), and that redirectTo is a configuration fact and never the redirect that decided this navigation; every url segment this navigation names matches a configured path beside the 18 paths that were compared; the two absences hold side by side on this one navigation and stay two states, neither as the other and neither folded: no-guard-verdict and no-redirect-decision',
+};
+
+// The join's own answer (`extension/teardown-leak.js`, T002) for a console record in the shape
+// `research/raw/m059-record-shapes.json` measures beside the digest the extension ships
+// (`extension/error-digest.json`), entered here after the component for the reason the facts above
+// are: every cited line of this file is pinned where it sits, so a fact added inside the literal
+// would move the template, the loader resolution and the earlier facts those records quote.
+//
+// The record is written in the shape T001 measured and out of T001's own values: the message's `text`
+// is the string the installed build prints (`digest.printedByTheInstalledBuild.printedAs`), its `type`
+// is the level the capture writes, its `order` places it after the one release record the answer is
+// given, and the digest entries are the shipped file's own codes and titles. No record this repository
+// holds carries the diagnostic (T001's `producible` section): the milestone's answer is the
+// absence-only one, and this fact is the finding the join states over a record whose body carries the
+// code. The answer is not written here by hand: `panel-demo.spec.ts` rebuilds that record from the
+// shipped record and digest, runs the shipped join over it and holds this fact to its answer field for
+// field — so a fact that drifted from either reddens there rather than shipping. Both absences are the
+// join's own objects and stay two; no subscription, effect, timer or handle is named in any line of
+// this fact, because the join carries none (C1, SC4), and no cause is stated: the release precedes the
+// diagnostic and the answer names that sequence rather than reading the release as the reason for it
+// (SC3, E4).
+FACTS['teardown-leak'] = {
+  state: 'finding',
+  code: 'NG0205',
+  message: 'NG0205: Injector has already been destroyed.',
+  owner: null,
+  absences: [
+    {
+      state: 'owner-not-in-the-message',
+      messageFields: ['order', 'text', 'type'],
+      ownerFieldsRead: [],
+      detail:
+        'the absence owner-not-in-the-message holds: the message the console record states carries 3 fields (order, text, type) and the one field this join reads as an owner (`owner`) is not among them, so no owner is rendered — not from the stack, not from the last component mounted and not from the message’s arrival order',
+    },
+    {
+      state: 'handle-record-not-held',
+      because:
+        'the console stream carries a code and a body, and no record this join reads carries a per-injector handle',
+      detail:
+        'the absence handle-record-not-held holds: the console record carries a code and a body, and no record this join reads carries a per-injector handle, so no handle identity is named anywhere and none is inferred from the message body, the stack, the last component mounted or the message’s arrival order',
+    },
+  ],
+  claims: [
+    {
+      claim: 'code',
+      values: { code: 'NG0205' },
+      artefactPath: 'research/raw/m059-record-shapes.json',
+    },
+    {
+      claim: 'message',
+      values: {
+        message: 'NG0205: Injector has already been destroyed.',
+        type: 'error',
+      },
+      artefactPath: 'research/raw/m059-record-shapes.json',
+    },
+    {
+      claim: 'digest',
+      values: { code: 'NG0205', title: 'Injector has already been destroyed' },
+      artefactPath: 'extension/error-digest.json',
+    },
+    {
+      claim: 'sequence',
+      values: { sequence: 'release-then-diagnostic', releases: 1, order: 3 },
+      artefactPath: 'research/raw/m059-record-shapes.json',
+    },
+    {
+      claim: 'absence',
+      values: { state: 'owner-not-in-the-message' },
+      artefactPath: 'research/raw/m059-record-shapes.json',
+    },
+    {
+      claim: 'absence',
+      values: { state: 'handle-record-not-held' },
+      artefactPath: 'research/raw/m059-record-shapes.json',
+    },
+  ],
+  detail:
+    'the console record research/raw/m059-record-shapes.json states 1 console message and the first of them whose own body carries NG0205 is at order 3, with the body "NG0205: Injector has already been destroyed." and the level "error" in `type`, and the stack frames dropped from it; the digest record extension/error-digest.json carries NG0205 "Injector has already been destroyed" among 64 codes; no field of the message names an owner, so owner-not-in-the-message stands beside the code; the sequence it read is release-then-diagnostic: 1 release record is ordered before the diagnostic at order 3 and none after it, so the release ran first and no handle is named as the cause of the diagnostic; the absences it renders are 2 states and never one line: owner-not-in-the-message beside handle-record-not-held',
 };

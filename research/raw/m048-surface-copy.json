@@ -4,9 +4,9 @@
   "task": "T004",
   "title": "Measure the copy each panel surface declares and where it declares none",
   "question": "which sentences does each panel surface declare for itself, at which path:line, which does it render from a literal nobody keeps in a map, and which surface declares none at all?",
-  "head": "5da063c21307381d83cfcd412eecb243262a9cc1",
+  "head": "425af951cf5d9c5d9e6eafb2f79e8cb07c10286a",
   "headCommand": "git rev-parse HEAD",
-  "measuredAt": "static: all twenty-nine apps/angular-ai-devtools/src/app/panel-*.ts surfaces (the two *.spec.ts files are named in `excluded`) were read line by line at the head above, every non-comment line carrying a string literal was extracted with a throwaway script that prints `file:line|trimmed line` (kept in the session scratchpad and not checked in), and every citation below was re-read from the file when this record was re-measured. No browser was opened, no page was read, no build and no test of the app was run; the only commands executed against these files were that extraction and the verify suite named in `verify`, which re-reads all of them. T001 wrote this record over the nineteen surfaces that existed at cfdff389; T004 re-read every line over the twentieth, panel-copy-check.ts, at b428f068 and repaired the three citations in panel-demo.ts that the M048 T003 commit moved. At 72d6f7de T004 re-read every line again over the twenty-first surface, panel-interaction-story.ts, and repaired the three panel-demo.ts citations the M049 T003 commit moved a second time. At 173166b3 T004 re-read every line again over the twenty-second surface, panel-dead-click.ts, and repaired the same three panel-demo.ts citations the M050 T003 commit moved a third time. At this head T003 re-read every line again over the twenty-third surface, panel-what-changed.ts, and repaired the same three panel-demo.ts citations the M051 T003 commit moved a fourth time. At 2ece0b80 T004 re-read every line again over the twenty-fourth surface, panel-webmcp.ts, and repaired the three panel-demo.ts citations and the one panel-demo.spec.ts citation the M052 T003 commit moved a fifth time. At 0e0eba55 T004 re-read every line again over the twenty-fifth surface, panel-webmcp-rehearsal.ts, and repaired the citations the M053 T003 commit moved. At this head T004 re-read every line again over the twenty-sixth surface, `panel-visual-qa.ts`, added its five registry sentences, its two side-label constants and its fourteen labels, and re-resolved every citation of every surface by searching the file for the line it quotes, so a number that had moved was repaired by search rather than by a typed value. At this head T004 re-read every line again over the twenty-seventh surface, `panel-tutor-foundations.ts`, added its six registry sentences, its two reading-label constants and its six labels, and re-resolved every citation of every surface by searching the file for the line it quotes, so a number that had moved was repaired by search rather than by a typed value. This record was last measured at the head above; the previous head was 0e0eba55d22cc1a9a639dd03c777b374f3400a56. At this head T007 re-read every line again over the twenty-eighth surface, `panel-tutor-signals.ts` — M057 T004's pane — added its six registry sentences, its fifteen label constants and its one inline label, and re-resolved every citation the record already made by searching each file for the exact line it quotes rather than by shifting a number: the `tutor-signals` `LOADERS` key M057 T004 added to `panel-demo.ts` had moved three of that surface's citations by one line, and M057 T007 pays for that key with one line of its own there, so the citations are re-read and not moved. The counts are recomputed from the entries by `scripts/copy-check.test.mjs`, never typed here. At this head T003 re-read every line again over the twenty-ninth surface, `panel-tutor-routing.ts` — M058 T003’s pane — added its five registry sentences, its thirty-one label constants and its one inline label, and re-resolved every citation the record already made by searching each file for the exact line it quotes rather than by shifting a number: the `tutor-routing` `LOADERS` key M058 T003 added to `panel-demo.ts` is paid for by folding one comment line of the `fields` fact, so those citations are re-read and not moved, and the copy-check fact’s own count moved from 201 to 206 because this record now measures one more surface. The counts are recomputed from the entries by `scripts/copy-check.test.mjs`, never typed here.",
+  "measuredAt": "static: all thirty apps/angular-ai-devtools/src/app/panel-*.ts surfaces (the two *.spec.ts files are named in `excluded`) were read line by line at the head above, every non-comment line carrying a string literal was extracted with a throwaway script that prints `file:line|trimmed line` (kept in the session scratchpad and not checked in), and every citation below was re-read from the file when this record was re-measured. No browser was opened, no page was read, no build and no test of the app was run; the only commands executed against these files were that extraction and the verify suite named in `verify`, which re-reads all of them. T001 wrote this record over the nineteen surfaces that existed at cfdff389; T004 re-read every line over the twentieth, panel-copy-check.ts, at b428f068 and repaired the three citations in panel-demo.ts that the M048 T003 commit moved. At 72d6f7de T004 re-read every line again over the twenty-first surface, panel-interaction-story.ts, and repaired the three panel-demo.ts citations the M049 T003 commit moved a second time. At 173166b3 T004 re-read every line again over the twenty-second surface, panel-dead-click.ts, and repaired the same three panel-demo.ts citations the M050 T003 commit moved a third time. At this head T003 re-read every line again over the twenty-third surface, panel-what-changed.ts, and repaired the same three panel-demo.ts citations the M051 T003 commit moved a fourth time. At 2ece0b80 T004 re-read every line again over the twenty-fourth surface, panel-webmcp.ts, and repaired the three panel-demo.ts citations and the one panel-demo.spec.ts citation the M052 T003 commit moved a fifth time. At 0e0eba55 T004 re-read every line again over the twenty-fifth surface, panel-webmcp-rehearsal.ts, and repaired the citations the M053 T003 commit moved. At this head T004 re-read every line again over the twenty-sixth surface, `panel-visual-qa.ts`, added its five registry sentences, its two side-label constants and its fourteen labels, and re-resolved every citation of every surface by searching the file for the line it quotes, so a number that had moved was repaired by search rather than by a typed value. At this head T004 re-read every line again over the twenty-seventh surface, `panel-tutor-foundations.ts`, added its six registry sentences, its two reading-label constants and its six labels, and re-resolved every citation of every surface by searching the file for the line it quotes, so a number that had moved was repaired by search rather than by a typed value. This record was last measured at the head above; the previous head was 0e0eba55d22cc1a9a639dd03c777b374f3400a56. At this head T007 re-read every line again over the twenty-eighth surface, `panel-tutor-signals.ts` — M057 T004's pane — added its six registry sentences, its fifteen label constants and its one inline label, and re-resolved every citation the record already made by searching each file for the exact line it quotes rather than by shifting a number: the `tutor-signals` `LOADERS` key M057 T004 added to `panel-demo.ts` had moved three of that surface's citations by one line, and M057 T007 pays for that key with one line of its own there, so the citations are re-read and not moved. The counts are recomputed from the entries by `scripts/copy-check.test.mjs`, never typed here. At this head T003 re-read every line again over the twenty-ninth surface, `panel-tutor-routing.ts` — M058 T003’s pane — added its five registry sentences, its thirty-one label constants and its one inline label, and re-resolved every citation the record already made by searching each file for the exact line it quotes rather than by shifting a number: the `tutor-routing` `LOADERS` key M058 T003 added to `panel-demo.ts` is paid for by folding one comment line of the `fields` fact, so those citations are re-read and not moved, and the copy-check fact’s own count moved from 201 to 206 because this record now measures one more surface. The counts are recomputed from the entries by `scripts/copy-check.test.mjs`, never typed here. At this head T003 re-read every line again over the thirtieth surface, `panel-teardown-leak.ts` — M059 T003’s pane — added its six registry sentences and its eleven label constants, and re-resolved every citation the record already made by searching each file for the exact line it quotes rather than by shifting a number: the `teardown-leak` `LOADERS` key M059 T003 added to `panel-demo.ts` is paid for by folding one comment line of the `fields` fact into its neighbour, so those citations are re-read and not moved, and the copy-check fact’s own count moved from 206 to 212 because this record now measures one more surface. The counts are recomputed from the entries by `scripts/copy-check.test.mjs`, never typed here.",
   "lineTextConvention": "every `lineText` is the cited line with its leading and trailing whitespace trimmed and nothing else removed, so a line that is a bare string literal carries its quotes and its trailing comma. `line` is 1-indexed. The suite re-reads each cited line and requires it to equal `lineText` exactly and to contain the sentence the record quotes.",
   "scope": [
     "Recorded per surface: (a) every sentence it declares in a map or a module constant, with the key it is declared under; (b) every sentence — fixed or interpolated — written inside a function body or a component template instead of being declared; (c) the label prefix of every line the surface builds from a label and a value, because that prefix is copy the surface writes; (d) the multi-word prose fragment a surface substitutes for a value it does not have.",
@@ -14,18 +14,18 @@
     "Not recorded at all: the `Error` messages `sentenceText` throws for an id the registry does not carry (panel-components.ts:170, panel-console.ts:268, panel-copy-to-agent.ts:159, panel-copy-check.ts:151, panel-dead-click.ts:225, panel-what-changed.ts:177). They are developer-facing throws and are never rendered to a reader."
   ],
   "counts": {
-    "surfaces": 29,
-    "surfacesWithMap": 16,
+    "surfaces": 30,
+    "surfacesWithMap": 17,
     "surfacesWithConstantsOnly": 11,
     "surfacesWithInlineOnly": 1,
     "surfacesWithNothing": 1,
-    "declaredSentences": 172,
-    "declaredLabels": 53,
+    "declaredSentences": 178,
+    "declaredLabels": 64,
     "declaredWordsAndFragments": 8,
     "inlineSentences": 34,
-    "inlineLabels": 193,
+    "inlineLabels": 194,
     "inlineWords": 7,
-    "citations": 550
+    "citations": 570
   },
   "surfaces": [
     {
@@ -4652,6 +4652,203 @@
         "The `Error` message `sentenceText` throws for an id the registry does not carry is never rendered, so it is not an entry; the doc comment is prose that renders nothing; and the field names the pane reads out of the answer (`answer[’terminal’]`, `terminal[’url’]`, …) and the keys a claim’s own `values` carry are values of lines and not copy the pane writes.",
         "The pane is the display half of M058: it renders the join `extension/tutor-routing.js` over `research/raw/m041-navigation.json`’s redirect frame beside `research/raw/m030-router-config.json`’s config, handed to it as the demo’s sample fact, and `panel-demo.spec.ts` re-derives that answer from the two records and the shipped join on every test run. It reads no record, opens no page and stats no file whose sentences are recorded here (`research/raw/m058-surface.json`)."
       ]
+    },
+    {
+      "id": "teardown-leak",
+      "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+      "renderer": "teardownLeakPanel",
+      "declares": "map",
+      "declaration": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 136,
+        "lineText": "export const PANE_SENTENCES: readonly PanelSentence[] = [",
+        "holds": "PANE_SENTENCES",
+        "kind": "array-registry",
+        "name": "PANE_SENTENCES"
+      },
+      "alsoDeclares": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 104,
+          "lineText": "export const LABELS = {",
+          "holds": "LABELS",
+          "kind": "constant",
+          "name": "LABELS"
+        }
+      ],
+      "sentences": [
+        {
+          "key": "state-finding",
+          "text": "finding: the console record carries a message whose own body carries the code, so this pane names that code and the body the message carries, and names an owner only where a field of the message states one — never the stack, never the last component mounted and never the message’s arrival order, and no cause of the diagnostic is named here",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 139,
+          "lineText": "text: 'finding: the console record carries a message whose own body carries the code, so this pane names that code and the body the message carries, and names an owner only where a field of the message states one — never the stack, never the last component mounted and never the message’s arrival order, and no cause of the diagnostic is named here',",
+          "state": "FINDING",
+          "idLine": 138,
+          "idLineText": "id: 'state-finding',"
+        },
+        {
+          "key": "state-absent",
+          "text": "absent: the console record states its messages and none of them carries the code searched for, so this pane names that code and the count it read, and never reports a page that is free of the diagnostic",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 144,
+          "lineText": "text: 'absent: the console record states its messages and none of them carries the code searched for, so this pane names that code and the count it read, and never reports a page that is free of the diagnostic',",
+          "state": "ABSENT",
+          "idLine": 143,
+          "idLineText": "id: 'state-absent',"
+        },
+        {
+          "key": "state-cannot-tell",
+          "text": "cannot-tell: the record does not state what this answer asked, so this pane names the reason the record states and attributes no code, no message, no owner and no sequence",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 149,
+          "lineText": "text: 'cannot-tell: the record does not state what this answer asked, so this pane names the reason the record states and attributes no code, no message, no owner and no sequence',",
+          "state": "CANNOT_TELL",
+          "idLine": 148,
+          "idLineText": "id: 'state-cannot-tell',"
+        },
+        {
+          "key": "state-empty",
+          "text": "empty: no record was read, so no code, no message, no owner, no absence and no claim are reported",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 154,
+          "lineText": "text: 'empty: no record was read, so no code, no message, no owner, no absence and no claim are reported',",
+          "state": "EMPTY",
+          "idLine": 153,
+          "idLineText": "id: 'state-empty',"
+        },
+        {
+          "key": "absence-owner-not-in-the-message",
+          "text": "owner-not-in-the-message: the message the console record states carries no field that names an owner, so this absence stands beside the code and no owner is rendered — not from the stack, not from the last component mounted and not from the message’s arrival order",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 159,
+          "lineText": "text: 'owner-not-in-the-message: the message the console record states carries no field that names an owner, so this absence stands beside the code and no owner is rendered — not from the stack, not from the last component mounted and not from the message’s arrival order',",
+          "state": "OWNER_NOT_IN_THE_MESSAGE",
+          "idLine": 158,
+          "idLineText": "id: 'absence-owner-not-in-the-message',"
+        },
+        {
+          "key": "absence-handle-record-not-held",
+          "text": "handle-record-not-held: the console stream carries a code and a body and no record this join reads carries a per-injector handle, so no subscription, no effect, no timer and no handle is named anywhere in this pane",
+          "kind": "sentence-in-registry",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 164,
+          "lineText": "text: 'handle-record-not-held: the console stream carries a code and a body and no record this join reads carries a per-injector handle, so no subscription, no effect, no timer and no handle is named anywhere in this pane',",
+          "state": "HANDLE_RECORD_NOT_HELD",
+          "idLine": 163,
+          "idLineText": "id: 'absence-handle-record-not-held',"
+        },
+        {
+          "key": "state",
+          "text": "state",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 105,
+          "lineText": "state: 'state',"
+        },
+        {
+          "key": "code",
+          "text": "code",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 106,
+          "lineText": "code: 'code',"
+        },
+        {
+          "key": "message",
+          "text": "message",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 107,
+          "lineText": "message: 'message',"
+        },
+        {
+          "key": "owner",
+          "text": "owner",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 108,
+          "lineText": "owner: 'owner',"
+        },
+        {
+          "key": "absenceState",
+          "text": "absence.state",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 109,
+          "lineText": "absenceState: 'absence.state',"
+        },
+        {
+          "key": "absenceDetail",
+          "text": "absence.detail",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 110,
+          "lineText": "absenceDetail: 'absence.detail',"
+        },
+        {
+          "key": "absenceBecause",
+          "text": "absence.because",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 111,
+          "lineText": "absenceBecause: 'absence.because',"
+        },
+        {
+          "key": "claim",
+          "text": "claim.claim",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 112,
+          "lineText": "claim: 'claim.claim',"
+        },
+        {
+          "key": "claimValues",
+          "text": "claim.values",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 113,
+          "lineText": "claimValues: 'claim.values',"
+        },
+        {
+          "key": "artefactPath",
+          "text": "claim.artefactPath",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 114,
+          "lineText": "artefactPath: 'claim.artefactPath',"
+        },
+        {
+          "key": "detail",
+          "text": "detail",
+          "kind": "label-from-constant",
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 115,
+          "lineText": "detail: 'detail',"
+        }
+      ],
+      "inline": [
+        {
+          "text": "${label}: ${value}",
+          "kind": "label",
+          "interpolated": true,
+          "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+          "line": 245,
+          "lineText": "return `${label}: ${value}`;"
+        }
+      ],
+      "notes": [
+        "6 sentences in one registry (PANE_SENTENCES :137–:167, ids at :138, :143, :148, :153, :158, :163) and 11 label constants (`LABELS`, :105, :106, :107, :108, :109, :110, :111, :112, :113, :114, :115).",
+        "Every label in `LABELS` is the prefix a line is built from — the answer’s own paths (`state`, `code`, `message`, `owner`, `absence.state`, `absence.detail`, `absence.because`, `claim.claim`, `claim.values`, `claim.artefactPath`, `detail`) — so each is declared copy and each is recorded at its own line. The line itself is built once, in `line()`: `${label}: ${value}`, the one inline label this surface writes.",
+        "The four state words (`FINDING`, `ABSENT`, `CANNOT_TELL`, `EMPTY`), the two absence words (`OWNER_NOT_IN_THE_MESSAGE`, `HANDLE_RECORD_NOT_HELD`) and the `STATES` and `ABSENCES` lists are module constants the pane holds its vocabulary in, and the single-token keys and values the pane reads or states on a line — the claim names `count`, `cannot-tell`, `code`, `message`, `digest`, `sequence` and `absence`, the claim value keys `messagesRead` and `reason`, the field name `reason`, and the `no-state` fallback word — are values of a line rather than sentences. They are named here, as `scope` states for the value words of other surfaces, and none is recorded as an entry.",
+        "The `Error` message `sentenceText` throws for an id the registry does not carry (`panel-teardown-leak has no sentence registered as ${id}`, :188) is never rendered to a reader, so it is not an entry; the doc comment is prose that renders nothing; and the field names the pane reads out of the answer (`answer[’state’]`, `answer[’absences’]`, `entry[’artefactPath’]`, …) and the keys a claim’s own `values` carry are values of lines and not copy the pane writes.",
+        "The pane is the display half of M059: it renders the answer `extension/teardown-leak.js` gives over a console record in the shape T001 measured (`research/raw/m059-record-shapes.json`) beside the digest the extension ships (`extension/error-digest.json`), handed to it as the demo’s sample fact, and `panel-demo.spec.ts` re-derives that answer from the record and the shipped join on every test run. The pane reads no record, opens no page and installs no listener, and the surface record of M059 is `research/raw/m059-surface.json`."
+      ]
     }
   ],
   "absences": [
@@ -4673,7 +4870,8 @@
     "visual-qa",
     "tutor-foundations",
     "tutor-signals",
-    "tutor-routing"
+    "tutor-routing",
+    "teardown-leak"
   ],
   "noMapSurfaces": [
     "navigation",
@@ -4714,11 +4912,11 @@
       ]
     },
     {
-      "what": "no panel sentence is explained by a digest: how many of this record’s 168 literals occur in either digest the repository ships",
+      "what": "no panel sentence is explained by a digest: how many of this record’s 250 literals occur in either digest the repository ships",
       "command": "node -e \"const fs=require('fs');const r=JSON.parse(fs.readFileSync('research/raw/m048-surface-copy.json','utf8'));const d=['extension/error-digest.json','extension/image-digest.json'].map(f=>fs.readFileSync(f,'utf8')).join('\\n');let hit=0,total=0;for(const s of r.surfaces)for(const x of s.sentences){total++;if(d.includes(x.text))hit++}console.log('sentences '+total);console.log('explainedByADigest '+hit)\"",
       "output": [
-        "sentences 233",
-        "explainedByADigest 3"
+        "sentences 250",
+        "explainedByADigest 6"
       ]
     }
   ],
@@ -4774,7 +4972,7 @@
     },
     {
       "claim": "the digest T002 authored carries one row per sentence the record declares, so a digest row and a declared sentence are the same count",
-      "measured": "one sentence is declared six times. `panel-copy-check.ts:128`, `panel-interaction-story.ts:150`, `panel-dead-click.ts:202`, `panel-what-changed.ts:154` and `panel-webmcp.ts:138` each register `no-reason` with the exact text `panel-components.ts:147` declares for its own `no-reason` — `no-reason: the answer reported cannot-tell without a reason, so no reason is stated`, byte for byte — so this record’s 201 sentences carry 193 distinct texts.",
+      "measured": "one sentence is declared six times. `panel-copy-check.ts:128`, `panel-interaction-story.ts:150`, `panel-dead-click.ts:202`, `panel-what-changed.ts:154` and `panel-webmcp.ts:138` each register `no-reason` with the exact text `panel-components.ts:147` declares for its own `no-reason` — `no-reason: the answer reported cannot-tell without a reason, so no reason is stated`, byte for byte — so this record’s 212 sentences carry 204 distinct texts.",
       "citations": [
         {
           "file": "apps/angular-ai-devtools/src/app/panel-components.ts",
@@ -4809,7 +5007,7 @@
           "holds": "no-reason: the answer reported cannot-tell without a reason, so no reason is stated"
         }
       ],
-      "consequence": "the digest carries 193 rows for 201 sentences, one row per distinct string, and the shared row is filed under `components`/`no-reason` because that surface declared it first. A second row for the same text would be a second explanation of one string, which explains nothing the first does not; the join compares the digest’s texts with `===` and so explains the sentence at all six surfaces from the one row. The row-per-sentence count is therefore 193 and not 201, and the suite states the difference as the measured duplicate rather than as a rounding."
+      "consequence": "the digest carries 204 rows for 212 sentences, one row per distinct string, and the shared row is filed under `components`/`no-reason` because that surface declared it first. A second row for the same text would be a second explanation of one string, which explains nothing the first does not; the join compares the digest’s texts with `===` and so explains the sentence at all six surfaces from the one row. The row-per-sentence count is therefore 204 and not 212, and the suite states the difference as the measured duplicate rather than as a rounding."
     }
   ],
   "notCaptured": [
@@ -4818,11 +5016,11 @@
     "The record does not claim to be exhaustive about single-token value words (see `scope`), and it does not read the baseline stylesheet, the routes table or the demo’s sample facts. `panel-demo.ts` is recorded only for the copy it writes itself.",
     "The record does not judge the copy. It does not claim a sentence is accurate, consistent with its siblings, or supported by the record the pane was handed; it states where each sentence is and what it says, and the three surfaces whose wording the record singles out (panel-navigation.ts:283, panel-sanitizer.ts:180, panel-fields.ts:196) are described and not graded.",
     "No test of the app was run and no build was made for this record. The verify command below runs this record’s own suite and prettier, and the project verify T004 then runs is `npm run check && npm test`, stated in that task’s report; nothing else was executed against these files.",
-    "Two counts of this record appear in files T004 does not own and were not edited to agree with it: `extension/copy-check.js:62-:63` names `declaredLabels` (3), `declaredWordsAndFragments` (8), `inlineLabels` (127) and `inlineWords` (7), where this record now measures 22, 8, 192 and 7; and `panel-copy-check.ts:48` states that the record compares 122 sentences against 121 distinct digest rows, where it now compares 201 against 193. Both are prose beside a measurement that moved, not a value either file reads at runtime, and both are stated here rather than repaired from a record’s task.",
-    "The verify command above does not send this file to prettier, because `.prettierignore` excludes every `*.json` (`*.json` is line 22 of that file) and `npx prettier --check research/raw/m048-surface-copy.json` therefore prints \"All matched files use Prettier code style!\" without reading a byte of it — exit 0 however the file is formatted. The gate that actually reads this record is `scripts/copy-check.test.mjs`, which re-reads all 550 citations it makes and re-derives every count it states; T001’s `verify` field claimed the prettier check as its second gate, and T004 states the limit rather than repeating the claim."
+    "Two counts of this record appear in files T004 does not own and were not edited to agree with it: `extension/copy-check.js:62-:63` names `declaredLabels` (3), `declaredWordsAndFragments` (8), `inlineLabels` (127) and `inlineWords` (7), where this record now measures 64, 8, 194 and 7; and `panel-copy-check.ts:48` states that the record compares 122 sentences against 121 distinct digest rows, where it now compares 212 against 204. Both are prose beside a measurement that moved, not a value either file reads at runtime, and both are stated here rather than repaired from a record’s task.",
+    "The verify command above does not send this file to prettier, because `.prettierignore` excludes every `*.json` (`*.json` is line 22 of that file) and `npx prettier --check research/raw/m048-surface-copy.json` therefore prints \"All matched files use Prettier code style!\" without reading a byte of it — exit 0 however the file is formatted. The gate that actually reads this record is `scripts/copy-check.test.mjs`, which re-reads all 570 citations it makes and re-derives every count it states; T001’s `verify` field claimed the prettier check as its second gate, and T004 states the limit rather than repeating the claim."
   ],
   "verify": "node --test scripts/copy-check.test.mjs && node -e \"JSON.parse(require('fs').readFileSync('research/raw/m048-surface-copy.json','utf8'))\" && npx prettier --check scripts/copy-check.test.mjs",
-  "verdict": "measured: this repository has 29 panel-*.ts surfaces (two more files match the glob and are vitest specs, named in `excluded`). 16 declare their sentences in a map, 11 in loose module constants, 1 only inside a component template and a function, and 1 — panel-context.ts, the signal-to-context adapter — declares no sentence at all because it renders nothing. 172 sentences are declared in a map or a constant, 34 more are written inline where no map can reach them, and 193 label prefixes and 7 prose words are built into lines inline. The roadmap’s premise does not survive the reading: no surface compares anything against a copy digest, and of the 233 literals this record declares in a map or a constant exactly 3 occur in either digest the repository ships (extension/error-digest.json, extension/image-digest.json) — the single word `available` (error-boundary/RESET_TEXT) and the one-word label `state`, which two surfaces declare (tutor-signals/label-state and tutor-routing/label-state), each of which occurs inside a digest body and explains no rendered line. What exists is the copy measured here, and the digest T002 authored from this record — which T004 extended to the twentieth surface, again to the twenty-first, again to the twenty-second, again to the twenty-fourth and again to the twenty-seventh, and again to the twenty-eighth, and again to the twenty-ninth — is the first one that holds it.",
+  "verdict": "measured: this repository has 30 panel-*.ts surfaces (two more files match the glob and are vitest specs, named in `excluded`). 17 declare their sentences in a map, 11 in loose module constants, 1 only inside a component template and a function, and 1 — panel-context.ts, the signal-to-context adapter — declares no sentence at all because it renders nothing. 178 sentences are declared in a map or a constant, 34 more are written inline where no map can reach them, and 194 label prefixes and 7 prose words are built into lines inline. The roadmap’s premise does not survive the reading: no surface compares anything against a copy digest, and of the 250 literals this record declares in a map or a constant exactly 6 occur in either digest the repository ships (extension/error-digest.json, extension/image-digest.json) — the single word `available` (error-boundary/RESET_TEXT) and the three one-word labels `state`, `code` and `message` — `state` declared by tutor-signals, tutor-routing and the M059 pane’s own `LABELS`, `code` and `message` by that pane alone — each of which occurs inside a digest body and explains no rendered line. What exists is the copy measured here, and the digest T002 authored from this record — which T004 extended to the twentieth surface, again to the twenty-first, again to the twenty-second, again to the twenty-fourth and again to the twenty-seventh, and again to the twenty-eighth, and again to the twenty-ninth, and again to the thirtieth — is the first one that holds it.",
   "revision": {
     "author": "T001",
     "head": "cfdff38990b7715e38a917976dad957b64840cd5",
@@ -4882,6 +5080,12 @@
         "head": "5da063c21307381d83cfcd412eecb243262a9cc1",
         "why": "panel-tutor-routing.ts shipped as the twenty-ninth surface in M058’s T003, so the record measured twenty-eight of the twenty-nine `panel-*.ts` files the tree carried and the digest explains the 206 sentences those twenty-eight declare",
         "what": "every citation re-resolved by search at this head, the twenty-ninth surface measured with its five registry sentences, its thirty-one label constants and its one inline label, its counts recomputed from its own entries, and the two panel-demo.ts citations of the copy-check fact re-read with the count that fact now states"
+      },
+      {
+        "task": "T003",
+        "head": "425af951cf5d9c5d9e6eafb2f79e8cb07c10286a",
+        "why": "panel-teardown-leak.ts shipped as the thirtieth surface in M059’s T003, so the record measured twenty-nine of the thirty `panel-*.ts` files the tree carried, and at this head it measures all thirty and states the 212 sentences those thirty declare",
+        "what": "every citation re-resolved by search at this head, the thirtieth surface measured with its six registry sentences, its eleven label constants and its one inline label, and its counts recomputed from its own entries"
       }
     ]
   }

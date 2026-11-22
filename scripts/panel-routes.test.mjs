@@ -40,6 +40,7 @@ const surfaces = [
   'tutor-routing',
   'webmcp-rehearsal',
   'webmcp',
+  'teardown-leak',
   'components',
   'copy-check',
   'interaction-story',
@@ -649,6 +650,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'console-read': ['panel-copy-to-agent', 'consoleReadPanel'],
     'webmcp-rehearsal': ['panel-webmcp-rehearsal', 'webmcpRehearsalPanel'],
     webmcp: ['panel-webmcp', 'webmcpPanel'],
+    'teardown-leak': ['panel-teardown-leak', 'teardownLeakPanel'],
     components: ['panel-components', 'componentsPanel'],
     'copy-check': ['panel-copy-check', 'copyCheckPanel'],
     'interaction-story': ['panel-interaction-story', 'interactionStoryPanel'],
@@ -700,6 +702,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'consoleReadPanel(',
     'webmcpRehearsalPanel(',
     'webmcpPanel(',
+    'teardownLeakPanel(',
     'componentsPanel(',
     'copyCheckPanel(',
     'interactionStoryPanel(',
@@ -1259,5 +1262,31 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: tutor-routing'),
     'removing the tutor-routing loader must fail naming the missing surface tutor-routing',
+  );
+
+  // Mutant: remove the teardown-leak key from LOADERS. The M059 route is the one this task adds, so
+  // the check must name it when its loader is gone rather than pass on the surfaces before it. It is
+  // a quoted key whose import is the only reference to `panel-teardown-leak.ts`, so a route that
+  // dropped it would leave the teardown-leak surface unreachable while every earlier surface still
+  // loaded. The assertion reads the failure's whole message: the missing-key sentence and the
+  // surface it names.
+  const withoutTeardownLeak = demoSource.replace(
+    "  'teardown-leak': () => import('./panel-teardown-leak') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutTeardownLeak,
+    demoSource,
+    'the teardown-leak loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutTeardownLeak),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: teardown-leak'),
+    'removing the teardown-leak loader must fail naming the missing surface teardown-leak',
   );
 });

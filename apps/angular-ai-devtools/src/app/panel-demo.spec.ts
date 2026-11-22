@@ -258,6 +258,18 @@ import {
   STATE_TEXTS as TUTOR_ROUTING_STATE_TEXTS,
   tutorRoutingPanel,
 } from './panel-tutor-routing';
+import {
+  ABSENCES as TEARDOWN_LEAK_ABSENCES,
+  ABSENT as TEARDOWN_LEAK_ABSENT,
+  CANNOT_TELL as TEARDOWN_LEAK_CANNOT_TELL,
+  EMPTY as TEARDOWN_LEAK_EMPTY,
+  FINDING as TEARDOWN_LEAK_FINDING,
+  HANDLE_RECORD_NOT_HELD as TEARDOWN_LEAK_HANDLE_RECORD_NOT_HELD,
+  OWNER_NOT_IN_THE_MESSAGE as TEARDOWN_LEAK_OWNER_NOT_IN_THE_MESSAGE,
+  PANE_SENTENCES as TEARDOWN_LEAK_SENTENCES,
+  STATES as TEARDOWN_LEAK_STATES,
+  teardownLeakPanel,
+} from './panel-teardown-leak';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -2957,7 +2969,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — thirty-six paths, the same ordered list
+    // The whole table, in order and to the count — thirty-eight paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -2994,13 +3006,14 @@ describe('the panel demo', () => {
       'tutor-routing', // M058 SC1, SC3 surface: the terminal event by class and id, the route node by its own path and stated fields, the two absences side by side, or the cannot-tell state
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
+      'teardown-leak', // M059 SC1, SC3 surface: the console code and the body the record carries, the owner only where a message field names one, both absences as their own lines, and the release then the diagnostic, or the code searched for and the count read
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(37);
+    expect(appRoutes).toHaveLength(38);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -3504,19 +3517,19 @@ describe('the panel demo', () => {
     // The measured record's answer: every string it declares is explained, and the count is the
     // join's own comparison — not a count written in this spec or in the demo fact. The count is
     // larger than the digest's row count because one sentence is declared by six surfaces, three more
-    // by two surfaces each, and an explanation of one string is still one row: 206 sentences
-    // compared, 198 distinct rows.
+    // by two surfaces each, and an explanation of one string is still one row: 212 sentences
+    // compared, 204 distinct rows.
     expect(answer).toEqual({
       state: COPY_CLEAN,
       unexplained: [],
-      checked: 206,
+      checked: 212,
     });
     expect(answer.checked).toBe(
       recording.counts.declaredSentences + recording.counts.inlineSentences,
     );
     expect(digest.entries.length).toBeLessThan(answer.checked);
     expect(recording.counts.surfaces).toBe(recording.surfaces.length);
-    expect(recording.counts.surfaces).toBe(29);
+    expect(recording.counts.surfaces).toBe(30);
 
     // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
     // with its own reason, while the record stays clean. Both answers are the join's.
@@ -6641,5 +6654,542 @@ describe('the tutor-routing surface', () => {
     expect(tutorRoutingPanel(FACTS['tutor-routing'])).toEqual(pane);
     // No DOM is added to an inspected page by this pane's own text.
     expect(pane.text).not.toMatch(/<\/?[a-z]/i);
+  });
+});
+
+// M059 T003 — the teardown-leak surface: the shipped join's own answer over a console record in the
+// shape T001 measured, beside the digest the extension ships.
+// ------------------------------------------------------------------------------------------------
+//
+// The pane is the display half of a join that reads two records and infers nothing:
+// `extension/teardown-leak.js` (T002) answers `{ state, code, message, owner, absences, claims,
+// detail }` from the console record the agent keeps and the digest it carries, and the demo's sample
+// fact is its answer. No record this repository holds carries the diagnostic (T001's `producible`
+// section: 0 NG0205 across 38 console lines on the portal and 4 on the fixture), so the record this
+// section rebuilds is written in the shape T001 measured rather than captured: the message's `text`
+// is the string the installed build prints — `digest.printedByTheInstalledBuild.printedAs` — its
+// `type` is the level a capture writes, its `order` and the one release record's `order` are sample
+// positions, and the digest entries are the shipped file's own codes and titles. The fact is held to
+// the join over that rebuilt record, never to a copy of the answer written in this spec.
+//
+// The four states render four different things and the pins below say which: `finding` names the code
+// and the body and the owner only when the join filled it (SC1, N1); `absent` names the code searched
+// for and the count read and never a clean bill of health (E2); `cannot-tell` names the reason;
+// `empty` states that no record was read. The two absences render as two groups of lines, never one
+// (SC3, E5), and no line names a cause, a handle or a remedy (SC3, SC4).
+
+/** The record T001 measured, from which the console record's body and the absent case are read. */
+const TEARDOWN_LEAK_SHAPES = 'research/raw/m059-record-shapes.json';
+
+/** The digest the extension ships, which every claim about the code cites. */
+const TEARDOWN_LEAK_DIGEST = 'extension/error-digest.json';
+
+/** Sample positions for the one diagnostic and the one release record — data, not a measurement. */
+const TEARDOWN_LEAK_MESSAGE_ORDER = 3;
+const TEARDOWN_LEAK_RELEASE_ORDER = 1;
+
+/** One claim of the join's answer: what it states and the artefact that states it. */
+interface TeardownLeakClaim {
+  readonly claim: string;
+  readonly values: Readonly<Record<string, unknown>>;
+  readonly artefactPath: string;
+}
+
+/** One absence of the join's answer: its own state word and the sentence it renders. */
+interface TeardownLeakAbsence {
+  readonly state: string;
+  readonly detail: string;
+  readonly because?: string;
+  readonly [field: string]: unknown;
+}
+
+/** The join's answer: the seven fields every state carries. */
+interface TeardownLeakAnswer {
+  readonly state: string;
+  readonly code: string | null;
+  readonly message: string | null;
+  readonly owner: string | null;
+  readonly absences: readonly TeardownLeakAbsence[];
+  readonly claims: readonly TeardownLeakClaim[];
+  readonly detail: string;
+}
+
+/** The page's own join namespace, as `extension/teardown-leak.js` publishes it. */
+interface TeardownLeakJoin {
+  teardownLeak(records: unknown): TeardownLeakAnswer;
+  STATES: readonly string[];
+  ABSENCES: readonly string[];
+  CLAIMS: readonly string[];
+  SEQUENCES: readonly string[];
+  REASONS: readonly string[];
+  READS: Readonly<Record<string, string>>;
+  IGNORED: readonly string[];
+  CODE_SEARCHED: string;
+}
+
+/** The part of the M059 record-shapes record this section reads. */
+interface TeardownLeakShapesRecording {
+  digest: {
+    path: string;
+    printedByTheInstalledBuild: { printedAs: string };
+  };
+  message: { capture: { path: string } };
+  producible: {
+    targets: {
+      portal: { console: { lines: { type: string; text: string }[] } };
+    };
+  };
+}
+
+/** The M059 record-shapes record and its text, inlined from disk at build time. */
+function readTeardownLeakShapes(): TeardownLeakShapesRecording {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m059-record-shapes.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m059-record-shapes.json was not inlined above this spec file',
+    );
+  }
+  return JSON.parse(text) as TeardownLeakShapesRecording;
+}
+
+/**
+ * The join `extension/teardown-leak.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `teardown-leak` fact is held to the join's answer, not to a copy of it.
+ * The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function teardownLeakJoin(): TeardownLeakJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/teardown-leak.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/teardown-leak.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as { angularAiTeardownLeak?: TeardownLeakJoin }
+  ).angularAiTeardownLeak;
+  if (join === undefined || typeof join.teardownLeak !== 'function') {
+    throw new Error('extension/teardown-leak.js published no teardownLeak');
+  }
+  return join;
+}
+
+/** The pane's own committed text, inlined the same way: the source scan below reads it. */
+function readTeardownLeakPaneSource(): string {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    './panel-teardown-leak.ts',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'panel-teardown-leak.ts was not inlined above this spec file',
+    );
+  }
+  return text;
+}
+
+/** The shipped copy digest's text, inlined the same way: every pane sentence is one of its rows. */
+function readCopyDigestText(): string {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/copy-digest.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/copy-digest.json was not inlined above this spec file',
+    );
+  }
+  return text;
+}
+
+/** The digest record the join is handed: the shipped file's own codes and titles, under its path. */
+function teardownLeakDigestRecord(digest: ErrorDigest) {
+  return {
+    path: TEARDOWN_LEAK_DIGEST,
+    entries: digest.entries.map((entry) => ({
+      code: entry.code,
+      title: entry.title,
+    })),
+  };
+}
+
+/**
+ * The console record the demo's sample is the answer over: the one message whose body carries the
+ * code, in the shape T001 measured, and the one release record the answer is ordered against. The
+ * sample positions are data; the text is the string the installed build prints.
+ */
+function teardownLeakConsoleRecord(shapes: TeardownLeakShapesRecording) {
+  return {
+    path: TEARDOWN_LEAK_SHAPES,
+    messages: [
+      {
+        order: TEARDOWN_LEAK_MESSAGE_ORDER,
+        type: 'error',
+        text: shapes.digest.printedByTheInstalledBuild.printedAs,
+      },
+    ],
+    releases: [{ order: TEARDOWN_LEAK_RELEASE_ORDER }],
+  };
+}
+
+/** Whether any line speaks of a cause, a handle or a remedy — the three the pane may not state. */
+function speaksOfCauseOrHandleOrRemedy(lines: readonly string[]): string[] {
+  // The pane's own sentences deny each of the three by name ("no handle is named as the cause"), so
+  // the scan reads for the words a *claim* would use and not for the words a denial uses.
+  const forbidden =
+    /\bleaked\b|\bleaks\b|\bbecause of\b|\bcaused by\b|\bis the cause\b|\bfix:\s|\bremedy:\s|\bschematic\b|\bhandle:\s|\bsubscription:\s|\beffect:\s|\btimer:\s/i;
+  return lines.filter((line) => forbidden.test(line));
+}
+
+/**
+ * The lines a `finding` must carry, and the lines a pane may not add: the code, the body, and — only
+ * where the join filled it — the owner. This is what the mutants below are run against, so "the pane
+ * hides the code" and "the pane renders the cause" are failures here rather than in review (SC1,
+ * SC3).
+ */
+function assertFindingPanes(
+  lines: readonly string[],
+  answer: TeardownLeakAnswer,
+): void {
+  expect(lines).toContain(`code: ${String(answer.code)}`);
+  expect(lines).toContain(`message: ${String(answer.message)}`);
+  if (answer.owner === null) {
+    expect(lines.some((line) => line.startsWith('owner: '))).toBe(false);
+  } else {
+    expect(lines).toContain(`owner: ${answer.owner}`);
+  }
+  // The two absences are two groups, each with its own state word, its own sentence and its own
+  // detail — never one folded line and never one absent-field list.
+  for (const absence of answer.absences) {
+    expect(lines).toContain(`absence.state: ${absence.state}`);
+    expect(lines).toContain(`absence.detail: ${absence.detail}`);
+  }
+  expect(new Set(answer.absences.map((absence) => absence.detail)).size).toBe(
+    answer.absences.length,
+  );
+  // No cause, no handle and no remedy: the pane states the sequence and names no reason for it.
+  expect(speaksOfCauseOrHandleOrRemedy(lines)).toEqual([]);
+}
+
+describe('the teardown-leak surface', () => {
+  it('raises no page-side hook: the pane reads no page global, no DOM node and registers no listener (AC3, SC6)', () => {
+    const source = readTeardownLeakPaneSource();
+    // The pane is the display half: it imports nothing at runtime and touches no page.
+    expect(source).not.toMatch(/\bimport\s[^;]*from\s/);
+    expect(source).not.toMatch(/\bdocument\b/);
+    expect(source).not.toMatch(/\bwindow\b/);
+    expect(source).not.toMatch(/\bchrome\b/);
+    expect(source).not.toMatch(/addEventListener|postMessage|MutationObserver/);
+    expect(source).not.toMatch(/setTimeout|setInterval|requestAnimationFrame/);
+    expect(source).not.toMatch(/fetch\(|XMLHttpRequest/);
+
+    // The mutant AC3 is written about: a pane that registers a page-side hook reddens the same
+    // scan, naming the line it added, so the pin is a pin and not a hope.
+    const hooked = `${source}\ndocument.addEventListener('ng-devtools', () => {});\n`;
+    const scan = (text: string) => [
+      ...text.matchAll(
+        /\bdocument\b|addEventListener|postMessage|MutationObserver|setTimeout|fetch\(/g,
+      ),
+    ];
+    expect(scan(source)).toEqual([]);
+    expect(scan(hooked).length).toBeGreaterThan(0);
+    expect(scan(hooked)[0]?.[0]).toBe('document');
+  });
+
+  it('renders `finding` with the code and the body, the owner only where the join filled it, and both absences as their own lines (AC1, AC2)', async () => {
+    const shapes = readTeardownLeakShapes();
+    const digest = readErrorDigest().digest;
+    const join = teardownLeakJoin();
+    const records = {
+      console: teardownLeakConsoleRecord(shapes),
+      digest: teardownLeakDigestRecord(digest),
+    };
+    const answer = join.teardownLeak(records);
+
+    // The four states of the answer are the four words the pane was written for, in the join's own
+    // order — and the two absences the two words SC3 requires apart.
+    expect([...join.STATES]).toEqual([...TEARDOWN_LEAK_STATES]);
+    expect([...join.ABSENCES]).toEqual([...TEARDOWN_LEAK_ABSENCES]);
+    expect(join.CODE_SEARCHED).toBe('NG0205');
+
+    // The sample fact is that answer, field for field: nothing here was written by hand.
+    expect(FACTS['teardown-leak']).toEqual(answer);
+    expect(Object.keys(FACTS['teardown-leak'] as object).sort()).toEqual([
+      'absences',
+      'claims',
+      'code',
+      'detail',
+      'message',
+      'owner',
+      'state',
+    ]);
+
+    // SC1: the finding names the code the body carries and the body itself, and the message's own
+    // owner field is the only thing that could fill `owner` — it holds none here.
+    expect(answer.state).toBe(TEARDOWN_LEAK_FINDING);
+    expect(answer.code).toBe('NG0205');
+    expect(answer.message).toBe(
+      shapes.digest.printedByTheInstalledBuild.printedAs,
+    );
+    expect(answer.owner).toBeNull();
+    expect(answer.absences.map((absence) => absence.state)).toEqual([
+      TEARDOWN_LEAK_OWNER_NOT_IN_THE_MESSAGE,
+      TEARDOWN_LEAK_HANDLE_RECORD_NOT_HELD,
+    ]);
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'teardown-leak',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the teardown-leak surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('teardown-leak');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'teardown-leak'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo('teardown-leak');
+    const pane = teardownLeakPanel(FACTS['teardown-leak']);
+    expect(demo.state()).toBe(TEARDOWN_LEAK_FINDING);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(pane.state).toBe(TEARDOWN_LEAK_FINDING);
+    expect(pane.lines[0]).toBe(`state: ${TEARDOWN_LEAK_FINDING}`);
+    expect(pane.lines[1]).toBe(
+      TEARDOWN_LEAK_SENTENCES.find(
+        (sentence) => sentence.state === TEARDOWN_LEAK_FINDING,
+      )?.text,
+    );
+
+    // AC1's pin, and the mutant it is written about: the pane carries the code and the body, and a
+    // pane that hides the code reddens this helper by the line it lost.
+    assertFindingPanes(pane.lines, answer);
+    const hidesTheCode = pane.lines.filter(
+      (line) => !line.startsWith('code: '),
+    );
+    expect(hidesTheCode.length).toBeLessThan(pane.lines.length);
+    expect(() => assertFindingPanes(hidesTheCode, answer)).toThrow(
+      /code: NG0205/,
+    );
+
+    // AC2's pin, and its mutant: the release and the diagnostic are rendered as the sequence the
+    // answer states and as nothing else — never as "the subscription leaked".
+    expect(pane.lines).toContain(
+      `claim.values.sequence: release-then-diagnostic`,
+    );
+    expect(pane.lines).toContain(
+      `claim.values.releases: ${String(teardownLeakConsoleRecord(shapes).releases.length)}`,
+    );
+    expect(pane.lines).toContain(
+      `claim.values.order: ${String(TEARDOWN_LEAK_MESSAGE_ORDER)}`,
+    );
+    expect(
+      pane.lines.indexOf('claim.values.sequence: release-then-diagnostic'),
+    ).toBeLessThan(
+      pane.lines.indexOf(
+        `claim.values.order: ${String(TEARDOWN_LEAK_MESSAGE_ORDER)}`,
+      ),
+    );
+    const claimsACause = [...pane.lines, 'the subscription leaked'];
+    expect(() => assertFindingPanes(claimsACause, answer)).toThrow(
+      /subscription/,
+    );
+
+    // SC3, E5: the two absences stay two states, each with its own sentence, and neither sentence is
+    // the other's.
+    const ownerSentence = pane.lines.find((line) =>
+      line.startsWith(`${TEARDOWN_LEAK_OWNER_NOT_IN_THE_MESSAGE}: `),
+    );
+    const handleSentence = pane.lines.find((line) =>
+      line.startsWith(`${TEARDOWN_LEAK_HANDLE_RECORD_NOT_HELD}: `),
+    );
+    expect(ownerSentence).toBeDefined();
+    expect(handleSentence).toBeDefined();
+    expect(ownerSentence).not.toBe(handleSentence);
+    expect(
+      pane.lines.indexOf(
+        `absence.state: ${TEARDOWN_LEAK_OWNER_NOT_IN_THE_MESSAGE}`,
+      ),
+    ).toBeLessThan(
+      pane.lines.indexOf(
+        `absence.state: ${TEARDOWN_LEAK_HANDLE_RECORD_NOT_HELD}`,
+      ),
+    );
+
+    // SC5: every claim the answer makes carries the artefact that states it, and the pane prints it.
+    expect(answer.claims.length).toBeGreaterThan(0);
+    for (const claim of answer.claims) {
+      expect(claim.artefactPath.length).toBeGreaterThan(0);
+      expect(pane.lines).toContain(`claim.claim: ${claim.claim}`);
+      expect(pane.lines).toContain(`claim.artefactPath: ${claim.artefactPath}`);
+    }
+
+    // The pane's sentences are the digest's rows under this surface: the copy a pane renders is the
+    // copy a digest explains.
+    const digestText = readCopyDigestText();
+    for (const sentence of TEARDOWN_LEAK_SENTENCES)
+      expect(digestText.includes(sentence.text)).toBe(true);
+    expect(TEARDOWN_LEAK_SENTENCES.map((sentence) => sentence.id)).toEqual([
+      'state-finding',
+      'state-absent',
+      'state-cannot-tell',
+      'state-empty',
+      'absence-owner-not-in-the-message',
+      'absence-handle-record-not-held',
+    ]);
+
+    // Idempotency: the same fact renders the same lines in the same order, twice.
+    expect(teardownLeakPanel(FACTS['teardown-leak'])).toEqual(pane);
+    expect(pane.text).not.toMatch(/<\/?[a-z]/i);
+  });
+
+  it('renders `absent` as the code searched for and the count read, never as a page free of the diagnostic (AC1, E2)', () => {
+    const shapes = readTeardownLeakShapes();
+    const digest = readErrorDigest().digest;
+    const join = teardownLeakJoin();
+    // The record carries the console lines the portal really printed and no diagnostic: the case
+    // `absent` exists for.
+    const printed = shapes.producible.targets.portal.console.lines
+      .map((line) => line.text)
+      .filter((text) => !/NG\d{4,5}/.test(text));
+    expect(printed.length).toBeGreaterThan(0);
+    const messages = printed.map((text, index) => ({
+      order: index + 1,
+      type: 'log',
+      text,
+    }));
+    const answer = join.teardownLeak({
+      console: { path: TEARDOWN_LEAK_SHAPES, messages, releases: [] },
+      digest: teardownLeakDigestRecord(digest),
+    });
+
+    expect(answer.state).toBe(TEARDOWN_LEAK_ABSENT);
+    expect(answer.code).toBe('NG0205');
+    expect(answer.message).toBeNull();
+    expect(answer.owner).toBeNull();
+
+    const pane = teardownLeakPanel(answer);
+    expect(pane.state).toBe(TEARDOWN_LEAK_ABSENT);
+    expect(pane.lines[0]).toBe(`state: ${TEARDOWN_LEAK_ABSENT}`);
+    expect(pane.lines).toContain('code: NG0205');
+    expect(pane.lines).toContain(`messagesRead: ${String(messages.length)}`);
+    expect(pane.lines).toContain(
+      `claim.values.messagesRead: ${String(messages.length)}`,
+    );
+    // Never a clean bill of health: no line states that nothing leaked or that none was found.
+    expect(pane.lines.some((line) => /no (leak|teardown)/i.test(line))).toBe(
+      false,
+    );
+    expect(speaksOfCauseOrHandleOrRemedy(pane.lines)).toEqual([]);
+  });
+
+  it('renders `cannot-tell` as the reason the record states, and `empty` as no record read', () => {
+    const digest = readErrorDigest().digest;
+    const join = teardownLeakJoin();
+
+    // A console record that names its artefact and states no message list: the join names the
+    // reason, and the pane names the reason and nothing else.
+    const noMessages = join.teardownLeak({
+      console: { path: TEARDOWN_LEAK_SHAPES, messages: null },
+      digest: teardownLeakDigestRecord(digest),
+    });
+    expect(noMessages.state).toBe(TEARDOWN_LEAK_CANNOT_TELL);
+    expect(noMessages.code).toBeNull();
+    expect(noMessages.message).toBeNull();
+    const cannotTell = teardownLeakPanel(noMessages);
+    expect(cannotTell.state).toBe(TEARDOWN_LEAK_CANNOT_TELL);
+    expect(cannotTell.lines).toContain(
+      'reason: console-record-states-no-messages',
+    );
+    expect(cannotTell.lines.some((line) => line.startsWith('code: '))).toBe(
+      false,
+    );
+    expect(cannotTell.lines.some((line) => line.startsWith('message: '))).toBe(
+      false,
+    );
+    expect(cannotTell.lines).toContain(`detail: ${noMessages.detail}`);
+
+    // No record at all, from the join and from a caller that handed nothing over: both say no record
+    // was read, and neither invents a fifth state to say it.
+    const empty = join.teardownLeak({});
+    expect(empty.state).toBe(TEARDOWN_LEAK_EMPTY);
+    expect(teardownLeakPanel(empty).state).toBe(TEARDOWN_LEAK_EMPTY);
+    const noAnswer = teardownLeakPanel(undefined);
+    expect(noAnswer.state).toBe(TEARDOWN_LEAK_EMPTY);
+    expect(noAnswer.lines).toEqual([
+      `state: ${TEARDOWN_LEAK_EMPTY}`,
+      TEARDOWN_LEAK_SENTENCES.find(
+        (sentence) => sentence.state === TEARDOWN_LEAK_EMPTY,
+      )?.text,
+    ]);
+
+    // A state word the pane was not written for renders as the bare word it was given.
+    expect(teardownLeakPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+  });
+
+  it('renders the owner only where a field of the message states one', () => {
+    const shapes = readTeardownLeakShapes();
+    const digest = readErrorDigest().digest;
+    const join = teardownLeakJoin();
+    const withOwner = join.teardownLeak({
+      console: {
+        path: TEARDOWN_LEAK_SHAPES,
+        messages: [
+          {
+            order: TEARDOWN_LEAK_MESSAGE_ORDER,
+            type: 'error',
+            text: shapes.digest.printedByTheInstalledBuild.printedAs,
+            owner: '_App',
+          },
+        ],
+        releases: [{ order: TEARDOWN_LEAK_RELEASE_ORDER }],
+      },
+      digest: teardownLeakDigestRecord(digest),
+    });
+
+    expect(withOwner.state).toBe(TEARDOWN_LEAK_FINDING);
+    expect(withOwner.owner).toBe('_App');
+    // Only the one absence holds: the message's own field names an owner.
+    expect(withOwner.absences.map((absence) => absence.state)).toEqual([
+      TEARDOWN_LEAK_HANDLE_RECORD_NOT_HELD,
+    ]);
+    const pane = teardownLeakPanel(withOwner);
+    expect(pane.lines).toContain('owner: _App');
+    // The capture's `component` field is not an owner and is read by nothing here.
+    expect(pane.lines.some((line) => line.startsWith('component: '))).toBe(
+      false,
+    );
+    assertFindingPanes(pane.lines, withOwner);
   });
 });
