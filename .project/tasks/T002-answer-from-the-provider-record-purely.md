@@ -2,10 +2,10 @@
 id: T002
 title: Answer from the provider record purely
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: f5d8030de2aa55b0d6f37ece57130fb515f687f9
 worktree: null
 task_branch: null
 files:
@@ -54,3 +54,9 @@ node --test scripts/locale-correctness.test.mjs && npx prettier --check extensio
 ## Log
 
 - pending.
+- Landed paths: `extension/locale-correctness.js`, `scripts/locale-correctness.test.mjs`.
+- The join matches the token by the walk's own derivation and never by a literal: `isLocaleToken` strips the `InjectionToken` class word and compares the normalised description, so the measured `InjectionToken LocaleId` is recognised, `LOCALE_ID` from a version that publishes a name is recognised, and `InjectionToken LocaleData` is not. Mutant M9 (literal `=== 'LOCALE_ID'`) reddens `locale-token-absent` and names the defect.
+- Eleven mutants are proved by string mutation inside the suite, so the shipped bytes are the measured bytes; each names its own failure text, and the file on disk is never rewritten.
+- Two mutant proofs were found vacuous while proving them and fixed without weakening an assertion: M3's purity pin ran on a record where the mutant never reaches for `navigator`, and M4's claim was overwritten by the entry claim.
+- Suite 22/22 including `prettier --check`; `npx tsc -p extension/tsconfig.json` clean; `node --check` clean.
+- **Cross-task contradiction, recorded for a repair wave:** the new module makes T001's record false. `research/raw/m061-record-shapes.json` states `absence['no-formatter-named'].extension.codeHits: 0`, and a module whose code names the locale token cannot keep that true, so `scripts/locale-correctness-shapes.test.mjs` is 15/17 at this head. Excluding `extension/locale-correctness.js` from the same scan reproduces the recorded list exactly, so the module is the sole cause. Neither that suite nor that record is declared by any task in the approved plan.
