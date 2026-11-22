@@ -5,7 +5,7 @@
   "title": "Measure what the console record and the digest state",
   "question": "what does the digest state for NG0205, what does a console message carry once the shipped joins have read it, can the portal or spikes/ng222-app be driven to emit it, and which counts state the handle record this agent does not hold?",
   "verdict": "the digest is 61577 bytes and carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 40 extension modules, 142 suites and 154 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.",
-  "head": "73bc22abecd15a631b53c5b08e4fc70fd7bdf71f",
+  "head": "f7585eec0f10c85af874808999cf6f24d722fc7b",
   "headCommand": "git rev-parse HEAD",
   "capturedAt": "2026-11-22T00:27:11.118Z",
   "instrument": {
@@ -88,7 +88,7 @@
   "commands": [
     {
       "command": "git rev-parse HEAD",
-      "output": "73bc22abecd15a631b53c5b08e4fc70fd7bdf71f"
+      "output": "f7585eec0f10c85af874808999cf6f24d722fc7b"
     },
     {
       "command": "node -e \"const c=require('node:crypto'),f=require('node:fs');const b=f.readFileSync('extension/error-digest.json');const d=JSON.parse(b);const e=d.entries.find(x=>x.code==='NG0205');console.log(e.code, e.title);console.log(d.entries.length, c.createHash('sha256').update(b).digest('hex'), b.length)\"",
@@ -519,7 +519,7 @@
       "lines": [
         {
           "path": "research/raw/m044-gate-shapes.json",
-          "line": 2747,
+          "line": 2809,
           "text": "\"reason\": \"edited here rather than renamed: M059 T006 added the four artefacts this milestone itself adds to the suite exclusion list - its own source, the record, extension/teardown-leak.js and scripts/teardown-leak.test.mjs - because without them a landing elsewhere moved the denominators from 38 modules and 136 suites to 39 and 137, and because a record that merely quotes NG0205 flipped the derived producible verdict from not-produced to produced with eighteen page hits nobody observed; the head recorded by the git rev-parse entry is now derived from the capture own head so the record cannot state one commit and print another; the thirteen default assertions and fourteen armed ones are additions to the rule, none removed\""
         },
         {
@@ -1014,7 +1014,7 @@
     "windowsCommand": "set \"M059_CAPTURE=1\"&& node --test scripts/teardown-leak-shapes.test.mjs",
     "check": "node --test scripts/teardown-leak-shapes.test.mjs",
     "records": "research/raw/m059-record-shapes.json",
-    "head": "73bc22abecd15a631b53c5b08e4fc70fd7bdf71f",
+    "head": "f7585eec0f10c85af874808999cf6f24d722fc7b",
     "criteria": [
       "SC1",
       "SC6"

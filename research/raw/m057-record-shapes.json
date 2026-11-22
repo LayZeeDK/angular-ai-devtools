@@ -508,8 +508,8 @@
       "holds": true,
       "scope": "every file under extension/, excluding extension/panel/ (gitignored build output)",
       "command": "recursive, case-insensitive scan of extension/ (extension/panel/ excluded) for writeRecord, write_record, writeLog, writeOrder, writes:",
-      "filesScanned": 59,
-      "filesExcludedAsBuildOutput": 50,
+      "filesScanned": 62,
+      "filesExcludedAsBuildOutput": 53,
       "needles": [
         "writeRecord",
         "write_record",
@@ -523,6 +523,12 @@
           "path": "extension/agent-main.test.mjs",
           "line": 2452,
           "text": "it('a given event record is what the agent writes: the record builder names no value (SC2)', () => {"
+        },
+        {
+          "needle": "writes:",
+          "path": "extension/locale-correctness.js",
+          "line": 51,
+          "text": "// (the value is in no field the walk writes: the reduction sets the kind string at"
         },
         {
           "needle": "writes:",
@@ -549,7 +555,7 @@
           "text": "matchDirectWrites: matchDirectWrites,"
         }
       ],
-      "conclusion": "No write record exists anywhere in extension/: the first four needles match nothing, and `writes:` matches one sanitizer binding’s documented field, one test title, and three `matchDirectWrites:` identifiers. None of them is a record of a write, and none carries a moment."
+      "conclusion": "No write record exists anywhere in extension/: the first four needles match nothing, and `writes:` matches 6 lines in 4 files — `extension/agent-main.test.mjs` (1), `extension/locale-correctness.js` (1), `extension/sanitizer-triage.js` (1), `extension/stale-view-worker.js` (3) — which are one test title, one locale module's own comment, one sanitizer binding’s documented field and three `matchDirectWrites:` identifiers. None of them is a record of a write, and none carries a moment."
     },
     "noEdgeCarriesAnOrderField": {
       "command": "union of every edge key over every graph-bearing object under research/raw/",
@@ -568,7 +574,7 @@
       "claimAsStatedInThePlan": "no record under research/raw/ carries a node of kind `effect`, and the closest one holds no `index` on its nodes and no index ends on its edges",
       "holds": false,
       "command": "walk every JSON file under research/raw/ except this record itself, collecting every object whose `kind` is `effect`, and every object that carries both a `nodes` and an `edges` list",
-      "jsonFilesScanned": 145,
+      "jsonFilesScanned": 154,
       "excludedFromItsOwnScan": "m057-record-shapes.json",
       "graphBearingObjects": 8,
       "objectsCarryingKindEffect": 16,
