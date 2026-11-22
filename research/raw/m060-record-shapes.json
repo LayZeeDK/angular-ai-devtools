@@ -2,11 +2,11 @@
   "schema": "m060-record-shapes/v1",
   "milestone": "M060",
   "task": "T001",
-  "head": "8166b8b4cdc9531cc0cdbdd7edc7a00c1d650f53",
+  "head": "32b384b0a31209ebe0b60ab96a7e6936be9d1515",
   "commands": [
     {
       "command": "git rev-parse HEAD",
-      "output": "8166b8b4cdc9531cc0cdbdd7edc7a00c1d650f53"
+      "output": "32b384b0a31209ebe0b60ab96a7e6936be9d1515"
     },
     {
       "command": "M060_CAPTURE=1 node --test scripts/error-routing-shapes.test.mjs",

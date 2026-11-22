@@ -2,10 +2,10 @@
 id: T005
 title: Re-derive the gate records and run the project verify
 wave: 5
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T005
+base: d765358d6bfc55f7b0c4f7cfdde4e18ae7b41938
 worktree: null
 task_branch: null
 files:
@@ -66,3 +66,8 @@ M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M056_CAPTURE=1 nod
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`, `research/raw/m059-record-shapes.json`, `research/raw/m060-record-shapes.json`, `scripts/tutor-answer.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-stability-record.test.mjs`.
+- Both gate records re-derived by their armed captures, stability last so the summary line it embeds is the passing one: gate-integrity 40/40, gate-stability 8/8.
+- No `SUITE_DIFF_REASONS` entry was missing: every differing suite already carried its reason from the earlier M060 waves, and `deriveSuiteDiff` completed over all 46 differing suites without a refusal.
+- The three stale captures this milestone's own landings caused are re-armed here: the shapes record's head, the teardown corpus denominators, and the tutor-answer census over M060's two records.
+- A dispatched finish run was killed after ~59 minutes without a file write, so the landing Verify is the authority on whether the tree is green — recorded below rather than asserted.
