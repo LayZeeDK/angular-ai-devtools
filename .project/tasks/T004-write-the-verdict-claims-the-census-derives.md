@@ -2,10 +2,10 @@
 id: T004
 title: Write the verdict claims the census derives
 wave: 4
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T004
+base: 3675974c00b59f6d246f8a56748a818f569e8901
 worktree: null
 task_branch: null
 files:
@@ -55,3 +55,8 @@ node --test scripts/navigation-blocking.test.mjs scripts/tutor-answer.test.mjs &
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m061-verdict-claims.json` (new, 15,656 B), `scripts/navigation-blocking.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`.
+- The census's held-out reader was wrong of this tree and said so falsely: the plan's `## Held-out checks` is a bullet list, but the reader parsed a table, so it read zero rows while `quotes.edges` claimed it had read the table. It now accepts either form, compares the section's written-row count to the rows read, holds each row's task to the plan's `## Intent coverage`, and refuses a suite the checkout does not carry — four mutants redden naming each defect.
+- The intent's `Disposition` column never says `held-out`, so the old assertion compared `[]` to `[]` and could not fail. Replaced by the two checks above, which bite.
+- **Defect in the intent, found here and not repairable inside this task's paths:** SC1 carries a dangling sentence (`… reddens the suite by name. entry that carries it and the formatter the record names; …`) left by the C4 edit. The record quotes SC1 character for character (453 chars), which is correct behaviour; the sentence itself needs a repair wave that also re-captures this record.
+- Pre-existing reds measured, not caused here: `scripts/teardown-leak-shapes.test.mjs` is 9/13 because its record states 151 records where the tree now carries 154; `scripts/gate-integrity.test.mjs` is 29/40 because both gate records are stale (D6: T005 re-derives them); `scripts/locale-correctness-shapes.test.mjs` is 15/17 at this head, proved by removing the claims record and re-running.

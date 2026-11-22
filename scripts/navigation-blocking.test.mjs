@@ -2685,9 +2685,25 @@ function intentEdges(source) {
 }
 
 /**
- * The plan's `## Held-out checks` table, `Edge | Task | Test`: the one place the test-to-edge mapping
- * lives. A row names the edge, the task that holds it and the suite that carries it, so a citation can
- * name a suite the milestone itself assigned the edge rather than one this file chooses.
+ * One row of the plan's `## Held-out checks`, in either of the two forms the plans in this repository
+ * write it: the three-column table `| E1 | T002 | scripts/x.test.mjs |`, and the bullet
+ * `- E1 → T002 → \`scripts/x.test.mjs\`` that M060's plan and this milestone's both carry. The arrow
+ * is the one the plans spell (`→`, U+2192); a dash is accepted in its place so an ASCII rewrite of the
+ * same row is read rather than silently skipped.
+ */
+const HELD_OUT_BULLET =
+  /^\s*[-*]\s*(E\d+)\s*(?:→|->|—)\s*(T\d+)\s*(?:→|->|—)\s*`([^`]+)`\s*$/;
+
+/**
+ * The plan's `## Held-out checks`, `Edge | Task | Test`: the one place the test-to-edge mapping lives.
+ * A row names the edge, the task that holds it and the suite that carries it, so a citation can name a
+ * suite the milestone itself assigned the edge rather than one this file chooses.
+ *
+ * The section is read in both forms it is written in, because a reader that knows only the table
+ * answers "the plan holds out nothing" for a plan whose mapping is a bullet list - and then every row
+ * falls back to the suite the criterion's first task happened to add, which is a citation the plan
+ * never assigned. M060's plan and this milestone's both write bullets; the table form is read too so a
+ * plan that restores it is not refused.
  *
  * @param {string} source
  * @returns {Map<string, { task: string, test: string }>}
@@ -2705,7 +2721,39 @@ function heldOutChecks(source) {
     if (!/^E\d+$/.test(edge)) continue;
     held.set(edge, { task: data[1] ?? '', test: data[2] ?? '' });
   }
+  for (const line of section.split(/\r?\n/)) {
+    const row = HELD_OUT_BULLET.exec(line);
+    if (row === null) continue;
+    held.set(String(row[1]), { task: String(row[2]), test: String(row[3]) });
+  }
   return held;
+}
+
+/**
+ * How many rows the plan's `## Held-out checks` section writes, counted by shape rather than by the
+ * reader's own pattern: a table data row naming an edge, or a bullet whose first token is an edge id.
+ * The count is deliberately wider than {@link heldOutChecks} — a bullet that names an edge but whose
+ * arrows the reader does not parse is a row the plan wrote and the reader lost — so a reader that
+ * silently skips a form, or a form a plan restores, is caught by a count instead of by the
+ * derivation's fallback: an edge the reader loses does not vanish, it moves to `## Intent coverage`
+ * and cites a suite the plan assigned to a different edge.
+ *
+ * A row the plan deletes outright is not a row and no count can see it: the plan is the only statement
+ * of what it holds out, which is why the reading below also holds each row's task to the plan's own
+ * `## Intent coverage` table.
+ *
+ * @param {string} source
+ * @returns {number}
+ */
+function heldOutRowsWritten(source) {
+  const section = sectionOf(source, '## Held-out checks');
+  let count = 0;
+  for (const line of section.split(/\r?\n/)) {
+    if (/^\s*\|\s*E\d+\s*\|/.test(line) || /^\s*[-*]\s*E\d+\b/.test(line)) {
+      count += 1;
+    }
+  }
+  return count;
 }
 
 /**
@@ -2988,7 +3036,7 @@ function derivedClaimsFrom(intentSource, planSource, intentPath, planPath) {
     quotes: {
       from: `scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, ${JSON.stringify(milestone)}))`,
       how: `parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the ${String(Object.keys(intent).length)} criteria it declares are ${JSON.stringify(Object.keys(intent))} and scripts/overlay-verdict-claims.test.mjs compares them character for character`,
-      edges: `read from ${shown(intentPath)}'s own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from ${shown(planPath)}'s ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: ${String(edges.length)} edge row(s) over the criteria ${JSON.stringify([...new Set(edges.map((edge) => edge.criterion))])} and the suites ${JSON.stringify(suites)}`,
+      edges: `read from ${shown(intentPath)}'s own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from ${shown(planPath)}'s ## Held-out checks section, which this path reads as ${String(heldOut.size)} row(s) of edge -> task -> test in either form a plan writes it - the three-column Edge | Task | Test table, or the bullet '- E.. -> T.. -> test' - so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: ${String(edges.length)} edge row(s) over the criteria ${JSON.stringify([...new Set(edges.map((edge) => edge.criterion))])} and the suites ${JSON.stringify(suites)}`,
     },
     ruling: {
       required: 0,
@@ -3236,6 +3284,69 @@ function replaceFirstHeldOutTest(source, test) {
   return source.replace(line, `| ${data.join(' | ')} |`);
 }
 
+/**
+ * The plan's held-out mapping, held to the form the plan writes it and to the owners the plan's own
+ * `## Intent coverage` table assigns. Two rules, and neither can pass on an empty map:
+ *
+ *   every row read     the section writes N rows — the three-column table or the bullet
+ *                      `- E.. -> T.. -> test` — and the reader returns N, so a row it drops is named
+ *                      here rather than quietly falling back to `## Intent coverage`.
+ *   every row's owner  the task a row names is one the plan's `## Intent coverage` table assigns that
+ *                      edge's criterion, so the plan's two tables cannot disagree about who holds an
+ *                      edge.
+ *
+ * @param {string} source the plan
+ * @param {Array<{ edge: string, criterion: string }>} edges the intent's five-column rows
+ * @param {Array<{ criterion: string, task: string, acceptance: string }>} coverage the plan's rows
+ * @returns {Map<string, { task: string, test: string }>} the mapping it read
+ */
+function assertHeldOutMapping(source, edges, coverage) {
+  const heldOut = heldOutChecks(source);
+  const written = heldOutRowsWritten(source);
+  assert.equal(
+    heldOut.size,
+    written,
+    `the plan's ## Held-out checks writes ${String(
+      written,
+    )} row(s) and the reader returned ${String(
+      heldOut.size,
+    )}: a row it does not read is an edge that falls back to the suite a task happened to add, not to the suite the plan assigned`,
+  );
+  assert.ok(
+    written > 0,
+    'the plan must write its held-out mapping as rows, or no citation is derived from it',
+  );
+  const declared = edges.map((edge) => edge.edge);
+  for (const [edge, row] of heldOut) {
+    const criterion = edges.filter((one) => one.edge === edge)[0]?.criterion;
+    assert.ok(
+      criterion !== undefined,
+      `the plan's held-out checks name ${edge}, and the intent declares ${JSON.stringify(
+        declared,
+      )}`,
+    );
+    assert.ok(
+      row.task !== '',
+      `${edge} must name the task the plan assigns it`,
+    );
+    assert.ok(
+      row.test !== '',
+      `${edge} must name the test the plan assigns it`,
+    );
+    assert.ok(
+      coverage.some(
+        (one) => one.criterion === criterion && one.task === row.task,
+      ),
+      `the plan assigns ${edge} to ${row.task}, and its ## Intent coverage table must assign ${row.task} to ${criterion}: a held-out row and a coverage row that disagree put the same edge in two tasks`,
+    );
+    assert.ok(
+      existsSync(join(CLAIM_ROOT, row.test)),
+      `the plan assigns ${edge} to ${row.test}, which this checkout does not carry`,
+    );
+  }
+  return heldOut;
+}
+
 /** The bytes the read-only pin holds the claim list to; an armed run re-bases it after its own write. */
 const claimsAtLoad = existsSync(CLAIMS_PATH)
   ? digest(readFileSync(CLAIMS_PATH))
@@ -3354,6 +3465,35 @@ if (CLAIM_ARMED) {
   });
 }
 
+/**
+ * Every row quotes the criterion the intent declares, character for character, and states the number
+ * of characters it quoted. Each failure names the criterion id, so a quote that slid is reported by
+ * claim id rather than as a mismatch somewhere in the file — the reading AC1 asks of this list.
+ *
+ * @param {any} recording the claim list
+ * @param {Record<string, string>} criteria the intent's own criteria, as `claimCriteria` parses them
+ * @returns {void}
+ */
+function assertQuotedCriteria(recording, criteria) {
+  assert.deepEqual(
+    recording.claims.map((row) => row.criterion),
+    Object.keys(criteria),
+    `every criterion the intent declares is ruled exactly once: ${JSON.stringify(recording.claims.map((row) => row.criterion))} against ${JSON.stringify(Object.keys(criteria))}`,
+  );
+  for (const row of recording.claims) {
+    assert.equal(
+      row.criterionText,
+      criteria[row.criterion],
+      `${row.criterion} must quote the intent character for character`,
+    );
+    assert.equal(
+      row.criterionCharacters,
+      row.criterionText.length,
+      `${row.criterion} states ${String(row.criterionCharacters)} character(s) for a quote of ${String(row.criterionText.length)}`,
+    );
+  }
+}
+
 describe('the claim list', () => {
   it('is a read: a default run hashes the list the same before and after', () => {
     assert.ok(
@@ -3395,23 +3535,7 @@ describe('the claim list', () => {
         'the intent belongs to the milestone the list is numbered for',
       ),
     );
-    assert.deepEqual(
-      recording.claims.map((row) => row.criterion),
-      Object.keys(criteria),
-      `every criterion the intent declares is ruled exactly once: ${JSON.stringify(recording.claims.map((row) => row.criterion))} against ${JSON.stringify(Object.keys(criteria))}`,
-    );
-    for (const row of recording.claims) {
-      assert.equal(
-        row.criterionText,
-        criteria[row.criterion],
-        `${row.criterion} must quote the intent character for character`,
-      );
-      assert.equal(
-        row.criterionCharacters,
-        row.criterionText.length,
-        `${row.criterion} states ${String(row.criterionCharacters)} character(s) for a quote of ${String(row.criterionText.length)}`,
-      );
-    }
+    assert.doesNotThrow(() => assertQuotedCriteria(recording, criteria));
     const required = recording.claims.filter(
       (row) => row.ruling === 'required',
     ).length;
@@ -3464,6 +3588,54 @@ describe('the claim list', () => {
     assert.doesNotThrow(() => assertCitations(recording));
   });
 
+  it('reddens by claim id when a row no longer quotes the criterion it names', () => {
+    const recording = claimJson(
+      CLAIMS_PATH,
+      'the list is part of this repository',
+    );
+    const criteria = claimCriteria(
+      claimText(
+        intentPathForMilestone(CLAIM_ROOT, recording.milestone),
+        'the intent belongs to the milestone the list is numbered for',
+      ),
+    );
+    const live = recording.claims[2] ?? recording.claims[0];
+    assert.ok(live, 'the list carries a third row to plant the quote on');
+
+    // The quote slid by one word: the row still names its criterion, and the text is no longer the
+    // intent's. Only the quote check can catch it, and it has to say which criterion.
+    const planted = clone(recording);
+    planted.claims[2].criterionText = `${live.criterionText} (reworded here)`;
+    planted.claims[2].criterionCharacters =
+      planted.claims[2].criterionText.length;
+    let message = '';
+    try {
+      assert.doesNotThrow(() => assertQuotedCriteria(planted, criteria));
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(
+      message,
+      new RegExp(
+        `${live.criterion} must quote the intent character for character`,
+      ),
+      `a row whose quote is no longer the intent's must redden by claim id; it produced ${JSON.stringify(
+        message.slice(0, 240),
+      )}`,
+    );
+
+    // The same row with the intent's own text back: the check that bit above is the check that
+    // passes here, so the mutant reddens the quote and not the row.
+    assert.doesNotThrow(() => assertQuotedCriteria(recording, criteria));
+    console.log(
+      `quote mutant: ${live.criterion} -> ${String(
+        /SC\d+ must quote the intent character for character/.exec(
+          message,
+        )?.[0] ?? message.split('\n')[0],
+      )}`,
+    );
+  });
+
   it("reads the intent's five-column edge table and the plan's held-out mapping", () => {
     const intentPath = intentPathForMilestone(CLAIM_ROOT, CLAIMS_MILESTONE);
     const planPath = planPathForIntent(intentPath);
@@ -3491,45 +3663,36 @@ describe('the claim list', () => {
       );
     }
 
-    // The mapping the ruling moves to one place: the plan's `## Held-out checks` table names the task
-    // and the test for every edge the intent marks `held-out`, and for no other edge - an in-scope
-    // edge listed there would be a shape `check_handoffs.py` refuses ("names edges that are not
-    // held-out"), so the table is read in both directions rather than as a superset.
-    const heldOut = heldOutChecks(planSource);
-    const heldOutEdges = edges
-      .filter((edge) => edge.disposition === 'held-out')
-      .map((edge) => edge.edge);
-    assert.deepEqual(
-      [...heldOut.keys()].sort(),
-      [...heldOutEdges].sort(),
-      `the plan's held-out table must map exactly the edges the intent marks held-out: the intent marks ${JSON.stringify(
-        heldOutEdges,
-      )} and the plan lists ${JSON.stringify([...heldOut.keys()])}`,
+    // The mapping the ruling moves to one place: the plan's `## Held-out checks` names the task and
+    // the test for the edges it holds out, and the reader takes the section in the form the plan
+    // writes it. Two checks answer for it, and neither can pass on an empty map:
+    //
+    //   every row read      the section writes N rows (either the three-column table or the bullet
+    //                       `- E.. -> T.. -> test`) and the reader returns N, so a row it drops is
+    //                       named here rather than quietly falling back to `## Intent coverage`.
+    //   every row's owner   the task a row names is one the plan's `## Intent coverage` table assigns
+    //                       that edge's criterion, so the two tables cannot disagree about who holds
+    //                       an edge.
+    //
+    // The comparison this replaces was `heldOut keys` against the edges the intent's Disposition
+    // column marks `held-out`, and at this head it could not fail: every one of the intent's rows
+    // states a criterion in that column (`criterion SC1`, ...), so both sides were `[]` and the plan's
+    // eight-row mapping was never read at all.
+    const heldOut = assertHeldOutMapping(
+      planSource,
+      edges,
+      intentCoverage(planSource),
     );
-    for (const [edge, row] of heldOut) {
-      assert.ok(
-        row.task !== '',
-        `${edge} must name the task the plan assigns it`,
-      );
-      assert.ok(
-        row.test !== '',
-        `${edge} must name the test the plan assigns it`,
-      );
-      assert.ok(
-        existsSync(join(CLAIM_ROOT, row.test)),
-        `the plan assigns ${edge} to ${row.test}, which this checkout does not carry`,
-      );
-    }
+    const covered = intentCoverage(planSource);
 
-    // Every edge in the intent has a row in the plan: the held-out table above where the edge is
+    // Every edge in the intent has a row in the plan: the held-out mapping above where the edge is
     // held out, and the `## Intent coverage` row for its criterion - and the suite that task's own
     // `files:` list declares - where it is not. Each one resolves to a test this checkout carries,
     // so no edge is left with a citation this suite cannot open.
-    const coverage = intentCoverage(planSource);
     const tasksDir = join(dirname(planPath), '..', 'tasks');
     const mapped = [];
     for (const edge of edges) {
-      const suite = suiteForEdge(edge, heldOut, coverage, tasksDir);
+      const suite = suiteForEdge(edge, heldOut, covered, tasksDir);
       assert.ok(
         existsSync(join(CLAIM_ROOT, suite)),
         `${edge.edge} is mapped by the plan to ${suite}, which this checkout does not carry`,
@@ -3563,6 +3726,227 @@ describe('the claim list', () => {
       )} (${String(heldOut.size)} held-out row(s)); ${String(
         edges.length,
       )} edge row(s) read as five columns`,
+    );
+  });
+
+  it("reads the plan's held-out rows in the form this plan writes, and reddens on a dropped row, a moved task or an absent suite", () => {
+    const intentPath = intentPathForMilestone(CLAIM_ROOT, CLAIMS_MILESTONE);
+    const planPath = planPathForIntent(intentPath);
+    const intentSource = claimText(
+      intentPath,
+      `the intent ${CLAIMS_MILESTONE} binds`,
+    );
+    const planSource = claimText(
+      planPath,
+      `the plan ${CLAIMS_MILESTONE} binds`,
+    );
+    const edges = intentEdges(intentSource);
+    const coverage = intentCoverage(planSource);
+    const tasksDir = join(dirname(planPath), '..', 'tasks');
+
+    // The control: every row the section writes is read, and every row's task is the task the
+    // coverage table assigns that edge's criterion. Both halves are re-run below against copies, so
+    // the checks that bite are the checks that pass here.
+    const live = heldOutChecks(planSource);
+    assert.equal(
+      live.size,
+      heldOutRowsWritten(planSource),
+      'the live plan writes the rows the reader returns',
+    );
+    assert.ok(live.size > 0, 'the live plan writes at least one held-out row');
+
+    /** One plan copy with its first held-out bullet rewritten by `edit`. */
+    const rewritten = (edit) => {
+      const section = sectionOf(planSource, '## Held-out checks');
+      const line = section
+        .split(/\r?\n/)
+        .filter((entry) => HELD_OUT_BULLET.test(entry))[0];
+      assert.ok(
+        line !== undefined,
+        `the plan writes its mapping as the bullet ${String(
+          HELD_OUT_BULLET,
+        )}, so a copy can rewrite a row`,
+      );
+      const row = /** @type {RegExpExecArray} */ (HELD_OUT_BULLET.exec(line));
+      return planSource.replace(
+        line,
+        edit(String(row[3]), String(row[2]), line),
+      );
+    };
+
+    // 1. A row the section writes and the reader does not parse: the first arrow of the first bullet
+    // is rewritten to a colon. The row still names E1, so the section still writes eight rows, and the
+    // reader returns seven - the count in the reading above is what reddens, naming both numbers.
+    const unreadRow = rewritten((test, task, line) => line.replace('→', ':'));
+    assert.notEqual(
+      unreadRow,
+      planSource,
+      'the unread-row mutant changes the plan it was planted on',
+    );
+    assert.equal(
+      heldOutRowsWritten(unreadRow),
+      heldOutRowsWritten(planSource),
+      'the row is still written, so the wider count still sees it',
+    );
+    assert.equal(
+      heldOutChecks(unreadRow).size,
+      live.size - 1,
+      'the reader loses the row it cannot parse',
+    );
+    let unreadMessage = '';
+    try {
+      assertHeldOutMapping(unreadRow, edges, coverage);
+    } catch (error) {
+      unreadMessage = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(
+      unreadMessage,
+      /## Held-out checks writes 8 row\(s\) and the reader returned 7/,
+      `a row the reader loses must redden naming the section and both counts; it produced ${JSON.stringify(unreadMessage.slice(0, 320))}`,
+    );
+
+    // 2. The row deleted outright. Nothing in the section says the edge was ever there, so no count
+    // can see it, and the derivation does not refuse: `## Intent coverage` answers instead and SC3
+    // cites whatever suite the first task covering SC3 happens to have added. Recorded as the drift
+    // it is - the plan is the only statement of what it holds out.
+    const e5 = sectionOf(planSource, '## Held-out checks')
+      .split(/\r?\n/)
+      .filter((entry) => /^\s*[-*]\s*E5\b/.test(entry))[0];
+    const withoutRow = planSource.replace(`${e5}\n`, '');
+    assert.notEqual(
+      withoutRow,
+      planSource,
+      'the dropped-row mutant changes the plan it was planted on',
+    );
+    assert.equal(
+      heldOutChecks(withoutRow).has('E5'),
+      false,
+      'the deleted row is gone from the map',
+    );
+    const drifted = derivedClaimsFrom(
+      intentSource,
+      withoutRow,
+      intentPath,
+      planPath,
+    );
+    const sc3 = drifted.claims.filter((row) => row.criterion === 'SC3')[0];
+    const fallback = suiteForEdge(
+      { edge: 'E5', criterion: 'SC3' },
+      new Map(),
+      coverage,
+      tasksDir,
+    );
+    assert.equal(
+      sc3.artefactPath,
+      fallback,
+      `the edge no row names falls back to the suite ${fallback} the coverage table's task added`,
+    );
+    assert.notEqual(
+      sc3.artefactPath,
+      live.get('E5')?.test,
+      `and that is not the suite the plan assigns E5 (${String(
+        live.get('E5')?.test,
+      )}), so the drift is a citation the plan never assigned`,
+    );
+
+    // 3. A row whose task the plan's own coverage table does not assign that edge's criterion. T009
+    // declares no file in this milestone, and the plan assigns SC1 to T001, T002, T004 and T005, so
+    // the row and the coverage table disagree about who holds E1.
+    const movedTask = rewritten((test, task, line) =>
+      line.replace(`→ ${task} →`, '→ T009 →'),
+    );
+    let movedMessage = '';
+    try {
+      assertHeldOutMapping(movedTask, edges, coverage);
+    } catch (error) {
+      movedMessage = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(
+      movedMessage,
+      /put the same edge in two tasks/,
+      `a held-out row naming a task the coverage table does not assign its criterion must redden naming the disagreement; it produced ${JSON.stringify(movedMessage.slice(0, 320))}`,
+    );
+    assert.match(
+      movedMessage,
+      /E1 to T009/,
+      `the refusal names the edge and the task the mutated row states; it produced ${JSON.stringify(movedMessage.slice(0, 320))}`,
+    );
+
+    // 3. A row whose test names a suite this checkout does not carry.
+    const absentSuite = 'scripts/absent-held-out-suite.test.mjs';
+    const absent = rewritten(() => `- E1 → T002 → \`${absentSuite}\``);
+    assert.equal(
+      existsSync(join(CLAIM_ROOT, absentSuite)),
+      false,
+      'the wildcard names a suite this checkout does not carry',
+    );
+    let carriedMessage = '';
+    try {
+      assertHeldOutMapping(absent, edges, coverage);
+    } catch (error) {
+      carriedMessage = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(
+      carriedMessage,
+      /absent-held-out-suite\.test\.mjs/,
+      `a row naming a suite this checkout does not carry must redden naming the path; it produced ${JSON.stringify(carriedMessage.slice(0, 320))}`,
+    );
+    let refused = '';
+    try {
+      derivedClaimsFrom(intentSource, absent, intentPath, planPath);
+    } catch (error) {
+      refused = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(
+      refused,
+      /absent-held-out-suite\.test\.mjs/,
+      `and the derivation cannot cite it either: it must redden naming the path rather than write a row that cites nothing; it produced ${JSON.stringify(refused.slice(0, 320))}`,
+    );
+
+    // And the live plan still derives the citations the plan assigns, one suite per criterion: the
+    // four mutations above changed copies, and the rows read from the plan are what the claims cite.
+    assertHeldOutMapping(planSource, edges, coverage);
+    const derived = derivedClaimsFrom(
+      intentSource,
+      planSource,
+      intentPath,
+      planPath,
+    );
+    for (const row of derived.claims) {
+      const held = edges
+        .filter((edge) => edge.criterion === row.criterion)
+        .map((edge) => live.get(edge.edge)?.test);
+      assert.deepEqual(
+        [...new Set(held)],
+        [row.artefactPath],
+        `${row.criterion} cites the suite the plan's held-out rows assign its every edge, and it cites ${row.artefactPath} against ${JSON.stringify(held)}`,
+      );
+      assert.ok(
+        existsSync(join(CLAIM_ROOT, row.artefactPath)),
+        `${row.criterion} cites ${row.artefactPath}, which this checkout does not carry`,
+      );
+      assert.ok(
+        coverage.some((one) => one.criterion === row.criterion),
+        `${row.criterion} is a criterion the plan's coverage table assigns a task`,
+      );
+      assert.ok(
+        suiteForEdge(
+          edges.filter((edge) => edge.criterion === row.criterion)[0],
+          live,
+          coverage,
+          tasksDir,
+        ) === row.artefactPath,
+        `${row.criterion}'s first edge resolves through the held-out map rather than through the fallback`,
+      );
+    }
+    console.log(
+      `held-out read: ${String(live.size)} row(s) of ${String(
+        heldOutRowsWritten(planSource),
+      )} written; unread row -> ${unreadMessage.split('\n')[0]}; deleted E5 row -> SC3 cites ${
+        sc3.artefactPath
+      } instead of ${String(live.get('E5')?.test)}; moved task -> ${
+        movedMessage.split('\n')[0]
+      }; absent suite -> ${carriedMessage.split('\n')[0]}`,
     );
   });
 

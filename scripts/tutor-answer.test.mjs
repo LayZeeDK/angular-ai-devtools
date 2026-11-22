@@ -52,6 +52,14 @@
 // verdict-claims T004 writes, outside itself through its own `inventory.outsideTheMap` (derived by
 // its capture suite), so both leave the census below because a recording says so and not because
 // this suite forgot to list them.
+//
+// M061 T004 added its map, `research/raw/m061-record-shapes.json`, to the same read for the same
+// reason, and by the row this milestone's T004 owes it: the map measures the provider record
+// extension/agent-main.js carries and names the two records M061 owes — the surface T003 writes and
+// the verdict-claims record this task writes — outside itself through its own
+// `inventory.outsideTheMap`, so `research/raw/m061-verdict-claims.json`, landed by this task, leaves
+// the census below because the recording names it and not because the list here was widened. The
+// mutant below drops that one row and reads the refusal that names the record.
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -104,6 +112,16 @@ const THIRD_BESIDE_MAP_DATA = JSON.parse(
   readFileSync(join(ROOT, THIRD_BESIDE_MAP), 'utf8'),
 );
 
+/**
+ * M061's map, read beside the four on every run: it names the two records M061 owes, the surface
+ * T003 writes and the verdict-claims T004 writes, through its own `inventory.outsideTheMap`, so the
+ * census below subtracts them by the map's own words rather than by a path listed here.
+ */
+const FOURTH_BESIDE_MAP = 'research/raw/m061-record-shapes.json';
+const FOURTH_BESIDE_MAP_DATA = JSON.parse(
+  readFileSync(join(ROOT, FOURTH_BESIDE_MAP), 'utf8'),
+);
+
 /** Every map the census is read from, in the order the maps were measured. */
 const MAPS = [
   RECORDING_DATA,
@@ -111,6 +129,7 @@ const MAPS = [
   BESIDE_MAP_DATA,
   SECOND_BESIDE_MAP_DATA,
   THIRD_BESIDE_MAP_DATA,
+  FOURTH_BESIDE_MAP_DATA,
 ];
 
 /**
@@ -138,6 +157,10 @@ const PINNED_OUTSIDE = Object.freeze({
   M060: [
     'research/raw/m060-surface.json',
     'research/raw/m060-verdict-claims.json',
+  ],
+  M061: [
+    'research/raw/m061-surface.json',
+    'research/raw/m061-verdict-claims.json',
   ],
 });
 
@@ -268,11 +291,12 @@ function outsideTheMapOf(recording) {
  * The paths the maps name outside themselves: the whole subtraction, read from the records. Each
  * map contributes only what its own recording states, so a path is subtracted because a recording says
  * so and never because this suite lists it.
+ * @param {any[]} [maps] the maps to read, by default every map on disk
  * @returns {string[]}
  */
-function outsideTheMap() {
+function outsideTheMap(maps = MAPS) {
   const all = [];
-  for (const map of MAPS)
+  for (const map of maps)
     for (const path of outsideTheMapOf(/** @type {any} */ (map)))
       all.push(path);
   return [...new Set(all)];
@@ -320,7 +344,7 @@ function pinNamedOutside(present = presentRecords, maps = MAPS) {
   for (const map of maps) {
     const pinned =
       PINNED_OUTSIDE[
-        /** @type {'M055'|'M057'|'M058'|'M059'|'M060'} */ (map.milestone)
+        /** @type {'M055'|'M057'|'M058'|'M059'|'M060'|'M061'} */ (map.milestone)
       ] ?? [];
     const named = outsideTheMapOf(map);
     for (const path of named)
@@ -352,10 +376,12 @@ function pinNamedOutside(present = presentRecords, maps = MAPS) {
  * below — which is what the census mutant proves.
  * @param {{path: string, record: any}[]} [present] the records the tree holds, by default read from
  *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the maps too
+ * @param {any[]} [maps] the maps to subtract by, by default every map on disk; the mutant drops the
+ *   map that names this milestone's own record so the census reads that record as unexcused
  * @returns {{path: string, record: any}[]}
  */
-function mappedRecords(present = presentRecords) {
-  const outside = outsideTheMap();
+function mappedRecords(present = presentRecords, maps = MAPS) {
+  const outside = outsideTheMap(maps);
   return present.filter((entry) => !outside.includes(entry.path));
 }
 
@@ -1087,12 +1113,14 @@ test('T002 — a criterion id no record carries is refused by the join rather th
  * record present and named outside no map must be on the map, and one it measures must be present.
  * @param {{path: string, record: any}[]} [present] the records the tree holds, by default read from
  *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the maps too
+ * @param {any[]} [maps] the maps to hold the tree to, by default every map on disk; the mutant drops
+ *   the map that names this milestone's own record, so the record it excuses is read as unexcused
  * @returns {{path: string, record: any}[]} the records the map measures
  */
-function pinRecordCensus(present = presentRecords) {
-  pinNamedOutside(present);
-  const outside = outsideTheMap();
-  const measured = mappedRecords(present);
+function pinRecordCensus(present = presentRecords, maps = MAPS) {
+  pinNamedOutside(present, maps);
+  const outside = outsideTheMap(maps);
+  const measured = mappedRecords(present, maps);
   const mapped = RECORDING_DATA.inventory.verdictClaims.paths;
   for (const entry of measured)
     assert.ok(
@@ -1273,8 +1301,46 @@ test('T002 — a record present and not named outside the map still reddens the 
       .map((entry) => entry.path),
     'the census subtracts exactly the verdict-claims records the maps name outside themselves and no others, so the exclusion is the recordings’ own rather than this suite’s — and a name that resolves to no record on disk subtracts nothing',
   );
+
+  // The row this milestone's T004 owes the census, dropped: the record it excuses is present on disk,
+  // and without the map that names it there is nothing that says so. The refusal has to name this
+  // record, because a count that moved could be satisfied by the wrong list.
+  const ownRecord = `${RECORD_DIR}/m061-verdict-claims.json`;
+  assert.ok(
+    presentRecords.some((entry) => entry.path === ownRecord),
+    `${ownRecord} is the record this task writes, so the mutant below drops the row for a record that is there`,
+  );
+  const droppedMaps = MAPS.filter((map) => map.milestone !== 'M061');
+  assert.equal(
+    droppedMaps.length,
+    MAPS.length - 1,
+    'the mutant drops exactly one map, the one whose milestone M061 names',
+  );
+  const dropped = failureOf(() => pinRecordCensus(presentRecords, droppedMaps));
+  assert.ok(
+    dropped !== null,
+    `dropping M061's map row must redden the census over ${ownRecord}, and it reddened nothing`,
+  );
+  assert.ok(
+    dropped.message.includes(ownRecord),
+    `the census names the record whose row was dropped rather than reporting a bare count: ${dropped.message.split('\n')[0]}`,
+  );
+  assert.ok(
+    dropped.message.includes('outside the map'),
+    `the refusal says what the dropped row would have had to state: ${dropped.message.split('\n')[0]}`,
+  );
+  assert.deepEqual(
+    mappedRecords(presentRecords, droppedMaps).some(
+      (entry) => entry.path === ownRecord,
+    ),
+    true,
+    'without the row the record is measured, which is the defect the census refuses',
+  );
+
   pinRecordCensus();
-  console.log(`T002 census mutant: ${failure.message.split('\n')[0]}`);
+  console.log(
+    `T002 census mutant: ${failure.message.split('\n')[0]} || dropped M061 row -> ${dropped.message.split('\n')[0]}`,
+  );
 });
 
 test('T006 — every map is read, and each may name outside itself only the record its own milestone owes', () => {
@@ -1284,7 +1350,7 @@ test('T006 — every map is read, and each may name outside itself only the reco
     const named = outsideTheMapOf(map);
     const pinned =
       PINNED_OUTSIDE[
-        /** @type {'M055'|'M057'|'M058'|'M059'|'M060'} */ (map.milestone)
+        /** @type {'M055'|'M057'|'M058'|'M059'|'M060'|'M061'} */ (map.milestone)
       ] ?? [];
     for (const path of named)
       assert.ok(

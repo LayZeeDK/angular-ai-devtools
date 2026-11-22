@@ -58,6 +58,12 @@
 // verdict-claims T004 writes, outside itself through its own `inventory.outsideTheMap` (derived by its
 // capture suite), so both are subtracted from the census by the recording that says so rather than by a
 // path listed here.
+//
+// M061 T004 added its map, `research/raw/m061-record-shapes.json`, to the same read by the same rule:
+// it measures the provider record extension/agent-main.js carries and names the two records M061 owes
+// — the surface T003 writes and the verdict-claims record this task writes — outside itself, so the
+// record this task lands is subtracted by the recording that says so, and the map's own row is the one
+// the census below reads back.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -88,6 +94,7 @@ const LATER = Object.freeze(
     'research/raw/m058-record-shapes.json',
     'research/raw/m059-record-shapes.json',
     'research/raw/m060-record-shapes.json',
+    'research/raw/m061-record-shapes.json',
   ].map((rel) => ({
     rel,
     map: JSON.parse(readFileSync(join(ROOT, ...rel.split('/')), 'utf8')),
@@ -119,6 +126,10 @@ const PINNED_OUTSIDE = Object.freeze({
   M060: [
     'research/raw/m060-surface.json',
     'research/raw/m060-verdict-claims.json',
+  ],
+  M061: [
+    'research/raw/m061-surface.json',
+    'research/raw/m061-verdict-claims.json',
   ],
 });
 
@@ -634,7 +645,7 @@ function validateOwnMap(map = OWN, present = presentRecords()) {
     `${String(map.milestone)}'s map`;
   const pinned =
     PINNED_OUTSIDE[
-      /** @type {'M057'|'M058'|'M059'|'M060'} */ (map.milestone)
+      /** @type {'M057'|'M058'|'M059'|'M060'|'M061'} */ (map.milestone)
     ] ?? null;
   assert.ok(
     pinned !== null,
@@ -1856,7 +1867,7 @@ test('each later map may name only its own records, and a record it neither meas
     const map = entry.map;
     const pinned =
       PINNED_OUTSIDE[
-        /** @type {'M057'|'M058'|'M059'|'M060'} */ (map.milestone)
+        /** @type {'M057'|'M058'|'M059'|'M060'|'M061'} */ (map.milestone)
       ] ?? [];
     const third = {
       ...map,
