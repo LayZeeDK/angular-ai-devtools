@@ -1,0 +1,271 @@
+{
+  "schema": "m061-record-shapes/v1",
+  "milestone": "M061",
+  "task": "T001",
+  "head": "df76be193ca0f744de8b6d098999513ae14a3437",
+  "commands": [
+    {
+      "command": "git rev-parse HEAD",
+      "output": "df76be193ca0f744de8b6d098999513ae14a3437"
+    },
+    {
+      "command": "node -e \"const fs=require('fs');const d='research/raw';for(const f of fs.readdirSync(d).sort()){if(!f.endsWith('.json')||f.startsWith('m061-'))continue;let v;try{v=JSON.parse(fs.readFileSync(d+'/'+f,'utf8'))}catch(e){continue}const w=(o,p)=>{if(Array.isArray(o)){o.forEach((x,i)=>w(x,p+'['+i+']'))}else if(o&&typeof o==='object'){for(const [k,x] of Object.entries(o)){if(/formatter|i18n|locale|pipe/i.test(k))console.log(d+'/'+f+':'+(p?p+'.':'')+k);w(x,p?p+'.'+k:k)}}};w(v,'')}\"",
+      "output": "research/raw/m032-console-diagnostics.json:fixture.angularCompilerOptions.enableI18nLegacyMessageIdFormat\nresearch/raw/m033-router-diagnostic.json:fixture.angularCompilerOptions.enableI18nLegacyMessageIdFormat\nresearch/raw/m034-legacy-diagnostic.json:fixture.angularCompilerOptions.enableI18nLegacyMessageIdFormat\nresearch/raw/m043-stability.json:observable.getter.freshPipePerAccess"
+    },
+    {
+      "command": "node -e \"const fs=require('fs');const W=/formatter|i18n|locale|pipe/i;for(const f of fs.readdirSync('extension').sort()){if(!f.endsWith('.js'))continue;const ls=fs.readFileSync('extension/'+f,'utf8').split(/\\r?\\n/);ls.forEach((l,i)=>{const m=l.match(W);if(m)console.log('extension/'+f+':'+(i+1)+':'+m[0])})}\"",
+      "output": "extension/agent-main.js:53:formatter\nextension/agent-main.js:2263:pipe\nextension/onpush-readiness.js:9:pipe\nextension/render-phase.js:85:locale"
+    },
+    {
+      "command": "M061_CAPTURE=1 node --test scripts/locale-correctness-shapes.test.mjs",
+      "output": "capture run: serialized every section from the source at the captured head and wrote research/raw/m061-record-shapes.json byte-exactly; the suite then asserted the file it wrote"
+    }
+  ],
+  "records": [
+    {
+      "path": "extension/agent-main.js",
+      "carries": "the provider entry at extension/agent-main.js:1215-1223: each record ɵgetInjectorProviders answers (extension/agent-main.js:1149-1155) is reduced to four fields and no fifth — token, isViewProvider, provider, importPath — where `provider` is the kind string the probe chain sets and never the provider object"
+    },
+    {
+      "path": "extension/agent-main.js",
+      "carries": "the LOCALE_ID provider entry this record reduces: the page-declared useValue provider yields token \"InjectionToken LocaleId\", kind \"value\" and import path \"AppConfig\", and the provided value is in no field — extension/agent-main.js:1184-1185 sets the kind string and the entry literal at extension/agent-main.js:1215-1223 reads no useValue"
+    },
+    {
+      "path": "extension/agent-main.js",
+      "carries": "the token rule at extension/agent-main.js:1677-1688 with its comment at extension/agent-main.js:1675-1676: routerTokenNameOf answers a string token unchanged, a token’s non-empty `name`, else String(token), else null; the comment records that provider.provide is deliberately not read, so no token in this record comes from `provide`"
+    }
+  ],
+  "providers": {
+    "reduction": "extension/agent-main.js:1166-1226, executed as source over the input below — this record builds no entry of its own",
+    "inputFrom": {
+      "path": "node_modules/@angular/core/types/core.d.ts",
+      "interface": "ProviderRecord",
+      "fields": [
+        "token",
+        "isViewProvider",
+        "provider",
+        "importPath"
+      ],
+      "version": "22.1.8"
+    },
+    "input": [
+      {
+        "index": 0,
+        "token": "ErrorHandler",
+        "isViewProvider": false,
+        "providerKeys": [
+          "provide",
+          "useClass"
+        ],
+        "importPath": [
+          "AppConfig"
+        ]
+      },
+      {
+        "index": 1,
+        "token": "InjectionToken LocaleId",
+        "isViewProvider": false,
+        "providerKeys": [
+          "provide",
+          "useValue"
+        ],
+        "importPath": [
+          "AppConfig"
+        ]
+      }
+    ],
+    "entries": [
+      {
+        "token": "ErrorHandler",
+        "isViewProvider": false,
+        "provider": "class",
+        "importPath": "AppConfig"
+      },
+      {
+        "token": "InjectionToken LocaleId",
+        "isViewProvider": false,
+        "provider": "value",
+        "importPath": "AppConfig"
+      }
+    ],
+    "localeEntry": {
+      "token": "InjectionToken LocaleId",
+      "isViewProvider": false,
+      "provider": "value",
+      "importPath": "AppConfig",
+      "matchedBy": "token",
+      "tokenNote": "the token is the walk’s derivation from the token object (extension/agent-main.js:1677-1688), not a literal of this record’s: the installed LOCALE_ID publishes no name, so the walk answers String(token), and a join must match that string. The description LOCALE_ID appears here and in the carries prose only to name which Angular token was measured; no field of this record was read from the page"
+    }
+  },
+  "inventory": {
+    "measured": "the join T002 publishes, localeCorrectness(records) on globalThis.angularAiLocaleCorrectness, is a runtime export over the fields this record names, and T001 measures the fields rather than the join (T002); the surface record T003 writes — research/raw/m061-surface.json, its PANEL_SURFACES entry, LOADERS key and digest rows — renders the join’s states and is named outside this map rather than mapped by it (T003); the verdict-claims record T004 publishes cites this map by artefactPath and re-derives each claim against the tree, so it reads this map rather than being mapped by it (T004); and the two gate records T005 re-derives, research/raw/m044-gate-shapes.json and research/raw/m056-gate-stability.json, are measured from the suites rather than from this milestone’s records (T005).",
+    "outsideTheMap": [
+      {
+        "path": "research/raw/m061-surface.json",
+        "why": "the locale-correctness surface record T003 adds — the PANEL_SURFACES entry, the LOADERS key and the digest rows that render the states of the T002 join; T001 names the surface and does not map the surface record itself, so it is captured after this map was measured (T003)."
+      },
+      {
+        "path": "research/raw/m061-verdict-claims.json",
+        "why": "the verdict-claims record T004 publishes — the claims that cite this milestone’s artefacts by artefactPath and re-derive each against the tree, reading this map rather than being mapped by it (T004)."
+      }
+    ]
+  },
+  "producer": {
+    "path": "extension/agent-main.js",
+    "read": "static read of extension/agent-main.js at df76be193ca0f744de8b6d098999513ae14a3437: the provider read 1149-1155, the reduction 1166-1226, the kind chain 1180-1194, the entry object 1215-1223, the walk’s token derivation 1169-1178, and the token rule 1677-1688 with its comment 1675-1676",
+    "lineRanges": {
+      "providerRead": "1149-1155",
+      "reduction": "1166-1226",
+      "providerKinds": "1180-1194",
+      "useValueBranch": "1184-1185",
+      "entryObject": "1215-1223",
+      "tokenDerivation": "1169-1178",
+      "tokenRule": "1677-1688",
+      "tokenRuleComment": "1675-1676"
+    },
+    "entryFields": [
+      "token",
+      "isViewProvider",
+      "provider",
+      "importPath"
+    ],
+    "fieldCount": 4,
+    "providerKinds": [
+      {
+        "probe": "useFactory",
+        "kind": "factory",
+        "probeLine": 1182,
+        "kindLine": 1183
+      },
+      {
+        "probe": "useValue",
+        "kind": "value",
+        "probeLine": 1184,
+        "kindLine": 1185
+      },
+      {
+        "probe": "useClass",
+        "kind": "class",
+        "probeLine": 1186,
+        "kindLine": 1187
+      },
+      {
+        "probe": "useExisting",
+        "kind": "existing",
+        "probeLine": 1189,
+        "kindLine": 1191
+      }
+    ],
+    "providerKindDefault": {
+      "kind": "none",
+      "line": 1180
+    },
+    "providerKindFunction": {
+      "kind": "class",
+      "lineRange": "1192-1194"
+    },
+    "tokenRule": {
+      "fn": "routerTokenNameOf",
+      "lineRange": "1677-1688",
+      "commentLineRange": "1675-1676",
+      "comment": "  // The name a provider record's `token` yields. `record.provider.provide` is deliberately not read:\n  // T001 measured 33 of the entry's 90 `provide` names and `Router` is not among them.",
+      "steps": [
+        "null or undefined answers null",
+        "a string token is the name itself",
+        "a token's non-empty name is the name",
+        "otherwise the token is stringified"
+      ],
+      "provideNotRead": true
+    },
+    "providerReads": {
+      "occurrences": 11,
+      "occurrenceLines": [
+        102,
+        357,
+        358,
+        1149,
+        1151,
+        1804,
+        1805,
+        2117,
+        2118,
+        2366,
+        2367
+      ],
+      "directCalls": 1,
+      "directCallLines": [
+        1151
+      ],
+      "walk": "1149-1155",
+      "reduced": 1,
+      "addedByThisMilestone": 0,
+      "detail": "the walk at extension/agent-main.js:1149-1155 is the only provider read this record reduces and this milestone added none; the other 10 reads of the API in the file are counted here rather than claimed away, and only one of them is a direct call"
+    }
+  },
+  "absence": {
+    "locale-value-not-recorded": {
+      "count": 4,
+      "provider": "value",
+      "detail": "the reduction sets the kind string at extension/agent-main.js:1184-1185 for a useValue provider and builds the entry at extension/agent-main.js:1215-1223 from token, isViewProvider, provider, importPath and no other field; none of them reads useValue, so the provided value \"fr-FR\" is in no field and is not recoverable from the record. The count is the entry’s field count: every field an entry has was read looking for the value"
+    },
+    "no-formatter-named": {
+      "records": {
+        "wordBearingKeys": [
+          {
+            "path": "research/raw/m032-console-diagnostics.json",
+            "key": "fixture.angularCompilerOptions.enableI18nLegacyMessageIdFormat"
+          },
+          {
+            "path": "research/raw/m033-router-diagnostic.json",
+            "key": "fixture.angularCompilerOptions.enableI18nLegacyMessageIdFormat"
+          },
+          {
+            "path": "research/raw/m034-legacy-diagnostic.json",
+            "key": "fixture.angularCompilerOptions.enableI18nLegacyMessageIdFormat"
+          },
+          {
+            "path": "research/raw/m043-stability.json",
+            "key": "observable.getter.freshPipePerAccess"
+          }
+        ],
+        "formatterOrLocaleFields": [],
+        "unparsable": [
+          "research/raw/stale-view-counter.json"
+        ]
+      },
+      "extension": {
+        "wordHits": [
+          {
+            "path": "extension/agent-main.js",
+            "line": 53,
+            "word": "formatter",
+            "inComment": true
+          },
+          {
+            "path": "extension/agent-main.js",
+            "line": 2263,
+            "word": "pipe",
+            "inComment": true
+          },
+          {
+            "path": "extension/onpush-readiness.js",
+            "line": 9,
+            "word": "pipe",
+            "inComment": true
+          },
+          {
+            "path": "extension/render-phase.js",
+            "line": 85,
+            "word": "locale",
+            "inComment": true
+          }
+        ],
+        "codeHits": 0,
+        "commentHits": 4,
+        "files": 3
+      },
+      "detail": "no record under research/raw/ and no shipped field under extension/*.js names a formatter, a pipe or a locale: no key in any record is named format, formatter, pipe or locale as such, the keys that bear the words are an Angular compiler option about i18n message-id legacy format and an RxJS observable accessor, and every word occurrence in extension/*.js is inside a comment, so this milestone’s join can read a formatter from no record and must report the absence instead"
+    }
+  },
+  "verdict": "This record is 12217 bytes, the UTF-8 length of the file the armed capture wrote, stated so the byte-consistency scan has a count of this file to hold."
+}

@@ -2,10 +2,10 @@
 id: T001
 title: Measure the provider record and the formatter the page carries
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: 1c68d43e74c33e446dd84c42445d11b5027f934e
 worktree: null
 task_branch: null
 files:
@@ -50,3 +50,9 @@ node --test scripts/locale-correctness-shapes.test.mjs && npx prettier --check s
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m061-record-shapes.json`, `scripts/locale-correctness-shapes.test.mjs`.
+- The measurement contradicts the contract in one place, and the record states the contradiction: the injector walk derives a token string as `token.name ?? token.toString() ?? String(token)` (`extension/agent-main.js:1169-1178`), so `@angular/core@22.1.8`'s `LOCALE_ID` — an `InjectionToken` with no `name` — appears as `InjectionToken LocaleId`, never as the literal `LOCALE_ID`. The record pins the derivation rule and the suite recomputes the string from the installed token, so a drift reddens.
+- The provided value is not recoverable: `:1184-1185` reduces `useValue` to the kind string `value`, and the entry literal at `:1215-1223` reads no `useValue`. Recorded as `absence.locale-value-not-recorded`.
+- `ɵgetInjectorProviders` occurs at 11 non-comment places; only `:1151` is a direct call. The record states the walk at `1149-1155` as the only read it reduces and counts the other ten rather than claiming them away.
+- `research/raw/stale-view-counter.json` does not parse (truncated), so it is named under `unparsable` instead of passing as clean.
+- Suite 17/17; the brief's check exits 0 including `prettier --check`. A record mutated to match by position produced four reds naming the defect, then was restored (final sha256 `d0a54d27`).
