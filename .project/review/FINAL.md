@@ -1,7 +1,7 @@
 # Final Review — M059 teardown-leak
 
-Reviewed HEAD: cdefee7904741b8d429b9535a9c89934c20e5539
-Waves reviewed: 1 (cycle 2), 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+Reviewed HEAD: b1105a91ac7439bdb7c3eb9cf79f1bbcd644109d
+Waves reviewed: 1 (cycle 2), 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 Overall verdict: pass
 
 ## What this milestone set out to do
