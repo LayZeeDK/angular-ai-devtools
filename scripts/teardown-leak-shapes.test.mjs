@@ -32,6 +32,16 @@
 // extension already subscribes to, with listeners attached in the driver and never in the page, and
 // this suite itself opens no page, starts no browser and builds nothing.
 //
+// The record also carries the claims map the census reads (T010), and both of its sections are derived
+// here rather than typed into the file: `records[]` names the artefacts this milestone measured — the
+// two records it writes, the surface T003 and the verdict-claims T004, named by the milestone id and
+// each with what it holds, beside the capture record and M045's map the sections are measured from —
+// and `inventory.outsideTheMap` names the two records this milestone owes, each `why` citing the task
+// that writes it, so `scripts/tutor-record-shapes.test.mjs` and `scripts/tutor-answer.test.mjs`
+// subtract them from their census by reading this recording rather than by listing a path in either
+// suite. A map that stops naming a record reddens here rather than drifting, and an armed run carries
+// both sections forward, so a re-capture cannot drop the map the census reads.
+//
 // A record nobody re-reads drifts the way a comment does, so this suite holds it to the tree:
 //
 //   citations   every `path:line` the record makes is re-resolved by reading the file it names and
@@ -105,6 +115,17 @@ const CHECK_COMMAND = 'node --test scripts/teardown-leak-shapes.test.mjs';
 const ARMED_COMMAND = `M059_CAPTURE=1 ${CHECK_COMMAND}`;
 const ARMED_COMMAND_WINDOWS = `set "M059_CAPTURE=1"&& ${CHECK_COMMAND}`;
 const HEAD_COMMAND = 'git rev-parse HEAD';
+
+/**
+ * The two records this milestone owes, named by the milestone id rather than written out as a list:
+ * T003 writes the surface record and T004 the verdict-claims record, and this map names them outside
+ * itself because both were written after it was measured, so the two census suites subtract them by
+ * name instead of reading them as unmeasured records (C2, C7, D1).
+ */
+const OWED = Object.freeze({
+  surface: `research/raw/${MILESTONE.toLowerCase()}-surface.json`,
+  verdictClaims: `research/raw/${MILESTONE.toLowerCase()}-verdict-claims.json`,
+});
 
 /** The criteria this task answers, read from the task file rather than retyped as a claim. */
 const CRITERIA = Object.freeze(['SC1', 'SC6']);
@@ -1616,6 +1637,65 @@ function deriveEnvironment() {
 }
 
 /**
+ * The table the census reads: the artefacts this milestone measured, each with what it holds. The two
+ * records this milestone writes are named here because the milestone measured them, and the inventory
+ * names them outside this map at the same time because this measurement was taken before they existed
+ * — a table entry says what the artefact holds, never that this map read it as an input.
+ * @returns {any[]}
+ */
+function deriveRecords() {
+  return [
+    {
+      path: OWED.surface,
+      carries:
+        'the surface record M059 T003 wrote — the `teardown-leak` route and its loader key, the exported `teardownLeakPanel`, the digest rows and the sample answer the panel renders field for field — named outside this map rather than read as an input, because it was written after this measurement',
+      task: 'T003',
+    },
+    {
+      path: OWED.verdictClaims,
+      carries:
+        'the verdict-claims record M059 T004 wrote — one claim per criterion this milestone’s intent declares, each naming the artefact it rests on by `artefactPath` and re-derived against the tree — named outside this map rather than read as an input, because it was written after this measurement',
+      task: 'T004',
+    },
+    {
+      path: CAPTURE_RECORD,
+      carries:
+        'the captured console this map’s message section is measured from: four messages with the five fields a message carries, the one coded message the digest carries and the one stack that survives inside `text`',
+      task: null,
+    },
+    {
+      path: M045,
+      carries:
+        'the console-shapes map this map’s producible section reads: the digest’s own 64-code enumeration and coded list, which is where the code this milestone answers for is quoted rather than observed on a page',
+      task: null,
+    },
+  ];
+}
+
+/**
+ * The inventory the census reads: this map measures no verdict-claims or surface record, and it names
+ * the two records this milestone owes outside itself from the start, so no later wave has to touch the
+ * map to have its own record excused (C2, C7, D1).
+ * @returns {any}
+ */
+function deriveInventory() {
+  return {
+    measured:
+      'No record under `research/raw/` is measured by this map: its sections are measured from the digest, the two shipped joins, the capture record, M045’s map and the agent’s own source, so this map measures what the later waves cite rather than a census of records.',
+    outsideTheMap: [
+      {
+        path: OWED.surface,
+        why: 'the surface record M059 T003 writes — the route, the loader key and each state with the answer field it reads — is captured after this map was measured, so it is named outside the map rather than read as an unmeasured record',
+      },
+      {
+        path: OWED.verdictClaims,
+        why: 'the verdict-claims record M059 T004 writes, ruling the criteria this milestone’s intent declares, is captured after this map was measured, so it is named outside the map rather than read as an unmeasured record',
+      },
+    ],
+  };
+}
+
+/**
  * The record's one-sentence verdict, built from the measured sections rather than typed: a sentence
  * written here would keep claiming the counts of the head it was written at.
  * @param {any} sections
@@ -1686,6 +1766,8 @@ function derive(capturedAt, head) {
   const message = deriveMessage();
   const producible = deriveProducible();
   const absences = deriveAbsences();
+  const records = deriveRecords();
+  const inventory = deriveInventory();
   return {
     schema: SCHEMA,
     milestone: MILESTONE,
@@ -1697,6 +1779,7 @@ function derive(capturedAt, head) {
     headCommand: HEAD_COMMAND,
     capturedAt,
     instrument: INSTRUMENT,
+    records,
     environment: deriveEnvironment(),
     commands: COMMANDS.map((entry) =>
       entry.command === HEAD_COMMAND ? { ...entry, output: head } : entry,
@@ -1705,6 +1788,7 @@ function derive(capturedAt, head) {
     message,
     producible,
     absences,
+    inventory,
     citations: CITATIONS,
     capture: {
       task: TASK,
@@ -1715,7 +1799,14 @@ function derive(capturedAt, head) {
       head,
       criteria: [...CRITERIA],
       reads: INSTRUMENT.reads,
-      remeasured: remeasuredOf({ digest, message, producible, absences }),
+      remeasured: remeasuredOf({
+        digest,
+        message,
+        producible,
+        absences,
+        records,
+        inventory,
+      }),
       reading:
         'a default run derives every field above and asserts the recording on disk is exactly what this head states; an armed run writes only when a byte moved, so two armed runs in a row are byte-identical and a default run writes nothing (D5, E9)',
     },
@@ -1732,12 +1823,14 @@ function derive(capturedAt, head) {
 /** The sections a reading of the tree settles, in the order the record states them. */
 const DERIVED_SECTIONS = Object.freeze([
   'instrument',
+  'records',
   'environment',
   'commands',
   'digest',
   'message',
   'producible',
   'absences',
+  'inventory',
   'verdict',
   'capture',
   'builtNothing',

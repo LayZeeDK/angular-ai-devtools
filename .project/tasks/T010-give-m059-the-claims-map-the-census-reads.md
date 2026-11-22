@@ -2,10 +2,10 @@
 id: T010
 title: Give M059 the claims map the census reads
 wave: 10
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T010
+base: 672534edaa4d3e981e82f88553459b6a1986aa09
 worktree: null
 task_branch: null
 files:
@@ -79,3 +79,9 @@ node --test scripts/tutor-record-shapes.test.mjs scripts/tutor-answer.test.mjs s
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m059-record-shapes.json`, `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`.
+- The map is now derived by the record's own armed run rather than typed: `records[]` names the four artefacts the measurement read, `inventory.outsideTheMap` names this milestone's two records with a `why` citing T003 and T004, and `deriveRecords`/`deriveInventory` put those sections into `DERIVED_SECTIONS` so an armed run cannot silently drop them.
+- The census reads the milestone from the recording: `research/raw/m059-record-shapes.json` joined `LATER` and `M059` joined `PINNED_OUTSIDE` in both suites. No path is listed in a suite to excuse a record, which is the rule the earlier attempt broke.
+- `scripts/tutor-record-shapes.test.mjs` 8 pass / 8 fail -> 16 pass / 0 fail; `scripts/tutor-answer.test.mjs` 12 pass / 2 fail -> 14 pass / 0 fail, still reporting 34 records, 44 claims answered and 22 rendered as no-artefact-named; `scripts/tutor-signals-shapes.test.mjs` 21 pass / 0 fail.
+- The record re-armed to 55,603 bytes, sha256 `e5099499…`, and a second armed run wrote nothing.
+- Named, not closed: `scripts/gate-integrity.test.mjs` reddens at this head — `suiteDiff.differing[27].addedLines: 2717 -> 2810` and the stale `tutor-signals-shapes` row — because T010 edited suites the gate record counts. The repair is that record's own armed command writing `research/raw/m044-gate-shapes.json`, a file outside this task's `files:`, and it belongs to the task that lands last.

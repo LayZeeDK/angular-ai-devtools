@@ -5,7 +5,7 @@
   "title": "Measure what the console record and the digest state",
   "question": "what does the digest state for NG0205, what does a console message carry once the shipped joins have read it, can the portal or spikes/ng222-app be driven to emit it, and which counts state the handle record this agent does not hold?",
   "verdict": "the digest carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 38 extension modules, 136 suites and 148 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.",
-  "head": "d735ec00cdd51856bbaeda47fa7b81f9a20efe6d",
+  "head": "81fad8af9c5a2b62c459fe6bece1085c033f585e",
   "headCommand": "git rev-parse HEAD",
   "capturedAt": "2026-11-22T00:27:11.118Z",
   "instrument": {
@@ -26,6 +26,28 @@
     "holds": "a section holds where this head re-derives the same value on every run; a citation holds where searching the file for the quoted line finds it on exactly the line the record names and on no second line; a drive holds where its tallied lines sum to the total it printed, and where the codes it names are the codes its own texts carry",
     "nothingRun": "this suite opens no page, starts no browser and builds nothing: the two drives were made once through the control-angular-dev-app skill and their console is recorded here, so a read run asks no page anything"
   },
+  "records": [
+    {
+      "path": "research/raw/m059-surface.json",
+      "carries": "the surface record M059 T003 wrote — the `teardown-leak` route and its loader key, the exported `teardownLeakPanel`, the digest rows and the sample answer the panel renders field for field — named outside this map rather than read as an input, because it was written after this measurement",
+      "task": "T003"
+    },
+    {
+      "path": "research/raw/m059-verdict-claims.json",
+      "carries": "the verdict-claims record M059 T004 wrote — one claim per criterion this milestone’s intent declares, each naming the artefact it rests on by `artefactPath` and re-derived against the tree — named outside this map rather than read as an input, because it was written after this measurement",
+      "task": "T004"
+    },
+    {
+      "path": "research/raw/m032-console-diagnostics.json",
+      "carries": "the captured console this map’s message section is measured from: four messages with the five fields a message carries, the one coded message the digest carries and the one stack that survives inside `text`",
+      "task": null
+    },
+    {
+      "path": "research/raw/m045-console-shapes.json",
+      "carries": "the console-shapes map this map’s producible section reads: the digest’s own 64-code enumeration and coded list, which is where the code this milestone answers for is quoted rather than observed on a page",
+      "task": null
+    }
+  ],
   "environment": {
     "platform": "win32",
     "node": "v24.22.0",
@@ -66,7 +88,7 @@
   "commands": [
     {
       "command": "git rev-parse HEAD",
-      "output": "d735ec00cdd51856bbaeda47fa7b81f9a20efe6d"
+      "output": "81fad8af9c5a2b62c459fe6bece1085c033f585e"
     },
     {
       "command": "node -e \"const c=require('node:crypto'),f=require('node:fs');const b=f.readFileSync('extension/error-digest.json');const d=JSON.parse(b);const e=d.entries.find(x=>x.code==='NG0205');console.log(e.code, e.title);console.log(d.entries.length, c.createHash('sha256').update(b).digest('hex'), b.length)\"",
@@ -696,6 +718,19 @@
       "agentStabilityUninstall"
     ]
   },
+  "inventory": {
+    "measured": "No record under `research/raw/` is measured by this map: its sections are measured from the digest, the two shipped joins, the capture record, M045’s map and the agent’s own source, so this map measures what the later waves cite rather than a census of records.",
+    "outsideTheMap": [
+      {
+        "path": "research/raw/m059-surface.json",
+        "why": "the surface record M059 T003 writes — the route, the loader key and each state with the answer field it reads — is captured after this map was measured, so it is named outside the map rather than read as an unmeasured record"
+      },
+      {
+        "path": "research/raw/m059-verdict-claims.json",
+        "why": "the verdict-claims record M059 T004 writes, ruling the criteria this milestone’s intent declares, is captured after this map was measured, so it is named outside the map rather than read as an unmeasured record"
+      }
+    ]
+  },
   "citations": [
     {
       "id": "digestCode",
@@ -963,7 +998,7 @@
     "windowsCommand": "set \"M059_CAPTURE=1\"&& node --test scripts/teardown-leak-shapes.test.mjs",
     "check": "node --test scripts/teardown-leak-shapes.test.mjs",
     "records": "research/raw/m059-record-shapes.json",
-    "head": "d735ec00cdd51856bbaeda47fa7b81f9a20efe6d",
+    "head": "81fad8af9c5a2b62c459fe6bece1085c033f585e",
     "criteria": [
       "SC1",
       "SC6"
@@ -1003,6 +1038,8 @@
       "digest.titleWithoutAFullStop",
       "digest.uniqueCodes",
       "digest.version",
+      "inventory.measured",
+      "inventory.outsideTheMap",
       "message.capture",
       "message.finding",
       "message.joins",
@@ -1017,7 +1054,8 @@
       "producible.question",
       "producible.researchRaw",
       "producible.targets",
-      "producible.verdict"
+      "producible.verdict",
+      "records"
     ],
     "reading": "a default run derives every field above and asserts the recording on disk is exactly what this head states; an armed run writes only when a byte moved, so two armed runs in a row are byte-identical and a default run writes nothing (D5, E9)"
   },
