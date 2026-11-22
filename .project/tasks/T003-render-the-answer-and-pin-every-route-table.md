@@ -17,7 +17,6 @@ files:
   - extension/copy-digest.json
   - scripts/panel-routes.test.mjs
   - scripts/after-render-fixture.test.mjs
-  - scripts/panel-copy.test.mjs
   - apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
   - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
   - scripts/component-search.test.mjs
@@ -25,8 +24,8 @@ files:
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
   - tests/held-out/fixture-explainers-unchanged.test.mjs
-  - research/raw/m059-surface.json
   - research/raw/m048-surface-copy.json
+  - research/raw/m048-surface.json
   - scripts/teardown-leak.test.mjs
 ---
 
@@ -81,9 +80,16 @@ T001 publishes the record-shapes record: its digest section names the NG0205 ent
 ## Verify
 
 ```bash
-node --test scripts/panel-routes.test.mjs scripts/panel-copy.test.mjs scripts/after-render-fixture.test.mjs && npx prettier --check apps/angular-ai-devtools/src/app/panel-teardown-leak.ts apps/angular-ai-devtools/src/app/app.routes.ts extension/copy-digest.json research/raw/m059-surface.json && npm run check
+node --test scripts/panel-routes.test.mjs scripts/copy-check.test.mjs scripts/after-render-fixture.test.mjs && npx prettier --check apps/angular-ai-devtools/src/app/panel-teardown-leak.ts apps/angular-ai-devtools/src/app/app.routes.ts extension/copy-digest.json research/raw/m048-surface-copy.json && npm run check
 ```
 
 ## Log
 
 - pending.
+- Landed paths: `apps/angular-ai-devtools/src/app/panel-teardown-leak.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `extension/copy-digest.json`, `scripts/panel-routes.test.mjs`, `scripts/copy-check.test.mjs`, `research/raw/m048-surface-copy.json`, `research/raw/m048-surface.json`.
+- The surface is one route and one loader key: `PANEL_SURFACES` 28 → 29, `LOADERS` keys 28 → 29, ordered paths 37 → 38, digest rows 198 → 204 with six for this surface. The pane renders the four states the join returns and both absences as separate sentences; the sample fact is the join's own answer, derived node-side and re-derived by `panel-demo.spec.ts`.
+- The mutant that matters: deleting the `LOADERS` key makes `scripts/panel-routes.test.mjs` fail with `every app.routes.ts surface must have a panel-demo LOADERS key; missing: teardown-leak`, and the file restores byte-identical — so the pin moved for the right reason.
+- `research/raw/m048-surface-copy.json` gained the thirtieth surface and its recomputed counts — surfaces 29 → 30, declared sentences 172 → 178, citations 550 → 570 — and `scripts/copy-check.test.mjs` went 26 pass / 4 fail to 30 pass / 0 fail. That suite hardcodes the cardinality it also measures, so its pins moved to the tree's values in the same commit; no assertion was relaxed.
+- `research/raw/m048-surface.json` moved three values because `panel-demo.ts`'s sample fact now reads `checked: 212` and that record cites the line it sits on. It is a citation repair, the same class M058 paid for in its own wave 4.
+- Held for T004 rather than landed here: `research/raw/m059-surface.json`. Under the repaired plan it is T004's artefact, and its values are re-derived from this tree when T004 writes it.
+
