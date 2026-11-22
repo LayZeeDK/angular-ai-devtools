@@ -70,6 +70,7 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
 | SC1 | T007 | AC1 |
 | SC5 | T008 | AC1 |
 | SC5 | T009 | AC1 |
+| SC5 | T010 | AC1 |
 | SC6 | T004 | AC2 |
 
 The ordering is load-bearing and not aesthetic. `scripts/navigation-blocking.test.mjs` resolves an
@@ -216,5 +217,15 @@ Review depth: full
 Goal: the ship gate found scripts/tutor-signals-shapes.test.mjs comparing the number of records under
 
 esearch/raw/ to a number M057 froze. The scope grows by design; the content counts stay strict.
+
+Review depth: full
+
+## Wave 10 — give M059 the claims map the census reads
+
+Goal: M059 writes two records and no map, so every census that reads 
+esearch/raw/ reddens. The map is
+authoring work, not a patch: the record gains 
+ecords[] and inventory.outsideTheMap with the why
+citations the census requires, and the suite learns the milestone from the recording rather than a list.
 
 Review depth: full

@@ -15,6 +15,11 @@ files:
   - scripts/tutor-signals-shapes.test.mjs
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
+  - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+  - scripts/teardown-leak-shapes.test.mjs
+  - scripts/teardown-leak.test.mjs
+  - scripts/panel-routes.test.mjs
+  - scripts/copy-check.test.mjs
 ---
 
 # T010 — Give M059 the claims map the census reads
