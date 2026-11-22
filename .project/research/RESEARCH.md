@@ -20,7 +20,6 @@ at this head.
 
 ## Question assignments
 
-None: the roadmap entry lists no open questions.
 
 ## What the tree carries
 
