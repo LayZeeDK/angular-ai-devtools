@@ -72,6 +72,7 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
 | SC5 | T009 | AC1 |
 | SC5 | T010 | AC1 |
 | SC5 | T011 | AC1 |
+| SC5 | T012 | AC1 |
 | SC6 | T004 | AC2 |
 
 The ordering is load-bearing and not aesthetic. `scripts/navigation-blocking.test.mjs` resolves an
@@ -235,5 +236,12 @@ Review depth: full
 
 Goal: T010 edited four suites after T005's and T008's captures, so both gate records are stale again. The
 last landing owns the re-derivation.
+
+Review depth: full
+
+## Wave 12 — the third frozen count, and the gate records it moves
+
+Goal: the build-output pin takes the same floor rule as its two siblings, and both gate records are
+re-derived in the same task because it edits a suite they count.
 
 Review depth: full
