@@ -14,11 +14,13 @@ measured before the plan and what the planner is told. It is not the milestone's
 
 ## Decisions
 
-- The milestone adds the outlet name to a record it writes, rather than widening the router record or deriving a name
-  from the rendered tree. The join's inputs are that record and the route path.
-- An outlet the state does not carry is `cannot-tell` with the reason, never the nearest outlet in the DOM.
+- None
 
 ## For the planner
+
+- The outlet name is recorded by a task this milestone writes, rather than by widening the router record or deriving a
+  name from the rendered tree.
+- An outlet the state does not carry is `cannot-tell` with the reason, never the nearest outlet in the DOM.
 
 - **Wave-1 blockers**: none — T001 records the outlet name; nothing it needs is missing.
 - **Walking skeleton**: T001 records the requested and matched outlet names and the route path; T002 joins them into the
