@@ -2,10 +2,10 @@
 id: T013
 title: Give the claims record the quotes and ruling the census derives
 wave: 13
-status: pending
+status: done
 deps: [T012]
-agent: null
-base: null
+agent: build_T013
+base: 751681b6c3bfb7b327b24a33400c70eb9e311f85
 worktree: null
 task_branch: null
 files:
@@ -75,3 +75,9 @@ node --test scripts/navigation-blocking.test.mjs && node --experimental-strip-ty
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m059-verdict-claims.json`, `research/raw/m059-record-shapes.json`.
+- The census derives the whole record and compares it with `assert.deepEqual`, so the record is now exactly the derivation: `quotes` (the intent path, the six criteria it declares, the nine edge rows over the two suites the plan assigned), `ruling` (`notRequired: 6`, `required: 0`, and three `why` sentences naming the clause that would have required a row), `evidence` (intent criteria, plan held-out, edge rows, both suites with their test counts, the milestone's two recordings), `capture`, and six `claims` rows — SC1 through SC5 on `scripts/teardown-leak.test.mjs`, SC6 on `scripts/teardown-leak-shapes.test.mjs`, each carrying its criterion text, its edge rows, its reading and three proofs.
+- T004's eleven counters are not lost: they live in `research/raw/m059-surface.json`'s `counts`, which is the record the copy suite measures. The claims record is the census's shape, and the census admits no other.
+- `scripts/navigation-blocking.test.mjs` 20 pass / 5 fail -> 25 pass / 0 fail. The record is written by that suite's own armed run and is idempotent: 22,043 bytes, sha256 `bac21677…`, byte-identical on a second armed run.
+- The record quotes `NG0205` on three lines, which moves the raw-corpus census the shapes suite compares: `research/raw/m059-record-shapes.json` was re-armed in this task, so the shapes suite is 13 pass / 14 armed, green, and the occurrence count grew honestly rather than being filtered away.
+- Named, not closed: `scripts/recording-consistency.test.mjs` fails at this head ("m059-record-shapes.json records 1 byte total(s) and states none in prose") identically before and after this task. It is pre-existing and belongs to that suite's rule, not to this record.

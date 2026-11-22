@@ -5,7 +5,7 @@
   "title": "Measure what the console record and the digest state",
   "question": "what does the digest state for NG0205, what does a console message carry once the shipped joins have read it, can the portal or spikes/ng222-app be driven to emit it, and which counts state the handle record this agent does not hold?",
   "verdict": "the digest carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 38 extension modules, 136 suites and 148 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.",
-  "head": "81fad8af9c5a2b62c459fe6bece1085c033f585e",
+  "head": "aefced7a69dda077228430e7698883f41ab1e9af",
   "headCommand": "git rev-parse HEAD",
   "capturedAt": "2026-11-22T00:27:11.118Z",
   "instrument": {
@@ -88,7 +88,7 @@
   "commands": [
     {
       "command": "git rev-parse HEAD",
-      "output": "81fad8af9c5a2b62c459fe6bece1085c033f585e"
+      "output": "aefced7a69dda077228430e7698883f41ab1e9af"
     },
     {
       "command": "node -e \"const c=require('node:crypto'),f=require('node:fs');const b=f.readFileSync('extension/error-digest.json');const d=JSON.parse(b);const e=d.entries.find(x=>x.code==='NG0205');console.log(e.code, e.title);console.log(d.entries.length, c.createHash('sha256').update(b).digest('hex'), b.length)\"",
@@ -512,7 +512,8 @@
       "recordsCarryingTheCode": [
         "research/raw/m044-gate-shapes.json",
         "research/raw/m045-console-shapes.json",
-        "research/raw/m059-surface.json"
+        "research/raw/m059-surface.json",
+        "research/raw/m059-verdict-claims.json"
       ],
       "observationRecords": [],
       "lines": [
@@ -600,11 +601,26 @@
           "path": "research/raw/m059-surface.json",
           "line": 624,
           "text": "\"No page read produced this answer and none could: T001 measured 0 NG0205 across 38 portal console lines and 4 fixture console lines over six navigations, so the diagnostic has never been captured on a page. The sample record is written in the measured shape from the measured printed string (`digest.printedByTheInstalledBuild.printedAs`) and its two `order` values are sample positions — the message’s and the one release record’s — not measurements. The milestone ships the absence-only answer and records that as its finding (PLAN R1).\","
+        },
+        {
+          "path": "research/raw/m059-verdict-claims.json",
+          "line": 79,
+          "text": "\"criterionText\": \"A component that touches its injector after teardown produces a finding naming the code `NG0205` and the message body the record carries, and naming the owning component only where the record attributes one — where it does not, the answer reports the named absence `owner-not-in-the-message` beside the code instead of guessing the element or the component (`.project/ROADMAP.md:2096`, `extension/error-digest.json` `NG0205`); a mutant that suppresses the code match, and a mutant that attributes the message to the most recent component, redden.\","
+        },
+        {
+          "path": "research/raw/m059-verdict-claims.json",
+          "line": 82,
+          "text": "\"reason\": \"The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \\\"A component that touches its injector after teardown produces a finding naming the code `NG0205` and the message body the record carries, and naming the owning component only where the record attributes one — where it does not, the answer reports the named absence `owner-not-in-the-message` beside the code instead of guessing the element or the component (`.project/ROADMAP.md:2096`, `extension/error-digest.json` `NG0205`); a mutant that suppresses the code match, and a mutant that attributes the message to the most recent component, redden.\\\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\\\"E1\\\",\\\"E2\\\",\\\"E9\\\"] the intent itself assigns the criterion, held by [\\\"scripts/teardown-leak.test.mjs\\\",\\\"scripts/teardown-leak.test.mjs\\\",\\\"scripts/teardown-leak.test.mjs\\\"] and recorded as [\\\"criterion SC1\\\"].\","
+        },
+        {
+          "path": "research/raw/m059-verdict-claims.json",
+          "line": 84,
+          "text": "\"artefact\": \"scripts/teardown-leak.test.mjs (edge [\\\"E1\\\",\\\"E2\\\",\\\"E9\\\"] of the intent's own coverage: E1 boundary criterion SC1: A message with a code and no owner and a message with a code and an owner render through one read: `NG0205`'s body names the injector only (`extension/error-digest.json`), so the owner half is read from the record's own attribution where it exists, never from arrival order.; E2 empty criterion SC1: A record with no `NG0205` at all is a named absence, not \\\"no leak found\\\": the answer states the code it looked for and the count it read, the shape `extension/router-diagnostic.js:8-9` already uses for \\\"compared and not found\\\".; E9 idempotency criterion SC1: A second answer over the same record names the same code, the same message and the same absences; the record is read-only and no capture runs on a default run.; the suite carries 18 test declaration(s) in 0 group(s)) -> package.json:7 (\\\"check\\\": 12 stage(s), [\\\"npm run gate:verification\\\",\\\"npm run gate:archive-paths\\\",\\\"npm run gate:fix-record\\\",\\\"npm run format:check\\\"] last, with \\\"npm run gate:archive-paths\\\" and \\\"npm run gate:fix-record\\\" among them)\","
         }
       ],
-      "occurrences": 17,
+      "occurrences": 20,
       "inTheDigestEnumeration": 0,
-      "quotationsOutsideARecordShape": 17,
+      "quotationsOutsideARecordShape": 20,
       "onAPage": 0,
       "finding": "No record under `research/raw/` carries NG0205 as a console line: the two occurrences in the record that could state an observation are the digest enumeration M045 recorded — the generator command output that lists the 64 codes, and the digest section’s own code list — and every other record that names the code is quoting it, which is a citation and not a page hit."
     },
@@ -998,7 +1014,7 @@
     "windowsCommand": "set \"M059_CAPTURE=1\"&& node --test scripts/teardown-leak-shapes.test.mjs",
     "check": "node --test scripts/teardown-leak-shapes.test.mjs",
     "records": "research/raw/m059-record-shapes.json",
-    "head": "81fad8af9c5a2b62c459fe6bece1085c033f585e",
+    "head": "aefced7a69dda077228430e7698883f41ab1e9af",
     "criteria": [
       "SC1",
       "SC6"

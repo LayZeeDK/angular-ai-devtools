@@ -1,122 +1,168 @@
 {
   "schema": "m059-verdict-claims/v1",
   "milestone": "M059",
-  "task": "T004",
-  "title": "Re-derive the verdict claims and run the project verify",
-  "question": "does every claim the milestone's surface record states re-derive from the tree at this head?",
-  "head": "03e86d556f806038867600236122678063966562",
-  "headCommand": "git rev-parse HEAD",
-  "measuredAt": "2026-11-22T02:45:04+01:00",
-  "verdict": "every claim re-derives",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M059\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 6 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\",\"SC5\",\"SC6\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: 9 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\",\"SC5\",\"SC6\"] and the suites [\"scripts/teardown-leak.test.mjs\",\"scripts/teardown-leak-shapes.test.mjs\"]"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 6,
+    "why": [
+      "No row is required, and the list therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext - with the required rows together citing drawnRect, descriptor and noDevContext. Every fact the 6 criteria this milestone declares is written about is a reading of this repository's own gate: 9 edge row(s) held by [\"scripts/teardown-leak.test.mjs\",\"scripts/teardown-leak-shapes.test.mjs\"], against 12 stage(s) of the check chain. None of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each row cites the suite the milestone itself assigned its criterion, the reading that suite carries and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4",
+        "SC5",
+        "SC6"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": []
+    },
+    "edges": {
+      "rows": 9,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4",
+        "SC5",
+        "SC6"
+      ]
+    },
+    "suites": [
+      {
+        "path": "scripts/teardown-leak.test.mjs",
+        "tests": 18,
+        "groups": 0
+      },
+      {
+        "path": "scripts/teardown-leak-shapes.test.mjs",
+        "tests": 14,
+        "groups": 0
+      }
+    ],
+    "recordings": [
+      "research/raw/m059-record-shapes.json",
+      "research/raw/m059-surface.json"
+    ]
+  },
+  "capture": {
+    "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "records": "research/raw/m059-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3",
+      "SC4",
+      "SC5",
+      "SC6"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, the five-column edge coverage that intent declares and the suites the plan assigns each criterion, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives."
+  },
   "claims": [
     {
-      "claim": "route registered",
-      "value": "teardown-leak",
-      "artefactPath": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "note": "'teardown-leak' is a member of PANEL_SURFACES, whose spread turns it into a route of appRoutes"
+      "criterion": "SC1",
+      "criterionText": "A component that touches its injector after teardown produces a finding naming the code `NG0205` and the message body the record carries, and naming the owning component only where the record attributes one — where it does not, the answer reports the named absence `owner-not-in-the-message` beside the code instead of guessing the element or the component (`.project/ROADMAP.md:2096`, `extension/error-digest.json` `NG0205`); a mutant that suppresses the code match, and a mutant that attributes the message to the most recent component, redden.",
+      "criterionCharacters": 546,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"A component that touches its injector after teardown produces a finding naming the code `NG0205` and the message body the record carries, and naming the owning component only where the record attributes one — where it does not, the answer reports the named absence `owner-not-in-the-message` beside the code instead of guessing the element or the component (`.project/ROADMAP.md:2096`, `extension/error-digest.json` `NG0205`); a mutant that suppresses the code match, and a mutant that attributes the message to the most recent component, redden.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E2\",\"E9\"] the intent itself assigns the criterion, held by [\"scripts/teardown-leak.test.mjs\",\"scripts/teardown-leak.test.mjs\",\"scripts/teardown-leak.test.mjs\"] and recorded as [\"criterion SC1\"].",
+      "artefactPath": "scripts/teardown-leak.test.mjs",
+      "artefact": "scripts/teardown-leak.test.mjs (edge [\"E1\",\"E2\",\"E9\"] of the intent's own coverage: E1 boundary criterion SC1: A message with a code and no owner and a message with a code and an owner render through one read: `NG0205`'s body names the injector only (`extension/error-digest.json`), so the owner half is read from the record's own attribution where it exists, never from arrival order.; E2 empty criterion SC1: A record with no `NG0205` at all is a named absence, not \"no leak found\": the answer states the code it looked for and the count it read, the shape `extension/router-diagnostic.js:8-9` already uses for \"compared and not found\".; E9 idempotency criterion SC1: A second answer over the same record names the same code, the same message and the same absences; the record is read-only and no capture runs on a default run.; the suite carries 18 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "18 test declaration(s) in scripts/teardown-leak.test.mjs hold SC1 through the 3 boundary edge row(s) the intent assigns it, [\"E1\",\"E2\",\"E9\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/teardown-leak.test.mjs\"",
+        "npm run check"
+      ]
     },
     {
-      "claim": "loader key",
-      "value": "teardown-leak",
-      "artefactPath": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "note": "LOADERS carries a closure under the surface's own key"
+      "criterion": "SC2",
+      "criterionText": "The answer is produced from the observables the agent already holds — the console record it subscribes to, and the element/component record it already keeps — with no new page-side instrumentation, no second tap and nothing the record does not carry (`.project/ROADMAP.md:2099`); a mutant that starts its own subscription, hooks `setTimeout` or reads a live page value reddens.",
+      "criterionCharacters": 377,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"The answer is produced from the observables the agent already holds — the console record it subscribes to, and the element/component record it already keeps — with no new page-side instrumentation, no second tap and nothing the record does not carry (`.project/ROADMAP.md:2099`); a mutant that starts its own subscription, hooks `setTimeout` or reads a live page value reddens.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\"] the intent itself assigns the criterion, held by [\"scripts/teardown-leak.test.mjs\"] and recorded as [\"criterion SC2\"].",
+      "artefactPath": "scripts/teardown-leak.test.mjs",
+      "artefact": "scripts/teardown-leak.test.mjs (edge [\"E3\"] of the intent's own coverage: E3 boundary criterion SC2: The portal's console stream is the default target and the fixture is a fallback that must name the portal route tried and the artefact it lacks, exactly as M058's E8 records.; the suite carries 18 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "18 test declaration(s) in scripts/teardown-leak.test.mjs hold SC2 through the 1 boundary edge row(s) the intent assigns it, [\"E3\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/teardown-leak.test.mjs\"",
+        "npm run check"
+      ]
     },
     {
-      "claim": "pane export",
-      "value": true,
-      "artefactPath": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
-      "note": "the component the loader imports is exported under the name teardownLeakPanel"
+      "criterion": "SC3",
+      "criterionText": "An unsubscribe that ran before the write it was meant to prevent reports no leak rather than a wrong cause (`.project/ROADMAP.md:2102`): where the record shows the handle was released and the diagnostic still arrives, the answer names the sequence it read and the code, and names no handle as the cause; a mutant that renders \"leaked subscription\" for a released handle reddens.",
+      "criterionCharacters": 378,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"An unsubscribe that ran before the write it was meant to prevent reports no leak rather than a wrong cause (`.project/ROADMAP.md:2102`): where the record shows the handle was released and the diagnostic still arrives, the answer names the sequence it read and the code, and names no handle as the cause; a mutant that renders \\\"leaked subscription\\\" for a released handle reddens.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E4\",\"E5\"] the intent itself assigns the criterion, held by [\"scripts/teardown-leak.test.mjs\",\"scripts/teardown-leak.test.mjs\"] and recorded as [\"criterion SC3\"].",
+      "artefactPath": "scripts/teardown-leak.test.mjs",
+      "artefact": "scripts/teardown-leak.test.mjs (edge [\"E4\",\"E5\"] of the intent's own coverage: E4 precision criterion SC3: A released handle followed by the diagnostic is rendered as the sequence the record states — release, then diagnostic — and never as a leak the release contradicts.; E5 adjacency criterion SC3: `handle-record-not-held` and `owner-not-in-the-message` are two states and never one line: a message with a code, no owner and no handle record renders both absences separately.; the suite carries 18 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "18 test declaration(s) in scripts/teardown-leak.test.mjs hold SC3 through the 2 precision edge row(s) the intent assigns it, [\"E4\",\"E5\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/teardown-leak.test.mjs\"",
+        "npm run check"
+      ]
     },
     {
-      "claim": "join states",
-      "value": [
-        "absent",
-        "cannot-tell",
-        "empty",
-        "finding"
-      ],
-      "artefactPath": "extension/teardown-leak.js",
-      "note": "the four states the pane can render are the four the join returns"
+      "criterion": "SC4",
+      "criterionText": "The answer never names a subscription, effect or timer identity: it names the code, the message body, and the absence `handle-record-not-held` — a mutant that renders any handle name, or that infers one from the message body, reddens (C1, C2).",
+      "criterionCharacters": 243,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC4 is \"The answer never names a subscription, effect or timer identity: it names the code, the message body, and the absence `handle-record-not-held` — a mutant that renders any handle name, or that infers one from the message body, reddens (C1, C2).\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E6\"] the intent itself assigns the criterion, held by [\"scripts/teardown-leak.test.mjs\"] and recorded as [\"criterion SC4\"].",
+      "artefactPath": "scripts/teardown-leak.test.mjs",
+      "artefact": "scripts/teardown-leak.test.mjs (edge [\"E6\"] of the intent's own coverage: E6 precision criterion SC4: No remedy is invented: the answer may name a modern Angular pattern or an official schematic and nothing more (`.project/ROADMAP.md:2105`).; the suite carries 18 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "18 test declaration(s) in scripts/teardown-leak.test.mjs hold SC4 through the 1 precision edge row(s) the intent assigns it, [\"E6\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/teardown-leak.test.mjs\"",
+        "npm run check"
+      ]
     },
     {
-      "claim": "absences",
-      "value": [
-        "handle-record-not-held",
-        "owner-not-in-the-message"
-      ],
-      "artefactPath": "extension/teardown-leak.js",
-      "note": "the two absences are named in the join and rendered as separate sentences"
+      "criterion": "SC5",
+      "criterionText": "The panel grows by exactly one surface, one ordered path, one `LOADERS` key and its digest rows, and every suite that enumerates those tables is updated in the same task: `app.spec.ts`, `page-picker.component.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/after-render-fixture.test.mjs`, `scripts/panel-copy.test.mjs` and `research/raw/m059-surface.json` (`.project/ROADMAP.md:2097`); a mutant that adds the route without a loader key reddens naming the surface.",
+      "criterionCharacters": 467,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC5 is \"The panel grows by exactly one surface, one ordered path, one `LOADERS` key and its digest rows, and every suite that enumerates those tables is updated in the same task: `app.spec.ts`, `page-picker.component.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/after-render-fixture.test.mjs`, `scripts/panel-copy.test.mjs` and `research/raw/m059-surface.json` (`.project/ROADMAP.md:2097`); a mutant that adds the route without a loader key reddens naming the surface.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E7\"] the intent itself assigns the criterion, held by [\"scripts/teardown-leak.test.mjs\"] and recorded as [\"criterion SC5\"].",
+      "artefactPath": "scripts/teardown-leak.test.mjs",
+      "artefact": "scripts/teardown-leak.test.mjs (edge [\"E7\"] of the intent's own coverage: E7 ordering criterion SC5: The new surface's route, loader key and digest rows are added in one task, and the suites that enumerate those tables are declared in that task's `files:` — five prior milestones paid for the omission.; the suite carries 18 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "18 test declaration(s) in scripts/teardown-leak.test.mjs hold SC5 through the 1 ordering edge row(s) the intent assigns it, [\"E7\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/teardown-leak.test.mjs\"",
+        "npm run check"
+      ]
     },
     {
-      "claim": "panel surfaces",
-      "value": 29,
-      "artefactPath": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "note": "counted from PANEL_SURFACES at this head"
-    },
-    {
-      "claim": "ordered paths",
-      "value": 38,
-      "artefactPath": "apps/angular-ai-devtools/src/app/app.routes.ts",
-      "note": "the route table's own path literals plus the surface spread, each counted at this head"
-    },
-    {
-      "claim": "loader keys",
-      "value": 29,
-      "artefactPath": "apps/angular-ai-devtools/src/app/panel-demo.ts",
-      "note": "one loader closure per surface, counted from the import() calls in LOADERS"
-    },
-    {
-      "claim": "digest rows",
-      "value": 204,
-      "artefactPath": "extension/copy-digest.json",
-      "note": "counted from the digest's entries at this head"
-    },
-    {
-      "claim": "digest rows for this surface",
-      "value": 6,
-      "artefactPath": "extension/copy-digest.json",
-      "note": "rows whose surface is teardown-leak"
-    },
-    {
-      "claim": "copy record surfaces",
-      "value": 30,
-      "artefactPath": "research/raw/m048-surface-copy.json",
-      "note": "the record the copy suite measures the digest against"
+      "criterion": "SC6",
+      "criterionText": "The answer is read on the panel only, and the panel asks nothing of the inspected page: no DOM added to the page, no page-side control, no input and no widget (AR-6, `.project/ROADMAP.md:2101`); a mutant that installs a page-side hook for this answer reddens.",
+      "criterionCharacters": 259,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC6 is \"The answer is read on the panel only, and the panel asks nothing of the inspected page: no DOM added to the page, no page-side control, no input and no widget (AR-6, `.project/ROADMAP.md:2101`); a mutant that installs a page-side hook for this answer reddens.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E8\"] the intent itself assigns the criterion, held by [\"scripts/teardown-leak-shapes.test.mjs\"] and recorded as [\"criterion SC6\"].",
+      "artefactPath": "scripts/teardown-leak-shapes.test.mjs",
+      "artefact": "scripts/teardown-leak-shapes.test.mjs (edge [\"E8\"] of the intent's own coverage: E8 boundary criterion SC6: The panel-only rule is the one the other 28 surfaces keep: the answer is read in the panel and nothing is written into the inspected page (`apps/angular-ai-devtools/src/app/app.routes.ts` `PANEL_SURFACES`, 28 entries at this head).; the suite carries 14 test declaration(s) in 0 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "14 test declaration(s) in scripts/teardown-leak-shapes.test.mjs hold SC6 through the 1 boundary edge row(s) the intent assigns it, [\"E8\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/teardown-leak-shapes.test.mjs\"",
+        "npm run check"
+      ]
     }
-  ],
-  "countsRederived": {
-    "panelSurfaces": {
-      "recorded": 29,
-      "rederived": 29
-    },
-    "orderedPaths": {
-      "recorded": 38,
-      "rederived": 38
-    },
-    "loaderKeys": {
-      "recorded": 29,
-      "rederived": 29
-    },
-    "digestRows": {
-      "recorded": 204,
-      "rederived": 204
-    },
-    "digestRowsForThisSurface": {
-      "recorded": 6,
-      "rederived": 6
-    },
-    "copyRecordSurfaces": {
-      "recorded": 30,
-      "rederived": 30
-    }
-  },
-  "mismatches": [],
-  "sources": [
-    "apps/angular-ai-devtools/src/app/app.routes.ts",
-    "apps/angular-ai-devtools/src/app/panel-demo.ts",
-    "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
-    "extension/teardown-leak.js",
-    "extension/copy-digest.json",
-    "research/raw/m048-surface-copy.json"
   ]
 }
