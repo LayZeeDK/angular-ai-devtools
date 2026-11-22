@@ -2,11 +2,21 @@
 
 Phase: research
 Status: complete
-Intent: .project/intent/INTENT.md
+Intent: `.project/intent/INTENT.md`
 Milestone: M060 — error-routing
 
-The roadmap entry lists no open questions, so this record carries the three facts define measured and the
-consequence each has for the plan. Nothing here is a new capture; every line cites a file that exists at the base.
+## Dispatch
+
+No subagent was dispatched: the roadmap entry lists **no open questions**, so the three facts below were read
+directly at the base commit by the orchestrating session, and each cites the file and line it came from.
+
+- handler — read → `.project/research/RESEARCH.md#R1` — what M042 already records about the ErrorHandler
+- globals — read → `.project/research/RESEARCH.md#R2` — the global listener record the agent already installs
+- phase — read → `.project/research/RESEARCH.md#R3` — whether any record states an uncaught error's phase
+
+## Question assignments
+
+None. The roadmap entry's `Open questions` field reads `none`, so no question was assigned to a research mode.
 
 ## R1 — The handler side is already recorded (M042)
 
