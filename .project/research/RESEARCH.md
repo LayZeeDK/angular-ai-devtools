@@ -1,5 +1,10 @@
 # RESEARCH — M062 outlet-explainer
 
+Phase: research
+Status: complete
+Intent: `.project/intent/INTENT.md`
+Milestone: M062 — outlet-explainer
+
 Measured at `gsd-path/M062` before planning. Every claim below is a command's output, not a reading of the roadmap.
 
 ## What the tree carries
