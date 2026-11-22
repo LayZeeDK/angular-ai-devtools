@@ -2,11 +2,11 @@
 id: T007
 title: Re-derive the records the gate capture moved and run the project verify
 wave: 7
-status: in-progress
+status: done
 deps: [T006]
 agent: build_T007
-base: f7585eec0f10c85af874808999cf6f24d722fc7b
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: c2c289136cd1a1c17bac2ff1ef5fcb4e52c5db0d
+worktree: null
 task_branch: null
 files:
   - research/raw/m059-record-shapes.json
