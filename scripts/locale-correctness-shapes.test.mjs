@@ -14,12 +14,14 @@
  * the fixture, and the fixture's token is the installed `@angular/core`'s `LOCALE_ID` — so a source
  * that moves reddens naming the anchor that moved instead of agreeing with a copy of itself.
  *
- * The suite's scans (`research/raw/*.json`, `extension/*.js`) exclude this milestone's own records,
- * named by OWN_RECORD_PREFIX, so the census cannot mistake this record for one of the records it
- * maps and a later M061 record cannot redden the absence it measures.
+ * The suite's scans exclude this milestone's own files, so the census cannot mistake this record for
+ * one of the records it maps and the word scan cannot count the module that names the locale token:
+ * `research/raw/*.json` skips `OWN_RECORD_PREFIX`, and `extension/*.js` skips `OWN_FILES` — the module
+ * T002 lands and the two suites that read it.
  *
- * Three mutants run the pins they are aimed at and must redden by name: an entry matched by
- * position instead of by token, an entry that carries the `useValue`, and a second provider read.
+ * Four mutants run the pins they are aimed at and must redden by name: an entry matched by
+ * position instead of by token, an entry that carries the `useValue`, a second provider read, and the
+ * word scan with this milestone's own module added back to it.
  */
 
 import test from 'node:test';
@@ -49,6 +51,20 @@ const CAPTURE = process.env.M061_CAPTURE === '1';
 /** This milestone's own records, excluded from every scan this suite performs. */
 const OWN_RECORD_PREFIX = 'm061-';
 
+/**
+ * This milestone's own files, excluded from the word scan this suite performs — the module that names
+ * the locale token, the suite that pins the module, and this suite. The record states the absence the
+ * tree carried before this milestone's modules: without the exclusion the module under
+ * `extension/locale-correctness.js` counts every `locale`, `formatter` and `i18n` it must name, and
+ * `codeHits` would measure this record's own subject rather than the tree it maps. Named here rather
+ * than folded into the filter below, so the exclusion is what the record says it is.
+ */
+const OWN_FILES = [
+  'locale-correctness.js',
+  'locale-correctness.test.mjs',
+  'locale-correctness-shapes.test.mjs',
+];
+
 /** The value the fixture provides: the one string no field of an entry may carry. */
 const LOCALE_VALUE = 'fr-FR';
 
@@ -61,9 +77,17 @@ const FORMATTER_OR_LOCALE_FIELD =
 
 /** The two commands whose exact output the record carries beside `git rev-parse HEAD`. */
 const RECORD_KEY_SCAN_COMMAND =
-  "node -e \"const fs=require('fs');const d='research/raw';for(const f of fs.readdirSync(d).sort()){if(!f.endsWith('.json')||f.startsWith('m061-'))continue;let v;try{v=JSON.parse(fs.readFileSync(d+'/'+f,'utf8'))}catch(e){continue}const w=(o,p)=>{if(Array.isArray(o)){o.forEach((x,i)=>w(x,p+'['+i+']'))}else if(o&&typeof o==='object'){for(const [k,x] of Object.entries(o)){if(/formatter|i18n|locale|pipe/i.test(k))console.log(d+'/'+f+':'+(p?p+'.':'')+k);w(x,p?p+'.'+k:k)}}};w(v,'')}\"";
+  "node -e \"const fs=require('fs');const d='research/raw';for(const f of fs.readdirSync(d).sort()){if(!f.endsWith('.json')||f.startsWith('" +
+  OWN_RECORD_PREFIX +
+  "'))continue;let v;try{v=JSON.parse(fs.readFileSync(d+'/'+f,'utf8'))}catch(e){continue}const w=(o,p)=>{if(Array.isArray(o)){o.forEach((x,i)=>w(x,p+'['+i+']'))}else if(o&&typeof o==='object'){for(const [k,x] of Object.entries(o)){if(/formatter|i18n|locale|pipe/i.test(k))console.log(d+'/'+f+':'+(p?p+'.':'')+k);w(x,p?p+'.'+k:k)}}};w(v,'')}\"";
+/**
+ * The word scan as the record carries it: the same file list `scanExtensionWords` reads, minus the
+ * entries `OWN_FILES` names, built from that list so the recorded command cannot scan its own module.
+ */
 const EXTENSION_WORD_SCAN_COMMAND =
-  "node -e \"const fs=require('fs');const W=/formatter|i18n|locale|pipe/i;for(const f of fs.readdirSync('extension').sort()){if(!f.endsWith('.js'))continue;const ls=fs.readFileSync('extension/'+f,'utf8').split(/\\r?\\n/);ls.forEach((l,i)=>{const m=l.match(W);if(m)console.log('extension/'+f+':'+(i+1)+':'+m[0])})}\"";
+  "node -e \"const fs=require('fs');const OWNFILES=[" +
+  OWN_FILES.map((name) => `'${name}'`).join(',') +
+  "];const W=/formatter|i18n|locale|pipe/i;for(const f of fs.readdirSync('extension').sort()){if(!f.endsWith('.js')||OWNFILES.includes(f))continue;const ls=fs.readFileSync('extension/'+f,'utf8').split(/\\r?\\n/);ls.forEach((l,i)=>{const m=l.match(W);if(m)console.log('extension/'+f+':'+(i+1)+':'+m[0])})}\"";
 
 // --------------------------------------------------------------- git ----
 
@@ -501,12 +525,17 @@ function reduceProviders(source, providers) {
 
 // ---------------------------------------------------------- absence ----
 
-/** Every word hit in `extension/*.js`, each classified by whether a comment holds it. */
-function scanExtensionWords() {
+/**
+ * Every word hit in `extension/*.js`, each classified by whether a comment holds it. `ownFiles` is the
+ * exclusion — `OWN_FILES` by default, the file list the record states it scanned without; passing `[]`
+ * is the mutant that adds this milestone's own module back to the scan.
+ */
+function scanExtensionWords({ ownFiles = OWN_FILES } = {}) {
   const dir = join(REPO_ROOT, 'extension');
   const hits = [];
   for (const name of readdirSync(dir).sort()) {
     if (!name.endsWith('.js')) continue;
+    if (ownFiles.includes(name)) continue;
     const source = readFileSync(join(dir, name), 'utf8');
     const code = codeOnly(source);
     source.split('\n').forEach((line, index) => {
@@ -623,6 +652,24 @@ function assertNoSecondRead(added, walked) {
     added,
     0,
     `a second provider read was added: the source has ${walked} direct call(s) of ɵgetInjectorProviders where the head the record names had a different count — the record counts the injector walk as the read it reduces and states no second read was added`,
+  );
+}
+
+/**
+ * The pin: no shipped field under `extension/*.js` names a formatter, a pipe or a locale. `how` names
+ * the scan that produced `hits`, so the mutant's refusal says which scan it read, and the refusal
+ * names the first offending hit by path and line.
+ */
+function assertNoCodeHit(hits, how) {
+  const codeHits = hits.filter((hit) => !hit.inComment);
+  const first = codeHits[0];
+  const where = first
+    ? ` — first at ${first.path}:${first.line} (${first.word})`
+    : '';
+  assert.equal(
+    codeHits.length,
+    0,
+    `${how}: ${codeHits.length} shipped field(s) under extension/*.js name a formatter, a pipe or a locale${where}; the word scan excludes this milestone's own files (${OWN_FILES.join(', ')}), because the module that names the locale token would otherwise count itself`,
   );
 }
 
@@ -877,9 +924,10 @@ function buildRecord(head, byteTotal, commands) {
           'names a formatter, a pipe or a locale: no key in any record is named ' +
           'format, formatter, pipe or locale as such, the keys that bear the words are ' +
           'an Angular compiler option about i18n message-id legacy format and an RxJS ' +
-          'observable accessor, and every word occurrence in extension/*.js is inside ' +
-          'a comment, so this milestone\u2019s join can read a formatter from no ' +
-          'record and must report the absence instead',
+          'observable accessor, and every word occurrence in extension/*.js outside this ' +
+          `milestone\u2019s own files (${OWN_FILES.join(', ')}) is inside a comment, so ` +
+          'this milestone\u2019s join can read a formatter from no record and must ' +
+          'report the absence instead',
       },
     },
     verdict: `This record is ${byteTotal} bytes, the UTF-8 length of the file the armed capture wrote, stated so the byte-consistency scan has a count of this file to hold.`,
@@ -1281,6 +1329,7 @@ test('no record and no shipped field names a formatter, a pipe or a locale', () 
     words.filter((hit) => !hit.inComment).length,
     'a shipped field under extension/*.js now names a formatter, a pipe or a locale',
   );
+  assertNoCodeHit(words, 'the scan without this milestone\u2019s own files');
   assert.equal(
     absence.extension.codeHits,
     0,
@@ -1412,6 +1461,39 @@ test('the suite\u2019s scans exclude this milestone\u2019s own records', () => {
     ),
     false,
     'the scan reads this milestone\u2019s own records back into itself',
+  );
+});
+
+test('the word scan excludes this milestone\u2019s own module, and the record states the absence it left', () => {
+  const ownModule = OWN_FILES[0];
+  assert.ok(
+    readdirSync(join(REPO_ROOT, 'extension')).includes(ownModule),
+    `extension/${ownModule} is this milestone\u2019s module and it is not in the directory the scan reads, so the exclusion is vacuous`,
+  );
+  assert.equal(
+    scanExtensionWords().some((hit) => hit.path === `extension/${ownModule}`),
+    false,
+    `the word scan reads extension/${ownModule} back into itself, so its own \u201Clocale\u201D and \u201Cformatter\u201D names would be measured as the absence it proves`,
+  );
+  const own = scanExtensionWords({ ownFiles: [] });
+  assert.ok(
+    own.some((hit) => hit.path === `extension/${ownModule}` && !hit.inComment),
+    `the scan that adds extension/${ownModule} back must see a code hit in it, or the mutant is not the scan the exclusion was written for`,
+  );
+  assertNoCodeHit(
+    scanExtensionWords(),
+    'the record\u2019s scan with this milestone\u2019s own files excluded',
+  );
+  const error = failureOf(() =>
+    assertNoCodeHit(
+      own,
+      'the mutant that adds this milestone\u2019s module back to the scan',
+    ),
+  );
+  assert.match(
+    String(error.message),
+    /extension\/locale-correctness\.js/,
+    `adding the module back must redden naming it, not a generic count: ${String(error.message).slice(0, 320)}`,
   );
 });
 

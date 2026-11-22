@@ -2,10 +2,10 @@
 id: T005
 title: Re-derive this milestone's own records
 wave: 5
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T005
+base: 73ac32038e4c279def746025a18aca5b78cae6cc
 worktree: null
 task_branch: null
 files:
@@ -71,3 +71,10 @@ M044_CAPTURE=1 node --test scripts/navigation-blocking.test.mjs && M059_CAPTURE=
 ## Log
 
 - pending.
+- Landed paths: the three recordings, `scripts/locale-correctness-shapes.test.mjs`, `scripts/navigation-blocking.test.mjs`.
+- The shapes record's word scan now excludes this milestone's own files by a named `OWN_FILES` constant, and the recorded command carries that exclusion, so a recorded scan and the scan it names cannot drift apart. The census itself did not move (4 hits, 4 in comments, 0 in code) and that is the point: a mutant that drops the exclusion sees 77 hits and 36 code hits and must redden naming `extension/locale-correctness.js`.
+- The claims record is re-captured after the intent repair: SC1's `criterionText` is 300 characters where it was 453, and `criterionCharacters` follows.
+- The teardown record is re-derived: `recordsSearched` 151 → 154, `extension.filesSearched` 39 → 40, `scripts.filesSearched` 138 → 142, each equal to the tree with the record's own exclusions applied.
+- A real defect was found in the dropped-row mutant: `PLAN.md` is a CRLF document, so trimming `${row}\n` matched nothing and the mutant was a no-op passing for the wrong reason. It now cuts the row with the document's own EOL.
+- `scripts/gate-integrity.test.mjs` remains 29/40 at this head and was red before these edits, proven by restoring HEAD's five files and re-running; T006 re-derives both gate records.
+- Open item for T006: the shapes record's `inventory.measured` still credits the gate records to T005, because PLAN.md's intro line says five tasks; the plan's waves and task list now give them to T006.

@@ -2,18 +2,18 @@
   "schema": "m061-record-shapes/v1",
   "milestone": "M061",
   "task": "T001",
-  "head": "df76be193ca0f744de8b6d098999513ae14a3437",
+  "head": "73bc22abecd15a631b53c5b08e4fc70fd7bdf71f",
   "commands": [
     {
       "command": "git rev-parse HEAD",
-      "output": "df76be193ca0f744de8b6d098999513ae14a3437"
+      "output": "73bc22abecd15a631b53c5b08e4fc70fd7bdf71f"
     },
     {
       "command": "node -e \"const fs=require('fs');const d='research/raw';for(const f of fs.readdirSync(d).sort()){if(!f.endsWith('.json')||f.startsWith('m061-'))continue;let v;try{v=JSON.parse(fs.readFileSync(d+'/'+f,'utf8'))}catch(e){continue}const w=(o,p)=>{if(Array.isArray(o)){o.forEach((x,i)=>w(x,p+'['+i+']'))}else if(o&&typeof o==='object'){for(const [k,x] of Object.entries(o)){if(/formatter|i18n|locale|pipe/i.test(k))console.log(d+'/'+f+':'+(p?p+'.':'')+k);w(x,p?p+'.'+k:k)}}};w(v,'')}\"",
       "output": "research/raw/m032-console-diagnostics.json:fixture.angularCompilerOptions.enableI18nLegacyMessageIdFormat\nresearch/raw/m033-router-diagnostic.json:fixture.angularCompilerOptions.enableI18nLegacyMessageIdFormat\nresearch/raw/m034-legacy-diagnostic.json:fixture.angularCompilerOptions.enableI18nLegacyMessageIdFormat\nresearch/raw/m043-stability.json:observable.getter.freshPipePerAccess"
     },
     {
-      "command": "node -e \"const fs=require('fs');const W=/formatter|i18n|locale|pipe/i;for(const f of fs.readdirSync('extension').sort()){if(!f.endsWith('.js'))continue;const ls=fs.readFileSync('extension/'+f,'utf8').split(/\\r?\\n/);ls.forEach((l,i)=>{const m=l.match(W);if(m)console.log('extension/'+f+':'+(i+1)+':'+m[0])})}\"",
+      "command": "node -e \"const fs=require('fs');const OWNFILES=['locale-correctness.js','locale-correctness.test.mjs','locale-correctness-shapes.test.mjs'];const W=/formatter|i18n|locale|pipe/i;for(const f of fs.readdirSync('extension').sort()){if(!f.endsWith('.js')||OWNFILES.includes(f))continue;const ls=fs.readFileSync('extension/'+f,'utf8').split(/\\r?\\n/);ls.forEach((l,i)=>{const m=l.match(W);if(m)console.log('extension/'+f+':'+(i+1)+':'+m[0])})}\"",
       "output": "extension/agent-main.js:53:formatter\nextension/agent-main.js:2263:pipe\nextension/onpush-readiness.js:9:pipe\nextension/render-phase.js:85:locale"
     },
     {
@@ -112,7 +112,7 @@
   },
   "producer": {
     "path": "extension/agent-main.js",
-    "read": "static read of extension/agent-main.js at df76be193ca0f744de8b6d098999513ae14a3437: the provider read 1149-1155, the reduction 1166-1226, the kind chain 1180-1194, the entry object 1215-1223, the walk’s token derivation 1169-1178, and the token rule 1677-1688 with its comment 1675-1676",
+    "read": "static read of extension/agent-main.js at 73bc22abecd15a631b53c5b08e4fc70fd7bdf71f: the provider read 1149-1155, the reduction 1166-1226, the kind chain 1180-1194, the entry object 1215-1223, the walk’s token derivation 1169-1178, and the token rule 1677-1688 with its comment 1675-1676",
     "lineRanges": {
       "providerRead": "1149-1155",
       "reduction": "1166-1226",
@@ -264,8 +264,8 @@
         "commentHits": 4,
         "files": 3
       },
-      "detail": "no record under research/raw/ and no shipped field under extension/*.js names a formatter, a pipe or a locale: no key in any record is named format, formatter, pipe or locale as such, the keys that bear the words are an Angular compiler option about i18n message-id legacy format and an RxJS observable accessor, and every word occurrence in extension/*.js is inside a comment, so this milestone’s join can read a formatter from no record and must report the absence instead"
+      "detail": "no record under research/raw/ and no shipped field under extension/*.js names a formatter, a pipe or a locale: no key in any record is named format, formatter, pipe or locale as such, the keys that bear the words are an Angular compiler option about i18n message-id legacy format and an RxJS observable accessor, and every word occurrence in extension/*.js outside this milestone’s own files (locale-correctness.js, locale-correctness.test.mjs, locale-correctness-shapes.test.mjs) is inside a comment, so this milestone’s join can read a formatter from no record and must report the absence instead"
     }
   },
-  "verdict": "This record is 12217 bytes, the UTF-8 length of the file the armed capture wrote, stated so the byte-consistency scan has a count of this file to hold."
+  "verdict": "This record is 12473 bytes, the UTF-8 length of the file the armed capture wrote, stated so the byte-consistency scan has a count of this file to hold."
 }

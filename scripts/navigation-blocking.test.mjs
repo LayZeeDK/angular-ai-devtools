@@ -3812,7 +3812,16 @@ describe('the claim list', () => {
     const e5 = sectionOf(planSource, '## Held-out checks')
       .split(/\r?\n/)
       .filter((entry) => /^\s*[-*]\s*E5\b/.test(entry))[0];
-    const withoutRow = planSource.replace(`${e5}\n`, '');
+    // The plan is a CRLF document on this checkout and the section read above strips the `\r`, so the
+    // row is cut with the line ending the document itself writes; a hard-coded `\n` matches no row and
+    // the mutant would be a no-op that still named a defect.
+    const documentEol = planSource.includes('\r\n') ? '\r\n' : '\n';
+    const withoutRow = planSource.replace(`${e5}${documentEol}`, '');
+    assert.equal(
+      withoutRow.includes(e5),
+      false,
+      'the dropped-row mutant still carries the row it dropped',
+    );
     assert.notEqual(
       withoutRow,
       planSource,
