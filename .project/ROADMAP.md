@@ -2091,7 +2091,7 @@ Open questions
 Depends on: [M020]
 Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
-Status: pending
+Status: active
 Archive: null
 Integrated: null
 
