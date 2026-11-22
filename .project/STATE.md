@@ -1256,3 +1256,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — inspect — router bound next milestone
 - 2026-11-22 — inspect — inspection complete
 - 2026-11-22 — define — inspection complete; define active
+- 2026-11-22 — define — pre-approval: {"kinds": ["intent", "plan"]}
