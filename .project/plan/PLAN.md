@@ -59,6 +59,11 @@ Review depth: full
 Goal: re-derive both gate records after every suite edit this milestone makes, then run the project verify.
 Review depth: full
 
+## Wave 6 — T006: pin the recorded head honestly
+
+Goal: the shapes record's head must be an ancestor of HEAD rather than HEAD itself, because an armed capture cannot pin a future commit. The byte-identity check serialises with the record's own head; a mutant carrying a real sha from another branch must redden.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
@@ -75,6 +80,8 @@ Review depth: full
 | SC1 | T004 | AC2 |
 | SC5 | T005 | AC1 |
 | SC6 | T005 | AC2 |
+| SC1 | T006 | AC1 |
+| SC5 | T006 | AC2 |
 
 ## Held-out checks
 
