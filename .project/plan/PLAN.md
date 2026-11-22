@@ -64,6 +64,11 @@ Review depth: full
 Goal: the shapes record's head must be an ancestor of HEAD rather than HEAD itself, because an armed capture cannot pin a future commit. The byte-identity check serialises with the record's own head; a mutant carrying a real sha from another branch must redden.
 Review depth: full
 
+## Wave 7 — T007: re-derive the gate records at the ship head
+
+Goal: two recordings pin values this head derives, and both moved when T006 added 33 lines to a suite after T005 captured them — the shapes record states `addedLines: 394` where this tree derives 427, and the stability record states a green `fixRecord` whose suite now fails on that stale shapes record. Both are captured again here, as the last commit before the final review.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
@@ -82,6 +87,7 @@ Review depth: full
 | SC6 | T005 | AC2 |
 | SC1 | T006 | AC1 |
 | SC5 | T006 | AC2 |
+| SC5 | T007 | AC1 |
 
 ## Held-out checks
 
