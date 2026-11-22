@@ -2,10 +2,10 @@
 id: T007
 title: Re-derive the gate records at the ship head
 wave: 7
-status: pending
+status: done
 deps: [T006]
-agent: null
-base: null
+agent: build_T007
+base: 44b7a85bd2d113cf1bbd0465a7726d485256d720
 worktree: null
 task_branch: null
 files:
@@ -60,3 +60,8 @@ M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M056_CAPTURE=1 nod
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m044-gate-shapes.json` (the only recording that moved).
+- `M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs` exited 0 and re-derived the shapes record at this head: `suiteDiff.differing[15].addedLines` is now 427, the count T006's 33 added suite lines produce.
+- `M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs` exited 0 and left its recording byte-identical, because the `fixRecord` section that had gone red derives by running the gate-integrity suite — repairing the shapes record returned it to green, so no second edit was needed.
+- Both suites then read their records without a capture flag and found no differing value, which is the acceptance criterion's proof.
+- No suite source changed: this task rewrote one recording and nothing else.
