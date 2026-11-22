@@ -22,6 +22,7 @@ files:
   - scripts/panel-routes.test.mjs
   - scripts/copy-check.test.mjs
   - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+  - research/raw/m059-record-shapes.json
 ---
 
 # T013 — Give the claims record the quotes and ruling the census derives
