@@ -1,0 +1,122 @@
+{
+  "schema": "m059-verdict-claims/v1",
+  "milestone": "M059",
+  "task": "T004",
+  "title": "Re-derive the verdict claims and run the project verify",
+  "question": "does every claim the milestone's surface record states re-derive from the tree at this head?",
+  "head": "03e86d556f806038867600236122678063966562",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "2026-11-22T02:45:04+01:00",
+  "verdict": "every claim re-derives",
+  "claims": [
+    {
+      "claim": "route registered",
+      "value": "teardown-leak",
+      "artefactPath": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "note": "'teardown-leak' is a member of PANEL_SURFACES, whose spread turns it into a route of appRoutes"
+    },
+    {
+      "claim": "loader key",
+      "value": "teardown-leak",
+      "artefactPath": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "note": "LOADERS carries a closure under the surface's own key"
+    },
+    {
+      "claim": "pane export",
+      "value": true,
+      "artefactPath": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+      "note": "the component the loader imports is exported under the name teardownLeakPanel"
+    },
+    {
+      "claim": "join states",
+      "value": [
+        "absent",
+        "cannot-tell",
+        "empty",
+        "finding"
+      ],
+      "artefactPath": "extension/teardown-leak.js",
+      "note": "the four states the pane can render are the four the join returns"
+    },
+    {
+      "claim": "absences",
+      "value": [
+        "handle-record-not-held",
+        "owner-not-in-the-message"
+      ],
+      "artefactPath": "extension/teardown-leak.js",
+      "note": "the two absences are named in the join and rendered as separate sentences"
+    },
+    {
+      "claim": "panel surfaces",
+      "value": 29,
+      "artefactPath": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "note": "counted from PANEL_SURFACES at this head"
+    },
+    {
+      "claim": "ordered paths",
+      "value": 38,
+      "artefactPath": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "note": "the route table's own path literals plus the surface spread, each counted at this head"
+    },
+    {
+      "claim": "loader keys",
+      "value": 29,
+      "artefactPath": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "note": "one loader closure per surface, counted from the import() calls in LOADERS"
+    },
+    {
+      "claim": "digest rows",
+      "value": 204,
+      "artefactPath": "extension/copy-digest.json",
+      "note": "counted from the digest's entries at this head"
+    },
+    {
+      "claim": "digest rows for this surface",
+      "value": 6,
+      "artefactPath": "extension/copy-digest.json",
+      "note": "rows whose surface is teardown-leak"
+    },
+    {
+      "claim": "copy record surfaces",
+      "value": 30,
+      "artefactPath": "research/raw/m048-surface-copy.json",
+      "note": "the record the copy suite measures the digest against"
+    }
+  ],
+  "countsRederived": {
+    "panelSurfaces": {
+      "recorded": 29,
+      "rederived": 29
+    },
+    "orderedPaths": {
+      "recorded": 38,
+      "rederived": 38
+    },
+    "loaderKeys": {
+      "recorded": 29,
+      "rederived": 29
+    },
+    "digestRows": {
+      "recorded": 204,
+      "rederived": 204
+    },
+    "digestRowsForThisSurface": {
+      "recorded": 6,
+      "rederived": 6
+    },
+    "copyRecordSurfaces": {
+      "recorded": 30,
+      "rederived": 30
+    }
+  },
+  "mismatches": [],
+  "sources": [
+    "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+    "extension/teardown-leak.js",
+    "extension/copy-digest.json",
+    "research/raw/m048-surface-copy.json"
+  ]
+}

@@ -1,0 +1,647 @@
+{
+  "schema": "m059-surface/v1",
+  "milestone": "M059 teardown-leak",
+  "task": "T003",
+  "title": "Record the teardown-leak route, its loader key, the four states the pane renders and the two absences it states as their own lines",
+  "question": "which route reaches the teardown-leak surface, which LOADERS key resolves it, what does each of the four states the pane renders read off the answer the shipped join gave, in which sentence is each of the two absences stated, and what does the panel and the copy digest count at this head?",
+  "head": "9b45eed599217b266fccf420cdc3f0641f7f01c7",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: every citation below was read out of the file it names in this task’s tree — the base above plus T003’s own working-tree edits, which is the tree this record was measured in — and re-resolved by searching that file for the exact line it quotes rather than by trusting a typed number; the answer the record states is `extension/teardown-leak.js` run node-side in a bare `node:vm` context over a console record in the shape `research/raw/m059-record-shapes.json` measures beside `extension/error-digest.json`’s own entries, printed by the `measurement` command below. The four readings this record describes are the route table (`app.routes.ts`), the loader map and the sample fact (`panel-demo.ts`), the display module (`panel-teardown-leak.ts`) and the copy digest (`extension/copy-digest.json`). No browser was opened for this record, no page was read, no capture was taken and no build was run: the same answer is re-derived node-side by `panel-demo.spec.ts` on every test run.",
+  "measurement": {
+    "what": "the shipped join’s own answer over the console record the demo carries and the shipped digest’s own entries, run in a bare vm context: the state, the code and the body, the owner field, the two absences, the claims with their artefact paths, and the join’s own detail sentence",
+    "command": "node -e \"const fs=require('fs'),vm=require('vm');const s=JSON.parse(fs.readFileSync('research/raw/m059-record-shapes.json','utf8'));const d=JSON.parse(fs.readFileSync('extension/error-digest.json','utf8'));const ctx=vm.createContext({});vm.runInContext(fs.readFileSync('extension/teardown-leak.js','utf8'),ctx);const a=ctx.angularAiTeardownLeak.teardownLeak({console:{path:'research/raw/m059-record-shapes.json',messages:[{order:3,type:'error',text:s.digest.printedByTheInstalledBuild.printedAs}],releases:[{order:1}]},digest:{path:'extension/error-digest.json',entries:d.entries.map(e=>({code:e.code,title:e.title}))}});console.log(JSON.stringify({state:a.state,code:a.code,message:a.message,owner:a.owner,absences:a.absences.map(x=>x.state),claims:a.claims.map(c=>c.claim),artefacts:[...new Set(a.claims.map(c=>c.artefactPath))],detail:a.detail}))\"",
+    "output": [
+      "{\"state\":\"finding\",\"code\":\"NG0205\",\"message\":\"NG0205: Injector has already been destroyed.\",\"owner\":null,\"absences\":[\"owner-not-in-the-message\",\"handle-record-not-held\"],\"claims\":[\"code\",\"message\",\"digest\",\"sequence\",\"absence\",\"absence\"],\"artefacts\":[\"research/raw/m059-record-shapes.json\",\"extension/error-digest.json\"],\"detail\":\"the console record research/raw/m059-record-shapes.json states 1 console message and the first of them whose own body carries NG0205 is at order 3, with the body \\\"NG0205: Injector has already been destroyed.\\\" and the level \\\"error\\\" in `type`, and the stack frames dropped from it; the digest record extension/error-digest.json carries NG0205 \\\"Injector has already been destroyed\\\" among 64 codes; no field of the message names an owner, so owner-not-in-the-message stands beside the code; the sequence it read is release-then-diagnostic: 1 release record is ordered before the diagnostic at order 3 and none after it, so the release ran first and no handle is named as the cause of the diagnostic; the absences it renders are 2 states and never one line: owner-not-in-the-message beside handle-record-not-held\"}"
+    ]
+  },
+  "counts": {
+    "what": "the numbers this record states about the panel, the route table and the copy, each measured at this head rather than typed",
+    "panelSurfaces": 29,
+    "panelSurfacesBefore": 28,
+    "loaderKeys": 29,
+    "orderedPaths": 38,
+    "orderedPathsBefore": 37,
+    "digestRows": 204,
+    "digestRowsBefore": 198,
+    "digestRowsForThisSurface": 6,
+    "paneSentences": 6,
+    "digestSentencesForThisSurface": 6,
+    "copyRecordSurfaces": 30,
+    "copyRecordSentencesCompared": 212,
+    "command": "node -e \"const fs=require('fs');const q=String.fromCharCode(39);const r=fs.readFileSync('apps/angular-ai-devtools/src/app/app.routes.ts','utf8');const s=r.indexOf('const PANEL_SURFACES = ');const e=r.indexOf('];',s);const d=r.slice(s,e).split('\\n').filter(l=>{const t=l.trim();return t.startsWith(q)&&t.endsWith(',');}).length;const m=fs.readFileSync('apps/angular-ai-devtools/src/app/panel-demo.ts','utf8');const a=m.indexOf('const LOADERS');const z=m.indexOf('const FACTS',a);const k=m.slice(a,z).split('\\n').filter(l=>l.includes('import(')).length;const g=JSON.parse(fs.readFileSync('extension/copy-digest.json','utf8'));console.log('panelSurfaces '+d);console.log('loaderKeys '+k);console.log('digestRows '+g.entries.length);console.log('digestRowsForThisSurface '+g.entries.filter(x=>x.surface==='teardown-leak').length)\"",
+    "output": [
+      "panelSurfaces 29",
+      "loaderKeys 29",
+      "digestRows 204",
+      "digestRowsForThisSurface 6"
+    ]
+  },
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+    "join": "extension/teardown-leak.js",
+    "recordShapes": "research/raw/m059-record-shapes.json",
+    "digest": "extension/error-digest.json",
+    "copy": "research/raw/m048-surface-copy.json",
+    "copyDigest": "extension/copy-digest.json",
+    "specs": [
+      "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+      "apps/angular-ai-devtools/src/app/app.spec.ts",
+      "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
+      "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
+      "scripts/panel-routes.test.mjs",
+      "scripts/after-render-fixture.test.mjs",
+      "scripts/component-search.test.mjs",
+      "scripts/copy-check.test.mjs",
+      "scripts/gate-integrity.test.mjs",
+      "scripts/gate-integrity-default-tasks.test.mjs",
+      "tests/held-out/fixture-explainers-unchanged.test.mjs"
+    ]
+  },
+  "route": {
+    "name": "teardown-leak",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 91,
+      "lineText": "'teardown-leak',",
+      "holds": "teardown-leak"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadPanelDemo"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "surface"
+    },
+    "table": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "appRoutes"
+    },
+    "closure": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "loadPanelDemo"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "panel-demo"
+      }
+    ],
+    "position": "after `webmcp`, before `components`",
+    "statement": "one entry of the `PANEL_SURFACES` list, spread into the `appRoutes` table by the one mapped literal the table ends with, lazy through the shared `loadPanelDemo` closure the table defines once, and naming its surface in `data.surface` as every demo-backed route does. It sits directly after `webmcp` rather than after `what-changed`, for the reason the list’s own note states: every citation of `m047`..`m058` into this file is pinned to its line, so an entry appended at the end would move the `appRoutes` declaration, the mapped literal’s `loadComponent` and `data` lines and every surface path below the list. The entry cost the list no line, because this task folded the M047 `components` note’s three lines into one: `visual-qa`, `tutor-foundations`, `tutor-signals`, `tutor-routing`, `webmcp-rehearsal`, `webmcp`, `components`, `copy-check`, `interaction-story`, `dead-click`, `what-changed`, the `appRoutes` declaration (line 113) and the mapped literal’s `loadComponent` (146) and `data` (147) all kept their numbers. The route registers nothing and measures nothing: it reaches the pane that renders the join’s answer."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "LOADERS"
+    },
+    "key": "teardown-leak",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 67,
+      "lineText": "'teardown-leak': () => import('./panel-teardown-leak') as never,",
+      "holds": "'./panel-teardown-leak'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 717,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 723,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 724,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 725,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 726,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 998,
+      "lineText": "FACTS['teardown-leak'] = {",
+      "holds": "FACTS['teardown-leak']"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 999,
+        "lineText": "state: 'finding',",
+        "holds": "state: 'finding'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1000,
+        "lineText": "code: 'NG0205',",
+        "holds": "code: 'NG0205'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1001,
+        "lineText": "message: 'NG0205: Injector has already been destroyed.',",
+        "holds": "message: 'NG0205: Injector has already been destroyed.',"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1002,
+        "lineText": "owner: null,",
+        "holds": "owner: null"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1005,
+        "lineText": "state: 'owner-not-in-the-message',",
+        "holds": "owner-not-in-the-message"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1012,
+        "lineText": "state: 'handle-record-not-held',",
+        "holds": "handle-record-not-held"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1019,
+        "lineText": "claims: [",
+        "holds": "claims: ["
+      }
+    ],
+    "statement": "the `teardown-leak` key is one entry of the `LOADERS` map and it is the only path to `panel-teardown-leak.ts`: the demo looks the key up by the name the route’s `data.surface` states, awaits the dynamic import, calls the module’s default export with the sample fact, and sets the state and the lines the module answers. The key cost one line, and that line is paid for by folding one line of the `fields` fact’s comment into its neighbour rather than by adding a line — the loader resolution block (717, 723–726), the component template (671–687) and every earlier fact keep their numbers, so the surface records which pin this file’s lines re-resolve at this head. The fact is the join’s own answer over the console record and the shipped digest: `state: finding`, `code: NG0205`, the body the installed build prints, `owner: null`, both absences, six claims each carrying its artefact path and the sequence `release-then-diagnostic` — and `panel-demo.spec.ts` rebuilds that record from the shipped record and digest, evaluates the shipped join from its committed text and holds this fact to that answer field for field."
+  },
+  "answer": {
+    "statement": "the join answers `{ state, code, message, owner, absences, claims, detail }` with every field in every state. The demo’s sample is the `finding` answer: the code the message’s own body carries, the body with the stack frames dropped, no owner (no field of the message names one), `owner-not-in-the-message` beside `handle-record-not-held`, one claim per statement with the record or digest path that states it, and the join’s own detail sentence. T001 measured that the diagnostic is not producible on either driven target (`research/raw/m059-record-shapes.json` `producible`: 0 NG0205 over 38 portal console lines and 4 fixture lines), so this record states the sample’s record as one written in the measured shape from the measured printed string rather than one captured on a page.",
+    "printedByTheInstalledBuild": {
+      "value": "NG0205: Injector has already been destroyed.",
+      "cite": {
+        "file": "research/raw/m059-record-shapes.json",
+        "line": 118,
+        "lineText": "\"printedAs\": \"NG0205: Injector has already been destroyed.\",",
+        "holds": "NG0205: Injector has already been destroyed."
+      }
+    },
+    "digestEntry": {
+      "code": "NG0205",
+      "title": "Injector has already been destroyed",
+      "cite": {
+        "file": "extension/error-digest.json",
+        "line": 60,
+        "lineText": "\"code\": \"NG0205\",",
+        "holds": "NG0205"
+      }
+    },
+    "emptyAnswer": {
+      "state": "empty",
+      "absences": [
+        "handle-record-not-held"
+      ],
+      "statement": "`empty` is the join’s own answer to `{}`: no record was passed, so nothing is read. The pane renders the same state for a caller that hands over nothing at all, because \"no record was read\" is precisely what an absent answer means — no fifth state is invented to say it."
+    }
+  },
+  "states": [
+    {
+      "key": "state-finding",
+      "word": "finding",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 138,
+        "lineText": "id: 'state-finding',",
+        "holds": "state-finding"
+      },
+      "sentenceText": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 139,
+        "lineText": "text: 'finding: the console record carries a message whose own body carries the code, so this pane names that code and the body the message carries, and names an owner only where a field of the message states one — never the stack, never the last component mounted and never the message’s arrival order, and no cause of the diagnostic is named here',",
+        "holds": "finding: the console record carries"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 71,
+        "lineText": "export const FINDING = 'finding';",
+        "holds": "FINDING"
+      },
+      "joinAt": {
+        "file": "extension/teardown-leak.js",
+        "line": 107,
+        "lineText": "const FINDING = 'finding';",
+        "holds": "FINDING"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 416,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "code",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 396,
+            "lineText": "fieldLine(LABELS.code, 'code', answer, lines);",
+            "holds": "fieldLine(LABELS.code, 'code', answer, lines);"
+          }
+        },
+        {
+          "field": "message",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 397,
+            "lineText": "fieldLine(LABELS.message, 'message', answer, lines);",
+            "holds": "fieldLine(LABELS.message, 'message', answer, lines);"
+          }
+        },
+        {
+          "field": "owner",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 398,
+            "lineText": "fieldLine(LABELS.owner, 'owner', answer, lines);",
+            "holds": "fieldLine(LABELS.owner, 'owner', answer, lines);"
+          }
+        },
+        {
+          "field": "absences[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 335,
+            "lineText": "const absences = answer['absences'];",
+            "holds": "answer['absences']"
+          }
+        },
+        {
+          "field": "claims[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 429,
+            "lineText": "const claims = claimsOf(answer);",
+            "holds": "claimsOf(answer)"
+          }
+        },
+        {
+          "field": "claims[].values",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 375,
+            "lineText": "lines.push(line(LABELS.claimValues + '.' + key, text));",
+            "holds": "lines.push(line(LABELS.claimValues + '.' + key, text));"
+          }
+        },
+        {
+          "field": "claims[].artefactPath",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 366,
+            "lineText": "const artefactPath = writtenString(entry['artefactPath']);",
+            "holds": "entry['artefactPath']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 384,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "renders": "the code and the body, and the owner only where the join filled it; both absences as their own groups of lines; every claim with its artefact path, the sequence among them; and the join’s own detail"
+    },
+    {
+      "key": "state-absent",
+      "word": "absent",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 143,
+        "lineText": "id: 'state-absent',",
+        "holds": "state-absent"
+      },
+      "sentenceText": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 144,
+        "lineText": "text: 'absent: the console record states its messages and none of them carries the code searched for, so this pane names that code and the count it read, and never reports a page that is free of the diagnostic',",
+        "holds": "absent: the console record states its messages"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 72,
+        "lineText": "export const ABSENT = 'absent';",
+        "holds": "ABSENT"
+      },
+      "joinAt": {
+        "file": "extension/teardown-leak.js",
+        "line": 108,
+        "lineText": "const ABSENT = 'absent';",
+        "holds": "ABSENT"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 416,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "code",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 309,
+            "lineText": "fieldLine(LABELS.code, 'code', answer, lines);",
+            "holds": "fieldLine(LABELS.code, 'code', answer, lines);"
+          }
+        },
+        {
+          "field": "claims[count].values.messagesRead",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 310,
+            "lineText": "const read = claimValue(claims, 'count', 'messagesRead');",
+            "holds": "const read = claimValue(claims, 'count', 'messagesRead');"
+          }
+        },
+        {
+          "field": "absences[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 335,
+            "lineText": "const absences = answer['absences'];",
+            "holds": "answer['absences']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 384,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "renders": "the code searched for and the count read, under `code` and `messagesRead`, and the handle absence; and never a page free of the diagnostic"
+    },
+    {
+      "key": "state-cannot-tell",
+      "word": "cannot-tell",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 148,
+        "lineText": "id: 'state-cannot-tell',",
+        "holds": "state-cannot-tell"
+      },
+      "sentenceText": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 149,
+        "lineText": "text: 'cannot-tell: the record does not state what this answer asked, so this pane names the reason the record states and attributes no code, no message, no owner and no sequence',",
+        "holds": "cannot-tell: the record does not state"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 73,
+        "lineText": "export const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "joinAt": {
+        "file": "extension/teardown-leak.js",
+        "line": 109,
+        "lineText": "const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 416,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "claims[cannot-tell].values.reason",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 324,
+            "lineText": "const reason = claimValue(claims, 'cannot-tell', 'reason');",
+            "holds": "const reason = claimValue(claims, 'cannot-tell', 'reason');"
+          }
+        },
+        {
+          "field": "absences[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 335,
+            "lineText": "const absences = answer['absences'];",
+            "holds": "answer['absences']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 384,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "renders": "the reason the answer’s own `cannot-tell` claim states, and the join’s detail sentence where the record named no artefact and so carried no claim; no code, no message, no owner and no sequence"
+    },
+    {
+      "key": "state-empty",
+      "word": "empty",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 153,
+        "lineText": "id: 'state-empty',",
+        "holds": "state-empty"
+      },
+      "sentenceText": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 154,
+        "lineText": "text: 'empty: no record was read, so no code, no message, no owner, no absence and no claim are reported',",
+        "holds": "empty: no record was read"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 74,
+        "lineText": "export const EMPTY = 'empty';",
+        "holds": "EMPTY"
+      },
+      "joinAt": {
+        "file": "extension/teardown-leak.js",
+        "line": 110,
+        "lineText": "const EMPTY = 'empty';",
+        "holds": "EMPTY"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 416,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "absences[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 335,
+            "lineText": "const absences = answer['absences'];",
+            "holds": "answer['absences']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+            "line": 384,
+            "lineText": "const detail = writtenString(answer['detail']);",
+            "holds": "answer['detail']"
+          }
+        }
+      ],
+      "renders": "that no record was read, the handle absence the join states in every answer, and the join’s detail; and nothing else"
+    }
+  ],
+  "absences": [
+    {
+      "key": "absence-owner-not-in-the-message",
+      "word": "owner-not-in-the-message",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 158,
+        "lineText": "id: 'absence-owner-not-in-the-message',",
+        "holds": "absence-owner-not-in-the-message"
+      },
+      "sentenceText": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 159,
+        "lineText": "text: 'owner-not-in-the-message: the message the console record states carries no field that names an owner, so this absence stands beside the code and no owner is rendered — not from the stack, not from the last component mounted and not from the message’s arrival order',",
+        "holds": "owner-not-in-the-message:"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 83,
+        "lineText": "export const OWNER_NOT_IN_THE_MESSAGE = 'owner-not-in-the-message';",
+        "holds": "OWNER_NOT_IN_THE_MESSAGE"
+      },
+      "joinAt": {
+        "file": "extension/teardown-leak.js",
+        "line": 115,
+        "lineText": "const OWNER_NOT_IN_THE_MESSAGE = 'owner-not-in-the-message';",
+        "holds": "OWNER_NOT_IN_THE_MESSAGE"
+      },
+      "holdsWhere": "a message was read and no field of it names an owner",
+      "decidedAt": {
+        "file": "extension/teardown-leak.js",
+        "line": 852,
+        "lineText": "if (found.owner === null) absences.push(ownerAbsenceOf(found.message));",
+        "holds": "found.owner === null"
+      },
+      "renders": "its own `absence.state`, its own sentence and its own `absence.detail`, in the answer’s order, before the handle absence"
+    },
+    {
+      "key": "absence-handle-record-not-held",
+      "word": "handle-record-not-held",
+      "sentence": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 163,
+        "lineText": "id: 'absence-handle-record-not-held',",
+        "holds": "absence-handle-record-not-held"
+      },
+      "sentenceText": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 164,
+        "lineText": "text: 'handle-record-not-held: the console stream carries a code and a body and no record this join reads carries a per-injector handle, so no subscription, no effect, no timer and no handle is named anywhere in this pane',",
+        "holds": "handle-record-not-held:"
+      },
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-teardown-leak.ts",
+        "line": 84,
+        "lineText": "export const HANDLE_RECORD_NOT_HELD = 'handle-record-not-held';",
+        "holds": "HANDLE_RECORD_NOT_HELD"
+      },
+      "joinAt": {
+        "file": "extension/teardown-leak.js",
+        "line": 116,
+        "lineText": "const HANDLE_RECORD_NOT_HELD = 'handle-record-not-held';",
+        "holds": "HANDLE_RECORD_NOT_HELD"
+      },
+      "holdsWhere": "every answer, in every state",
+      "decidedAt": {
+        "file": "extension/teardown-leak.js",
+        "line": 471,
+        "lineText": "function handleAbsenceOf() {",
+        "holds": "handleAbsenceOf("
+      },
+      "renders": "its own `absence.state`, its own sentence, the `because` the join states and its own `absence.detail`, never folded into the other absence or into one absent-field list"
+    }
+  ],
+  "notCaptured": [
+    "Nothing here was rendered, clicked or captured: every value is a static read of the files the `sources` block names, at the tree above, and the answer the record states is the shipped join run node-side over a record in the shape T001 measured beside the shipped digest. No browser was opened, no page was read, no profiler was tapped and no build was run.",
+    "No page read produced this answer and none could: T001 measured 0 NG0205 across 38 portal console lines and 4 fixture console lines over six navigations, so the diagnostic has never been captured on a page. The sample record is written in the measured shape from the measured printed string (`digest.printedByTheInstalledBuild.printedAs`) and its two `order` values are sample positions — the message’s and the one release record’s — not measurements. The milestone ships the absence-only answer and records that as its finding (PLAN R1).",
+    "The record does not measure what the pane looks like. The six sentences it renders are enumerated in `panel-teardown-leak.ts`’s `PANE_SENTENCES` and carry one row each in `extension/copy-digest.json` under the surface `teardown-leak`; this record names the states and the field each reads rather than reproducing the rendering.",
+    "The record does not claim the copy record was re-measured by this task’s first pass alone. `research/raw/m048-surface-copy.json` stated 29 surfaces and 206 sentences and did not carry `panel-teardown-leak.ts`; the plan was then repaired to add that record to this task’s `files:`, and the same task re-measured it over the thirtieth surface — its six registry sentences with the keys and texts the digest already carries, its eleven label constants (`LABELS`) and its one inline label — so that record now states 30 surfaces and 212 sentences, `scripts/copy-check.test.mjs` is green at 30 of 30, and the `copyRecordSurfaces` and `copyRecordSentencesCompared` counts below are the re-measured record’s (see `openDependency`)."
+  ],
+  "openDependency": {
+    "path": "research/raw/m048-surface-copy.json",
+    "state": "repaired into this task’s `files:` by the plan, and re-measured in this task’s working tree",
+    "measured": "before the re-measurement the digest carried 204 rows and the record declared 198 distinct sentence texts across 29 surfaces, so `scripts/copy-check.test.mjs` failed three assertions and `every surface on disk is in the record` failed one: `apps/angular-ai-devtools/src/app/panel-teardown-leak.ts` was on disk and the record did not carry it (measured at this head with `node --test scripts/copy-check.test.mjs`); after it the record declares 204 distinct sentence texts across 30 surfaces and the suite passes 30 of 30",
+    "needed": "performed: the re-measurement of that record over the thirtieth surface — the `teardown-leak` entry with its six declared sentences (the keys and texts `extension/copy-digest.json` already carries under that surface), its eleven label constants, its one inline label, its `PANE_SENTENCES` and `LABELS` citations, and `counts.surfaces` 29 → 30 with `counts.declaredSentences` 172 → 178, `counts.declaredLabels` 53 → 64, `counts.inlineLabels` 193 → 194 and `counts.citations` 550 → 570, all recomputed from its own entries by `scripts/copy-check.test.mjs` itself"
+  },
+  "knownDrift": {
+    "path": "scripts/teardown-leak-shapes.test.mjs",
+    "state": "outside this task’s `files:` and not edited; already red at the base for a reason T002’s Log records",
+    "measured": "the suite counts every `research/raw/*.json` file and treats every occurrence of the code outside the two digest-enumeration lines as `onAPage`, so this record — which must name the code and does so on 14 lines, 18 times — raises its `recordsSearched` 146 → 147, its `occurrences` 2 → 20 and its `onAPage` 0 → 18, and its derived `producible.verdict` flips to `produced` with `produced 14`. That derivation is the suite’s, not this record’s: the diagnostic was captured on no page (T001’s `producible`, this record’s `notCaptured`).",
+    "needed": "the repair that owns T001’s two artefacts must add `research/raw/m059-surface.json` to that suite’s `researchRaw` exclusion list beside `research/raw/m059-record-shapes.json` — the list states it excludes \"the two files this milestone adds\", and the milestone now adds four — and re-derive the `extension` 38 → 39 and `scripts` 136 → 137 counts T002’s landing moved, rather than re-capturing a verdict of `produced`."
+  },
+  "verdict": "measured: the panel route `teardown-leak` is one lazy route — a `PANEL_SURFACES` entry spread into `appRoutes` by the one mapped literal, costing the list no line because this task folded the M047 note’s three lines into one — whose `data.surface` names the `teardown-leak` key of `panel-demo.ts`’s `LOADERS`, and that key is the only path to `panel-teardown-leak.ts`. The pane renders the join’s four states and nothing it did not state: `finding` names the code and the body and the owner only where a field of the message names one, never the stack, the capture’s `component`, the last component mounted or the arrival order; `absent` names the code searched for and the count read and never a clean bill of health; `cannot-tell` names the reason the answer’s own claim states; `empty` states that no record was read. `owner-not-in-the-message` and `handle-record-not-held` render as two groups of lines, each with its own state word, sentence and detail, never folded. The pane names no cause — the sequence claim states `release-then-diagnostic` as the release and the diagnostic and not as a reason — and it names no subscription, effect, timer, handle, fix, remedy or schematic, because the answer carries none. The panel carries 29 surfaces and 29 loader keys, the route table 38 ordered paths, and `extension/copy-digest.json` 204 rows, six of them this pane’s sentences.",
+  "revision": {
+    "author": "T003",
+    "head": "9b45eed599217b266fccf420cdc3f0641f7f01c7",
+    "why": "M059’s T003 ships the twenty-ninth panel surface, `panel-teardown-leak.ts`, with its route, loader key, sample fact and digest rows, and the record of that surface is owed before the milestone ships",
+    "what": "the route, the loader key, the four states and the two absences with the answer field each reads and the sentence each is rendered in, the join’s measured answer over the record and the digest, the counts the panel and the digest carry at this head, and the one record outside this task’s `files:` that the copy pins need"
+  }
+}

@@ -2,10 +2,10 @@
 id: T004
 title: Re-derive the verdict claims and run the project verify
 wave: 4
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T004
+base: 855a01b7b608677f20d56bda30e23e5b9b24fe91
 worktree: null
 task_branch: null
 files:
@@ -67,3 +67,8 @@ node --test scripts/teardown-leak.test.mjs scripts/panel-routes.test.mjs && npx 
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m059-verdict-claims.json`, `research/raw/m059-surface.json`.
+- `research/raw/m059-surface.json` states the surface's route, loader key and four states, and its counts re-derive at this head: `PANEL_SURFACES` 29 (was 28), ordered paths 38 (was 37 — nine path literals plus the surface spread), `LOADERS` keys 29, digest rows 204 with 6 for this surface, and the copy record's 30 surfaces / 212 compared sentences.
+- `research/raw/m059-verdict-claims.json` states eleven claims, each carrying its `artefactPath` and the value re-derived from the tree; the verdict is "every claim re-derives" and `mismatches` is empty. Three of the counters were wrong on the first two derivations — the route table's literals sit at two indentations and the surface spread supplies the rest — and each wrong number was corrected against the file rather than recorded as a mismatch.
+- `node --test scripts/teardown-leak.test.mjs scripts/panel-routes.test.mjs` is 22 pass / 0 fail, and both records are Prettier-clean.
+- The project verify line from `PLAN.md` is run by the landing itself; its result is recorded in `.project/build/verify-T004.log` and in the ledger, not claimed here.
