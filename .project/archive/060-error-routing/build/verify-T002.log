@@ -1,0 +1,106 @@
+head: afa99cedd59fb5113765b12dffe3b6e41ba04a77 at 2026-11-22T10:00:26.867Z
+▶ error-routing.js is pure
+  ✔ evaluates in a bare context and publishes the join itself, and nothing else of its own (1.715ms)
+  ✔ reaches for no host global when the join runs, and no live page value (4.6105ms)
+  ✔ answers the same record twice with the same value (0.588ms)
+✔ error-routing.js is pure (7.7062ms)
+▶ the shipped join answers the two error records
+  ✔ carries exactly the eight contract fields in every state (0.6871ms)
+  ✔ SC1 — an uncaught text beside a handler in force is uncaught-with-handler (0.4651ms)
+  ✔ SC2 — a text a boundary entry carries is reached-handler, with no finding (0.4926ms)
+  ✔ SC3 — no handler resolved is no-handler-provided, and never a handler name (0.6169ms)
+  ✔ SC4 — the phase is the record’s or the absence, never the message’s (0.5612ms)
+  ✔ SC5 — an empty boundary record is its own absence, and unknown input is cannot-tell (1.1029ms)
+✔ the shipped join answers the two error records (4.2312ms)
+▶ mutants redden by name
+  ✔ M1 — boundary comparison dropped reports cannot-tell and reddens the uncaught pin (2.5099ms)
+  ✔ M2 — every global error treated as uncaught reddens the reached pin (1.1677ms)
+  ✔ M3 — a handler name invented where none resolved reddens the no-handler pin (1.2124ms)
+  ✔ M4 — phase derived from the message reddens the phase pin (1.2423ms)
+  ✔ M5 — a key dropped from the answer reddens the every-field pin (1.9014ms)
+  ✔ M6 — the two absences folded into one reddens the boundary-absence pin (1.1513ms)
+  ✔ M7 — owner borrowed from the last arrival reddens the uncaught pin (1.2234ms)
+✔ mutants redden by name (10.6228ms)
+ℹ tests 16
+ℹ suites 3
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 149.9764
+Checking formatting...
+All matched files use Prettier code style!
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M060; stages archive-paths
+gate-integrity: archive-paths clean - examined 17 live path reference(s) of 195 reference(s) in 169 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M060; stages fix-record
+gate-integrity: fix-record clean - examined 2 claim(s) in 5 task log(s) of .project/tasks (logs of M060) against 15 changed path(s) of 5de81e03fcca8777545a3bc819db5b4215a7f7c4..afa99cedd59fb5113765b12dffe3b6e41ba04a77 (rule ship: M059's ship commit, 5de81e03 (ship: M059 — teardown-leak); the head is this tree's HEAD, afa99ced (build: verify ledger for T002); claims: declared)
+gate-integrity: fix-record pins - 2 declared path(s) byte-identical across 5de81e03fcca8777545a3bc819db5b4215a7f7c4..afa99cedd59fb5113765b12dffe3b6e41ba04a77, recorded and not judged as changes
+gate-integrity: pin extension/error-routing.js at .project/tasks/T002-answer-from-the-two-error-records-purely.md:73 (T002) - declared and byte-identical across 5de81e03fcca8777545a3bc819db5b4215a7f7c4..afa99cedd59fb5113765b12dffe3b6e41ba04a77, recorded and not judged as a change
+gate-integrity: pin scripts/error-routing.test.mjs at .project/tasks/T002-answer-from-the-two-error-records-purely.md:73 (T002) - declared and byte-identical across 5de81e03fcca8777545a3bc819db5b4215a7f7c4..afa99cedd59fb5113765b12dffe3b6e41ba04a77, recorded and not judged as a change
+gate-integrity: mention .commandcode/taste/communication/taste.md at .project/tasks/T001-measure-the-two-error-records-and-the-joins-shape.md:79 (T001) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 1 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/error-routing.js scripts/error-routing.test.mjs
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .
