@@ -16,7 +16,7 @@ No subagent was dispatched: the roadmap entry lists **no open questions**, so ea
 
 ## Question assignments
 
-None. The roadmap entry's `Open questions` field reads `none`, so no question was assigned to a research mode.
+None.
 
 ## R1 — The handler side is already recorded (M042)
 
