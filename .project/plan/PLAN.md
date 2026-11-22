@@ -68,6 +68,7 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
 | SC5 | T005 | AC1 |
 | SC1 | T006 | AC1 |
 | SC1 | T007 | AC1 |
+| SC5 | T008 | AC1 |
 | SC6 | T004 | AC2 |
 
 The ordering is load-bearing and not aesthetic. `scripts/navigation-blocking.test.mjs` resolves an
@@ -199,5 +200,12 @@ Review depth: full
 Goal: the wave-1 review found the milestone's own surface and claims records counted as page evidence for
 NG0205, which flipped producible to produced with fifteen hits nobody observed. The repair counts a
 page hit only inside a record that can carry one, and reports quotations as their own number.
+
+Review depth: full
+
+## Wave 8 — re-derive the gate records the last landing moved
+
+Goal: T007 landed after T005 captured the gate records, so both are stale at HEAD. The last task to land
+owns the re-derivation.
 
 Review depth: full

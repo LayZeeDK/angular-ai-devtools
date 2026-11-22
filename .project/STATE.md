@@ -5,7 +5,7 @@ milestone: teardown-leak
 phase: build
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: blocked
 branch: gsd-path/M059
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1198,3 +1198,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — plan — build recovery: {"base": "944115b2bcbb23970be4f921f71dc2f254264074", "branch": "gsd-path/M059", "kind": "plan", "source": "build"}
 - 2026-11-22 — plan — plan approved
 - 2026-11-22 — build — build started
+- 2026-11-22 — build — build blocked
