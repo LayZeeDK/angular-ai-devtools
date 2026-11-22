@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: error-routing
-phase: shipped
+milestone: null
+phase: inspect
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
-branch: gsd-path/M060
-archive: .project/archive/060-error-routing
+status: active
+branch: gsd-path/M061
+archive: null
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1253,3 +1253,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — build — build complete; five tasks landed and the project verify is green at this head
 - 2026-11-22 — ship — build done; final review pending
 - 2026-11-22 — shipped — archive preflight passed; shipment recorded
+- 2026-11-22 — inspect — router bound next milestone
