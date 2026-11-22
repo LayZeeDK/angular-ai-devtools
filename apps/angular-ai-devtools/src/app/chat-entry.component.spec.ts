@@ -722,6 +722,7 @@ describe('the chat route', () => {
       'tutor-routing', // M058 SC1, SC3 surface: the terminal event by class and id, the route node by its own path and stated fields, the two absences side by side, or the cannot-tell state
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
+      'teardown-leak', // M059 SC1, SC3 surface: the console code and the body the record carries, the owner only where a message field names one, both absences as their own lines, and the release then the diagnostic, or the code searched for and the count read
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
@@ -761,6 +762,7 @@ describe('the chat route', () => {
       'tutor-routing', // M058 SC1, SC3 surface
       'webmcp-rehearsal', // M053 SC1-3 surface
       'webmcp', // M052 SC1-2 surface
+      'teardown-leak', // M059 SC1, SC3 surface
       'components', // M047 SC1-2 surface
       'copy-check', // M048 SC1-2 surface
       'interaction-story', // M049 SC1-2 surface
@@ -816,6 +818,7 @@ describe('the chat route', () => {
       'console-read',
       'webmcp-rehearsal',
       'webmcp',
+      'teardown-leak',
       'components',
       'copy-check',
       'interaction-story',

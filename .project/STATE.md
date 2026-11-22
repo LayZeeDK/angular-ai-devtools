@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: tutor-routing
+milestone: teardown-leak
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M058
-archive: .project/archive/058-tutor-routing
+branch: gsd-path/M059
+archive: .project/archive/059-teardown-leak
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1174,4 +1174,68 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-21 — build — build started
 - 2026-11-21 — build — build complete
 - 2026-11-21 — ship — build done; final review pending
+- 2026-11-22 — shipped — archive preflight passed; shipment recorded
+- 2026-11-22 — inspect — router bound M059 teardown-leak
+- 2026-11-22 — inspect — inspection complete; delta recorded
+- 2026-11-22 — define — define started
+- 2026-11-21 — define — STATE repair: milestone rebound from "teardown-leak" to null
+- 2026-11-22 — define — milestone intent approved
+- 2026-11-22 — plan — planning started
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build blocked
+- 2026-11-22 — plan — build plan repair requested
+- 2026-11-22 — plan — build recovery: {"base": "9be3582ff297941c43dc5edae908ea675ee34be3", "branch": "gsd-path/M059", "kind": "plan", "source": "build"}
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build blocked
+- 2026-11-22 — plan — build plan repair requested
+- 2026-11-22 — plan — build recovery: {"base": "bd3744b827c2e697e3fd06f091d71c55207d15e5", "branch": "gsd-path/M059", "kind": "plan", "source": "build"}
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build blocked
+- 2026-11-22 — plan — build plan repair requested
+- 2026-11-22 — plan — build recovery: {"base": "944115b2bcbb23970be4f921f71dc2f254264074", "branch": "gsd-path/M059", "kind": "plan", "source": "build"}
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build blocked
+- 2026-11-22 — plan — build plan repair requested
+- 2026-11-22 — plan — build recovery: {"base": "42640267e2afdf9d40d111a65bc631afa7b2ad4e", "branch": "gsd-path/M059", "kind": "plan", "source": "build"}
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build done; final review pending
+- 2026-11-22 — ship — build done; final review pending
+- 2026-11-22 — ship — ship blocked by the project verify
+- 2026-11-22 — plan — patch plan reopened
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build blocked
+- 2026-11-22 — plan — build plan repair requested
+- 2026-11-22 — plan — build recovery: {"base": "232b9929f15209bd2eac8f776cafbf5707045e03", "branch": "gsd-path/M059", "kind": "plan", "source": "build"}
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build blocked
+- 2026-11-22 — plan — build plan repair requested
+- 2026-11-22 — plan — build recovery: {"base": "1731b7ba159ec10da3c733e91163762d28e6c978", "branch": "gsd-path/M059", "kind": "plan", "source": "build"}
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build done; final review pending
+- 2026-11-22 — ship — build done; final review pending
+- 2026-11-22 — ship — ship blocked by the project verify
+- 2026-11-22 — plan — patch plan reopened
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build done; final review pending
+- 2026-11-22 — ship — build done; final review pending
+- 2026-11-22 — ship — ship blocked by the project verify
+- 2026-11-22 — plan — patch plan reopened
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build blocked
+- 2026-11-22 — plan — build plan repair requested
+- 2026-11-22 — plan — build recovery: {"base": "c4505ff091bc33c0c859b3ac2a3cf72f8b7d1c3c", "branch": "gsd-path/M059", "kind": "plan", "source": "build"}
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build done; final review pending
+- 2026-11-22 — ship — build done; final review pending
 - 2026-11-22 — shipped — archive preflight passed; shipment recorded

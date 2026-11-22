@@ -1,6 +1,6 @@
 {
   "schema": "copy-digest/v1",
-  "version": "m058+t003",
+  "version": "m059+t003",
   "source": "research/raw/m048-surface-copy.json",
   "entries": [
     {
@@ -992,6 +992,36 @@
       "surface": "tutor-routing",
       "key": "NO_ANSWER_SENTENCE_ID",
       "text": "no-tutor-routing-answer: no answer was handed over, so no state, no question, no terminal event, no route node, no absence, no unconfigured segment and no claim are reported"
+    },
+    {
+      "surface": "teardown-leak",
+      "key": "state-finding",
+      "text": "finding: the console record carries a message whose own body carries the code, so this pane names that code and the body the message carries, and names an owner only where a field of the message states one — never the stack, never the last component mounted and never the message’s arrival order, and no cause of the diagnostic is named here"
+    },
+    {
+      "surface": "teardown-leak",
+      "key": "state-absent",
+      "text": "absent: the console record states its messages and none of them carries the code searched for, so this pane names that code and the count it read, and never reports a page that is free of the diagnostic"
+    },
+    {
+      "surface": "teardown-leak",
+      "key": "state-cannot-tell",
+      "text": "cannot-tell: the record does not state what this answer asked, so this pane names the reason the record states and attributes no code, no message, no owner and no sequence"
+    },
+    {
+      "surface": "teardown-leak",
+      "key": "state-empty",
+      "text": "empty: no record was read, so no code, no message, no owner, no absence and no claim are reported"
+    },
+    {
+      "surface": "teardown-leak",
+      "key": "absence-owner-not-in-the-message",
+      "text": "owner-not-in-the-message: the message the console record states carries no field that names an owner, so this absence stands beside the code and no owner is rendered — not from the stack, not from the last component mounted and not from the message’s arrival order"
+    },
+    {
+      "surface": "teardown-leak",
+      "key": "absence-handle-record-not-held",
+      "text": "handle-record-not-held: the console stream carries a code and a body and no record this join reads carries a per-injector handle, so no subscription, no effect, no timer and no handle is named anywhere in this pane"
     }
   ]
 }

@@ -47,7 +47,9 @@ describe('App', () => {
  * why the count moves from thirty-five to thirty-six without moving a citation. M058's
  * `tutor-routing` follows `tutor-signals` for the same reason and is paid for by folding the M053
  * note into that paragraph and deleting its line, which is why the count moves from thirty-six to
- * thirty-seven without moving one.
+ * thirty-seven without moving one. M059's `teardown-leak` follows `webmcp` for the same reason and is
+ * paid for by folding the M047 note's three lines into one, which is why the count moves from
+ * thirty-seven to thirty-eight without moving a cited line.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -84,6 +86,7 @@ describe('the route table', () => {
       'tutor-routing', // M058 SC1, SC3 surface: the terminal event by class and id, the route node by its own path and stated fields, the two absences side by side, or the cannot-tell state
       'webmcp-rehearsal', // M053 SC1-3 surface: the tool the model chose beside the result the tool returned, or the absent handle, the refusal or the unreadable list, each named
       'webmcp', // M052 SC1-2 surface: each declared tool with the name and description the API reported, the empty list it answered, or the reason's code and detail
+      'teardown-leak', // M059 SC1, SC3 surface: the console code and the body the record carries, the owner only where a message field names one, both absences as their own lines, and the release then the diagnostic, or the code searched for and the count read
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason

@@ -2312,9 +2312,17 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
 // sentence inline: the one line it builds, `${label}: ${value}`, is a label of the answer's own
 // field, so the digest holds no row for it.
 //
+// M059's T003 shipped `panel-teardown-leak.ts` as the thirtieth surface, so T003 re-measured the
+// record over all thirty — every citation re-resolved by searching each file for the exact line it
+// quotes, the thirtieth surface's six registry sentences, its eleven label constants (`LABELS`) and
+// its one inline label cited — and authored six more digest rows from that module's own
+// `PANE_SENTENCES`, none of them a text another surface already declares. The surface writes no
+// sentence inline: the one line it builds, `${label}: ${value}`, is a label of the answer's own
+// field, so the digest holds no row for it.
+//
 // Two facts the pins below state rather than assume:
 //
-//   * the digest holds one row per distinct sentence text, so 198 rows explain 206 sentences: the
+//   * the digest holds one row per distinct sentence text, so 204 rows explain 212 sentences: the
 //     `no-reason` sentence `panel-copy-check.ts:128`, `panel-interaction-story.ts:150`,
 //     `panel-dead-click.ts:202`, `panel-what-changed.ts:154` and `panel-webmcp.ts:138` declare is byte
 //     for byte the one `panel-components.ts:147` declares, and the one row explains all six;
@@ -2338,7 +2346,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
 
   assert.equal(
     record.counts.surfaces,
-    29,
+    30,
     `the record measures every panel-*.ts surface the tree carries, and it measures ${record.counts.surfaces}`,
   );
   assert.equal(
@@ -2412,8 +2420,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   const all = recordSentenceRows();
   assert.equal(
     shippedDigest.entries.length,
-    198,
-    `the digest carries ${shippedDigest.entries.length} rows and the record carries 198 distinct sentence texts`,
+    204,
+    `the digest carries ${shippedDigest.entries.length} rows and the record carries 204 distinct sentence texts`,
   );
   assert.equal(
     shippedDigest.entries.length,
@@ -2422,8 +2430,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     all.length,
-    206,
-    `the record carries ${all.length} sentences: 172 declared in a map or a constant and 34 written inline`,
+    212,
+    `the record carries ${all.length} sentences: 178 declared in a map or a constant and 34 written inline`,
   );
 
   // The one repeated sentence: six surfaces declare it, the digest holds one row for it, and the
@@ -2873,7 +2881,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     whole.checked,
-    206,
+    212,
     `every sentence the record declares is compared, the shared one at all six surfaces, and ${whole.checked} were`,
   );
   assert.equal(

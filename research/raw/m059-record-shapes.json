@@ -1,0 +1,1082 @@
+{
+  "schema": "m059-record-shapes/v1",
+  "milestone": "M059",
+  "task": "T001",
+  "title": "Measure what the console record and the digest state",
+  "question": "what does the digest state for NG0205, what does a console message carry once the shipped joins have read it, can the portal or spikes/ng222-app be driven to emit it, and which counts state the handle record this agent does not hold?",
+  "verdict": "the digest is 61577 bytes and carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 38 extension modules, 136 suites and 148 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.",
+  "head": "0314cac261745c4aa1ef5628798ffafc745b3dbf",
+  "headCommand": "git rev-parse HEAD",
+  "capturedAt": "2026-11-22T00:27:11.118Z",
+  "instrument": {
+    "reads": [
+      "extension/error-digest.json",
+      "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs",
+      "research/raw/m032-console-diagnostics.json",
+      "research/raw/m045-console-shapes.json",
+      "extension/console-join.js",
+      "extension/lint-core.js",
+      "extension/agent-main.js",
+      "spikes/ng222-app/src/app/stale-view-fixture.ts",
+      "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/shared/ui-directives/src/lib/button-action.directive.ts",
+      "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/contract/feature-list/src/lib/list.component.ts",
+      "the two browser drives recorded under `producible`"
+    ],
+    "how": "statically for the digest, the joins and the absences: each file is parsed and each line a claim rests on is found by searching its file for the text the citation quotes; dynamically for producibility, where the two drives recorded under `producible` are the measurement and their captured console is tallied and searched on every run",
+    "holds": "a section holds where this head re-derives the same value on every run; a citation holds where searching the file for the quoted line finds it on exactly the line the record names and on no second line; a drive holds where its tallied lines sum to the total it printed, and where the codes it names are the codes its own texts carry",
+    "nothingRun": "this suite opens no page, starts no browser and builds nothing: the two drives were made once through the control-angular-dev-app skill and their console is recorded here, so a read run asks no page anything"
+  },
+  "records": [
+    {
+      "path": "research/raw/m059-surface.json",
+      "carries": "the surface record M059 T003 wrote — the `teardown-leak` route and its loader key, the exported `teardownLeakPanel`, the digest rows and the sample answer the panel renders field for field — named outside this map rather than read as an input, because it was written after this measurement",
+      "task": "T003"
+    },
+    {
+      "path": "research/raw/m059-verdict-claims.json",
+      "carries": "the verdict-claims record M059 T004 wrote — one claim per criterion this milestone’s intent declares, each naming the artefact it rests on by `artefactPath` and re-derived against the tree — named outside this map rather than read as an input, because it was written after this measurement",
+      "task": "T004"
+    },
+    {
+      "path": "research/raw/m032-console-diagnostics.json",
+      "carries": "the captured console this map’s message section is measured from: four messages with the five fields a message carries, the one coded message the digest carries and the one stack that survives inside `text`",
+      "task": null
+    },
+    {
+      "path": "research/raw/m045-console-shapes.json",
+      "carries": "the console-shapes map this map’s producible section reads: the digest’s own 64-code enumeration and coded list, which is where the code this milestone answers for is quoted rather than observed on a page",
+      "task": null
+    }
+  ],
+  "environment": {
+    "platform": "win32",
+    "node": "v24.22.0",
+    "playwrightCli": "0.1.21",
+    "browser": "the Playwright Chromium the control-angular-dev-app session drives (playwright-cli 0.1.21)",
+    "shell": "PowerShell 5.1 for the measurement commands; the two drives ran through playwright-cli from the same shell",
+    "serving": {
+      "portal": {
+        "command": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal --json",
+        "url": "http://localhost:4507/",
+        "port": 4507,
+        "slot": 7,
+        "session": "control-ngdev-portal-4507",
+        "readyInSeconds": 13.5,
+        "evidenceDir": "tmp/control-angular-dev-app/portal-2026-11-21T23-58-04-705Z",
+        "startedAt": "2026-11-21T23:58:04.741Z",
+        "teardownCommand": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs down --target portal"
+      },
+      "fixture": {
+        "command": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter --json",
+        "url": "http://localhost:4222/",
+        "port": 4222,
+        "slot": 0,
+        "session": "control-ngdev-counter-4222",
+        "readyInSeconds": 6.2,
+        "evidenceDir": "tmp/control-angular-dev-app/counter-2026-11-21T23-56-14-301Z",
+        "startedAt": "2026-11-21T23:56:14.345Z",
+        "teardownCommand": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs down --target counter"
+      }
+    },
+    "page": {
+      "angularVersion": "22.2.2",
+      "devBuild": true,
+      "ngGlobal": "object"
+    },
+    "note": "each `up` printed a process table beside these facts; the table is bookkeeping for `down` and stays in the skill’s evidence directory, so only the facts this record uses are carried here"
+  },
+  "commands": [
+    {
+      "command": "git rev-parse HEAD",
+      "output": "0314cac261745c4aa1ef5628798ffafc745b3dbf"
+    },
+    {
+      "command": "node -e \"const c=require('node:crypto'),f=require('node:fs');const b=f.readFileSync('extension/error-digest.json');const d=JSON.parse(b);const e=d.entries.find(x=>x.code==='NG0205');console.log(e.code, e.title);console.log(d.entries.length, c.createHash('sha256').update(b).digest('hex'), b.length)\"",
+      "output": "NG0205 Injector has already been destroyed\n64 426a5be1f4e344c87e4b70817ac10da3de0f9c8a172325e704b3235953a01c35 61577"
+    },
+    {
+      "command": "powershell -NoProfile -Command \"Select-String -Path extension/*.js -Pattern 'handleRecord|postDestroy' | Measure-Object | Select-Object -ExpandProperty Count; (Get-ChildItem extension/*.js).Count\"",
+      "output": "0\n38"
+    },
+    {
+      "command": "powershell -NoProfile -Command \"foreach ($n in 'handleRecord','postDestroy','leakedHandle') { $e=(Select-String -Path extension/*.js -Pattern $n | Measure-Object).Count; $s=(Select-String -Path scripts/*.mjs -Pattern $n | Measure-Object).Count; $r=(Select-String -Path research/raw/*.json -Pattern $n | Measure-Object).Count; \\\"$n extension=$e scripts=$s research=$r\\\" }; 'modules extension=' + (Get-ChildItem extension/*.js).Count + ' scripts=' + (Get-ChildItem scripts/*.mjs).Count + ' research=' + (Get-ChildItem research/raw/*.json).Count\"",
+      "output": "handleRecord extension=0 scripts=0 research=0\npostDestroy extension=0 scripts=0 research=0\nleakedHandle extension=0 scripts=0 research=0\nmodules extension=38 scripts=136 research=146"
+    },
+    {
+      "command": "powershell -NoProfile -Command \"Select-String -Path scripts/*.mjs -Pattern 'handleRecord|postDestroy' | Measure-Object | Select-Object -ExpandProperty Count; (Get-ChildItem scripts/*.mjs).Count; Select-String -Path research/raw/*.json -Pattern 'handleRecord|postDestroy' | Measure-Object | Select-Object -ExpandProperty Count; (Get-ChildItem research/raw/*.json).Count; Select-String -Path extension/*.js,scripts/*.mjs -Pattern '\\.unsubscribe\\(' | ForEach-Object { \\\"$($_.Path):$($_.LineNumber): $($_.Line.Trim())\\\" }\"",
+      "output": "0\n136\n0\n146\nD:\\projects\\sandbox\\angular-ai-devtools\\extension\\agent-main.js:1858: subscription.unsubscribe();\nD:\\projects\\sandbox\\angular-ai-devtools\\extension\\agent-main.js:2435: subscription.unsubscribe();\nD:\\projects\\sandbox\\angular-ai-devtools\\scripts\\stability-measure.test.mjs:315: subscription.unsubscribe();"
+    },
+    {
+      "command": "node --version",
+      "output": "v24.22.0"
+    },
+    {
+      "command": "powershell -NoProfile -Command \"playwright-cli --version\"",
+      "output": "0.1.21"
+    }
+  ],
+  "digest": {
+    "path": "extension/error-digest.json",
+    "version": "22.2.x",
+    "entries": 64,
+    "uniqueCodes": 64,
+    "sha256": "426a5be1f4e344c87e4b70817ac10da3de0f9c8a172325e704b3235953a01c35",
+    "bytes": 61577,
+    "entry": {
+      "code": "NG0205",
+      "title": "Injector has already been destroyed",
+      "body": "Injector has already been destroyed edit This error occurs when you attempt to retrieve a service from an injector that has already been destroyed. This typically happens when code tries to access dependencies after a component, directive, or module has been destroyed. Common scenarios Accessing services in callbacks after destruction When a component is destroyed, its injector is also destroyed. If an async callback later tries to access services, this error occurs: @ Component ( /* ... */ ) export class UserProfile implements OnInit { private userClient = inject (UserClient); ngOnInit () { setTimeout (() =&gt; { // ERROR: If component was destroyed before timeout fires, // the injector is no longer available this .userClient. fetchData (); }, 5000 ); } } Accessing services after unsubscribing Similar issues occur with observables if cleanup happens in the wrong order: @ Component ( /* ... */ ) export class DataView implements …"
+    },
+    "titleWithoutAFullStop": true,
+    "bodyEndsWithAnEllipsis": true,
+    "printedByTheInstalledBuild": {
+      "build": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs",
+      "codeNumber": -205,
+      "codeTemplate": "NG0${Math.abs(code)}",
+      "bodyLiteral": "Injector has already been destroyed.",
+      "guard": "ngDevMode",
+      "lookupMethod": "Injector.get",
+      "printedPrefix": "NG0205",
+      "printedAs": "NG0205: Injector has already been destroyed.",
+      "emittedOnALookup": true,
+      "note": "the digest states the title without a full stop and the build states the body with one, so a surface that renders the digest row and one that renders the message body are spelling two different strings (C2)",
+      "citationIds": [
+        "frameworkThrow",
+        "frameworkCodeFormat",
+        "frameworkMessageFormat",
+        "frameworkGet"
+      ]
+    },
+    "finding": "The digest states the code and the title, and its body is documentation — 943 characters, ending in an ellipsis — so it cannot stand in for the string a console prints. That string is “NG0205: Injector has already been destroyed.”, derived from the build's own throw site: the code is the throw's number printed as `NG0` + its absolute value, and the body is the literal the throw carries.",
+    "citationIds": [
+      "digestCode",
+      "digestTitle",
+      "frameworkThrow",
+      "frameworkCodeFormat",
+      "frameworkMessageFormat",
+      "frameworkGet"
+    ]
+  },
+  "message": {
+    "question": "once the shipped joins have read it, which fields does a console message carry, does the stack survive, and what identifies the source?",
+    "capture": {
+      "path": "research/raw/m032-console-diagnostics.json",
+      "messages": 4,
+      "codedMessages": 1,
+      "code": "NG0950",
+      "digestCarriesThatCode": true,
+      "fieldKeys": [
+        "code",
+        "location",
+        "order",
+        "text",
+        "type"
+      ],
+      "locationKeys": [
+        "column",
+        "columnNumber",
+        "line",
+        "lineNumber",
+        "url"
+      ],
+      "withALocation": 4,
+      "withAStackFrame": 1,
+      "finding": "The capture writes five fields per console message — `order`, `type`, `code`, `text` and `location`, the last with five of its own — and the stack survives exactly once, inside `text`, in the frame lines the message printed (C3).",
+      "citationIds": [
+        "captureConsoleTally",
+        "captureDigestCarries"
+      ]
+    },
+    "joins": {
+      "consoleJoin": {
+        "path": "extension/console-join.js",
+        "function": "consoleJoin",
+        "answerFields": [
+          "state",
+          "findings"
+        ],
+        "findingFields": [
+          "text",
+          "code",
+          "title",
+          "reason",
+          "carriedCode"
+        ],
+        "alwaysPresent": [
+          "text"
+        ],
+        "optional": [
+          "code",
+          "title",
+          "reason",
+          "carriedCode"
+        ],
+        "inputFields": [
+          "code",
+          "message",
+          "component",
+          "timestamp"
+        ],
+        "readsOnly": [
+          "code",
+          "message"
+        ],
+        "stackSurvives": true,
+        "stackSurvivesAs": "inside `text`, byte for byte: the join returns the captured string untouched, so the frames are part of the string and are never a field",
+        "noDigestEntryReason": "no-digest-entry",
+        "citationIds": [
+          "consoleJoinAnswer",
+          "consoleJoinAnswerFields",
+          "consoleJoinFindingFields",
+          "consoleJoinReadsOnly",
+          "consoleJoinVerbatim",
+          "consoleJoinNoDigestEntry",
+          "captureInputFields"
+        ]
+      },
+      "lintJoin": {
+        "path": "extension/lint-core.js",
+        "function": "lintJoin",
+        "findingFields": [
+          "state",
+          "construct",
+          "code",
+          "message"
+        ],
+        "absenceField": "reason",
+        "absenceNames": [
+          "no-captured-messages",
+          "no-coded-diagnostic",
+          "code-not-in-digest",
+          "message-names-no-construct"
+        ],
+        "inputFields": [
+          "code",
+          "text"
+        ],
+        "stackSurvives": false,
+        "stackDroppedBy": "bodyOf",
+        "stackDroppedAt": "the first line matching `STACK_FRAME`, a newline, indentation and `at `: everything after it is dropped and the rest is trimmed",
+        "citationIds": [
+          "lintInputFields",
+          "lintInputStackIncluded",
+          "lintAnswerFields",
+          "lintStackFrame",
+          "lintBodyOf",
+          "lintStackDropped",
+          "lintNoCapturedMessages"
+        ]
+      }
+    },
+    "sourceIdentity": {
+      "readByTheConsoleJoin": [
+        "code",
+        "message"
+      ],
+      "readByTheLintJoin": [
+        "code",
+        "text"
+      ],
+      "carriedByTheCaptureAndReadByNeither": [
+        "component",
+        "location",
+        "order",
+        "timestamp",
+        "type"
+      ],
+      "theComponentFieldIsTheFocusedElementsOwner": true,
+      "theStackNamesAComponentAndIsNotTheMessage": true,
+      "finding": "Neither join carries a component, an element or a location: the console join reads only `code` and `message` out of a payload that also carries `component` and `timestamp`, and the lint join strips the stack before it names anything. What identifies a source is therefore the message body’s own words and nothing else, and the capture’s `location` — the field that really names where the message came from — is read by no join at all.",
+      "citationIds": [
+        "consoleJoinComponentSource",
+        "agentComponentSource",
+        "agentTimestamp",
+        "agentCodePattern",
+        "agentDispatchPayload",
+        "agentCaptureHook"
+      ]
+    },
+    "finding": "A post-teardown NG0205 reaches the join as one finding whose fields are `text` and `code`, plus the digest’s `title`: the code is the one the message carried, the text is the message byte for byte, and no field names the component that wrote it — so the answer can state the code and the body, and must state `owner-not-in-the-message` beside them (C3, SC1)."
+  },
+  "producible": {
+    "question": "can the Insurance Portal, or the fixture this repository already carries, be driven so that a component touching its injector after teardown emits NG0205?",
+    "codeSearched": "NG0205",
+    "verdict": "not-produced",
+    "produced": 0,
+    "targets": {
+      "portal": {
+        "target": "portal",
+        "checkout": "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools",
+        "served": {
+          "command": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal --json",
+          "url": "http://localhost:4507/",
+          "port": 4507,
+          "slot": 7,
+          "session": "control-ngdev-portal-4507",
+          "readyInSeconds": 13.5,
+          "evidenceDir": "tmp/control-angular-dev-app/portal-2026-11-21T23-58-04-705Z",
+          "startedAt": "2026-11-21T23:58:04.741Z",
+          "teardownCommand": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs down --target portal"
+        },
+        "drive": {
+          "command": "playwright-cli -s=control-ngdev-portal-4507 --raw run-code --filename=\"C:\\Users\\LARSGY~1\\AppData\\Local\\Temp\\commandcode\\D--projects-sandbox-angular-ai-devtools\\12825768-988f-4c77-96e1-51cb983cf448\\scratchpad\\portal-teardown-drive.js\"",
+          "openCommand": "playwright-cli -s=control-ngdev-portal-4507 open http://localhost:4507/",
+          "harness": "C:\\Users\\LARSGY~1\\AppData\\Local\\Temp\\commandcode\\D--projects-sandbox-angular-ai-devtools\\12825768-988f-4c77-96e1-51cb983cf448\\scratchpad\\portal-teardown-drive.js",
+          "actions": [
+            "goto http://localhost:4507/contract/list and wait for the table’s first row: 20 rows rendered",
+            "goto http://localhost:4507/home and wait for a heading — the list component is destroyed here",
+            "a 2000 ms observation window with the page idle after the destroy",
+            "goto http://localhost:4507/contract/list again and wait for the first row",
+            "goto http://localhost:4507/claim/list, wait for the first row, and a second 2000 ms window",
+            "goto http://localhost:4507/customer/list and wait for the network to settle",
+            "return the URLs visited, the console lines, and every line whose text carries NG0205"
+          ],
+          "listeners": "page.on(\"console\") and page.on(\"pageerror\") in the playwright-cli driver: no listener, no hook, no patch and no global was installed in the page (D7)"
+        },
+        "routesTried": [
+          "/contract/list",
+          "/home",
+          "/claim/list",
+          "/customer/list"
+        ],
+        "visited": [
+          "http://localhost:4507/contract/list",
+          "http://localhost:4507/home",
+          "http://localhost:4507/contract/list",
+          "http://localhost:4507/claim/list",
+          "http://localhost:4507/customer/list"
+        ],
+        "steps": [
+          {
+            "step": "load",
+            "url": "http://localhost:4507/contract/list",
+            "rows": 20
+          },
+          {
+            "step": "leave",
+            "url": "http://localhost:4507/home"
+          },
+          {
+            "step": "destroy-window",
+            "consoleLinesAfterDestroy": 8
+          }
+        ],
+        "page": {
+          "ng": "object",
+          "version": "22.2.2"
+        },
+        "console": {
+          "total": 38,
+          "ng0205": 0,
+          "codesSeen": [
+            "NG0913"
+          ],
+          "lines": [
+            {
+              "type": "debug",
+              "text": "[vite] connecting...",
+              "occurrences": 5
+            },
+            {
+              "type": "debug",
+              "text": "[vite] connected.",
+              "occurrences": 5
+            },
+            {
+              "type": "log",
+              "text": "Angular is running in development mode.",
+              "occurrences": 5
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+              "occurrences": 10
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+              "occurrences": 5
+            },
+            {
+              "type": "error",
+              "text": "Error: [pangular] No devtools server found (tried ./, /__pangular/, /__devframes/pangular/). Mount initPangularHub() or the pangular() Vite plugin in your dev server, before the SSR handler. On a custom path, pass it to initOverlay({baseURL}). See https://pangular-inspector.dev/getting-started/installation/\n    at noServerError (http://localhost:4507/@fs/D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/.angular/cache/22.2.2/insurance-portal/vite/deps/@pangular-inspector_devtools_overlay.js?v=00af0743:14234:9)\n    at http://localhost:4507/@fs/D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/.angular/cache/22.2.2/insurance-portal/vite/deps/@pangular-inspector_devtools_overlay.js?v=00af0743:14239:9\n    at async startOverlay (http://localhost:4507/@fs/D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/.angular/cache/22.2.2/insurance-portal/vite/deps/@pangular-inspector_devtools_overlay.js?v=00af0743:14238:14)",
+              "occurrences": 5
+            },
+            {
+              "type": "warning",
+              "text": "NG0913: An image with src http://localhost:4507/assets/ng-journal.png has intrinsic file dimensions much larger than its rendered size. This can negatively impact application loading performance. For more information about addressing or disabling this warning, see https://v22.angular.dev/errors/NG0913. Find more at https://v22.angular.dev/errors/NG0913",
+              "occurrences": 3
+            }
+          ]
+        },
+        "consoleTotalAsPrinted": 38,
+        "ng0205AsPrinted": 0,
+        "observationWindows": 2,
+        "windowMs": 2000,
+        "missing": "No NG0205 in the console over 5 navigations and 4 distinct routes — 38 console lines, 0 carrying the code — and the observable that is absent is the page action, not the read: NG0205 is thrown by Injector.get on a destroyed injector, and nothing the portal’s driven route does after the two destroys performs that lookup. The contract list reads through an rxResource stream torn down with the view (libs/contract/feature-list/src/lib/list.component.ts:63), and the one hand-rolled subscription in the portal’s 157 library sources is released in onCleanup (libs/shared/ui-directives/src/lib/button-action.directive.ts:35). The console was not silent: it carried the pangular overlay’s error five times and NG0913 three times; it never carried the code.",
+        "citationIds": [
+          "portalReleaseOnDestroy",
+          "portalResourceRead"
+        ]
+      },
+      "fixture": {
+        "target": "spikes/ng222-app",
+        "route": "/stale-view",
+        "destroyedBy": "window.ng.ɵnavigateByUrl(window.ng.ɵgetRouterInstance(window.ng.getInjector(document.querySelector(\"app-root\"))), \"/\") — a client-side navigation, so the routed component is destroyed without the page unloading",
+        "served": {
+          "command": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target counter --json",
+          "url": "http://localhost:4222/",
+          "port": 4222,
+          "slot": 0,
+          "session": "control-ngdev-counter-4222",
+          "readyInSeconds": 6.2,
+          "evidenceDir": "tmp/control-angular-dev-app/counter-2026-11-21T23-56-14-301Z",
+          "startedAt": "2026-11-21T23:56:14.345Z",
+          "teardownCommand": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs down --target counter"
+        },
+        "drive": {
+          "command": "playwright-cli -s=control-ngdev-counter-4222 --raw run-code --filename=\"C:\\Users\\LARSGY~1\\AppData\\Local\\Temp\\commandcode\\D--projects-sandbox-angular-ai-devtools\\12825768-988f-4c77-96e1-51cb983cf448\\scratchpad\\fixture-teardown-drive.js\"",
+          "openCommand": "playwright-cli -s=control-ngdev-counter-4222 open http://localhost:4222/",
+          "harness": "C:\\Users\\LARSGY~1\\AppData\\Local\\Temp\\commandcode\\D--projects-sandbox-angular-ai-devtools\\12825768-988f-4c77-96e1-51cb983cf448\\scratchpad\\fixture-teardown-drive.js",
+          "actions": [
+            "goto http://localhost:4222/stale-view and wait for the fixture’s paragraph",
+            "read the mounted instance through ng.getComponent and keep the object in the driver, so no page global is written",
+            "navigate to / through ng.ɵnavigateByUrl and wait until the fixture element is detached",
+            "call the instance’s own push(41) — the fixture’s post-teardown write — and read value back",
+            "a 3000 ms observation window with the page idle after the write",
+            "return the mounted facts, the post-teardown write’s result, and every console line"
+          ],
+          "listeners": "page.on(\"console\") and page.on(\"pageerror\") in the playwright-cli driver: no listener, no hook, no patch and no global was installed in the page (D7)"
+        },
+        "routesTried": [
+          "/stale-view",
+          "/"
+        ],
+        "mounted": {
+          "url": "http://localhost:4222/stale-view",
+          "text": "0",
+          "name": "_StaleViewFixture"
+        },
+        "afterDestroy": {
+          "stillAnObject": true,
+          "ownValueBefore": 0,
+          "push": "called",
+          "ownValueAfter": 0
+        },
+        "console": {
+          "total": 4,
+          "ng0205": 0,
+          "codesSeen": [],
+          "lines": [
+            {
+              "type": "debug",
+              "text": "[vite] connecting...",
+              "occurrences": 1
+            },
+            {
+              "type": "log",
+              "text": "Angular is running in development mode.",
+              "occurrences": 1
+            },
+            {
+              "type": "error",
+              "text": "ERROR Error: interop\n    at http://localhost:4222/main.js:30:26\n    at Object.fn (http://localhost:4222/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/_resource-chunk-J43UWQbW.js?v=ce1c2158:3101:3)\n    at runEffect (http://localhost:4222/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/_resource-chunk-J43UWQbW.js?v=ce1c2158:331:8)\n    at Object.run (http://localhost:4222/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/_resource-chunk-J43UWQbW.js?v=ce1c2158:3033:4)\n    at runEffectsInView (http://localhost:4222/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:4858:69)\n    at refreshView (http://localhost:4222/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:4939:3)\n    at detectChangesInView (http://localhost:4222/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5061:25)\n    at detectChangesInViewIfAttached (http://localhost:4222/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5047:2)\n    at detectChangesInEmbeddedViews (http://localhost:4222/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:5021:3)\n    at refreshView (http://localhost:4222/@fs/D:/projects/sandbox/angular-ai-devtools/spikes/ng222-app/.angular/cache/22.2.2/ng222-app/vite/deps/core-DSBe9tx0.js?v=ce1c2158:4940:3)",
+              "occurrences": 1
+            },
+            {
+              "type": "debug",
+              "text": "[vite] connected.",
+              "occurrences": 1
+            }
+          ]
+        },
+        "consoleTotalAsPrinted": 4,
+        "ng0205AsPrinted": 0,
+        "consoleLinesBeforeDestroy": 4,
+        "consoleLinesAfterDestroy": 0,
+        "windowMs": 3000,
+        "missing": "No NG0205 in the console, and the observable that is absent is a lookup through a destroyed injector. The fixture’s deliberate post-teardown write is a plain field assignment from its own subscription (spikes/ng222-app/src/app/stale-view-fixture.ts:17-18), which reaches no injector: after the route component was detached, push(41) on the instance the driver still held was accepted and left value at 0, and all 4 console lines the page produced were recorded before the destroy.",
+        "citationIds": [
+          "fixtureSubscribe",
+          "fixturePlainWrite",
+          "fixtureDeliberateError"
+        ]
+      }
+    },
+    "researchRaw": {
+      "glob": "research/raw/*.json",
+      "recordsSearched": 148,
+      "excluded": [
+        "research/raw/m059-record-shapes.json"
+      ],
+      "recordsCarryingTheCode": [
+        "research/raw/m044-gate-shapes.json",
+        "research/raw/m045-console-shapes.json",
+        "research/raw/m059-surface.json",
+        "research/raw/m059-verdict-claims.json"
+      ],
+      "observationRecords": [],
+      "lines": [
+        {
+          "path": "research/raw/m044-gate-shapes.json",
+          "line": 2714,
+          "text": "\"reason\": \"edited here rather than renamed: M059 T006 added the four artefacts this milestone itself adds to the suite exclusion list - its own source, the record, extension/teardown-leak.js and scripts/teardown-leak.test.mjs - because without them a landing elsewhere moved the denominators from 38 modules and 136 suites to 39 and 137, and because a record that merely quotes NG0205 flipped the derived producible verdict from not-produced to produced with eighteen page hits nobody observed; the head recorded by the git rev-parse entry is now derived from the capture own head so the record cannot state one commit and print another; the thirteen default assertions and fourteen armed ones are additions to the rule, none removed\""
+        },
+        {
+          "path": "research/raw/m045-console-shapes.json",
+          "line": 192,
+          "text": "\"output\": \"NG0100,NG01002,NG01055,NG01101,NG01203,NG01354,NG01902,NG0200,NG0201,NG0203,NG0204,NG0205,NG0207,NG0209,NG02200,NG02800,NG02802,NG02825,NG0300,NG0301,NG0302,NG0318,NG0401,NG0403,NG0500,NG05000,NG0501,NG0502,NG0503,NG0504,NG0505,NG0506,NG0507,NG05101,NG05102,NG05104,NG05106,NG05201,NG05703,NG0600,NG0602,NG0750,NG0751,NG0904,NG0910,NG0912,NG0913,NG0919,NG0950,NG0951,NG0955,NG0956,NG0991,NG1001,NG2003,NG2009,NG3003,NG6100,NG8001,NG8002,NG8003,NG8011,NG8023,NG8024\""
+        },
+        {
+          "path": "research/raw/m045-console-shapes.json",
+          "line": 561,
+          "text": "\"NG0205\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 14,
+          "text": "\"{\\\"state\\\":\\\"finding\\\",\\\"code\\\":\\\"NG0205\\\",\\\"message\\\":\\\"NG0205: Injector has already been destroyed.\\\",\\\"owner\\\":null,\\\"absences\\\":[\\\"owner-not-in-the-message\\\",\\\"handle-record-not-held\\\"],\\\"claims\\\":[\\\"code\\\",\\\"message\\\",\\\"digest\\\",\\\"sequence\\\",\\\"absence\\\",\\\"absence\\\"],\\\"artefacts\\\":[\\\"research/raw/m059-record-shapes.json\\\",\\\"extension/error-digest.json\\\"],\\\"detail\\\":\\\"the console record research/raw/m059-record-shapes.json states 1 console message and the first of them whose own body carries NG0205 is at order 3, with the body \\\\\\\"NG0205: Injector has already been destroyed.\\\\\\\" and the level \\\\\\\"error\\\\\\\" in `type`, and the stack frames dropped from it; the digest record extension/error-digest.json carries NG0205 \\\\\\\"Injector has already been destroyed\\\\\\\" among 64 codes; no field of the message names an owner, so owner-not-in-the-message stands beside the code; the sequence it read is release-then-diagnostic: 1 release record is ordered before the diagnostic at order 3 and none after it, so the release ran first and no handle is named as the cause of the diagnostic; the absences it renders are 2 states and never one line: owner-not-in-the-message beside handle-record-not-held\\\"}\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 168,
+          "text": "\"lineText\": \"code: 'NG0205',\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 169,
+          "text": "\"holds\": \"code: 'NG0205'\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 174,
+          "text": "\"lineText\": \"message: 'NG0205: Injector has already been destroyed.',\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 175,
+          "text": "\"holds\": \"message: 'NG0205: Injector has already been destroyed.',\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 202,
+          "text": "\"statement\": \"the `teardown-leak` key is one entry of the `LOADERS` map and it is the only path to `panel-teardown-leak.ts`: the demo looks the key up by the name the route’s `data.surface` states, awaits the dynamic import, calls the module’s default export with the sample fact, and sets the state and the lines the module answers. The key cost one line, and that line is paid for by folding one line of the `fields` fact’s comment into its neighbour rather than by adding a line — the loader resolution block (717, 723–726), the component template (671–687) and every earlier fact keep their numbers, so the surface records which pin this file’s lines re-resolve at this head. The fact is the join’s own answer over the console record and the shipped digest: `state: finding`, `code: NG0205`, the body the installed build prints, `owner: null`, both absences, six claims each carrying its artefact path and the sequence `release-then-diagnostic` — and `panel-demo.spec.ts` rebuilds that record from the shipped record and digest, evaluates the shipped join from its committed text and holds this fact to that answer field for field.\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 205,
+          "text": "\"statement\": \"the join answers `{ state, code, message, owner, absences, claims, detail }` with every field in every state. The demo’s sample is the `finding` answer: the code the message’s own body carries, the body with the stack frames dropped, no owner (no field of the message names one), `owner-not-in-the-message` beside `handle-record-not-held`, one claim per statement with the record or digest path that states it, and the join’s own detail sentence. T001 measured that the diagnostic is not producible on either driven target (`research/raw/m059-record-shapes.json` `producible`: 0 NG0205 over 38 portal console lines and 4 fixture lines), so this record states the sample’s record as one written in the measured shape from the measured printed string rather than one captured on a page.\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 207,
+          "text": "\"value\": \"NG0205: Injector has already been destroyed.\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 211,
+          "text": "\"lineText\": \"\\\"printedAs\\\": \\\"NG0205: Injector has already been destroyed.\\\",\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 212,
+          "text": "\"holds\": \"NG0205: Injector has already been destroyed.\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 216,
+          "text": "\"code\": \"NG0205\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 221,
+          "text": "\"lineText\": \"\\\"code\\\": \\\"NG0205\\\",\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 222,
+          "text": "\"holds\": \"NG0205\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 624,
+          "text": "\"No page read produced this answer and none could: T001 measured 0 NG0205 across 38 portal console lines and 4 fixture console lines over six navigations, so the diagnostic has never been captured on a page. The sample record is written in the measured shape from the measured printed string (`digest.printedByTheInstalledBuild.printedAs`) and its two `order` values are sample positions — the message’s and the one release record’s — not measurements. The milestone ships the absence-only answer and records that as its finding (PLAN R1).\","
+        },
+        {
+          "path": "research/raw/m059-verdict-claims.json",
+          "line": 79,
+          "text": "\"criterionText\": \"A component that touches its injector after teardown produces a finding naming the code `NG0205` and the message body the record carries, and naming the owning component only where the record attributes one — where it does not, the answer reports the named absence `owner-not-in-the-message` beside the code instead of guessing the element or the component (`.project/ROADMAP.md:2096`, `extension/error-digest.json` `NG0205`); a mutant that suppresses the code match, and a mutant that attributes the message to the most recent component, redden.\","
+        },
+        {
+          "path": "research/raw/m059-verdict-claims.json",
+          "line": 82,
+          "text": "\"reason\": \"The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \\\"A component that touches its injector after teardown produces a finding naming the code `NG0205` and the message body the record carries, and naming the owning component only where the record attributes one — where it does not, the answer reports the named absence `owner-not-in-the-message` beside the code instead of guessing the element or the component (`.project/ROADMAP.md:2096`, `extension/error-digest.json` `NG0205`); a mutant that suppresses the code match, and a mutant that attributes the message to the most recent component, redden.\\\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\\\"E1\\\",\\\"E2\\\",\\\"E9\\\"] the intent itself assigns the criterion, held by [\\\"scripts/teardown-leak.test.mjs\\\",\\\"scripts/teardown-leak.test.mjs\\\",\\\"scripts/teardown-leak.test.mjs\\\"] and recorded as [\\\"criterion SC1\\\"].\","
+        },
+        {
+          "path": "research/raw/m059-verdict-claims.json",
+          "line": 84,
+          "text": "\"artefact\": \"scripts/teardown-leak.test.mjs (edge [\\\"E1\\\",\\\"E2\\\",\\\"E9\\\"] of the intent's own coverage: E1 boundary criterion SC1: A message with a code and no owner and a message with a code and an owner render through one read: `NG0205`'s body names the injector only (`extension/error-digest.json`), so the owner half is read from the record's own attribution where it exists, never from arrival order.; E2 empty criterion SC1: A record with no `NG0205` at all is a named absence, not \\\"no leak found\\\": the answer states the code it looked for and the count it read, the shape `extension/router-diagnostic.js:8-9` already uses for \\\"compared and not found\\\".; E9 idempotency criterion SC1: A second answer over the same record names the same code, the same message and the same absences; the record is read-only and no capture runs on a default run.; the suite carries 18 test declaration(s) in 0 group(s)) -> package.json:7 (\\\"check\\\": 12 stage(s), [\\\"npm run gate:verification\\\",\\\"npm run gate:archive-paths\\\",\\\"npm run gate:fix-record\\\",\\\"npm run format:check\\\"] last, with \\\"npm run gate:archive-paths\\\" and \\\"npm run gate:fix-record\\\" among them)\","
+        }
+      ],
+      "occurrences": 20,
+      "inTheDigestEnumeration": 0,
+      "quotationsOutsideARecordShape": 20,
+      "onAPage": 0,
+      "finding": "No record under `research/raw/` carries NG0205 as a console line: the two occurrences in the record that could state an observation are the digest enumeration M045 recorded — the generator command output that lists the 64 codes, and the digest section’s own code list — and every other record that names the code is quoting it, which is a citation and not a page hit."
+    },
+    "missing": "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`.",
+    "notFabricated": "No probe was run against a destroyed injector to make the code appear. A page-side call that provoked it would be the instrumentation D7 forbids, and it would report the probe rather than the page; a second leaking fixture needs its own owner ruling (plan R2). R1’s absence-only outcome is therefore the measurement, recorded as an absence with the observable it lacks.",
+    "finding": "The diagnostic is not producible on either target as the tree stands. What would produce it is a component whose own code calls injector.get (or a service it injected) after its injector was destroyed; the two driven pages hold no such callback, and the fixture’s stale write sets a field.",
+    "citationIds": [
+      "m045DigestEnumeration",
+      "m045CodedList"
+    ]
+  },
+  "absences": {
+    "notGaps": "Both are states the answer renders, never a gap a capture could fill: no record this repository holds carries a per-injector handle, so no later run can add one, and the handle is not something the console stream could carry — the stream carries a code and a body, and the body names no owner.",
+    "owner-not-in-the-message": {
+      "state": "owner-not-in-the-message",
+      "because": "NG0205 prints as the code and the body “Injector has already been destroyed.” — the injector it names is the destroyed one, and no component, directive or element is named beside it",
+      "ownerFieldsInTheCapture": [
+        "component"
+      ],
+      "ownerFieldsTheJoinsRead": [],
+      "componentIsTheFocusedElementsOwner": true,
+      "finding": "The one field that could name an owner is the capture’s `component`, and it is the owner of the focused element or `app-root` rather than the component that emitted the message; neither join reads it, so a joined message never carries it and the answer says `owner-not-in-the-message` instead of attributing the code to whatever was mounted last (N1, SC1).",
+      "citationIds": [
+        "agentComponentSource",
+        "consoleJoinComponentSource",
+        "lintStackDropped"
+      ]
+    },
+    "handle-record-not-held": {
+      "state": "handle-record-not-held",
+      "scan": {
+        "extension": {
+          "glob": "extension/*.js",
+          "filesSearched": 38,
+          "excluded": [
+            "extension/teardown-leak.js"
+          ],
+          "matches": {
+            "handleRecord": 0,
+            "postDestroy": 0,
+            "leakedHandle": 0
+          }
+        },
+        "scripts": {
+          "glob": "scripts/*.mjs",
+          "filesSearched": 136,
+          "excluded": [
+            "scripts/teardown-leak-shapes.test.mjs",
+            "scripts/teardown-leak.test.mjs"
+          ],
+          "matches": {
+            "handleRecord": 0,
+            "postDestroy": 0,
+            "leakedHandle": 0
+          }
+        },
+        "researchRaw": {
+          "glob": "research/raw/*.json",
+          "filesSearched": 148,
+          "excluded": [
+            "research/raw/m059-record-shapes.json"
+          ],
+          "matches": {
+            "handleRecord": 0,
+            "postDestroy": 0,
+            "leakedHandle": 0
+          }
+        }
+      },
+      "needles": [
+        "handleRecord",
+        "postDestroy",
+        "leakedHandle"
+      ],
+      "occurrences": 0,
+      "finding": "No record this agent holds carries a per-injector handle: the three names a handle record would need occur 0 times in 38 extension modules, 136 suites and 146 `research/raw/` records, and the console stream the panel reads could not carry one — it carries a code and a body. Building one would be the page-side instrumentation D7 and SC2 forbid, so the answer states `handle-record-not-held` (C1, SC4).",
+      "citationIds": [
+        "m045DigestEnumeration",
+        "m045CodedList"
+      ]
+    },
+    "sites": [
+      {
+        "path": "extension/agent-main.js",
+        "line": 1858,
+        "text": "subscription.unsubscribe();",
+        "owner": "uninstallRouterEvents",
+        "citationId": "agentRouterUninstall"
+      },
+      {
+        "path": "extension/agent-main.js",
+        "line": 2435,
+        "text": "subscription.unsubscribe();",
+        "owner": "uninstallStability",
+        "citationId": "agentStabilityUninstall"
+      },
+      {
+        "path": "scripts/stability-measure.test.mjs",
+        "line": 315,
+        "text": "subscription.unsubscribe();",
+        "owner": "CURRENCY",
+        "citationId": null
+      }
+    ],
+    "siteCount": 3,
+    "agentSites": 2,
+    "suiteSites": 1,
+    "note": "The brief this task was handed expects two `.unsubscribe(` sites; this head carries three. The two in `extension/agent-main.js` are the agent’s own subscriptions torn down on its reset path — `uninstallRouterEvents` releases the router-event subscription and `uninstallStability` the stability one — and the third is the memoised fixture loader `const CURRENCY = once(` in `scripts/stability-measure.test.mjs:288`, which releases the observable it built. None of the three is a handle the inspected page holds.",
+    "citationIds": [
+      "agentRouterUninstall",
+      "agentStabilityUninstall"
+    ]
+  },
+  "inventory": {
+    "measured": "No record under `research/raw/` is measured by this map: its sections are measured from the digest, the two shipped joins, the capture record, M045’s map and the agent’s own source, so this map measures what the later waves cite rather than a census of records.",
+    "outsideTheMap": [
+      {
+        "path": "research/raw/m059-surface.json",
+        "why": "the surface record M059 T003 writes — the route, the loader key and each state with the answer field it reads — is captured after this map was measured, so it is named outside the map rather than read as an unmeasured record"
+      },
+      {
+        "path": "research/raw/m059-verdict-claims.json",
+        "why": "the verdict-claims record M059 T004 writes, ruling the criteria this milestone’s intent declares, is captured after this map was measured, so it is named outside the map rather than read as an unmeasured record"
+      }
+    ]
+  },
+  "citations": [
+    {
+      "id": "digestCode",
+      "path": "extension/error-digest.json",
+      "line": 60,
+      "text": "\"code\": \"NG0205\",",
+      "resolved": true
+    },
+    {
+      "id": "digestTitle",
+      "path": "extension/error-digest.json",
+      "line": 61,
+      "text": "\"title\": \"Injector has already been destroyed\",",
+      "resolved": true
+    },
+    {
+      "id": "frameworkThrow",
+      "path": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs",
+      "line": 1414,
+      "text": "throw new RuntimeError(-205, ngDevMode && 'Injector has already been destroyed.');",
+      "resolved": true
+    },
+    {
+      "id": "frameworkCodeFormat",
+      "path": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs",
+      "line": 47,
+      "text": "return `NG0${Math.abs(code)}`;",
+      "resolved": true
+    },
+    {
+      "id": "frameworkMessageFormat",
+      "path": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs",
+      "line": 51,
+      "text": "let errorMessage = `${fullCode}${message ? ': ' + message : ''}`;",
+      "resolved": true
+    },
+    {
+      "id": "frameworkGet",
+      "path": "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs",
+      "line": 1170,
+      "text": "get(token, notFoundValue = THROW_IF_NOT_FOUND, options) {",
+      "resolved": true
+    },
+    {
+      "id": "captureInputFields",
+      "path": "extension/console-join.js",
+      "line": 8,
+      "text": "//                `captureErrorPayload` (line 2522): `{ code, message, component, timestamp }`.",
+      "resolved": true
+    },
+    {
+      "id": "consoleJoinAnswer",
+      "path": "extension/console-join.js",
+      "line": 183,
+      "text": "function consoleJoin(diagnostics, digest) {",
+      "resolved": true
+    },
+    {
+      "id": "consoleJoinAnswerFields",
+      "path": "extension/console-join.js",
+      "line": 37,
+      "text": "// The answer is `{ state, findings[] }` and nothing else:",
+      "resolved": true
+    },
+    {
+      "id": "consoleJoinFindingFields",
+      "path": "extension/console-join.js",
+      "line": 49,
+      "text": "//   findings  { text, code?, title?, reason?, carriedCode? }",
+      "resolved": true
+    },
+    {
+      "id": "consoleJoinReadsOnly",
+      "path": "extension/console-join.js",
+      "line": 11,
+      "text": "//                `code` and `message` are read here. `component` is resolved from the focused",
+      "resolved": true
+    },
+    {
+      "id": "consoleJoinComponentSource",
+      "path": "extension/console-join.js",
+      "line": 12,
+      "text": "//                element or app-root, never from the call site, so it is not the emitting component;",
+      "resolved": true
+    },
+    {
+      "id": "consoleJoinVerbatim",
+      "path": "extension/console-join.js",
+      "line": 117,
+      "text": "if (typeof message === 'string') return message;",
+      "resolved": true
+    },
+    {
+      "id": "consoleJoinNoDigestEntry",
+      "path": "extension/console-join.js",
+      "line": 236,
+      "text": "findings.push({ text: text, code: code, reason: NO_DIGEST_ENTRY });",
+      "resolved": true
+    },
+    {
+      "id": "lintInputFields",
+      "path": "extension/lint-core.js",
+      "line": 42,
+      "text": "//             `[{ code, text }, …]` where `code` is the code the browser printed (or null) and",
+      "resolved": true
+    },
+    {
+      "id": "lintInputStackIncluded",
+      "path": "extension/lint-core.js",
+      "line": 43,
+      "text": "//             `text` is the text it printed, stack frames included. The code is taken from the",
+      "resolved": true
+    },
+    {
+      "id": "lintAnswerFields",
+      "path": "extension/lint-core.js",
+      "line": 55,
+      "text": "//   { state: \"finding\",     construct, code, message }",
+      "resolved": true
+    },
+    {
+      "id": "lintStackFrame",
+      "path": "extension/lint-core.js",
+      "line": 100,
+      "text": "const STACK_FRAME = /\\n\\s+at\\s/;",
+      "resolved": true
+    },
+    {
+      "id": "lintBodyOf",
+      "path": "extension/lint-core.js",
+      "line": 124,
+      "text": "function bodyOf(text) {",
+      "resolved": true
+    },
+    {
+      "id": "lintStackDropped",
+      "path": "extension/lint-core.js",
+      "line": 126,
+      "text": "return (frame === -1 ? text : text.slice(0, frame)).trim();",
+      "resolved": true
+    },
+    {
+      "id": "lintNoCapturedMessages",
+      "path": "extension/lint-core.js",
+      "line": 86,
+      "text": "const NO_CAPTURED_MESSAGES = 'no-captured-messages';",
+      "resolved": true
+    },
+    {
+      "id": "captureConsoleTally",
+      "path": "research/raw/m032-console-diagnostics.json",
+      "line": 51,
+      "text": "\"withAnNgCode\": 1,",
+      "resolved": true
+    },
+    {
+      "id": "captureDigestCarries",
+      "path": "research/raw/m032-console-diagnostics.json",
+      "line": 121,
+      "text": "\"digestCarriesCode\": true,",
+      "resolved": true
+    },
+    {
+      "id": "agentCodePattern",
+      "path": "extension/agent-main.js",
+      "line": 2502,
+      "text": "var codeMatch = text.match(/NG0\\d{3,}/);",
+      "resolved": true
+    },
+    {
+      "id": "agentDispatchPayload",
+      "path": "extension/agent-main.js",
+      "line": 2522,
+      "text": "dispatch(ERROR_CAPTURE_EVENT, {",
+      "resolved": true
+    },
+    {
+      "id": "agentComponentSource",
+      "path": "extension/agent-main.js",
+      "line": 2514,
+      "text": "var instance = ng.getOwningComponent(el);",
+      "resolved": true
+    },
+    {
+      "id": "agentTimestamp",
+      "path": "extension/agent-main.js",
+      "line": 2526,
+      "text": "timestamp: typeof Date !== 'undefined' ? Date.now() : 0,",
+      "resolved": true
+    },
+    {
+      "id": "agentCaptureHook",
+      "path": "extension/agent-main.js",
+      "line": 2493,
+      "text": "// N4: error capture hooks at document_start (console.error, window.onerror,",
+      "resolved": true
+    },
+    {
+      "id": "m045DigestEnumeration",
+      "path": "research/raw/m045-console-shapes.json",
+      "line": 192,
+      "text": "\"output\": \"NG0100,NG01002,NG01055,NG01101,NG01203,NG01354,NG01902,NG0200,NG0201,NG0203,NG0204,NG0205,NG0207,NG0209,NG02200,NG02800,NG02802,NG02825,NG0300,NG0301,NG0302,NG0318,NG0401,NG0403,NG0500,NG05000,NG0501,NG0502,NG0503,NG0504,NG0505,NG0506,NG0507,NG05101,NG05102,NG05104,NG05106,NG05201,NG05703,NG0600,NG0602,NG0750,NG0751,NG0904,NG0910,NG0912,NG0913,NG0919,NG0950,NG0951,NG0955,NG0956,NG0991,NG1001,NG2003,NG2009,NG3003,NG6100,NG8001,NG8002,NG8003,NG8011,NG8023,NG8024\"",
+      "resolved": true
+    },
+    {
+      "id": "m045CodedList",
+      "path": "research/raw/m045-console-shapes.json",
+      "line": 561,
+      "text": "\"NG0205\",",
+      "resolved": true
+    },
+    {
+      "id": "fixtureSubscribe",
+      "path": "spikes/ng222-app/src/app/stale-view-fixture.ts",
+      "line": 17,
+      "text": "this.subject.subscribe((next) => {",
+      "resolved": true
+    },
+    {
+      "id": "fixturePlainWrite",
+      "path": "spikes/ng222-app/src/app/stale-view-fixture.ts",
+      "line": 18,
+      "text": "this.value = next;",
+      "resolved": true
+    },
+    {
+      "id": "fixtureDeliberateError",
+      "path": "spikes/ng222-app/src/app/stale-view-fixture.ts",
+      "line": 22,
+      "text": "this.subject.error(new Error('interop'));",
+      "resolved": true
+    },
+    {
+      "id": "portalReleaseOnDestroy",
+      "path": "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/shared/ui-directives/src/lib/button-action.directive.ts",
+      "line": 35,
+      "text": "onCleanup(() => subscription.unsubscribe());",
+      "resolved": true
+    },
+    {
+      "id": "portalResourceRead",
+      "path": "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/contract/feature-list/src/lib/list.component.ts",
+      "line": 63,
+      "text": "readonly contractsLoad = rxResource({",
+      "resolved": true
+    },
+    {
+      "id": "agentRouterUninstall",
+      "path": "extension/agent-main.js",
+      "line": 1852,
+      "text": "function uninstallRouterEvents() {",
+      "resolved": true
+    },
+    {
+      "id": "agentStabilityUninstall",
+      "path": "extension/agent-main.js",
+      "line": 2424,
+      "text": "function uninstallStability() {",
+      "resolved": true
+    }
+  ],
+  "capture": {
+    "task": "T001",
+    "command": "M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs",
+    "windowsCommand": "set \"M059_CAPTURE=1\"&& node --test scripts/teardown-leak-shapes.test.mjs",
+    "check": "node --test scripts/teardown-leak-shapes.test.mjs",
+    "records": "research/raw/m059-record-shapes.json",
+    "head": "0314cac261745c4aa1ef5628798ffafc745b3dbf",
+    "criteria": [
+      "SC1",
+      "SC6"
+    ],
+    "reads": [
+      "extension/error-digest.json",
+      "spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs",
+      "research/raw/m032-console-diagnostics.json",
+      "research/raw/m045-console-shapes.json",
+      "extension/console-join.js",
+      "extension/lint-core.js",
+      "extension/agent-main.js",
+      "spikes/ng222-app/src/app/stale-view-fixture.ts",
+      "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/shared/ui-directives/src/lib/button-action.directive.ts",
+      "D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/contract/feature-list/src/lib/list.component.ts",
+      "the two browser drives recorded under `producible`"
+    ],
+    "remeasured": [
+      "absences.agentSites",
+      "absences.citationIds",
+      "absences.handle-record-not-held",
+      "absences.notGaps",
+      "absences.note",
+      "absences.owner-not-in-the-message",
+      "absences.siteCount",
+      "absences.sites",
+      "absences.suiteSites",
+      "digest.bodyEndsWithAnEllipsis",
+      "digest.bytes",
+      "digest.citationIds",
+      "digest.entries",
+      "digest.entry",
+      "digest.finding",
+      "digest.path",
+      "digest.printedByTheInstalledBuild",
+      "digest.sha256",
+      "digest.titleWithoutAFullStop",
+      "digest.uniqueCodes",
+      "digest.version",
+      "inventory.measured",
+      "inventory.outsideTheMap",
+      "message.capture",
+      "message.finding",
+      "message.joins",
+      "message.question",
+      "message.sourceIdentity",
+      "producible.citationIds",
+      "producible.codeSearched",
+      "producible.finding",
+      "producible.missing",
+      "producible.notFabricated",
+      "producible.produced",
+      "producible.question",
+      "producible.researchRaw",
+      "producible.targets",
+      "producible.verdict",
+      "records"
+    ],
+    "reading": "a default run derives every field above and asserts the recording on disk is exactly what this head states; an armed run writes only when a byte moved, so two armed runs in a row are byte-identical and a default run writes nothing (D5, E9)"
+  },
+  "builtNothing": {
+    "built": [],
+    "description": "No join, no surface, no route and no fixture: this task measures, and the only files it writes are this record and the suite that owns it."
+  }
+}

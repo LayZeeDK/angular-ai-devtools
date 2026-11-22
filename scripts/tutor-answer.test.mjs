@@ -40,6 +40,11 @@
 // second rule: it names the two records M058 owes — the surface T003 writes and the verdict-claims T004
 // writes — outside itself from the start and measures no verdict-claims record of its own, so those two
 // are subtracted here by name and are absent at this head with nothing read as missing.
+//
+// M059 T010 added its map, `research/raw/m059-record-shapes.json`, to the same read for the same
+// reason: it measures no verdict-claims or surface record of its own and names the two records M059
+// owes — the surface T003 writes and the verdict-claims T004 writes — outside itself, so both leave
+// the census below because a recording says so and not because this suite forgot to list them.
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -72,8 +77,23 @@ const BESIDE_MAP_DATA = JSON.parse(
   readFileSync(join(ROOT, BESIDE_MAP), 'utf8'),
 );
 
+/**
+ * M059's map, read beside the three on every run: it names the two records M059 owes, the surface T003
+ * writes and the verdict-claims T004 writes, so the census below subtracts them by the map's own words
+ * rather than by a path listed here.
+ */
+const SECOND_BESIDE_MAP = 'research/raw/m059-record-shapes.json';
+const SECOND_BESIDE_MAP_DATA = JSON.parse(
+  readFileSync(join(ROOT, SECOND_BESIDE_MAP), 'utf8'),
+);
+
 /** Every map the census is read from, in the order the maps were measured. */
-const MAPS = [RECORDING_DATA, OWN_MAP_DATA, BESIDE_MAP_DATA];
+const MAPS = [
+  RECORDING_DATA,
+  OWN_MAP_DATA,
+  BESIDE_MAP_DATA,
+  SECOND_BESIDE_MAP_DATA,
+];
 
 /**
  * The two records each milestone owes, and so the only paths its map may name outside itself: a map
@@ -92,6 +112,10 @@ const PINNED_OUTSIDE = Object.freeze({
   M058: [
     'research/raw/m058-surface.json',
     'research/raw/m058-verdict-claims.json',
+  ],
+  M059: [
+    'research/raw/m059-surface.json',
+    'research/raw/m059-verdict-claims.json',
   ],
 });
 
@@ -273,7 +297,9 @@ function milestoneOf(path) {
 function pinNamedOutside(present = presentRecords, maps = MAPS) {
   for (const map of maps) {
     const pinned =
-      PINNED_OUTSIDE[/** @type {'M055'|'M057'|'M058'} */ (map.milestone)] ?? [];
+      PINNED_OUTSIDE[
+        /** @type {'M055'|'M057'|'M058'|'M059'} */ (map.milestone)
+      ] ?? [];
     const named = outsideTheMapOf(map);
     for (const path of named)
       assert.ok(
@@ -1235,7 +1261,9 @@ test('T006 — every map is read, and each may name outside itself only the reco
   for (const map of MAPS) {
     const named = outsideTheMapOf(map);
     const pinned =
-      PINNED_OUTSIDE[/** @type {'M055'|'M057'|'M058'} */ (map.milestone)] ?? [];
+      PINNED_OUTSIDE[
+        /** @type {'M055'|'M057'|'M058'|'M059'} */ (map.milestone)
+      ] ?? [];
     for (const path of named)
       assert.ok(
         pinned.includes(path),

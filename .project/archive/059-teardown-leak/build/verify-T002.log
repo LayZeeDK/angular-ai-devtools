@@ -1,0 +1,122 @@
+head: 99afb9eae24a826b968960cdab1cef0f6aee523b at 2026-11-22T00:52:00.717Z
+T002 finding: finding NG0205 "NG0205: Injector has already been destroyed." owner null, absences ["owner-not-in-the-message","handle-record-not-held"], claims ["code","message","digest","absence","absence"]
+T002 purity: bare context, 19 reaches scanned and absent, 5 claims, no page read
+T002 sequence: the sequence it read is release-then-diagnostic: 1 release record is ordered before the diagnostic at order 1 and none after it, so the release ran first and no handle is named as the cause of the diagnostic; the absences it renders are 2 states and never one line: owner-not-in-the-message beside handle-record-not-held
+T002 finding: {"state":"finding","code":"NG0205","message":"NG0205: Injector has already been destroyed.","owner":null,"absences":["owner-not-in-the-message","handle-record-not-held"],"claims":5}
+T002 absent: {"state":"absent","code":"NG0205","message":null,"owner":null,"absences":["handle-record-not-held"],"claims":2}
+T002 cannot-tell: {"state":"cannot-tell","code":null,"message":null,"owner":null,"absences":["handle-record-not-held"],"claims":2}
+T002 empty: {"state":"empty","code":null,"message":null,"owner":null,"absences":["handle-record-not-held"],"claims":0}
+held-out E2: absent, code NG0205, 7 console messages read, absences ["handle-record-not-held"]
+held-out E5: ["owner-not-in-the-message","handle-record-not-held"] as two entries of one finding
+✔ T002 — the join is a bare-context module with the contract’s four states and two absences (2.457ms)
+✔ T002 — the citations this suite rests on state what it claims, at this head (0.2482ms)
+✔ T002 — SC1: a record carrying NG0205 names the code and the body, and the owner it does not carry (1.7439ms)
+✔ T002 — SC1: the fields the capture carries that no join reads change nothing the answer says (1.2278ms)
+✔ T002 — SC2: the join reads only its records argument, and no page, no clock and no DOM (2.1742ms)
+✔ T002 — SC3: a release before the diagnostic renders the sequence and names no handle as the cause (0.9596ms)
+✔ T002 — SC4: every answer carries handle-record-not-held and no answer names a handle (1.0792ms)
+✔ T002 — SC5: every field is present in every state and every claim carries an artefactPath (1.165ms)
+✔ held-out E2: a record with no NG0205 is a named absence, not "no leak found" (0.9963ms)
+✔ held-out E5: the two absences stay two states (0.9878ms)
+✔ T002 mutants — every anchor is one place in the shipped module and really changes it (0.2763ms)
+✔ T002 mutant M1 — a suppressed code match reddens the pin that names the diagnostic (3.218ms)
+ℹ M1: the finding must carry the code the record carries — NG0205 — and it carries no other
+✔ T002 mutant M2 — a message attributed to the last component seen reddens the owner pin (SC1, N1) (1.8781ms)
+ℹ M2: a message carrying `component` still names no owner, so the finding must carry no owner: the capture’s `component` is the focused element’s and is never substituted for the message’s own
+✔ T002 mutant M3 — a released handle rendered as a leaked subscription reddens the sequence pin (SC3) (1.6321ms)
+ℹ M3: a released handle is never rendered as a leak: the record states the release ran before the diagnostic, so the answer names the sequence and no handle as the cause
+✔ T002 mutant M4 — a required field dropped from the returned object reddens the shape pin (SC5) (2.7273ms)
+ℹ M4: every state carries the seven fields (absences, claims, code, detail, message, owner, state) and the finding answer does not: absences, claims, code, detail, message, state
+✔ T002 mutant M5 — a live page value read reddens the purity pin (SC2, N2) (1.8691ms)
+ℹ M5: the join must read the records it was handed and no page value and no clock: a getter it touched is a value it read
+✔ T002 mutant M6 — the two absences folded into one entry redden the two-state pin (E5, SC3) (1.6018ms)
+ℹ M6: the two absences stay two states, in the contract’s order, and are never folded into one
+✔ T002 mutant M7 — the body read from `message` instead of `text` reddens the body pin (C3) (1.4724ms)
+ℹ M7: the message body the record carries in `text` must be the answer’s `message`, with the stack frames dropped and no frame text carried
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 153.1519
+Checking formatting...
+All matched files use Prettier code style!
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M059; stages archive-paths
+gate-integrity: archive-paths clean - examined 17 live path reference(s) of 195 reference(s) in 167 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M059; stages fix-record
+gate-integrity: fix-record clean - examined 3 claim(s) in 5 task log(s) of .project/tasks (logs of M059) against 13 changed path(s) of e608978c3a1b4161f20abc0bc3ba9de3b141884e..99afb9eae24a826b968960cdab1cef0f6aee523b (rule ship: M058's ship commit, e608978c (ship: M058 — tutor-routing); the head is this tree's HEAD, 99afb9ea (T001: Measure what the console record and the digest state); claims: declared)
+gate-integrity: fix-record pins - 3 declared path(s) byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..99afb9eae24a826b968960cdab1cef0f6aee523b, recorded and not judged as changes
+gate-integrity: pin extension/teardown-leak.js at .project/tasks/T002-answer-from-the-console-record-purely.md:80 (T002) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..99afb9eae24a826b968960cdab1cef0f6aee523b, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak.test.mjs at .project/tasks/T002-answer-from-the-console-record-purely.md:80 (T002) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..99afb9eae24a826b968960cdab1cef0f6aee523b, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak.test.mjs at .project/tasks/T002-answer-from-the-console-record-purely.md:82 (T002) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..99afb9eae24a826b968960cdab1cef0f6aee523b, recorded and not judged as a change
+gate-integrity: mention extension/error-digest.json at .project/tasks/T001-measure-what-the-console-record-and-the-digest-state.md:79 (T001) - recorded and not judged
+gate-integrity: mention scripts/error-digest-content.test.mjs at .project/tasks/T001-measure-what-the-console-record-and-the-digest-state.md:82 (T001) - recorded and not judged
+gate-integrity: mention scripts/panel-copy.test.mjs at .project/tasks/T001-measure-what-the-console-record-and-the-digest-state.md:82 (T001) - recorded and not judged
+gate-integrity: mention scripts/teardown-leak-shapes.test.mjs at .project/tasks/T002-answer-from-the-console-record-purely.md:84 (T002) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 4 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/teardown-leak.js scripts/teardown-leak.test.mjs
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .
