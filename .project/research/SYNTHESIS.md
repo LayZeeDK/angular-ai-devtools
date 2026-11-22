@@ -16,9 +16,9 @@ was measured before the plan and what the planner is told. It is not the milesto
 
 ## For the planner
 
-Wave-1 blockers: none — T001 measures two records that already exist and needs no new instrumentation.
-Walking skeleton: T001 writes the record and its map, T002 joins them into four states, T003 renders the object on one new route, T004 writes the claims record the census derives, T005 re-derives both gate records and runs the project verify.
-Pitfalls → tasks: a claims record whose shape a census derives → T004; gate records staled by the last landing → T005; a surface without every enumerating pin → T003; a frozen scope count → T001.
+- **Wave-1 blockers**: none — T001 measures two records that already exist and needs no new instrumentation.
+- **Walking skeleton**: T001 writes the record and its map, T002 joins them into four states, T003 renders the object on one new route, T004 writes the claims record the census derives, T005 re-derives both gate records and runs the project verify.
+- **Pitfalls → tasks**: a claims record whose shape a census derives → T004; gate records staled by the last landing → T005; a surface without every enumerating pin → T003; a frozen scope count → T001.
 
 ## User rulings
 
