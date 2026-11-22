@@ -3,7 +3,7 @@
 Milestone: M061 — locale-correctness · Branch: gsd-path/M061 · Baseline: `main` at binding
 Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test`
 
-Six waves, six tasks. T001 measures, T002 is the pure join, T003 the panel surface, T004 the verdict claims, T005
+Seven waves, seven tasks. T001 measures, T002 is the pure join, T003 the panel surface, T004 the verdict claims, T005
 re-derives this milestone’s own records, and T006 re-derives the two gate records and runs the project verify last.
 Every census that reads `research/raw/` is declared here, because M059 discovered six of them at the ship gate.
 
@@ -67,6 +67,11 @@ Review depth: full
 Goal: capture both gate records at the final head, read them back unarmed, then run the project verify, which builds before it measures and uses no cache or daemon workaround. Last for the reason M060 needed a seventh task: a recording that derives from the tree moves with every later suite edit.
 Review depth: full
 
+## Wave 7 — T007: re-derive the records the gate capture moved and run the project verify
+
+Goal: re-derive the three recordings the gate capture and this milestone’s own edits staled — the teardown record whose pinned line the gate capture moved, the write-record scan the new module entered, and the style record whose cited line the cache-policy edit moved — then run the project verify at this head and record it, so the milestone reaches the final review with a green ledger.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
@@ -85,6 +90,9 @@ Review depth: full
 | SC3 | T005 | AC2 |
 | SC1 | T005 | AC3 |
 | SC1 | T006 | AC1 |
+| SC4 | T006 | AC2 |
+| SC1 | T007 | AC1 |
+| SC4 | T007 | AC2 |
 | SC4 | T006 | AC2 |
 
 ## Held-out checks
