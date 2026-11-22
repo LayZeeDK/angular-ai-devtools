@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: locale-correctness
-phase: build
+phase: ship
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M061
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1262,3 +1262,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — plan — plan approved
 - 2026-11-22 — build — build started
 - 2026-11-23 — build — build complete
+- 2026-11-23 — ship — build done; final review pending
