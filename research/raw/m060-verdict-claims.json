@@ -1,0 +1,168 @@
+{
+  "schema": "m060-verdict-claims/v1",
+  "milestone": "M060",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(CLAIM_ROOT, \"M060\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 6 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\",\"SC5\",\"SC6\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks table (Edge | Task | Test), so a row cites the suite the milestone's own plan assigns its edges rather than one this file chose: 9 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\",\"SC5\",\"SC6\"] and the suites [\"scripts/error-routing.test.mjs\",\"apps/angular-ai-devtools/src/app/app.spec.ts\"]"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 6,
+    "why": [
+      "No row is required, and the list therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext - with the required rows together citing drawnRect, descriptor and noDevContext. Every fact the 6 criteria this milestone declares is written about is a reading of this repository's own gate: 9 edge row(s) held by [\"scripts/error-routing.test.mjs\",\"apps/angular-ai-devtools/src/app/app.spec.ts\"], against 12 stage(s) of the check chain. None of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each row cites the suite the milestone itself assigned its criterion, the reading that suite carries and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4",
+        "SC5",
+        "SC6"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": []
+    },
+    "edges": {
+      "rows": 9,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4",
+        "SC5",
+        "SC6"
+      ]
+    },
+    "suites": [
+      {
+        "path": "scripts/error-routing.test.mjs",
+        "tests": 16,
+        "groups": 3
+      },
+      {
+        "path": "apps/angular-ai-devtools/src/app/app.spec.ts",
+        "tests": 2,
+        "groups": 2
+      }
+    ],
+    "recordings": [
+      "research/raw/m060-record-shapes.json",
+      "research/raw/m060-surface.json"
+    ]
+  },
+  "capture": {
+    "command": "set \"M044_CAPTURE=1\"&& node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "check": "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+    "records": "research/raw/m060-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3",
+      "SC4",
+      "SC5",
+      "SC6"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, the five-column edge coverage that intent declares and the suites the plan assigns each criterion, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "An error the global listener recorded, with a resolved `ErrorHandler` in force and no boundary entry carrying the same text, produces a finding naming the message, the code where the message carries one, and `handler-in-force`; a mutant that drops the boundary comparison reports `cannot-tell` and reddens the suite by name.",
+      "criterionCharacters": 324,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"An error the global listener recorded, with a resolved `ErrorHandler` in force and no boundary entry carrying the same text, produces a finding naming the message, the code where the message carries one, and `handler-in-force`; a mutant that drops the boundary comparison reports `cannot-tell` and reddens the suite by name.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E2\",\"E8\"] the intent itself assigns the criterion, held by [\"scripts/error-routing.test.mjs\",\"scripts/error-routing.test.mjs\",\"scripts/error-routing.test.mjs\"] and recorded as [\"criterion SC1\"].",
+      "artefactPath": "scripts/error-routing.test.mjs",
+      "artefact": "scripts/error-routing.test.mjs (edge [\"E1\",\"E2\",\"E8\"] of the intent's own coverage: E1 empty criterion SC1: No global error recorded and a handler in force is `cannot-tell`, naming the empty record rather than \"no error occurred\".; E2 ordering criterion SC1: Two arrivals with identical text and one boundary entry leave the second unmatched, and the record says which arrival it matched.; E8 precision criterion SC1: A message above the record's limit is truncated as the record truncated it and the answer says so, rather than re-deriving the full text.; the suite carries 16 test declaration(s) in 3 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "16 test declaration(s) in scripts/error-routing.test.mjs hold SC1 through the 3 empty edge row(s) the intent assigns it, [\"E1\",\"E2\",\"E8\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/error-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "An error a boundary entry carries produces `reached-handler` and no finding; a mutant that treats every global error as uncaught reddens it.",
+      "criterionCharacters": 140,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"An error a boundary entry carries produces `reached-handler` and no finding; a mutant that treats every global error as uncaught reddens it.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\"] the intent itself assigns the criterion, held by [\"scripts/error-routing.test.mjs\"] and recorded as [\"criterion SC2\"].",
+      "artefactPath": "scripts/error-routing.test.mjs",
+      "artefact": "scripts/error-routing.test.mjs (edge [\"E3\"] of the intent's own coverage: E3 boundary criterion SC2: A boundary entry with no global arrival is `reached-handler` on the entry's own record, never an invented uncaught.; the suite carries 16 test declaration(s) in 3 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "16 test declaration(s) in scripts/error-routing.test.mjs hold SC2 through the 1 boundary edge row(s) the intent assigns it, [\"E3\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/error-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "An error recorded while no `ErrorHandler` resolves reports `no-handler-provided` as a named absence, never a finding and never a handler name; a mutant that names any handler reddens it.",
+      "criterionCharacters": 186,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"An error recorded while no `ErrorHandler` resolves reports `no-handler-provided` as a named absence, never a finding and never a handler name; a mutant that names any handler reddens it.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E4\"] the intent itself assigns the criterion, held by [\"scripts/error-routing.test.mjs\"] and recorded as [\"criterion SC3\"].",
+      "artefactPath": "scripts/error-routing.test.mjs",
+      "artefact": "scripts/error-routing.test.mjs (edge [\"E4\"] of the intent's own coverage: E4 empty criterion SC3: A page whose handler cannot be resolved answers `no-handler-provided` and never names the token it looked for.; the suite carries 16 test declaration(s) in 3 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "16 test declaration(s) in scripts/error-routing.test.mjs hold SC3 through the 1 empty edge row(s) the intent assigns it, [\"E4\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/error-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "The answer states a phase only where the record states one and reports `phase-not-recorded` otherwise; a mutant that derives a phase from the message reddens it.",
+      "criterionCharacters": 161,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC4 is \"The answer states a phase only where the record states one and reports `phase-not-recorded` otherwise; a mutant that derives a phase from the message reddens it.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E5\"] the intent itself assigns the criterion, held by [\"scripts/error-routing.test.mjs\"] and recorded as [\"criterion SC4\"].",
+      "artefactPath": "scripts/error-routing.test.mjs",
+      "artefact": "scripts/error-routing.test.mjs (edge [\"E5\"] of the intent's own coverage: E5 encoding criterion SC4: The record states no phase, so the answer says `phase-not-recorded` and the surface renders that line rather than a blank.; the suite carries 16 test declaration(s) in 3 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "16 test declaration(s) in scripts/error-routing.test.mjs hold SC4 through the 1 encoding edge row(s) the intent assigns it, [\"E5\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/error-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC5",
+      "criterionText": "The finding is produced from observables the agent already holds — the global listener record, M042's boundary entries and the injector walk — with no new page-side instrumentation, no second tap and no second global listener.",
+      "criterionCharacters": 226,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC5 is \"The finding is produced from observables the agent already holds — the global listener record, M042's boundary entries and the injector walk — with no new page-side instrumentation, no second tap and no second global listener.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E6\"] the intent itself assigns the criterion, held by [\"scripts/error-routing.test.mjs\"] and recorded as [\"criterion SC5\"].",
+      "artefactPath": "scripts/error-routing.test.mjs",
+      "artefact": "scripts/error-routing.test.mjs (edge [\"E6\"] of the intent's own coverage: E6 boundary criterion SC5: The task's Verify asserts one global `error` listener and one `unhandledrejection` listener remain installed; an added listener reddens.; the suite carries 16 test declaration(s) in 3 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "16 test declaration(s) in scripts/error-routing.test.mjs hold SC5 through the 1 boundary edge row(s) the intent assigns it, [\"E6\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"scripts/error-routing.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC6",
+      "criterionText": "The panel renders exactly the object the join returns: one new surface, its loader key, its route-table and digest pins moved in the same task, and the answer contains no remedy, no cause and no handler identity it was not given.",
+      "criterionCharacters": 229,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC6 is \"The panel renders exactly the object the join returns: one new surface, its loader key, its route-table and digest pins moved in the same task, and the answer contains no remedy, no cause and no handler identity it was not given.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E7\",\"E9\"] the intent itself assigns the criterion, held by [\"apps/angular-ai-devtools/src/app/app.spec.ts\",\"apps/angular-ai-devtools/src/app/app.spec.ts\"] and recorded as [\"criterion SC6\"].",
+      "artefactPath": "apps/angular-ai-devtools/src/app/app.spec.ts",
+      "artefact": "apps/angular-ai-devtools/src/app/app.spec.ts (edge [\"E7\",\"E9\"] of the intent's own coverage: E7 boundary criterion SC6: The route table, the loader map, the digest row count and the copy record move together; a surface without a loader key reddens.; E9 precision criterion SC6: No answer names a fix, a schematic, a cause or a handler identity; a mutant that renders one reddens.; the suite carries 2 test declaration(s) in 2 group(s)) -> package.json:7 (\"check\": 12 stage(s), [\"npm run gate:verification\",\"npm run gate:archive-paths\",\"npm run gate:fix-record\",\"npm run format:check\"] last, with \"npm run gate:archive-paths\" and \"npm run gate:fix-record\" among them)",
+      "reading": "2 test declaration(s) in apps/angular-ai-devtools/src/app/app.spec.ts hold SC6 through the 2 boundary edge row(s) the intent assigns it, [\"E7\",\"E9\"], so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --experimental-strip-types --test \"scripts/navigation-blocking.test.mjs\"",
+        "node --experimental-strip-types --test \"apps/angular-ai-devtools/src/app/app.spec.ts\"",
+        "npm run check"
+      ]
+    }
+  ]
+}

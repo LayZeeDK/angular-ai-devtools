@@ -45,6 +45,13 @@
 // reason: it measures no verdict-claims or surface record of its own and names the two records M059
 // owes — the surface T003 writes and the verdict-claims T004 writes — outside itself, so both leave
 // the census below because a recording says so and not because this suite forgot to list them.
+//
+// M060 T001 added its map, `research/raw/m060-record-shapes.json`, to the same read for the same
+// reason: it measures no verdict-claims or surface record — its sections are read from
+// extension/agent-main.js — and it names the two records M060 owes, the surface T003 writes and the
+// verdict-claims T004 writes, outside itself through its own `inventory.outsideTheMap` (derived by
+// its capture suite), so both leave the census below because a recording says so and not because
+// this suite forgot to list them.
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -87,12 +94,23 @@ const SECOND_BESIDE_MAP_DATA = JSON.parse(
   readFileSync(join(ROOT, SECOND_BESIDE_MAP), 'utf8'),
 );
 
+/**
+ * M060's map, read beside the three on every run: it names the two records M060 owes, the surface
+ * T003 writes and the verdict-claims T004 writes, through its own `inventory.outsideTheMap`, so the
+ * census below subtracts them by the map's own words rather than by a path listed here.
+ */
+const THIRD_BESIDE_MAP = 'research/raw/m060-record-shapes.json';
+const THIRD_BESIDE_MAP_DATA = JSON.parse(
+  readFileSync(join(ROOT, THIRD_BESIDE_MAP), 'utf8'),
+);
+
 /** Every map the census is read from, in the order the maps were measured. */
 const MAPS = [
   RECORDING_DATA,
   OWN_MAP_DATA,
   BESIDE_MAP_DATA,
   SECOND_BESIDE_MAP_DATA,
+  THIRD_BESIDE_MAP_DATA,
 ];
 
 /**
@@ -116,6 +134,10 @@ const PINNED_OUTSIDE = Object.freeze({
   M059: [
     'research/raw/m059-surface.json',
     'research/raw/m059-verdict-claims.json',
+  ],
+  M060: [
+    'research/raw/m060-surface.json',
+    'research/raw/m060-verdict-claims.json',
   ],
 });
 
@@ -298,7 +320,7 @@ function pinNamedOutside(present = presentRecords, maps = MAPS) {
   for (const map of maps) {
     const pinned =
       PINNED_OUTSIDE[
-        /** @type {'M055'|'M057'|'M058'|'M059'} */ (map.milestone)
+        /** @type {'M055'|'M057'|'M058'|'M059'|'M060'} */ (map.milestone)
       ] ?? [];
     const named = outsideTheMapOf(map);
     for (const path of named)
@@ -1262,7 +1284,7 @@ test('T006 — every map is read, and each may name outside itself only the reco
     const named = outsideTheMapOf(map);
     const pinned =
       PINNED_OUTSIDE[
-        /** @type {'M055'|'M057'|'M058'|'M059'} */ (map.milestone)
+        /** @type {'M055'|'M057'|'M058'|'M059'|'M060'} */ (map.milestone)
       ] ?? [];
     for (const path of named)
       assert.ok(

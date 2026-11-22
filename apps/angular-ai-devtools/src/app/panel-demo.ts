@@ -65,13 +65,13 @@ const LOADERS: Record<
   'tutor-signals': () => import('./panel-tutor-signals') as never,
   'tutor-routing': () => import('./panel-tutor-routing') as never,
   'teardown-leak': () => import('./panel-teardown-leak') as never,
+  'error-routing': () => import('./panel-error-routing') as never,
 };
 // The sample facts each surface renders; the spec holds each one to the recording it came from.
 export const FACTS: Record<string, unknown> = {
   // The join's own field answer for the cross-field case (extension/field-state.js): every field valid, while the root carries its own error kind. The submit state is the recording's, not a
   // label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact
-  // shape in `research/raw/m031-field-state.json` and names the element it was read off
-  // (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
+  // shape in `research/raw/m031-field-state.json` and names the element it was read off (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
   fields: {
     fields: {
       name: { valid: true, invalid: false, errors: [] },
@@ -441,13 +441,13 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own answer (`extension/copy-check.js`, T002) for T001's measurement
   // (`research/raw/m048-surface-copy.json`) against the shipped digest
-  // (`extension/copy-digest.json`): all 212 compared strings are explained, so the record reads
+  // (`extension/copy-digest.json`): all 213 compared strings are explained, so the record reads
   // `clean` with nothing unexplained. `context`'s own row is `cannot-tell` because that surface
   // renders no copy at all, and the join reports that absence in the row rather than in the
   // record's state, which is why it is not a field here. Every value is the join's; no count is
-  // written by hand, and the thirty surfaces it measures include this milestone's own
-  // `panel-teardown-leak.ts`. `panel-demo.spec.ts` holds this fact to that join field for field.
-  'copy-check': { state: 'clean', unexplained: [], checked: 212 },
+  // written by hand, and the thirty-one surfaces it measures include this milestone's own
+  // `panel-error-routing.ts`. `panel-demo.spec.ts` holds this fact to that join field for field.
+  'copy-check': { state: 'clean', unexplained: [], checked: 213 },
   // The join's own answer (`extension/interaction-story.js`, T002) for a record the suite rebuilds
   // from T001's measurement (`research/raw/m049-streams.json`): one entry per measured stream, with
   // each entry's keys taken from the field list the record cites for that stream's builder and the
@@ -1053,4 +1053,51 @@ FACTS['teardown-leak'] = {
   ],
   detail:
     'the console record research/raw/m059-record-shapes.json states 1 console message and the first of them whose own body carries NG0205 is at order 3, with the body "NG0205: Injector has already been destroyed." and the level "error" in `type`, and the stack frames dropped from it; the digest record extension/error-digest.json carries NG0205 "Injector has already been destroyed" among 64 codes; no field of the message names an owner, so owner-not-in-the-message stands beside the code; the sequence it read is release-then-diagnostic: 1 release record is ordered before the diagnostic at order 3 and none after it, so the release ran first and no handle is named as the cause of the diagnostic; the absences it renders are 2 states and never one line: owner-not-in-the-message beside handle-record-not-held',
+};
+
+// The join's own answer (`extension/error-routing.js`, T002) for a record written in the shape
+// `research/raw/m060-record-shapes.json` measures, entered here after the component for the reason
+// the facts above are: every cited line of this file is pinned where it sits, so a fact added
+// inside the literal would move the template, the loader resolution and the earlier facts those
+// records quote.
+//
+// The record is the global error listener's arrivals beside M042's boundary entries and the
+// handler state, in the shapes the record-shapes record names: one arrival whose message text no
+// boundary entry carries, one boundary entry whose text is a different code, and the handler
+// record with the name field a resolved handler carries. The message texts and the handler name
+// are fixture data — T001 measured the payload shape (`{code, message, component, timestamp}`),
+// the two record paths the claims cite and the phase absence (count 2), never a page's message or
+// a handler class — and the arrival carries no `component`, so the answer's `owner` is `null` and
+// the pane states `owner-not-in-the-message` in its place. The answer is not written here by
+// hand: `panel-demo.spec.ts` rebuilds that record from the shipped record-shapes measurement,
+// evaluates the shipped join from its own committed text and holds this fact to its answer field
+// for field — so a fact that drifted reddens there rather than shipping. No cause and no remedy
+// is written here because the join states none, and the handler identity the detail carries is
+// the handler record's own `name` field and nothing beside it (SC1, N1).
+FACTS['error-routing'] = {
+  state: 'uncaught-with-handler',
+  message: 'NG0910: No provider found for InjectionToken WIRE_TOKEN',
+  code: 'NG0910',
+  owner: null,
+  phase: 'phase-not-recorded',
+  absences: ['phase-not-recorded'],
+  claims: [
+    {
+      kind: 'error-arrival',
+      claim: 'the global error listener recorded this arrival',
+      artefactPath: 'extension/agent-main.js#L2550-L2561',
+    },
+    {
+      kind: 'boundary-entry',
+      claim: 'the resolved handler recorded this boundary entry',
+      artefactPath: 'extension/agent-main.js#L1904-L1944',
+    },
+    {
+      kind: 'handler',
+      claim: 'the page resolved this ErrorHandler',
+      artefactPath: 'extension/agent-main.js#L1904-L1944',
+    },
+  ],
+  detail:
+    'the error "NG0910: No provider found for InjectionToken WIRE_TOKEN" is carried by no boundary entry and the ErrorHandler "ProxyErrorHandler" is in force, so nothing caught it',
 };

@@ -110,8 +110,8 @@
     "sampleFact": {
       "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
       "line": 450,
-      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 212 },",
-      "holds": "checked: 212"
+      "lineText": "'copy-check': { state: 'clean', unexplained: [], checked: 213 },",
+      "holds": "checked: 213"
     },
     "sampleFactComment": [
       {
@@ -123,11 +123,11 @@
       {
         "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
         "line": 444,
-        "lineText": "// (`extension/copy-digest.json`): all 212 compared strings are explained, so the record reads",
-        "holds": "212"
+        "lineText": "// (`extension/copy-digest.json`): all 213 compared strings are explained, so the record reads",
+        "holds": "213"
       }
     ],
-    "statement": "the `copy-check` key is a `LOADERS` key (:57) and no longer the last one — M049’s T003 appended `interaction-story` after it (:58) and M051’s T003 appended `what-changed` (:60), which is what moved the resolution lines below — and this key is the only path to `panel-copy-check.ts`: the demo looks the key up by the name the route’s `data.surface` states (:717), awaits the dynamic import (:723), calls the module’s default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact it is handed (:450) is `{ state: 'clean', unexplained: [], checked: 212 }` — the join’s answer over the thirty-surface record this head measures and the 204-row digest authored from it — and the comment above it (:444) states the same count, so the fact and the record agree at this head."
+    "statement": "the `copy-check` key is a `LOADERS` key (:57) and no longer the last one — M049’s T003 appended `interaction-story` after it (:58) and M051’s T003 appended `what-changed` (:60), which is what moved the resolution lines below — and this key is the only path to `panel-copy-check.ts`: the demo looks the key up by the name the route’s `data.surface` states (:717), awaits the dynamic import (:723), calls the module’s default export with the sample fact (:724), and sets the state (:725) and the lines (:726) the module answers. The fact it is handed (:450) is `{ state: 'clean', unexplained: [], checked: 213 }` — the join’s answer over the thirty-surface record this head measures and the 204-row digest authored from it — and the comment above it (:444) states the same count, so the fact and the record agree at this head."
   },
   "answer": {
     "shape": "{ state, unexplained, checked, reason }",

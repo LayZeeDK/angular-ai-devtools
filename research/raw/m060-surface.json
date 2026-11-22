@@ -1,0 +1,514 @@
+{
+  "schema": "m060-surface/v1",
+  "milestone": "M060 error-routing",
+  "task": "T003",
+  "title": "Record the error-routing route, its loader key, the four states the pane renders and the two absences the join decides as their own lines",
+  "question": "which route reaches the error-routing surface, which LOADERS key resolves it, what does each of the four states the pane renders read off the answer the shipped join gave, how is each of the two absences and the owner's absence rendered, and what does the panel and the copy count at this head?",
+  "head": "03718448fa4933a4787e4cec83188a1ad682d559",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: every citation below was read out of the file it names in this task’s tree — the base above plus T003’s own working-tree edits, which is the tree this record was measured in — and re-resolved by searching that file for the exact line it quotes rather than by trusting a typed number; the answer the record states is `extension/error-routing.js` run node-side in a bare `node:vm` context over a record written in the shape `research/raw/m060-record-shapes.json` measures, printed by the `measurement` command below. The five readings this record describes are the route table (`app.routes.ts`), the loader map and the sample fact (`panel-demo.ts`), the display module (`panel-error-routing.ts`), the record shapes T001 measured (`research/raw/m060-record-shapes.json`) and the copy record (`research/raw/m048-surface-copy.json`). No browser was opened for this record, no page was read, no capture was taken and no build was run: the same answer is re-derived node-side by `panel-demo.spec.ts` on every test run.",
+  "measurement": {
+    "what": "the shipped join’s own answer over the record the demo carries — the global error listener’s arrivals beside M042’s boundary entries and the handler state, in the shapes T001 measured — run in a bare vm context: the state, the message and the code, the owner field, the phase, the absences, the claims with their artefact paths, and the join’s own detail sentence",
+    "command": "node -e \"const fs=require('fs'),vm=require('vm');const ctx=vm.createContext({});vm.runInContext(fs.readFileSync('extension/error-routing.js','utf8'),ctx);const r={errors:[{message:'NG0910: No provider found for InjectionToken WIRE_TOKEN',code:null,component:null,timestamp:null,artefactPath:'extension/agent-main.js#L2550-L2561'}],boundaries:[{message:'NG0201: No provider found for InjectionToken OTHER_TOKEN',route:'hook',caughtBy:true,artefactPath:'extension/agent-main.js#L1904-L1944'}],handler:{name:'ProxyErrorHandler',artefactPath:'extension/agent-main.js#L1904-L1944'}};console.log(JSON.stringify(ctx.angularAiErrorRouting.errorRouting(r)))\"",
+    "output": [
+      "{\"state\":\"uncaught-with-handler\",\"message\":\"NG0910: No provider found for InjectionToken WIRE_TOKEN\",\"code\":\"NG0910\",\"owner\":null,\"phase\":\"phase-not-recorded\",\"absences\":[\"phase-not-recorded\"],\"claims\":[{\"kind\":\"error-arrival\",\"claim\":\"the global error listener recorded this arrival\",\"artefactPath\":\"extension/agent-main.js#L2550-L2561\"},{\"kind\":\"boundary-entry\",\"claim\":\"the resolved handler recorded this boundary entry\",\"artefactPath\":\"extension/agent-main.js#L1904-L1944\"},{\"kind\":\"handler\",\"claim\":\"the page resolved this ErrorHandler\",\"artefactPath\":\"extension/agent-main.js#L1904-L1944\"}],\"detail\":\"the error \\\"NG0910: No provider found for InjectionToken WIRE_TOKEN\\\" is carried by no boundary entry and the ErrorHandler \\\"ProxyErrorHandler\\\" is in force, so nothing caught it\"}"
+    ]
+  },
+  "counts": {
+    "what": "the numbers this record states about the panel, the route table and the copy, each measured at this head rather than typed",
+    "panelSurfaces": 30,
+    "panelSurfacesBefore": 29,
+    "loaderKeys": 30,
+    "loaderKeysBefore": 29,
+    "orderedPaths": 39,
+    "orderedPathsBefore": 38,
+    "digestRows": 204,
+    "digestRowsBefore": 204,
+    "digestRowsForThisSurface": 0,
+    "paneSentences": 1,
+    "digestSentencesForThisSurface": 0,
+    "copyRecordSurfaces": 31,
+    "copyRecordSentencesCompared": 213,
+    "command": "node -e \"const fs=require('fs');const q=String.fromCharCode(39);const r=fs.readFileSync('apps/angular-ai-devtools/src/app/app.routes.ts','utf8');const s=r.indexOf('const PANEL_SURFACES = ');const e=r.indexOf('];',s);const d=r.slice(s,e).split('\\n').filter(l=>{const t=l.trim();return t.startsWith(q)&&t.endsWith(',');}).length;const m=fs.readFileSync('apps/angular-ai-devtools/src/app/panel-demo.ts','utf8');const a=m.indexOf('const LOADERS');const z=m.indexOf('const FACTS',a);const k=m.slice(a,z).split('\\n').filter(l=>l.includes('import(')).length;const g=JSON.parse(fs.readFileSync('extension/copy-digest.json','utf8'));console.log('panelSurfaces '+d);console.log('loaderKeys '+k);console.log('digestRows '+g.entries.length);console.log('digestRowsForThisSurface '+g.entries.filter(x=>x.surface==='error-routing').length)\"",
+    "output": [
+      "panelSurfaces 30",
+      "loaderKeys 30",
+      "digestRows 204",
+      "digestRowsForThisSurface 0"
+    ]
+  },
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+    "join": "extension/error-routing.js",
+    "recordShapes": "research/raw/m060-record-shapes.json",
+    "copy": "research/raw/m048-surface-copy.json",
+    "copyDigest": "extension/copy-digest.json",
+    "specs": [
+      "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+      "apps/angular-ai-devtools/src/app/app.spec.ts",
+      "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
+      "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
+      "scripts/panel-routes.test.mjs",
+      "scripts/after-render-fixture.test.mjs",
+      "scripts/component-search.test.mjs",
+      "scripts/copy-check.test.mjs",
+      "scripts/gate-integrity.test.mjs",
+      "scripts/gate-integrity-default-tasks.test.mjs",
+      "tests/held-out/fixture-explainers-unchanged.test.mjs"
+    ]
+  },
+  "route": {
+    "name": "error-routing",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 105,
+      "lineText": "'error-routing',",
+      "holds": "error-routing"
+    },
+    "note": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 104,
+      "lineText": "// The M060 SC6 surface, whose one line the dead-click note above it pays for by its own fold: the message and the code an uncaught error's own text carried, the owner the arrival's own field named or `owner-not-in-the-message`, the phase the records decided or `phase-not-recorded`, and each absence of the join as its own line — or the cannot-tell state that names what the records did not carry, with no remedy, no cause and no handler identity the answer did not state.",
+      "holds": "The M060 SC6 surface"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadPanelDemo"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "surface"
+    },
+    "table": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "appRoutes"
+    },
+    "closure": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "loadPanelDemo"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "panel-demo"
+      }
+    ],
+    "position": "between `interaction-story` and `dead-click`",
+    "statement": "one entry of the `PANEL_SURFACES` list, spread into the `appRoutes` table by the one mapped literal the table ends with, lazy through the shared `loadPanelDemo` closure the table defines once, and naming its surface in `data.surface` as every demo-backed route does. It sits between `interaction-story` and `dead-click` rather than after `what-changed`, for the reason the list’s own note states: the `m048`/`m049`/`m050` route records cite the loader’s two lines (14–15), the `copy-check` (97), `interaction-story` (103) and `dead-click` (110) path lines and the declaration and mapped-literal lines below the list (113, 146, 147), so the entry’s one line is paid for by folding two lines of the M050 note into their neighbours’ text and every line those records cite keeps its number. The route registers nothing and measures nothing at render time: it reaches the pane that renders the join’s answer."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "LOADERS"
+    },
+    "key": "error-routing",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 68,
+      "lineText": "'error-routing': () => import('./panel-error-routing') as never,",
+      "holds": "'./panel-error-routing'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 717,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 723,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 724,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 725,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 726,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 1077,
+      "lineText": "FACTS['error-routing'] = {",
+      "holds": "FACTS['error-routing']"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1078,
+        "lineText": "state: 'uncaught-with-handler',",
+        "holds": "state: 'uncaught-with-handler'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1080,
+        "lineText": "code: 'NG0910',",
+        "holds": "code: 'NG0910'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1081,
+        "lineText": "owner: null,",
+        "holds": "owner: null"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1082,
+        "lineText": "phase: 'phase-not-recorded',",
+        "holds": "phase-not-recorded"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1083,
+        "lineText": "absences: ['phase-not-recorded'],",
+        "holds": "absences"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1084,
+        "lineText": "claims: [",
+        "holds": "claims: ["
+      }
+    ],
+    "statement": "the `error-routing` key is one entry of the `LOADERS` map and it is the only path to `panel-error-routing.ts`: the demo looks the key up by the name the route’s `data.surface` states, awaits the dynamic import, calls the module’s default export with the sample fact, and sets the state and the lines the module answers. The key cost one line, and that line sits inside the `LOADERS` map above the component, where the M060 pane module is new and no surface record had cited the map’s entries by line; the loader resolution block (717, 723–726), the component template and every earlier fact keep their numbers because the one line the map gained was paid for by folding one comment line of the `fields` fact into its neighbour. The fact is the join’s own answer over a record written in the shape T001 measured: `state: uncaught-with-handler`, the message the arrival’s own payload carries, the code that message’s own text carries, `owner: null` (the arrival carries no `component`), the phase absence, one absence, three claims each carrying its artefact path and the handler state in the join’s own detail — and `panel-demo.spec.ts` rebuilds that record from the shipped record-shapes measurement, evaluates the shipped join from its committed text and holds this fact to that answer field for field."
+  },
+  "answer": {
+    "statement": "the join answers `{ state, message, code, owner, phase, absences, claims, detail }` with every field in every state. The demo’s sample is the `uncaught-with-handler` answer: the message the arrival’s own payload carries, the NG0NNN code that message’s own text carries, no owner (the arrival records no `component`), the phase absence no record in this tree displaces, `phase-not-recorded` beside no other absence, one claim per record the answer cites with the path that record carries, and the join’s own detail sentence — which names the handler state the handler record itself carries and nothing beside it. The message texts and the handler name are fixture data: T001 measured the payload shape (`{code, message, component, timestamp}`), the two record paths the claims cite and the phase absence, never a page’s message or a handler class.",
+    "recordShapes": {
+      "producer": {
+        "cite": {
+          "file": "research/raw/m060-record-shapes.json",
+          "line": 51,
+          "lineText": "\"boundaryEntryLimit\": 128",
+          "holds": "boundaryEntryLimit"
+        }
+      },
+      "phaseAbsence": {
+        "cite": {
+          "file": "research/raw/m060-record-shapes.json",
+          "line": 55,
+          "lineText": "\"count\": 2,",
+          "holds": "count"
+        }
+      }
+    },
+    "cannotTellAnswer": {
+      "state": "cannot-tell",
+      "message": null,
+      "code": null,
+      "owner": null,
+      "statement": "`cannot-tell` is the join’s own answer to `{}`: the records do not name the inputs it reads, so nothing is decided. The pane renders the state, the shared `no-reason` sentence the copy digest carries, the phase line, the absence line and the join’s `detail`, and no message, code or owner value, because the answer carries none of the three."
+    }
+  },
+  "states": [
+    {
+      "key": "state-uncaught-with-handler",
+      "word": "uncaught-with-handler",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+        "line": 79,
+        "lineText": "export const UNCAUGHT_WITH_HANDLER = 'uncaught-with-handler';",
+        "holds": "UNCAUGHT_WITH_HANDLER"
+      },
+      "joinAt": {
+        "file": "extension/error-routing.js",
+        "line": 56,
+        "lineText": "const UNCAUGHT_WITH_HANDLER = 'uncaught-with-handler';",
+        "holds": "UNCAUGHT_WITH_HANDLER"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 306,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "message",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 322,
+            "lineText": "fieldLine(LABELS.message, 'message', answer, lines);",
+            "holds": "fieldLine(LABELS.message, 'message', answer, lines);"
+          }
+        },
+        {
+          "field": "code",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 323,
+            "lineText": "fieldLine(LABELS.code, 'code', answer, lines);",
+            "holds": "fieldLine(LABELS.code, 'code', answer, lines);"
+          }
+        },
+        {
+          "field": "owner",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 326,
+            "lineText": "lines.push(line(LABELS.owner, ownerText(answer)));",
+            "holds": "ownerText(answer)"
+          }
+        },
+        {
+          "field": "phase",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 329,
+            "lineText": "const phase = writtenString(answer['phase']);",
+            "holds": "answer['phase']"
+          }
+        },
+        {
+          "field": "absences[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 260,
+            "lineText": "function absenceLines(answer: Record<string, unknown>): readonly string[] {",
+            "holds": "absenceLines("
+          }
+        },
+        {
+          "field": "claims[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 277,
+            "lineText": "function claimLines(answer: Record<string, unknown>): readonly string[] {",
+            "holds": "claimLines("
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 334,
+            "lineText": "fieldLine(LABELS.detail, 'detail', answer, lines);",
+            "holds": "fieldLine(LABELS.detail, 'detail', answer, lines);"
+          }
+        }
+      ],
+      "renders": "the message and the code, the owner line carrying the component the arrival’s own record named or `owner-not-in-the-message` where it named none, the phase line carrying the phase the records decided or the absence that stands for it, one absence line per absence the join decided, one claim group per cited record, and the join’s own detail — and never a handler identity the detail did not state"
+    },
+    {
+      "key": "state-reached-handler",
+      "word": "reached-handler",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+        "line": 80,
+        "lineText": "export const REACHED_HANDLER = 'reached-handler';",
+        "holds": "REACHED_HANDLER"
+      },
+      "joinAt": {
+        "file": "extension/error-routing.js",
+        "line": 57,
+        "lineText": "const REACHED_HANDLER = 'reached-handler';",
+        "holds": "REACHED_HANDLER"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 306,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 334,
+            "lineText": "fieldLine(LABELS.detail, 'detail', answer, lines);",
+            "holds": "fieldLine(LABELS.detail, 'detail', answer, lines);"
+          }
+        }
+      ],
+      "renders": "the same labelled fields the finding renders and the join’s own `no finding` detail — never a page rendered as clean"
+    },
+    {
+      "key": "state-no-handler-provided",
+      "word": "no-handler-provided",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+        "line": 81,
+        "lineText": "export const NO_HANDLER_PROVIDED = 'no-handler-provided';",
+        "holds": "NO_HANDLER_PROVIDED"
+      },
+      "joinAt": {
+        "file": "extension/error-routing.js",
+        "line": 58,
+        "lineText": "const NO_HANDLER_PROVIDED = 'no-handler-provided';",
+        "holds": "NO_HANDLER_PROVIDED"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 306,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 334,
+            "lineText": "fieldLine(LABELS.detail, 'detail', answer, lines);",
+            "holds": "fieldLine(LABELS.detail, 'detail', answer, lines);"
+          }
+        }
+      ],
+      "renders": "the absence the join’s own detail names — no handler resolved — and no handler name anywhere, because the object carries none to name"
+    },
+    {
+      "key": "state-cannot-tell",
+      "word": "cannot-tell",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+        "line": 82,
+        "lineText": "export const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "joinAt": {
+        "file": "extension/error-routing.js",
+        "line": 59,
+        "lineText": "const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 306,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "the no-reason sentence",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 320,
+            "lineText": "if (stateWord === CANNOT_TELL) lines.push(sentenceText('no-reason'));",
+            "holds": "sentenceText('no-reason')"
+          }
+        },
+        {
+          "field": "detail",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+            "line": 334,
+            "lineText": "fieldLine(LABELS.detail, 'detail', answer, lines);",
+            "holds": "fieldLine(LABELS.detail, 'detail', answer, lines);"
+          }
+        }
+      ],
+      "renders": "the state, the shared `no-reason` sentence the digest holds, the phase line, the absence lines and the join’s detail; and no message, code or owner value, because the answer carries none of the three"
+    }
+  ],
+  "absences": [
+    {
+      "key": "absence-phase-not-recorded",
+      "word": "phase-not-recorded",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+        "line": 96,
+        "lineText": "export const PHASE_NOT_RECORDED = 'phase-not-recorded';",
+        "holds": "PHASE_NOT_RECORDED"
+      },
+      "joinAt": {
+        "file": "extension/error-routing.js",
+        "line": 62,
+        "lineText": "const PHASE_NOT_RECORDED = 'phase-not-recorded';",
+        "holds": "PHASE_NOT_RECORDED"
+      },
+      "holdsWhere": "every answer at this head, because no record in this tree names the phase an uncaught error was thrown in (T001’s absence, count 2)",
+      "renders": "its own `phase` line carrying the word the join returned, and its own `absence` line beside it — two lines, never one folded line and never a blank"
+    },
+    {
+      "key": "absence-no-boundary-entry",
+      "word": "no-boundary-entry",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+        "line": 97,
+        "lineText": "export const NO_BOUNDARY_ENTRY = 'no-boundary-entry';",
+        "holds": "NO_BOUNDARY_ENTRY"
+      },
+      "joinAt": {
+        "file": "extension/error-routing.js",
+        "line": 63,
+        "lineText": "const NO_BOUNDARY_ENTRY = 'no-boundary-entry';",
+        "holds": "NO_BOUNDARY_ENTRY"
+      },
+      "holdsWhere": "the boundary record is present and carries no entry to compare against",
+      "renders": "its own `absence` line, beside the phase absence’s own line and never folded into it"
+    },
+    {
+      "key": "absence-owner-not-in-the-message",
+      "word": "owner-not-in-the-message",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-error-routing.ts",
+        "line": 103,
+        "lineText": "export const OWNER_NOT_IN_THE_MESSAGE = 'owner-not-in-the-message';",
+        "holds": "OWNER_NOT_IN_THE_MESSAGE"
+      },
+      "joinAt": {
+        "file": "extension/error-routing.js",
+        "line": 279,
+        "lineText": "const owner = textOf(fieldOf(uncaught, 'component'));",
+        "holds": "fieldOf(uncaught, 'component')"
+      },
+      "holdsWhere": "the answer carries `owner: null` — the arrival’s own record names no `component` — which is the demo sample’s own case",
+      "renders": "the `owner` line, carrying this word rather than a blank; where a record names an owner the same line carries that name, so the owner line renders one fact or the other and never nothing"
+    }
+  ],
+  "notCaptured": [
+    "Nothing here was rendered, clicked or captured: every value is a static read of the files the `sources` block names, at the tree above, and the answer the record states is the shipped join run node-side over a record written in the shape T001 measured. No browser was opened, no page was read, no profiler was tapped and no build was run.",
+    "No page read produced this answer and none could: the message texts and the handler name are fixture data. T001 measured the payload shape the listeners reduce an arrival to, the two record paths the claims cite and the phase absence (count 2), never a page’s message or a handler class. The milestone’s answer is the join’s own over a record written in that measured shape, and the demo’s spec re-derives it on every test run.",
+    "The record does not measure what the pane looks like. The one sentence it renders is enumerated in `panel-error-routing.ts`’s `PANE_SENTENCES` and is explained by a row `extension/copy-digest.json` already carries under the surface `components` — the shared `no-reason` text, which no new digest row was needed for; this record names the states and the field each reads rather than reproducing the rendering.",
+    "The record does not claim the copy record was re-measured by this task’s first pass alone. `research/raw/m048-surface-copy.json` stated 30 surfaces and 212 sentences and did not carry `panel-error-routing.ts`; the same task re-measured it over the thirty-first surface — its one registry sentence (the shared `no-reason` text the digest already carries) and its one inline label — so that record now states 31 surfaces and 213 sentences, `scripts/copy-check.test.mjs` is green at 30 of 30, and the `copyRecordSurfaces` and `copyRecordSentencesCompared` counts above are the re-measured record’s."
+  ],
+  "verdict": "measured: the panel route `error-routing` is one lazy route — a `PANEL_SURFACES` entry spread into `appRoutes` by the one mapped literal, sitting between `interaction-story` and `dead-click` and costing the list one line that the M050 note’s own fold pays for, so no line the route records cite moves — whose `data.surface` names the `error-routing` key of `panel-demo.ts`’s `LOADERS`, and that key is the only path to `panel-error-routing.ts`. The pane renders the join’s four states and nothing it did not state: the finding names the message and the code the message’s own text carries and the owner only where a field of the arrival names one — the owner line carrying `owner-not-in-the-message` where it names none — `reached-handler` renders the same fields with the join’s own `no finding` detail and never a clean page, `no-handler-provided` names no handler identity the object did not carry, and `cannot-tell` renders the shared `no-reason` sentence, the phase and the absences and the detail with no message, code or owner value. The phase line is never blank: it carries whichever word the join returned, and no record in this tree displaces the absence. The pane names no cause, no remedy and no schematic, because the answer carries none. The panel carries 30 surfaces and 30 loader keys, the route table 39 ordered paths, and `extension/copy-digest.json` 204 rows — none of them this pane’s, because its one sentence is the shared `no-reason` text the digest already holds under `components`.",
+  "revision": {
+    "author": "T003",
+    "head": "03718448fa4933a4787e4cec83188a1ad682d559",
+    "why": "M060’s T003 ships the thirtieth panel surface, `panel-error-routing.ts`, with its route, loader key and sample fact, and the record of that surface is owed before the milestone ships",
+    "what": "the route, the loader key, the four states and the three absences with the answer field each reads and the line each is rendered on, the join’s measured answer over the record the demo carries, the counts the panel and the copy carry at this head, and the copy record’s re-measurement over the thirty-first surface"
+  }
+}

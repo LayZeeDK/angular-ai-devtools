@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: teardown-leak
+milestone: error-routing
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M059
-archive: .project/archive/059-teardown-leak
+branch: gsd-path/M060
+archive: .project/archive/060-error-routing
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1237,5 +1237,19 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — plan — plan approved
 - 2026-11-22 — build — build started
 - 2026-11-22 — build — build done; final review pending
+- 2026-11-22 — ship — build done; final review pending
+- 2026-11-22 — shipped — archive preflight passed; shipment recorded
+- 2026-11-22 — inspect — router bound M060 error-routing
+- 2026-11-22 — inspect — inspection complete; delta measured, 18 audited documents changed and none of them a product document
+- 2026-11-22 — define — define started
+- 2026-11-22 — define — milestone intent approved
+- 2026-11-22 — research — research opened; the entry lists no open questions
+- 2026-11-22 — research — no open questions to research; the entry lists none
+- 2026-11-22 — decide — decide opened; the entry lists no open decisions
+- 2026-11-22 — decide — no decisions to take; the entry lists none
+- 2026-11-22 — plan — planning started
+- 2026-11-22 — plan — plan approved
+- 2026-11-22 — build — build started
+- 2026-11-22 — build — build complete; five tasks landed and the project verify is green at this head
 - 2026-11-22 — ship — build done; final review pending
 - 2026-11-22 — shipped — archive preflight passed; shipment recorded

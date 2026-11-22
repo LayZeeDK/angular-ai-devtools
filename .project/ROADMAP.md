@@ -2091,8 +2091,8 @@ Open questions
 Depends on: [M020]
 Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/060-error-routing
 Integrated: null
 
 Goal: The panel answers why an error that should have reached an ErrorHandler was reported as uncaught, naming the handler chain in effect and the phase the error was thrown in.

@@ -270,6 +270,19 @@ import {
   STATES as TEARDOWN_LEAK_STATES,
   teardownLeakPanel,
 } from './panel-teardown-leak';
+import {
+  ABSENCES as ERROR_ROUTING_ABSENCES,
+  CANNOT_TELL as ERROR_ROUTING_CANNOT_TELL,
+  LABELS as ERROR_ROUTING_LABELS,
+  NO_HANDLER_PROVIDED as ERROR_ROUTING_NO_HANDLER_PROVIDED,
+  OWNER_NOT_IN_THE_MESSAGE as ERROR_ROUTING_OWNER_NOT_IN_THE_MESSAGE,
+  PANE_SENTENCES as ERROR_ROUTING_SENTENCES,
+  PHASE_NOT_RECORDED as ERROR_ROUTING_PHASE_NOT_RECORDED,
+  REACHED_HANDLER as ERROR_ROUTING_REACHED_HANDLER,
+  STATES as ERROR_ROUTING_STATES,
+  UNCAUGHT_WITH_HANDLER as ERROR_ROUTING_UNCAUGHT_WITH_HANDLER,
+  errorRoutingPanel,
+} from './panel-error-routing';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -2969,7 +2982,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — thirty-eight paths, the same ordered list
+    // The whole table, in order and to the count — thirty-nine paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -3010,10 +3023,11 @@ describe('the panel demo', () => {
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or empty, or cannot-tell
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
+      'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(38);
+    expect(appRoutes).toHaveLength(39);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -3516,20 +3530,20 @@ describe('the panel demo', () => {
 
     // The measured record's answer: every string it declares is explained, and the count is the
     // join's own comparison — not a count written in this spec or in the demo fact. The count is
-    // larger than the digest's row count because one sentence is declared by six surfaces, three more
-    // by two surfaces each, and an explanation of one string is still one row: 212 sentences
+    // larger than the digest's row count because one sentence is declared by seven surfaces, three more
+    // by two surfaces each, and an explanation of one string is still one row: 213 sentences
     // compared, 204 distinct rows.
     expect(answer).toEqual({
       state: COPY_CLEAN,
       unexplained: [],
-      checked: 212,
+      checked: 213,
     });
     expect(answer.checked).toBe(
       recording.counts.declaredSentences + recording.counts.inlineSentences,
     );
     expect(digest.entries.length).toBeLessThan(answer.checked);
     expect(recording.counts.surfaces).toBe(recording.surfaces.length);
-    expect(recording.counts.surfaces).toBe(30);
+    expect(recording.counts.surfaces).toBe(31);
 
     // The absence in `context`'s own row does not decide the record: that row reads cannot-tell
     // with its own reason, while the record stays clean. Both answers are the join's.
@@ -7191,5 +7205,412 @@ describe('the teardown-leak surface', () => {
       false,
     );
     assertFindingPanes(pane.lines, withOwner);
+  });
+});
+
+// M060 T003 — the error-routing surface: the shipped join's own answer over a record in the shape
+// T001 measured, rendered as the labelled fields the answer carries.
+// ------------------------------------------------------------------------------------------------
+//
+// The pane is the display half of a join that reads two records and a handler state and infers
+// nothing: `extension/error-routing.js` (T002) answers `{ state, message, code, owner, phase,
+// absences, claims, detail }` from the global error listener's arrivals, M042's boundary entries
+// and whether an ErrorHandler resolved, and the demo's sample fact is its answer. The record this
+// section rebuilds is written in the shape `research/raw/m060-record-shapes.json` measures: the
+// two record paths the claims cite are read out of the recording's own prose, the arrival and
+// boundary payloads carry the fields that record names, and no record in this tree names a phase
+// (T001's absence, count 2), so the phase is the absence in every answer. The message texts and
+// the handler name are fixture data — the recording measures shapes and paths, never a page's
+// message — and the fact is held to the join over that rebuilt record, never to a copy of the
+// answer written in this spec.
+//
+// The four states render four different things and the pins below say which: the finding names the
+// message and the code and the owner only where the join filled it, with the owner line carrying
+// `owner-not-in-the-message` where it did not (SC1, N1); the reached answer renders no finding and
+// says so in its detail (SC2); `no-handler-provided` names no handler identity the object did not
+// carry (SC3); and `cannot-tell` renders the state, the shared `no-reason` sentence, the phase,
+// the absences and the detail, and no message, code or owner value (SC4). No line of the pane
+// names a cause, a remedy or a schematic, and the phase line is never blank.
+
+/** The uncaught arrival's message, and the message a boundary entry carries — fixture data. */
+const ERROR_ROUTING_UNCAUGHT_TEXT =
+  'NG0910: No provider found for InjectionToken WIRE_TOKEN';
+const ERROR_ROUTING_CARRIED_TEXT =
+  'NG0201: No provider found for InjectionToken OTHER_TOKEN';
+
+/** The handler name the demo's handler record carries — fixture data, as T002's fixtures carry. */
+const ERROR_ROUTING_HANDLER_NAME = 'ProxyErrorHandler';
+
+/** The part of the M060 record-shapes record this section reads. */
+interface ErrorRoutingShapesRecording {
+  records: {
+    path: string;
+    carries: string;
+  }[];
+  producer: { listeners: string[]; boundaryEntryLimit: number };
+  absences: { phaseNotRecorded: { count: number } };
+}
+
+/** One claim of the join's answer, for the fields this section reads. */
+interface ErrorRoutingClaim {
+  readonly kind: string;
+  readonly claim: string;
+  readonly artefactPath: string;
+}
+
+/** The join's answer: the eight fields every state carries. */
+interface ErrorRoutingAnswer {
+  readonly state: string;
+  readonly message: string | null;
+  readonly code: string | null;
+  readonly owner: string | null;
+  readonly phase: string;
+  readonly absences: readonly string[];
+  readonly claims: readonly ErrorRoutingClaim[];
+  readonly detail: string;
+}
+
+/** The page's own join namespace, as `extension/error-routing.js` publishes it. */
+interface ErrorRoutingJoin {
+  (records: unknown): ErrorRoutingAnswer;
+}
+
+/** The M060 record-shapes record and its text, inlined from disk at build time. */
+function readErrorRoutingShapes(): ErrorRoutingShapesRecording {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m060-record-shapes.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m060-record-shapes.json was not inlined above this spec file',
+    );
+  }
+  return JSON.parse(text) as ErrorRoutingShapesRecording;
+}
+
+/**
+ * The join `extension/error-routing.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `error-routing` fact is held to the join's answer, not to a copy of
+ * it. The module is an IIFE with no imports, so running it is the whole of loading it; it
+ * publishes the join function itself on `globalThis.angularAiErrorRouting`.
+ */
+function errorRoutingJoin(): ErrorRoutingJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/error-routing.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/error-routing.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as { angularAiErrorRouting?: ErrorRoutingJoin }
+  ).angularAiErrorRouting;
+  if (join === undefined || typeof join !== 'function') {
+    throw new Error('extension/error-routing.js published no errorRouting');
+  }
+  return join;
+}
+
+/** The two record paths the recording's own prose names, as the claims cite them. */
+function errorRoutingPaths(recording: ErrorRoutingShapesRecording) {
+  const arrivals = recording.records.map((record) => record.carries).join('\n');
+  const listener = /agent-main\.js:(\d+)-(\d+)/.exec(arrivals);
+  const boundary = /agent-main\.js:(\d+)-(\d+)/.exec(
+    recording.records[1]?.carries ?? '',
+  );
+  if (listener === null || boundary === null) {
+    throw new Error(
+      'the M060 recording names no agent-main.js range for the two records it measured',
+    );
+  }
+  return {
+    errors: `extension/agent-main.js#L${listener[1]}-L${listener[2]}`,
+    boundaries: `extension/agent-main.js#L${boundary[1]}-L${boundary[2]}`,
+  };
+}
+
+/** One listener arrival, in the payload shape the recording measures. */
+function errorRoutingArrival(paths: { errors: string }, extra = {}) {
+  return {
+    message: ERROR_ROUTING_UNCAUGHT_TEXT,
+    code: null,
+    component: null,
+    timestamp: null,
+    artefactPath: paths.errors,
+    ...extra,
+  };
+}
+
+/** One boundary entry, in the M042 shape the recording measures. */
+function errorRoutingBoundary(paths: { boundaries: string }, extra = {}) {
+  return {
+    message: ERROR_ROUTING_CARRIED_TEXT,
+    route: 'hook',
+    caughtBy: true,
+    artefactPath: paths.boundaries,
+    ...extra,
+  };
+}
+
+/** The demo's sample record: one uncaught arrival, one carried entry, one resolved handler. */
+function errorRoutingRecord(
+  recording: ErrorRoutingShapesRecording,
+  extra: Record<string, unknown> = {},
+) {
+  const paths = errorRoutingPaths(recording);
+  return {
+    errors: [errorRoutingArrival(paths)],
+    boundaries: [errorRoutingBoundary(paths)],
+    handler: {
+      name: ERROR_ROUTING_HANDLER_NAME,
+      artefactPath: paths.boundaries,
+    },
+    ...extra,
+  };
+}
+
+/** Whether any line speaks of a cause, a remedy or a schematic — the three the pane may not state. */
+function speaksOfCauseOrRemedyOrSchematic(lines: readonly string[]): string[] {
+  return lines.filter((line) =>
+    /\bfix:\s|\bremedy:\s|\bschematic\b|\bcaused by\b|\bis the cause\b/i.test(
+      line,
+    ),
+  );
+}
+
+describe('the error-routing surface', () => {
+  it('renders the finding the join answers, and the sample fact is that answer field for field (SC1, SC6)', async () => {
+    const recording = readErrorRoutingShapes();
+    const join = errorRoutingJoin();
+    const answer = join(errorRoutingRecord(recording));
+
+    // The four states of the answer are the four words the pane was written for, in the join's own
+    // order, and the two absences the join decides are the two words it names.
+    expect([...ERROR_ROUTING_STATES]).toEqual([
+      'uncaught-with-handler',
+      'reached-handler',
+      'no-handler-provided',
+      'cannot-tell',
+    ]);
+    expect([...ERROR_ROUTING_ABSENCES]).toEqual([
+      'phase-not-recorded',
+      'no-boundary-entry',
+    ]);
+    // No record in this tree names a phase (T001's absence), so the phase is the absence itself.
+    expect(recording.absences.phaseNotRecorded.count).toBe(
+      recording.producer.listeners.length,
+    );
+
+    // The sample fact is that answer, field for field: nothing here was written by hand.
+    expect(FACTS['error-routing']).toEqual(answer);
+    expect(Object.keys(FACTS['error-routing'] as object).sort()).toEqual([
+      'absences',
+      'claims',
+      'code',
+      'detail',
+      'message',
+      'owner',
+      'phase',
+      'state',
+    ]);
+
+    // SC1: the finding names the message, the code the message's own text carries, and the owner
+    // the arrival's own record named — which is none here, so the pane states the absence.
+    expect(answer.state).toBe(ERROR_ROUTING_UNCAUGHT_WITH_HANDLER);
+    expect(answer.message).toBe(ERROR_ROUTING_UNCAUGHT_TEXT);
+    expect(answer.code).toBe('NG0910');
+    expect(answer.owner).toBeNull();
+    expect(answer.phase).toBe(ERROR_ROUTING_PHASE_NOT_RECORDED);
+    expect(answer.absences).toEqual(['phase-not-recorded']);
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'error-routing',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the error-routing surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('error-routing');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'error-routing'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo('error-routing');
+    const pane = errorRoutingPanel(FACTS['error-routing']);
+    expect(demo.state()).toBe(ERROR_ROUTING_UNCAUGHT_WITH_HANDLER);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(pane.state).toBe(ERROR_ROUTING_UNCAUGHT_WITH_HANDLER);
+
+    // The whole pane, in the answer's order: the state, the message, the code, the owner line
+    // carrying its absence word, the phase line carrying the phase absence, one absence line per
+    // absence the join decided, one claim group per cited record, and the detail last.
+    expect(pane.lines).toEqual([
+      `state: ${ERROR_ROUTING_UNCAUGHT_WITH_HANDLER}`,
+      `message: ${String(answer.message)}`,
+      `code: ${String(answer.code)}`,
+      `owner: ${ERROR_ROUTING_OWNER_NOT_IN_THE_MESSAGE}`,
+      `phase: ${ERROR_ROUTING_PHASE_NOT_RECORDED}`,
+      `absence: ${ERROR_ROUTING_PHASE_NOT_RECORDED}`,
+      ...answer.claims.flatMap((claim) => [
+        `${ERROR_ROUTING_LABELS.claim}: ${claim.claim}`,
+        `${ERROR_ROUTING_LABELS.artefactPath}: ${claim.artefactPath}`,
+      ]),
+      `detail: ${String(answer.detail)}`,
+    ]);
+
+    // The mutant AC1 is written about: a pane that renders a blank phase line reddens this pin,
+    // because the phase line is here and carries the absence word the join decided.
+    expect(
+      pane.lines.some(
+        (line) => line.startsWith('phase:') && line.trim() !== 'phase:',
+      ),
+    ).toBe(true);
+    // No cause, no remedy and no schematic: the pane states the handler state only as the join's
+    // own detail states it, and names no reason for the error.
+    expect(speaksOfCauseOrRemedyOrSchematic(pane.lines)).toEqual([]);
+    expect(pane.text).not.toMatch(/\bremedy\b|\bschematic\b/i);
+
+    // SC5: every claim the answer makes carries the artefact that states it, and the pane prints it.
+    expect(answer.claims.length).toBeGreaterThan(0);
+    for (const claim of answer.claims) {
+      expect(claim.artefactPath.length).toBeGreaterThan(0);
+      expect(pane.lines).toContain(
+        `${ERROR_ROUTING_LABELS.claim}: ${claim.claim}`,
+      );
+      expect(pane.lines).toContain(
+        `${ERROR_ROUTING_LABELS.artefactPath}: ${claim.artefactPath}`,
+      );
+    }
+
+    // The owner line is the absence word only where the join left the owner null: an arrival whose
+    // own `component` names one renders that name and never the absence.
+    const withOwner = join(
+      errorRoutingRecord(recording, {
+        errors: [
+          errorRoutingArrival(errorRoutingPaths(recording), {
+            component: 'CounterComponent',
+          }),
+        ],
+      }),
+    );
+    const ownerPane = errorRoutingPanel(withOwner);
+    expect(withOwner.owner).toBe('CounterComponent');
+    expect(ownerPane.lines).toContain('owner: CounterComponent');
+    expect(ownerPane.lines).not.toContain(
+      `owner: ${ERROR_ROUTING_OWNER_NOT_IN_THE_MESSAGE}`,
+    );
+
+    // The pane's one registered sentence is the shared `no-reason` text the copy digest carries,
+    // and it is rendered on `cannot-tell` and on no other state.
+    expect(ERROR_ROUTING_SENTENCES.map((sentence) => sentence.id)).toEqual([
+      'no-reason',
+    ]);
+    expect(pane.lines.some((line) => line.startsWith('no-reason: '))).toBe(
+      false,
+    );
+
+    // Idempotency: the same fact renders the same lines in the same order, twice.
+    expect(errorRoutingPanel(FACTS['error-routing'])).toEqual(pane);
+    expect(pane.text).not.toMatch(/<\/?[a-z]/i);
+  });
+
+  it('renders the other three states apart, and no handler identity the object did not carry (SC2, SC3, SC4)', () => {
+    const recording = readErrorRoutingShapes();
+    const join = errorRoutingJoin();
+
+    // reached-handler: the text a boundary entry carries is no finding, and the pane renders the
+    // same fields with the join's own `no finding` detail — never a clean page.
+    const reached = join({
+      ...errorRoutingRecord(recording),
+      boundaries: [
+        errorRoutingBoundary(errorRoutingPaths(recording), {
+          message: ERROR_ROUTING_UNCAUGHT_TEXT,
+        }),
+      ],
+    });
+    expect(reached.state).toBe(ERROR_ROUTING_REACHED_HANDLER);
+    expect(String(reached.detail)).toMatch(/no finding/);
+    const reachedPane = errorRoutingPanel(reached);
+    expect(reachedPane.state).toBe(ERROR_ROUTING_REACHED_HANDLER);
+    expect(reachedPane.lines).toContain(
+      `message: ${ERROR_ROUTING_UNCAUGHT_TEXT}`,
+    );
+    expect(reachedPane.lines).toContain(`code: NG0910`);
+    expect(reachedPane.lines).toContain(`detail: ${String(reached.detail)}`);
+    expect(speaksOfCauseOrRemedyOrSchematic(reachedPane.lines)).toEqual([]);
+
+    // no-handler-provided: the absence is named in the detail and no handler name is rendered,
+    // because the object carries none — the pane adds no identity of its own (SC3, N1).
+    const noHandler = join({
+      ...errorRoutingRecord(recording),
+      handler: null,
+    });
+    expect(noHandler.state).toBe(ERROR_ROUTING_NO_HANDLER_PROVIDED);
+    expect(String(noHandler.detail)).toMatch(/no ErrorHandler resolved/);
+    const noHandlerPane = errorRoutingPanel(noHandler);
+    expect(noHandlerPane.state).toBe(ERROR_ROUTING_NO_HANDLER_PROVIDED);
+    expect(noHandlerPane.text).not.toContain(ERROR_ROUTING_HANDLER_NAME);
+    expect(noHandlerPane.lines).toContain(
+      `detail: ${String(noHandler.detail)}`,
+    );
+
+    // cannot-tell: the records name nothing, so no message, code or owner value renders, and the
+    // one registered sentence states the absence the contract's own shape implies.
+    const cannotTell = join({});
+    expect(cannotTell.state).toBe(ERROR_ROUTING_CANNOT_TELL);
+    expect(cannotTell.message).toBeNull();
+    expect(cannotTell.code).toBeNull();
+    expect(cannotTell.owner).toBeNull();
+    const cannotPane = errorRoutingPanel(cannotTell);
+    expect(cannotPane.state).toBe(ERROR_ROUTING_CANNOT_TELL);
+    expect(cannotPane.lines).toEqual([
+      `state: ${ERROR_ROUTING_CANNOT_TELL}`,
+      ERROR_ROUTING_SENTENCES[0]?.text ?? '',
+      `owner: ${ERROR_ROUTING_OWNER_NOT_IN_THE_MESSAGE}`,
+      `phase: ${ERROR_ROUTING_PHASE_NOT_RECORDED}`,
+      `absence: ${ERROR_ROUTING_PHASE_NOT_RECORDED}`,
+      `detail: ${String(cannotTell.detail)}`,
+    ]);
+    expect(cannotPane.lines.some((line) => line.startsWith('message: '))).toBe(
+      false,
+    );
+    expect(cannotPane.lines.some((line) => line.startsWith('code: '))).toBe(
+      false,
+    );
+
+    // The four states are four words with four different first lines, and none of them renders
+    // another's rendering.
+    expect(
+      new Set([
+        ERROR_ROUTING_UNCAUGHT_WITH_HANDLER,
+        ERROR_ROUTING_REACHED_HANDLER,
+        ERROR_ROUTING_NO_HANDLER_PROVIDED,
+        ERROR_ROUTING_CANNOT_TELL,
+      ]).size,
+    ).toBe(4);
+
+    // A state word the pane was not written for renders as the bare word it was given, and a value
+    // that is no answer at all is its own named absence — never a blank pane.
+    expect(errorRoutingPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+    expect(errorRoutingPanel(undefined).lines).toEqual(['state: no-answer']);
   });
 });
