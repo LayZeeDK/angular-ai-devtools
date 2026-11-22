@@ -7,12 +7,12 @@ Milestone: M060 — error-routing
 
 ## Dispatch
 
-No subagent was dispatched: the roadmap entry lists **no open questions**, so the three facts below were read
-directly at the base commit by the orchestrating session, and each cites the file and line it came from.
+No subagent was dispatched: the roadmap entry lists **no open questions**, so each dimension was read directly at the base commit and is recorded here as skipped.
 
-- handler — read → `.project/research/RESEARCH.md#R1` — what M042 already records about the ErrorHandler
-- globals — read → `.project/research/RESEARCH.md#R2` — the global listener record the agent already installs
-- phase — read → `.project/research/RESEARCH.md#R3` — whether any record states an uncaught error's phase
+- `domain` — skipped → `.project/research/RESEARCH.md` — R1: the handler side is already recorded by M042 — `extension/agent-main.js:1904-1944`.
+- `stack` — skipped → `.project/research/RESEARCH.md` — R2: the global listener record is already installed — `extension/agent-main.js:2550-2561`.
+- `pitfalls` — skipped → `.project/research/RESEARCH.md` — R3: no record states the phase an uncaught error was thrown in.
+- `similar` — skipped → `.project/research/RESEARCH.md` — M059 met six record censuses at the ship gate; the plan declares them up front.
 
 ## Question assignments
 
