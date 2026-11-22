@@ -18,6 +18,10 @@ files:
   - scripts/tutor-answer.test.mjs
   - scripts/teardown-leak-shapes.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
+  - research/raw/m061-record-shapes.json
+  - scripts/locale-correctness-shapes.test.mjs
+  - scripts/locale-correctness.test.mjs
+  - extension/locale-correctness.js
 ---
 
 # T005 — Re-derive the gate records and run the project verify
@@ -48,12 +52,16 @@ Run `M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs` and `M056_CAPTU
 1. SC1: both records re-derive at this head — each suite reads the record it produced and finds no differing value.
 2. SC4: the project verify builds before it measures and passes without any cache or daemon workaround.
 
+3. SC1: this milestone’s own record counts the tree as it stood before this milestone’s modules: the word scan excludes `extension/locale-correctness.js` and the suite itself as own files, so `codeHits` stays 0 while the module that names the locale token exists; a mutant that adds the module back to the scan reddens by name.
+
 ## Verify
 
 ```bash
 M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs
 M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs
 node --test scripts/gate-integrity.test.mjs scripts/gate-stability-record.test.mjs
+M061_CAPTURE=1 node --test scripts/locale-correctness-shapes.test.mjs
+node --test scripts/locale-correctness-shapes.test.mjs
 npx prettier --check research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json
 ```
 
