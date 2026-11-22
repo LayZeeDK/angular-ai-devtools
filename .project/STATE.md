@@ -5,7 +5,7 @@ milestone: error-routing
 phase: research
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M060
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1244,3 +1244,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — define — define started
 - 2026-11-22 — define — milestone intent approved
 - 2026-11-22 — research — research opened; the entry lists no open questions
+- 2026-11-22 — research — no open questions to research; the entry lists none
