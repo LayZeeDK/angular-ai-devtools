@@ -1,0 +1,41 @@
+head: 3bc23270a00f3fb34197fa2aae5c54cb04d6f990 at 2026-11-22T20:25:34.096Z
+▶ locale-correctness.js is pure
+  ✔ evaluates in a bare context and publishes the join itself, and nothing else of its own (1.7578ms)
+  ✔ SC3 — two node:vm contexts with throw-on-touch globals produce deep-equal answers (5.0808ms)
+  ✔ reaches for no host global and no live page value (0.3967ms)
+  ✔ answers the same record twice with the same value and mutates nothing it was handed (0.4642ms)
+  ✔ throws on no input (0.7071ms)
+✔ locale-correctness.js is pure (10.0064ms)
+▶ the shipped join answers the provider record
+  ✔ carries exactly the six contract fields in every state, and reaches all four (0.8845ms)
+  ✔ SC1 — the locale provider entry is named by token, kind and import path, with its value not recorded (0.4282ms)
+  ✔ SC1 — the token is matched by its derivation, never by the literal LOCALE_ID (0.5546ms)
+  ✔ SC1 — entries that carry no recognised token are locale-token-absent, and nothing is guessed (1.05ms)
+  ✔ SC1 — two entries naming the token: the nearest is named by its own kind and import path (0.5941ms)
+  ✔ SC2 — a record with no formatter is formatted-outside-i18n and never reads the page (1.1121ms)
+  ✔ SC4 — no answer names a remedy, a cause, a schematic or an identity it was not given (0.6975ms)
+  ✔ cannot-tell — a record that states nothing usable names which input it did not carry (0.5231ms)
+✔ the shipped join answers the provider record (6.1823ms)
+▶ mutants redden by name
+  ✔ M1 — an entry matched by position reddens the locale-entry pin (1.7366ms)
+  ✔ M2 — the gap filled from the rendered text reddens the no-formatter pin (1.7202ms)
+  ✔ M3 — the gap filled from navigator.language reddens the no-formatter pin (2.422ms)
+  ✔ M4 — a claim naming a remedy reddens the no-remedy pin (1.1573ms)
+  ✔ M5 — locale-value-not-recorded dropped reddens the locale-entry pin (1.6586ms)
+  ✔ M6 — a seventh field on the answer reddens the six-field pin (1.3139ms)
+  ✔ M7 — a token guessed where the record carries none reddens the absence pin (2.9675ms)
+  ✔ M8 — the farthest matching entry chosen reddens the nearest-entry pin (1.0445ms)
+  ✔ M9 — the token matched by the literal LOCALE_ID reddens the derivation pin (1.0129ms)
+✔ mutants redden by name (15.2873ms)
+ℹ tests 22
+ℹ suites 3
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 221.7034
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/locale-correctness.js scripts/locale-correctness.test.mjs

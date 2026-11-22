@@ -45,6 +45,7 @@ const surfaces = [
   'copy-check',
   'interaction-story',
   'error-routing',
+  'locale-correctness',
   'dead-click',
   'what-changed',
 ];
@@ -614,22 +615,26 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
     'a table without the tutor-signals route must fail naming the missing surface',
   );
 
-  // Mutant: the M058 surface dropped from the list the factory is handed. It is the route the table
-  // answers for the tutor-routing pane — the terminal event by class and id, the route node by its
-  // own path and stated fields, and the two absences side by side — so the per-surface half must
-  // name it rather than pass on the older surfaces alone.
-  const withoutTutorRouting = source.replace("  'tutor-routing',\n", '');
+  // Mutant: the M061 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the locale-correctness pane — the provider entry's token, kind and import path, or
+  // the absence that stands where no entry carries the token, with every absence and claim the
+  // answer carries in its own line — so the per-surface half must name it rather than pass on the
+  // older surfaces alone.
+  const withoutLocaleCorrectness = source.replace(
+    "  'locale-correctness',\n",
+    '',
+  );
   assert.notEqual(
-    withoutTutorRouting,
+    withoutLocaleCorrectness,
     source,
-    'the removed-tutor-routing-route mutant must change app.routes.ts',
+    'the removed-locale-correctness-route mutant must change app.routes.ts',
   );
   assert.throws(
-    () => assertSurfaceRoutes(withoutTutorRouting),
+    () => assertSurfaceRoutes(withoutLocaleCorrectness),
     (err) =>
       err instanceof assert.AssertionError &&
-      String(err.message).includes('route tutor-routing must exist'),
-    'a table without the tutor-routing route must fail naming the missing surface',
+      String(err.message).includes('route locale-correctness must exist'),
+    'a table without the locale-correctness route must fail naming the missing surface',
   );
 });
 
@@ -653,6 +658,10 @@ test('E2: the surface functions are still exported for their suites', () => {
     webmcp: ['panel-webmcp', 'webmcpPanel'],
     'teardown-leak': ['panel-teardown-leak', 'teardownLeakPanel'],
     'error-routing': ['panel-error-routing', 'errorRoutingPanel'],
+    'locale-correctness': [
+      'panel-locale-correctness',
+      'localeCorrectnessPanel',
+    ],
     components: ['panel-components', 'componentsPanel'],
     'copy-check': ['panel-copy-check', 'copyCheckPanel'],
     'interaction-story': ['panel-interaction-story', 'interactionStoryPanel'],
@@ -714,6 +723,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'tutorFoundationsPanel(',
     'tutorSignalsPanel(',
     'tutorRoutingPanel(',
+    'localeCorrectnessPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -1316,5 +1326,31 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: error-routing'),
     'removing the error-routing loader must fail naming the missing surface error-routing',
+  );
+
+  // Mutant: remove the locale-correctness key from LOADERS. The M061 route is the one this task
+  // adds, so the check must name it when its loader is gone rather than pass on the surfaces before
+  // it. It is a quoted key whose import is the only reference to `panel-locale-correctness.ts`, so a
+  // route that dropped it would leave the locale-correctness surface unreachable while every
+  // earlier surface still loaded. The assertion reads the failure's whole message: the missing-key
+  // sentence and the surface it names.
+  const withoutLocaleCorrectness = demoSource.replace(
+    "  'locale-correctness': () => import('./panel-locale-correctness') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutLocaleCorrectness,
+    demoSource,
+    'the locale-correctness loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutLocaleCorrectness),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: locale-correctness'),
+    'removing the locale-correctness loader must fail naming the missing surface locale-correctness',
   );
 });

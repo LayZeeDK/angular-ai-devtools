@@ -335,8 +335,8 @@ export function assertBuildIsCurrent(
       `${new Date(newest.mtimeMs).toISOString()}, so it does not carry that source. Its total ` +
       `belongs to an older tree than this head, and comparing it here would report an old build ` +
       `as current — which is how a nine-day-old output satisfied this budget for three ` +
-      `milestones. Rebuild it and measure again, skipping the cache so the output is really ` +
-      `written: npx nx run angular-ai-devtools:build-extension --skip-nx-cache`,
+      `milestones. Rebuild it and measure again: npx nx run ` +
+      `angular-ai-devtools:build-extension`,
   );
   return {
     indexPath,

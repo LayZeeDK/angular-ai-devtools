@@ -283,6 +283,19 @@ import {
   UNCAUGHT_WITH_HANDLER as ERROR_ROUTING_UNCAUGHT_WITH_HANDLER,
   errorRoutingPanel,
 } from './panel-error-routing';
+import {
+  ABSENCES as LOCALE_CORRECTNESS_ABSENCES,
+  CANNOT_TELL as LOCALE_CORRECTNESS_CANNOT_TELL,
+  FIELDS as LOCALE_CORRECTNESS_FIELDS,
+  FORMATTED_OUTSIDE_I18N as LOCALE_CORRECTNESS_FORMATTED_OUTSIDE_I18N,
+  LABELS as LOCALE_CORRECTNESS_LABELS,
+  LOCALE_PROVIDER_ENTRY as LOCALE_CORRECTNESS_PROVIDER_ENTRY,
+  LOCALE_TOKEN_ABSENT as LOCALE_CORRECTNESS_TOKEN_ABSENT,
+  LOCALE_VALUE_NOT_RECORDED as LOCALE_CORRECTNESS_VALUE_NOT_RECORDED,
+  NO_FORMATTER_NAMED as LOCALE_CORRECTNESS_NO_FORMATTER_NAMED,
+  STATES as LOCALE_CORRECTNESS_STATES,
+  localeCorrectnessPanel,
+} from './panel-locale-correctness';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -2982,7 +2995,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — thirty-nine paths, the same ordered list
+    // The whole table, in order and to the count — forty paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -3024,10 +3037,11 @@ describe('the panel demo', () => {
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
+      'locale-correctness', // M061 SC4, SC2 surface: the provider entry's token, kind and import path or the absence that stands where no entry carries the token, each absence in its own line, and no locale value
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(39);
+    expect(appRoutes).toHaveLength(40);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -7614,3 +7628,334 @@ describe('the error-routing surface', () => {
     expect(errorRoutingPanel(undefined).lines).toEqual(['state: no-answer']);
   });
 });
+
+// ------------------------------------------------------------------------------- M061 T003 ----
+// The locale-correctness surface, and the discipline the milestone is about: the sample fact is the
+// shipped join's own answer over the provider entries T001 measured, and the pane prints that answer
+// and nothing beside it — no locale value, because the value is in no field the injector walk writes,
+// and no sentence of its own, because a sentence here would be a claim the join did not produce.
+
+/** The record T001 measured, as this section reads it. */
+interface LocaleCorrectnessShapes {
+  providers: {
+    entries: {
+      token: string;
+      isViewProvider: boolean;
+      provider: string;
+      importPath: string;
+    }[];
+    localeEntry: {
+      token: string;
+      isViewProvider: boolean;
+      provider: string;
+      importPath: string;
+    };
+  };
+  producer: { entryFields: string[]; fieldCount: number };
+  absence: Record<string, { count: number; detail: string }>;
+}
+
+/** One claim of the join's answer. */
+interface LocaleCorrectnessClaim {
+  readonly kind: string;
+  readonly claim: string;
+  readonly artefactPath: string;
+}
+
+/** The join's answer: the six fields every state carries and no seventh. */
+interface LocaleCorrectnessAnswer {
+  readonly state: string;
+  readonly token: string | null;
+  readonly provider: string | null;
+  readonly importPath: string | null;
+  readonly absences: readonly string[];
+  readonly claims: readonly LocaleCorrectnessClaim[];
+}
+
+/** The page's own join namespace, as `extension/locale-correctness.js` publishes it. */
+interface LocaleCorrectnessJoin {
+  (records: unknown): LocaleCorrectnessAnswer;
+}
+
+/** The M061 record-shapes record, inlined from disk at build time. */
+function readLocaleCorrectnessShapes(): LocaleCorrectnessShapes {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m061-record-shapes.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'research/raw/m061-record-shapes.json was not inlined above this spec file',
+    );
+  }
+  return JSON.parse(text) as LocaleCorrectnessShapes;
+}
+
+/**
+ * The join `extension/locale-correctness.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `locale-correctness` fact is held to the join's answer, not to a copy of
+ * it. The module is an IIFE with no imports, so running it is the whole of loading it; it publishes
+ * the join function itself on `globalThis.angularAiLocaleCorrectness`.
+ */
+function localeCorrectnessJoin(): LocaleCorrectnessJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/locale-correctness.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/locale-correctness.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (
+    globalThis as unknown as {
+      angularAiLocaleCorrectness?: LocaleCorrectnessJoin;
+    }
+  ).angularAiLocaleCorrectness;
+  if (join === undefined || typeof join !== 'function') {
+    throw new Error(
+      'extension/locale-correctness.js published no localeCorrectness',
+    );
+  }
+  return join;
+}
+
+/** The value the record says the walk discards, read out of the absence's own detail sentence. */
+function discardedLocaleValue(shapes: LocaleCorrectnessShapes): string {
+  const detail = shapes.absence['locale-value-not-recorded']?.detail ?? '';
+  const found = /provided value "([^"]+)"/.exec(detail);
+  if (found === null) {
+    throw new Error(
+      'the M061 record no longer quotes the value its reduction discards, so this section cannot hold the pane to it',
+    );
+  }
+  return found[1] ?? '';
+}
+
+describe('the locale-correctness surface', () => {
+  it('renders the six fields the join answers, and the sample fact is that answer field for field (SC4)', async () => {
+    const shapes = readLocaleCorrectnessShapes();
+    const join = localeCorrectnessJoin();
+    const answer = join(shapes.providers.entries);
+
+    // The four states and the four absences the pane was written for, in the join's own order.
+    expect([...LOCALE_CORRECTNESS_STATES]).toEqual([
+      'locale-provider-entry',
+      'locale-token-absent',
+      'formatted-outside-i18n',
+      'cannot-tell',
+    ]);
+    expect([...LOCALE_CORRECTNESS_ABSENCES]).toEqual([
+      'no-provider-record',
+      'locale-token-absent',
+      'locale-value-not-recorded',
+      'no-formatter-named',
+    ]);
+    expect([...LOCALE_CORRECTNESS_FIELDS]).toEqual([
+      'state',
+      'token',
+      'provider',
+      'importPath',
+      'absences',
+      'claims',
+    ]);
+    // The reduction the record measured names four fields and no fifth, which is why the value is in
+    // no field of the answer: `count` is the number of fields the walk read looking for it, and it is
+    // the entry's own field count rather than a number written here.
+    for (const field of ['token', 'isViewProvider', 'provider', 'importPath'])
+      expect(shapes.providers.localeEntry).toHaveProperty(field);
+    expect(shapes.producer.fieldCount).toBe(4);
+    expect(shapes.producer.entryFields).toEqual([
+      'token',
+      'isViewProvider',
+      'provider',
+      'importPath',
+    ]);
+    expect(shapes.absence['locale-value-not-recorded']?.count).toBe(
+      shapes.producer.fieldCount,
+    );
+
+    // The sample fact is that answer, field for field, and carries exactly the six contract fields.
+    expect(FACTS['locale-correctness']).toEqual(answer);
+    expect(Object.keys(FACTS['locale-correctness'] as object).sort()).toEqual([
+      'absences',
+      'claims',
+      'importPath',
+      'provider',
+      'state',
+      'token',
+    ]);
+
+    // SC4: the answer names the entry the record carries — the token the walk derived, the kind it
+    // was declared with and the module it came from — and the two absences this tree can prove.
+    expect(answer.state).toBe(LOCALE_CORRECTNESS_PROVIDER_ENTRY);
+    expect(answer.token).toBe(shapes.providers.localeEntry.token);
+    expect(answer.provider).toBe(shapes.providers.localeEntry.provider);
+    expect(answer.importPath).toBe(shapes.providers.localeEntry.importPath);
+    expect(answer.absences).toEqual([
+      LOCALE_CORRECTNESS_VALUE_NOT_RECORDED,
+      LOCALE_CORRECTNESS_NO_FORMATTER_NAMED,
+    ]);
+    // No record this answer read carries an `artefactPath`, so the join cites nothing — and the pane
+    // invents no claim in its place.
+    expect(answer.claims).toEqual([]);
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'locale-correctness',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error(
+        'the locale-correctness surface must exist and load lazily',
+      );
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('locale-correctness');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'locale-correctness'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo('locale-correctness');
+    const pane = localeCorrectnessPanel(FACTS['locale-correctness']);
+    expect(demo.state()).toBe(LOCALE_CORRECTNESS_PROVIDER_ENTRY);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(pane.state).toBe(LOCALE_CORRECTNESS_PROVIDER_ENTRY);
+
+    // The whole pane, in the answer's order: the state, the three entry fields the entry carries,
+    // then one absence line per absence the join decided — two for this answer — and no claim group.
+    expect(pane.lines).toEqual([
+      `state: ${LOCALE_CORRECTNESS_PROVIDER_ENTRY}`,
+      `${LOCALE_CORRECTNESS_LABELS.token}: ${String(answer.token)}`,
+      `${LOCALE_CORRECTNESS_LABELS.provider}: ${String(answer.provider)}`,
+      `${LOCALE_CORRECTNESS_LABELS.importPath}: ${String(answer.importPath)}`,
+      `${LOCALE_CORRECTNESS_LABELS.absence}: ${LOCALE_CORRECTNESS_VALUE_NOT_RECORDED}`,
+      `${LOCALE_CORRECTNESS_LABELS.absence}: ${LOCALE_CORRECTNESS_NO_FORMATTER_NAMED}`,
+    ]);
+    expect(pane.lines.some((line) => line.startsWith('claim: '))).toBe(false);
+
+    // The locale value is the thing no record carries: it is in the recording's prose, and it is in
+    // no line of the pane and in no field of the fact the pane is handed (SC4, D3).
+    const discarded = discardedLocaleValue(shapes);
+    expect(discarded.length).toBeGreaterThan(1);
+    expect(pane.text.includes(discarded)).toBe(false);
+    expect(
+      JSON.stringify(FACTS['locale-correctness']).includes(discarded),
+    ).toBe(false);
+    expect(JSON.stringify(answer).includes(discarded)).toBe(false);
+
+    // Idempotency, and no markup: the pane is text and the same fact renders the same lines twice.
+    expect(localeCorrectnessPanel(FACTS['locale-correctness'])).toEqual(pane);
+    expect(pane.text).not.toMatch(/<\/?[a-z]/i);
+  });
+
+  it('renders the other three states apart, with the absence in place of the entry and no default locale (SC2)', () => {
+    const shapes = readLocaleCorrectnessShapes();
+    const join = localeCorrectnessJoin();
+
+    // locale-token-absent: the record carries entries and none of them the token. The three entry
+    // fields are null, so no line is printed for them and no default locale is invented.
+    const absent = join({ providers: [shapes.providers.entries[0]] });
+    expect(absent.state).toBe(LOCALE_CORRECTNESS_TOKEN_ABSENT);
+    expect(absent.token).toBeNull();
+    expect(absent.provider).toBeNull();
+    expect(absent.importPath).toBeNull();
+    const absentPane = localeCorrectnessPanel(absent);
+    expect(absentPane.lines).toEqual([
+      `state: ${LOCALE_CORRECTNESS_TOKEN_ABSENT}`,
+      `${LOCALE_CORRECTNESS_LABELS.absence}: ${LOCALE_CORRECTNESS_TOKEN_ABSENT}`,
+      `${LOCALE_CORRECTNESS_LABELS.absence}: ${LOCALE_CORRECTNESS_NO_FORMATTER_NAMED}`,
+    ]);
+    for (const field of ['token', 'provider', 'importPath'])
+      expect(
+        absentPane.lines.some((line) => line.startsWith(`${field}: `)),
+      ).toBe(false);
+
+    // formatted-outside-i18n: a record that names no formatter and carries no provider record. The
+    // pane states both absences and never the nearest locale the page happens to render.
+    const outside = join({ formatter: null });
+    expect(outside.state).toBe(LOCALE_CORRECTNESS_FORMATTED_OUTSIDE_I18N);
+    expect(outside.token).toBeNull();
+    const outsidePane = localeCorrectnessPanel(outside);
+    expect(outsidePane.lines).toEqual([
+      `state: ${LOCALE_CORRECTNESS_FORMATTED_OUTSIDE_I18N}`,
+      `${LOCALE_CORRECTNESS_LABELS.absence}: no-provider-record`,
+      `${LOCALE_CORRECTNESS_LABELS.absence}: ${LOCALE_CORRECTNESS_NO_FORMATTER_NAMED}`,
+    ]);
+
+    // cannot-tell: the record states nothing usable. The pane renders the state and the absences and
+    // nothing else — no reason transcribed and no sentence of its own.
+    const cannot = join({});
+    expect(cannot.state).toBe(LOCALE_CORRECTNESS_CANNOT_TELL);
+    const cannotPane = localeCorrectnessPanel(cannot);
+    expect(cannotPane.lines).toEqual([
+      `state: ${LOCALE_CORRECTNESS_CANNOT_TELL}`,
+      `${LOCALE_CORRECTNESS_LABELS.absence}: no-provider-record`,
+      `${LOCALE_CORRECTNESS_LABELS.absence}: ${LOCALE_CORRECTNESS_NO_FORMATTER_NAMED}`,
+    ]);
+    expect(cannotPane.text).not.toMatch(
+      /\bfix\b|\bremedy\b|\bbecause\b|\bcause\b/i,
+    );
+
+    // Four states, four first lines, and no state renders another's line.
+    expect(
+      new Set([
+        LOCALE_CORRECTNESS_PROVIDER_ENTRY,
+        LOCALE_CORRECTNESS_TOKEN_ABSENT,
+        LOCALE_CORRECTNESS_FORMATTED_OUTSIDE_I18N,
+        LOCALE_CORRECTNESS_CANNOT_TELL,
+      ]).size,
+    ).toBe(4);
+
+    // A claim the answer cites is printed as its own pair of lines, in the answer's order; a value
+    // that is no answer at all is its own bare state and never a blank pane.
+    const withClaims = answerWithClaims();
+    const claimed = localeCorrectnessPanel(withClaims);
+    expect(withClaims.claims.map((claim) => claim.artefactPath)).toEqual([
+      'research/raw/m061-record-shapes.json',
+    ]);
+    for (const claim of withClaims.claims) {
+      expect(claimed.lines).toContain(
+        `${LOCALE_CORRECTNESS_LABELS.claim}: ${claim.claim}`,
+      );
+      expect(claimed.lines).toContain(
+        `${LOCALE_CORRECTNESS_LABELS.artefactPath}: ${claim.artefactPath}`,
+      );
+    }
+    expect(localeCorrectnessPanel({ state: 'constructor' }).lines).toEqual([
+      'state: constructor',
+    ]);
+    expect(localeCorrectnessPanel(undefined).lines).toEqual([
+      'state: no-answer',
+    ]);
+  });
+});
+
+/**
+ * The sample answer with the one claim a record that carries an `artefactPath` earns, built here so
+ * the claim lines are pinned against a record that states one: the pane renders that pair and no
+ * path it invented.
+ */
+function answerWithClaims(): LocaleCorrectnessAnswer {
+  const shapes = readLocaleCorrectnessShapes();
+  const join = localeCorrectnessJoin();
+  return join({
+    providers: shapes.providers.entries.map((entry, index) =>
+      index === shapes.providers.entries.length - 1
+        ? { ...entry, artefactPath: 'research/raw/m061-record-shapes.json' }
+        : entry,
+    ),
+  });
+}

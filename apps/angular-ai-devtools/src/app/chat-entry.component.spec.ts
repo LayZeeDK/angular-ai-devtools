@@ -727,6 +727,7 @@ describe('the chat route', () => {
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
+      'locale-correctness', // M061 SC4, SC2 surface: the provider entry's token, kind and import path or the absence that stands where no entry carries the token, each absence in its own line, and no locale value
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
@@ -768,6 +769,7 @@ describe('the chat route', () => {
       'copy-check', // M048 SC1-2 surface
       'interaction-story', // M049 SC1-2 surface
       'error-routing', // M060 SC6 surface
+      'locale-correctness', // M061 SC4, SC2 surface
       'dead-click', // M050 SC1-2 surface
       'what-changed', // M051 SC1-2 surface
     ]);
@@ -825,6 +827,7 @@ describe('the chat route', () => {
       'copy-check',
       'interaction-story',
       'error-routing',
+      'locale-correctness',
       'dead-click',
       'what-changed',
       'visual-qa',

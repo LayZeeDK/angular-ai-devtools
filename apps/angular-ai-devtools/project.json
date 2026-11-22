@@ -51,6 +51,7 @@
     },
     "build-extension": {
       "executor": "@angular/build:application",
+      "cache": false,
       "dependsOn": [
         "generate-error-digest"
       ],
@@ -100,6 +101,10 @@
     },
     "generate-error-digest": {
       "executor": "nx:run-commands",
+      "cache": true,
+      "outputs": [
+        "{workspaceRoot}/extension/error-digest.json"
+      ],
       "options": {
         "command": "node scripts/generate-error-digest.mjs",
         "cwd": "{workspaceRoot}"
@@ -120,6 +125,7 @@
     },
     "test": {
       "executor": "@angular/build:unit-test",
+      "cache": false,
       "options": {
         "watch": false,
         "include": [

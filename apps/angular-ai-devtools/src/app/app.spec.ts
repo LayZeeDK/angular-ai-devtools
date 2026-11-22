@@ -54,7 +54,11 @@ describe('App', () => {
  * two lines, the `copy-check`, `interaction-story` and `dead-click` path lines and the declaration
  * and mapped-literal lines below the list — and is paid for by folding two lines of the M050 note
  * into their neighbours' text, which is why the count moves from thirty-eight to thirty-nine
- * without moving a cited line.
+ * without moving a cited line. M061's `locale-correctness` sits between `error-routing` and the
+ * dead-click note for the same reason — the route records cite the path lines above it, the
+ * `dead-click` and `what-changed` path lines below it and the declaration and mapped-literal lines
+ * below the list — and is paid for by folding the M050 note's four lines into two, which is why the
+ * count moves from thirty-nine to forty without moving a cited line.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -96,6 +100,7 @@ describe('the route table', () => {
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
+      'locale-correctness', // M061 SC4, SC2 surface: the provider entry's token, kind and import path or the absence that stands where no entry carries the token, each absence in its own line, and no locale value
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
@@ -405,6 +410,22 @@ describe('the route table', () => {
     // One entry, so the route this task appends is the only one that answers at that path.
     expect(
       appRoutes.filter((route) => route.path === 'error-routing'),
+    ).toHaveLength(1);
+
+    const localeCorrectness = appRoutes.find(
+      (route) => route.path === 'locale-correctness',
+    );
+    expect(localeCorrectness?.component).toBeUndefined();
+    if (localeCorrectness?.loadComponent === undefined) {
+      throw new Error('the locale-correctness surface must load lazily');
+    }
+    expect(await localeCorrectness.loadComponent()).toBe(PanelDemoComponent);
+    expect(localeCorrectness.data?.['surface']).toBe('locale-correctness');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(localeCorrectness.data?.['surface']).not.toBe('error-routing');
+    // One entry, so the route this task adds is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'locale-correctness'),
     ).toHaveLength(1);
   });
 });

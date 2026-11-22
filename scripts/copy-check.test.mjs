@@ -707,7 +707,37 @@ test('every declared sentence appears verbatim in the file it is cited in', () =
   console.log(`T001 verbatim: ${sentences} sentences found in their files`);
 });
 
-test('every surface on disk is in the record, and the specs are named as excluded', () => {
+/**
+ * The copy records written after T001's, each of which records one surface's copy in the shape this
+ * record uses. `research/raw/m048-surface-copy.json` is T001's measurement of the surfaces that
+ * existed at M048, and a later milestone that adds a surface which declares no sentence has nothing
+ * to add to it: the digest gains no row, so no sentence of the record moves. The surface still has
+ * to be recorded, and its own milestone's surface record is what records it — so the coverage pin
+ * below reads both kinds of record and holds the union to the tree. A surface named by neither
+ * record, or by both, still reddens there by name.
+ */
+const LATER_COPY_RECORDS = ['research/raw/m061-surface.json'];
+
+/**
+ * The later copy records, parsed from disk: their `surfaces` list is the shape this suite reads, one
+ * `{ id, file, declares }` per surface the record measures.
+ * @returns {{path: string, surfaces: {id: string, file: string}[]}[]}
+ */
+function laterCopyRecords() {
+  return LATER_COPY_RECORDS.map((path) => ({
+    path,
+    surfaces: JSON.parse(readFileSync(join(ROOT, path), 'utf8')).surfaces,
+  }));
+}
+
+/**
+ * The coverage pin, callable so a doctored pair of records can be put through it: every `panel-*.ts`
+ * surface on disk is named by exactly one copy record, every file the records name is a surface the
+ * tree holds, and the archetype of a surface that the records leave out reddens by its own path.
+ * @param {any} copyRecord T001's record, with its `surfaces` and `excluded` lists.
+ * @param {{path: string, surfaces: {id: string, file: string}[]}[]} later the later records.
+ */
+function assertSurfaceCoverage(copyRecord, later) {
   const onDisk = readdirSync(join(ROOT, APP))
     .filter((name) => /^panel-.*\.ts$/.test(name))
     .map((name) => `${APP}/${name}`)
@@ -715,15 +745,33 @@ test('every surface on disk is in the record, and the specs are named as exclude
   const specs = onDisk.filter((file) => file.endsWith('.spec.ts'));
   const surfaces = onDisk.filter((file) => !file.endsWith('.spec.ts'));
 
-  assert.deepEqual(
-    record.surfaces
-      .map((/** @type {Surface} */ surface) => surface.file)
-      .sort(),
-    surfaces,
-    'the record measures every panel-*.ts surface and no other file',
+  /** @type {string[]} */
+  const recorded = copyRecord.surfaces.map(
+    (/** @type {Surface} */ surface) => surface.file,
+  );
+  /** @type {string[]} */
+  const laterFiles = later.flatMap((entry) =>
+    entry.surfaces.map((surface) => surface.file),
+  );
+
+  assert.equal(
+    new Set([...recorded, ...laterFiles]).size,
+    recorded.length + laterFiles.length,
+    'each surface is measured by one copy record and not by two, so one file is never two rows',
   );
   assert.deepEqual(
-    record.excluded.map((/** @type {any} */ entry) => entry.file).sort(),
+    [...recorded, ...laterFiles].sort(),
+    surfaces,
+    'the copy records measure every panel-*.ts surface and no other file, so a surface no record names is a surface nobody measured',
+  );
+  for (const file of laterFiles)
+    assert.match(
+      file,
+      /^apps\/angular-ai-devtools\/src\/app\/panel-[a-z0-9-]+\.ts$/,
+      `${file} is a panel surface and not a spec or an artefact`,
+    );
+  assert.deepEqual(
+    copyRecord.excluded.map((/** @type {any} */ entry) => entry.file).sort(),
     specs,
     'the panel-*.ts files that are specs are named as excluded, not dropped',
   );
@@ -733,8 +781,147 @@ test('every surface on disk is in the record, and the specs are named as exclude
       /from 'vitest'/,
       `${file} is a spec and the record says so`,
     );
+  return { surfaces, specs };
+}
+
+test('every surface on disk is in a copy record, and the specs are named as excluded', () => {
+  const { surfaces, specs } = assertSurfaceCoverage(record, laterCopyRecords());
   console.log(
-    `T001 coverage: ${surfaces.length} surfaces and ${specs.length} specs on disk`,
+    `T001 coverage: ${surfaces.length} surfaces and ${specs.length} specs on disk, ` +
+      `${record.surfaces.length} measured by ${RECORD} and ` +
+      `${surfaces.length - record.surfaces.length} by a later surface record`,
+  );
+
+  // Mutant: the surface a later record names dropped from that record. It is on disk and no copy
+  // record names it, so the coverage pin must redden naming the file rather than pass on a union
+  // that quietly lost a row.
+  const withoutLater = laterCopyRecords().map((entry) => ({
+    ...entry,
+    surfaces: entry.surfaces.filter(
+      (surface) => surface.id !== 'locale-correctness',
+    ),
+  }));
+  assert.notDeepEqual(
+    withoutLater,
+    laterCopyRecords(),
+    'the dropped-surface mutant must change the later record',
+  );
+  assert.throws(
+    () => assertSurfaceCoverage(record, withoutLater),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('panel-locale-correctness.ts'),
+    'a surface recorded by no copy record must fail the coverage pin naming the file it left out',
+  );
+
+  // Mutant: a surface recorded twice — T001's record and the later record both naming it — so a
+  // second row explains a surface the first row already measured.
+  const doubled = laterCopyRecords().map((entry) => ({
+    ...entry,
+    surfaces: [
+      ...entry.surfaces,
+      { id: 'fields', file: `${APP}/panel-fields.ts` },
+    ],
+  }));
+  assert.notDeepEqual(
+    doubled,
+    laterCopyRecords(),
+    'the doubled-surface mutant must change the later record',
+  );
+  assert.throws(
+    () => assertSurfaceCoverage(record, doubled),
+    /each surface is measured by one copy record and not by two/,
+    'a surface recorded by two copy records must fail the coverage pin naming the double row',
+  );
+});
+
+test('T003 — the later surface record states a copy this suite can check, and its answer is the absence', () => {
+  const later = JSON.parse(
+    readFileSync(join(ROOT, 'research/raw/m061-surface.json'), 'utf8'),
+  );
+  const copyRecord = later.surfaces[0];
+  assert.ok(copyRecord, 'the later record measures one surface');
+  assert.equal(
+    copyRecord.declares,
+    'inline-only',
+    'the surface declares its copy inline and in no map, and the record says so',
+  );
+
+  // Its declared copy, in the shape this suite reads: no sentence, and every literal it writes
+  // quoted from the line it sits on. A literal that slid off its line reddens here by name.
+  const sentences = later.copy.sentences;
+  assert.deepEqual(
+    sentences,
+    [],
+    'the surface declares no sentence, so the digest has nothing to explain for it',
+  );
+  for (const entry of later.copy.inline) {
+    const lines = sourceLines(entry.file);
+    assert.ok(
+      Number.isInteger(entry.line) && entry.line >= 1,
+      `the copy line for ${JSON.stringify(entry.text)} is a 1-indexed line`,
+    );
+    const line = (lines[entry.line - 1] ?? '').replace(/\r$/, '').trim();
+    assert.equal(
+      line,
+      entry.lineText.trim(),
+      `the copy line at ${entry.file}:${entry.line} is the line the record quotes`,
+    );
+    assert.ok(
+      line.includes(entry.text),
+      `the copy line at ${entry.file}:${entry.line} carries the literal ${JSON.stringify(entry.text)}`,
+    );
+    assert.ok(
+      entry.kind === 'label' || entry.kind === 'word',
+      `"${entry.text}" is a ${entry.kind} and not a sentence: this surface writes no prose`,
+    );
+  }
+
+  // The shipped join over that copy: nothing to compare, and nothing to compare is never "clean".
+  const answer = copyOf(
+    loadCopy().copyCheck(
+      [
+        {
+          id: copyRecord.id,
+          file: copyRecord.file,
+          sentences: copyOf(sentences),
+          inline: copyOf(later.copy.inline),
+        },
+      ],
+      copyOf(shippedDigest),
+    ),
+  );
+  assert.equal(
+    answer.state,
+    'cannot-tell',
+    `the surface declares no sentence and this join answered "${answer.state}"`,
+  );
+  assert.equal(
+    answer.reason,
+    'surface-declares-nothing',
+    `the reason is "${answer.reason}"`,
+  );
+  assert.equal(
+    answer.checked,
+    0,
+    'nothing was compared, which is not zero defects',
+  );
+  assert.deepEqual(
+    answer.unexplained,
+    [],
+    'an absence is not a list of unexplained strings',
+  );
+  assert.deepEqual(
+    shippedDigest.entries.filter(
+      (/** @type {{surface: string}} */ entry) =>
+        entry.surface === copyRecord.id,
+    ),
+    [],
+    'no digest row is this surface’s, so no row was invented for a sentence it does not write',
+  );
+  console.log(
+    `T003 later surface: ${copyRecord.id} declares ${later.copy.inline.length} literal(s) and no sentence; ` +
+      'copyCheck → cannot-tell (surface-declares-nothing)',
   );
 });
 

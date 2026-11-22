@@ -1,0 +1,128 @@
+head: d1368b0df4ebf294c29ef8c7e9e601a8db43783e at 2026-11-22T21:19:16.901Z
+navigation-narrator measurement: 16 classes; terminals NavigationEnd/NavigationCancel/NavigationError/NavigationSkipped; held 2 events with no terminal; abandoned load end 1756.3 ms (1192.1 ms after its own cancel, 314.8 ms before the successor at 2071.1 ms); warm intervals claim 15.6 ms, list 37.6 ms; three absences with verdict cannot-tell
+navigation-narrator guarded: {"state":"open","absence":null,"navigations":[{"id":2,"state":"open","url":"/complaint/list","urlAfterRedirects":null,"terminal":null,"code":null,"reason":null,"error":null,"stage":"route-config-load","lastEvent":"RouteConfigLoadStart","holder":{"state":"cannot-tell","absence":"no-holder-recorded"},"absence":null,"matched":null,"loads":[{"route":"complaint","startedAt":199.4,"endedAt":null,"durationMs":null,"open":true}],"guards":null,"resolve":null}],"unattributed":[],"skipped":[]}
+E1 non-vacuous:
+  M1 every terminal is reported as NavigationEnd -> E1 each terminal is the class the record carries
+  M2 a terminal reports a code its own class never carried -> E1 only the fields the terminal class recorded are reported
+E2 non-vacuous:
+  M3 the end route is filled from the heading route -> E2 the end route is named only where the terminal event carried it
+E3 non-vacuous:
+  M4 the stage is presented as the reason the navigation is open -> E3 the stage is never presented as the reason the navigation is open
+  M5 an empty record answers a zero rather than the absence -> E3 a record carrying no navigation answers the absence
+E4 non-vacuous:
+  M6 the stage is derived from a receipt time instead of an event class -> E4 the stage is the class of the last recorded event
+  M7 a stage word is minted that no event names -> E4 every stage word the join answers is one the record names
+E5 non-vacuous:
+  M8 a held navigation is given a holder -> E5 the holder carries the verdict and the named absence and nothing else
+E6 non-vacuous:
+  M9 a guard refusal is presented as the reason -> E6 a wildcard match is reported as the match and never as a guard refusal
+E7 non-vacuous:
+  M10 the guard answer is attributed to a named guard -> E7 the guard answer carries the aggregate and no guard name
+  M11 the resolve stage names a resolver -> E7 the resolve stage answers the named absence and names no resolver
+E8 non-vacuous:
+  M12 a completed navigation with a loaded route is reported open and held -> E8 a record whose navigation ended answers ended
+  M13 a measured zero is reported as a missing interval -> E8 a measured zero stays a measured zero
+E9 non-vacuous:
+  M14 a route-config load end is attributed by position instead of route -> E9 the late load end closes the load its own start opened
+  M15 an id-less load start acquires the id of the navigation in flight -> E9 a route-config load carries no id at all
+E7/E8 non-vacuous:
+  M16 the narrator drops a terminal whose id has already ended -> E7 the finding names the id, the url and the word for the class, and no cause the entry does not carry: []
+  M17 the finding names a cause the entry does not carry -> E7 the finding names the id, the url and the word for the class, and no cause the entry does not carry: [{"id":3,"url":"/claim/list","terminal":"NavigationSkipped","reason":"navigation was skipped because the URL was unchanged"}]
+E8 reordered recording: E7 an ended id carries the skipped terminal the recording names; the answer reported [{"id":3,"url":"/contract/list","terminal":"NavigationEnd"}]
+E8 rebuilt list: E7 an ended id carries the skipped terminal the recording names; the answer reported [{"id":3,"url":"/nowhere","terminal":"NavigationSkipped"}]
+research/raw/m061-verdict-claims.json at load and after the run: 15656 bytes, sha256 523d55c595dd37a9a5d3cfb19861374e560cbad3c074c8d48d341c2f72a8da35
+research/raw/m061-verdict-claims.json: 4 criterion(a) ruled, 0 required, 4 not-required; artefacts ["scripts/locale-correctness.test.mjs","scripts/locale-correctness.test.mjs","scripts/locale-correctness-shapes.test.mjs","scripts/panel-routes.test.mjs"]
+quote mutant: SC3 -> SC3 must quote the intent character for character
+.project/plan/PLAN.md maps E1 -> scripts/locale-correctness.test.mjs, E2 -> scripts/locale-correctness.test.mjs, E3 -> scripts/locale-correctness.test.mjs, E4 -> scripts/locale-correctness.test.mjs, E5 -> scripts/locale-correctness-shapes.test.mjs, E6 -> scripts/panel-routes.test.mjs, E7 -> scripts/locale-correctness.test.mjs, E8 -> scripts/panel-routes.test.mjs (8 held-out row(s)); 8 edge row(s) read as five columns
+held-out read: 8 row(s) of 8 written; unread row -> the plan's ## Held-out checks writes 8 row(s) and the reader returned 7: a row it does not read is an edge that falls back to the suite a task happened to add, not to the suite the plan assigned; deleted E5 row -> SC3 cites scripts/locale-correctness.test.mjs instead of scripts/locale-correctness-shapes.test.mjs; moved task -> the plan assigns E1 to T009, and its ## Intent coverage table must assign T009 to SC1: a held-out row and a coverage row that disagree put the same edge in two tasks; absent suite -> the plan assigns E1 to scripts/absent-held-out-suite.test.mjs, which this checkout does not carry
+six-column mutant: the intent's edge-coverage table carries 6 column(s); the ruling's grammar is 5 columns, so a table with 6 is a different shape and the count is what this reading refuses
+held-out refusal: the plan's "## Held-out checks" section carries no | E… | row and no separator row to seed one behind, so it carries no seedable table row: the held-out mutant cannot be planted on this plan, and the section must carry the three-column Edge | Task | Test table a row is seeded into
+held-out seed: SC1 carries one citation, so every edge the intent assigns it must be held by the same suite, and they are held by ["scripts/absent-held-out-suite.test.mjs","scripts/locale-correctness.test.mjs","scripts/locale-correctness.test.mjs"]
+▶ measurement
+  ✔ the recording carries the classes, terminals, ordering and absences the pins rest on (3.707ms)
+✔ measurement (4.6469ms)
+▶ purity
+  ✔ loads bare, publishes the join and the vocabulary, and answers with every host global a trap (4.5752ms)
+✔ purity (4.7115ms)
+▶ E1 — each terminal class renders as itself and only with its own fields
+  ✔ reports the class the record carries and no cause beyond it (6.8106ms)
+✔ E1 — each terminal class renders as itself and only with its own fields (6.9617ms)
+▶ E2 — the end route is named only where the terminal event carried it
+  ✔ names the terminal own urlAfterRedirects and no end route for a cancel or an error (3.3681ms)
+✔ E2 — the end route is named only where the terminal event carried it (3.5037ms)
+▶ E3 — an open navigation sits at its stage and an empty record answers the absence
+  ✔ names the stage, never the reason, and never a zero for an empty record (4.568ms)
+✔ E3 — an open navigation sits at its stage and an empty record answers the absence (4.7623ms)
+▶ E4 — every stage word is the class of an event the record contains
+  ✔ derives each stage from its own event class and never invents a word (5.4278ms)
+✔ E4 — every stage word is the class of an event the record contains (5.5641ms)
+▶ E5 — an open navigation’s holder is cannot-tell with no-holder-recorded
+  ✔ names the absence and no guard, chunk, task or resolver (3.445ms)
+✔ E5 — an open navigation’s holder is cannot-tell with no-holder-recorded (3.5427ms)
+▶ E6 — a wildcard match is reported as the match and never as a guard refusal
+  ✔ reports the wildcard chain and the same answer for a refusal and an unmatched URL (3.4605ms)
+✔ E6 — a wildcard match is reported as the match and never as a guard refusal (3.5394ms)
+▶ E7 — the guard aggregate is an aggregate and the resolver stage is an absence
+  ✔ reports shouldActivate as it is and answers no-resolver-configured (5.7315ms)
+✔ E7 — the guard aggregate is an aggregate and the resolver stage is an absence (5.8209ms)
+▶ E8 — a completed navigation is never reported open or held
+  ✔ answers ended with its measured interval, a measured zero included (8.2846ms)
+✔ E8 — a completed navigation is never reported open or held (8.392ms)
+▶ E9 — a load is attributed by its own route and its own start, never by arrival
+  ✔ closes the abandoned navigation’s load on itself and never on its successor (6.454ms)
+✔ E9 — a load is attributed by its own route and its own start, never by arrival (6.5369ms)
+▶ E7/E8 — a terminal for an id that already ended is a finding, and a normal end is one terminal
+  ✔ names the skipped navigation, and keeps the ended navigation’s single terminal (6.073ms)
+  ✔ is fed the recording, so a reordered recording or a rebuilt list reddens it (2.8647ms)
+✔ E7/E8 — a terminal for an id that already ended is a finding, and a normal end is one terminal (9.0774ms)
+▶ the module
+  ✔ carries no import, no DOM, no clock, no console and no network (0.2386ms)
+  ✔ answers the same record twice byte-identically and holds no state between calls (0.8909ms)
+  ✔ republishes in place on a second run in the same world (0.4544ms)
+✔ the module (1.6898ms)
+▶ the claim list
+  ✔ is a read: a default run hashes the list the same before and after (0.4526ms)
+  ✔ is exactly the list this head derives, so a citation cannot drift (9.7026ms)
+  ✔ rules every criterion the intent declares, quotes it, and cites an artefact that carries its reading (1.1009ms)
+  ✔ reddens when a row cites an artefact that is not there (0.5146ms)
+  ✔ reddens by claim id when a row no longer quotes the criterion it names (1.1343ms)
+  ✔ reads the intent's five-column edge table and the plan's held-out mapping (5.3913ms)
+  ✔ reads the plan's held-out rows in the form this plan writes, and reddens on a dropped row, a moved task or an absent suite (193.5514ms)
+  ✔ reddens a six-column edge table by naming its column count (1.1708ms)
+  ✔ refuses a held-out test this checkout does not carry (0.8723ms)
+  ✔ refuses a held-out test this checkout does not carry, seeding a row where the plan carries a table (106.2611ms)
+  ✔ reddens when a row names prose where an edge id belongs (0.6615ms)
+✔ the claim list (321.2731ms)
+T002 index: 10 row(s), 9 naming a criterion whose record states an artefact path, 1 naming one whose record states none
+T002 records: 34 verdict-claims records, 44 claim(s) answered with their own claims[].artefactPath, 22 record(s) rendered as no-artefact-named
+T002 census mutant: research/raw/m901-verdict-claims.json is present and is not named outside the map by any recording, so the map must measure it: T001 measured 34 verdict-claims record(s) and the maps name 12 outside themselves (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json, research/raw/m059-surface.json, research/raw/m059-verdict-claims.json, research/raw/m060-surface.json, research/raw/m060-verdict-claims.json, research/raw/m061-surface.json, research/raw/m061-verdict-claims.json) || dropped M061 row -> research/raw/m061-verdict-claims.json is present and is not named outside the map by any recording, so the map must measure it: T001 measured 34 verdict-claims record(s) and the maps name 10 outside themselves (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json, research/raw/m059-surface.json, research/raw/m059-verdict-claims.json, research/raw/m060-surface.json, research/raw/m060-verdict-claims.json)
+T006 maps: M055 names 2 outside itself, M057 names 2 outside itself, M058 names 2 outside itself, M059 names 2 outside itself, M060 names 2 outside itself, M061 names 2 outside itself, the subtraction is 12 path(s) and the census reads 34 record(s)
+T006 mutants M057: third path -> M057's own map names research/raw/m901-verdict-claims.json outside itself, and the records M057 owes are research/raw/m057-surface.json, research/raw/m057-verdict-claims.json: a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording and a record another map measures is never subtracted here || unmeasured record -> research/raw/m057-verdict-claims.json is M057's own record and is present, and M057's map measures it nowhere and names it nowhere outside itself: the census below reads it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m057-verdict-claims.json in its inventory.outsideTheMap or measure it
+T006 mutants M058: third path -> M058's own map names research/raw/m901-verdict-claims.json outside itself, and the records M058 owes are research/raw/m058-surface.json, research/raw/m058-verdict-claims.json: a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording and a record another map measures is never subtracted here || unmeasured record -> research/raw/m058-verdict-claims.json is M058's own record and is present, and M058's map measures it nowhere and names it nowhere outside itself: the census below reads it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m058-verdict-claims.json in its inventory.outsideTheMap or measure it
+T002 mutants: row-carries-a-path: row {"question":"which check refuses a test that resolves a milestone path its own archive move deletes?","criterion":"SC1","milestone":"M044","artefactPath":"research/raw/m044-gate-shapes.json"} is two facts in three fields — question, criterion, milestone — and no path, no value and no answer text (N5) || row-carries-a-value: row {"question":"which check refuses a test that resolves a milestone path its own archive move deletes?","criterion":"SC1","milestone":"M044","value":"a recording of the gate shapes"} is two facts in three fields — question, criterion, milestone — and no path, no value and no answer text (N5) || row-carries-an-answer: row {"question":"which check refuses a test that resolves a milestone path its own archive move deletes?","criterion":"SC1","milestone":"M044","answer":"The gate refuses that test."} is two facts in three fields — question, criterion, milestone — and no path, no value and no answer text (N5) || row-names-a-criterion-no-record-holds: every criterion id the index names is one the named record's own claims[].criterion fields carry, and M044 carries no SC9 (N4) — row {"question":"does the ship gate run the archive-path and fix-record checks, rather than print them as advice?","criterion":"SC9","milestone":"M044"} || row-question-carries-a-path: the index spells no path: its code and its rows carry no slash, and this text does — research/raw/m044-gate-shapes.json (N5) || artefact-hard-coded: the answer renders the record's own claims[].artefactPath, verbatim — never a hard-coded constant, never a path assembled from the record's prose, and never one composed by a path convention: the record states "research/raw/fixture-recording.json" and the answer rendered ["scripts/copy-check.test.mjs"] || answer-from-prose: the answer renders the record's own claims[].artefactPath, verbatim — never a hard-coded constant, never a path assembled from the record's prose, and never one composed by a path convention: the record states "research/raw/fixture-recording.json" and the answer rendered ["research/raw/decoy-template-prose.json"] || path-from-convention: the answer renders the record's own claims[].artefactPath, verbatim — never a hard-coded constant, never a path assembled from the record's prose, and never one composed by a path convention: the record states "research/raw/fixture-recording.json" and the answer rendered ["scripts/sc1.test.mjs"] || path-renormalised: each path is rendered as the record spells it — never re-rooted, normalised or shortened to make the render match: the record states ["research/raw/fixture-recording.json","scripts/fixture-suite.test.mjs"] and the answer rendered ["./fixture-recording.json","./fixture-suite.test.mjs"] || missing-field-answered: a record that carries the criterion but states no claims[].artefactPath renders no-artefact-named — never an answer with a composed path in it — and the join said "answered" for research/raw/fixture-m904-verdict-claims.json || missing-file-as-unanswered: held-out E4: every rendered path is read through the injected reader at answer time, so a record that states a file which is not where the record says it lives answers missing-artefact, naming the record and the missing path — and never no-matching-criterion. The join said "no-matching-criterion" || reader-ignored: held-out E4: every rendered path is read through the injected reader at answer time, so a record that states a file which is not where the record says it lives answers missing-artefact, naming the record and the missing path — and never no-matching-criterion. The join said "answered" || criterion-not-carried: the criterion rendered is the record's own claims[].criterion for the claim that carries it, and an id the record does not carry for the question is never rendered (N4): the row named SC2, the record carries SC2, and the answer rendered "SC1" || milestone-from-id: the milestone rendered is the answering record's own milestone field, verbatim: the record states "M046 copy-to-agent" and the answer rendered "M046" — a milestone composed from the record's path or from the id the row named is not the record's field || absences-folded: the absence "no row of the mapping carries the question" names which absence holds, among the three absences the surface renders distinctly: nothing answered here || always-refuses: the record research/raw/m023-verdict-claims.json states no claims[].artefactPath for SC2, so the answer is no-artefact-named — naming the field that is missing, and never a path composed from the record's prose — and a surface that always refuses is not a surface: the join said "no-matching-criterion" || unanswered-as-answer: an unanswered question is unanswered, with nothing beside it: the join said "answered" for a question no row carries || second-call-differs: a second answer to the same question over the same records names the same artefact, milestone and criterion — purity, and the answer is stable across calls: the first named ["research/raw/fixture-recording.json"] and the second named []
+✔ T002 — the index is two facts in three fields, and every criterion id is one the record on disk carries (4.8849ms)
+✔ T002 — a criterion id no record carries is refused by the join rather than rendered (N4) (1.0102ms)
+✔ T002 — the join answers every claim that carries the field and renders the 22 records that carry none as the absence (C4) (4.2957ms)
+✔ T002 — a record present and not named outside the map still reddens the census (1.4357ms)
+✔ T006 — every map is read, and each may name outside itself only the record its own milestone owes (0.3154ms)
+✔ T006 — a third path named outside a map reddens, and a record no map names reddens naming it (0.4837ms)
+✔ T002 — the shipped index answers over the real records with a real reader, one row at a time (1.8212ms)
+✔ T002 — held-out E4: the dead-path state is constructed, because the recording measures no dead path (3.6859ms)
+✔ T002 — E1: a recording and a suite render through the same read, both answers carrying the same three fields (0.8137ms)
+✔ T002 — E2: one criterion whose record states more than one path renders each as the record spells it (0.7539ms)
+✔ T002 — E5: a second answer names the same artefact, milestone and criterion (0.7124ms)
+✔ T002 — the join is pure: no import, no filesystem, no network, no DOM, no clock, no prose field (1.3926ms)
+✔ T002 mutants — every anchor is one place in the shipped file and really changes it (0.2956ms)
+✔ T002 mutants — each defect reddens its pin, and the failure names the defect by string (37.172ms)
+ℹ tests 41
+ℹ suites 14
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 555.6224
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check research/raw/m061-verdict-claims.json
