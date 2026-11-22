@@ -5643,6 +5643,10 @@ test('T011: the corpus reading counts are pinned, so no branch can move them sil
 // pinned row by moving it. The reason is the same kind of reading as the entries above: what
 // differs and why.
 Object.assign(SUITE_DIFF_REASONS, {
+  'scripts/teardown-leak.test.mjs':
+    'wholly added at this head: M059 T002 pins the pure join extension/teardown-leak.js - the code and the body read from the message own text with the stack dropped, the owner only from a field the message carries, the two absences owner-not-in-the-message and handle-record-not-held kept as two states in every answer, and the sequence rendered as release-then-diagnostic with no handle named as a cause; eighteen tests with seven in-memory mutants, each pinning the shipped answer first and then naming the defect by string, and no shipped assertion was loosened',
+  'scripts/teardown-leak-shapes.test.mjs':
+    'edited here rather than renamed: M059 T006 added the four artefacts this milestone itself adds to the suite exclusion list - its own source, the record, extension/teardown-leak.js and scripts/teardown-leak.test.mjs - because without them a landing elsewhere moved the denominators from 38 modules and 136 suites to 39 and 137, and because a record that merely quotes NG0205 flipped the derived producible verdict from not-produced to produced with eighteen page hits nobody observed; the head recorded by the git rev-parse entry is now derived from the capture own head so the record cannot state one commit and print another; the thirteen default assertions and fourteen armed ones are additions to the rule, none removed',
   'scripts/copy-check.test.mjs':
     'wholly added at this head: M048 T002 pins the join `extension/copy-check.js` — the record-level clean answer with its compared count, each unexplained string with the surface that renders it, and the two cannot-tell reasons in the contract order — over T001’s measured surfaces and the shipped digest, with a copy-less surface kept in its own row rather than deciding the record, a reading the measured commit carries no file to edit',
   'scripts/interaction-story.test.mjs':
