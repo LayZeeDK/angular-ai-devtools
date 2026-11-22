@@ -1,6 +1,8 @@
 # RESEARCH — M060 error-routing
 
 Phase: research
+Status: complete
+Intent: .project/intent/INTENT.md
 Milestone: M060 — error-routing
 
 The roadmap entry lists no open questions, so this record carries the three facts define measured and the
