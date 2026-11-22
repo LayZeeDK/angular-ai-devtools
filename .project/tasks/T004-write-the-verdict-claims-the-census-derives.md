@@ -9,6 +9,8 @@ base: null
 worktree: null
 task_branch: null
 files:
+  - scripts/tutor-record-shapes.test.mjs
+  - research/raw/m060-record-shapes.json
   - scripts/copy-check.test.mjs
   - research/raw/m048-surface.json
   - research/raw/m060-verdict-claims.json
