@@ -2,10 +2,10 @@
 id: T006
 title: Repair the shape suite the milestone's own artefacts moved
 wave: 6
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T006
+base: cf5d56edb14e8b1113569cf130c8c8971823bb4b
 worktree: null
 task_branch: null
 files:
@@ -66,3 +66,15 @@ node --test scripts/teardown-leak-shapes.test.mjs && npx prettier --check script
 ## Log
 
 - pending.
+- Landed paths: `scripts/teardown-leak-shapes.test.mjs`, `research/raw/m059-record-shapes.json`.
+- The suite now excludes four of this milestone's own files rather than two: its own source, the record,
+  `extension/teardown-leak.js` and `scripts/teardown-leak.test.mjs`. The denominators are again 38 modules
+  and 136 suites measured against the tree this milestone found, and the occurrence counts stay 0 / 0 / 0.
+- Re-armed with `M059_CAPTURE=1`: the `producible` verdict stays `not-produced` and no page hit appears,
+  which is the point of the repair — a record that merely quotes the code must not turn the measurement
+  into `produced`.
+- One self-consistency defect was fixed in the same task: the `commands` block carried a typed
+  `git rev-parse HEAD` output from an earlier capture, so the record could state one head and print
+  another. That entry is now derived from the capture's own head and the suite asserts they agree.
+- `node --test scripts/teardown-leak-shapes.test.mjs` is 13 pass / 0 fail on a default run and 14 pass /
+  0 fail armed; a second armed run is byte-identical.

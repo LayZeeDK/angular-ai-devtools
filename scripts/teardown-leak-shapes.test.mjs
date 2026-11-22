@@ -127,20 +127,27 @@ const NEEDLES = Object.freeze(['handleRecord', 'postDestroy', 'leakedHandle']);
 const UNSUBSCRIBE = '.unsubscribe(';
 
 /**
- * The two files this milestone adds, excluded from every scan it makes: a suite that spells the three
- * needles in its own source, and a record that states them in its own body, are the measurement and not
- * the measured tree. The counts are of the tree this milestone found, and every one of them was
- * measured before these two files existed.
+ * The four files this milestone adds, excluded from every scan it makes: a suite that spells the three
+ * needles in its own source, a record that states them in its own body, and the join and its suite that
+ * carry the code and its body are the measurement and not the measured tree. The counts are of the tree
+ * this milestone found, and every one of them was measured before these four files existed. Their
+ * exclusion was earned: without the join and the surface record in this list, a landing elsewhere moved
+ * the denominators to 39 and 137, and a record that merely quotes the code flipped `producible` to
+ * `produced` with eighteen page hits it never observed.
  */
 const OWN_ARTEFACTS = Object.freeze([
   'scripts/teardown-leak-shapes.test.mjs',
   'research/raw/m059-record-shapes.json',
+  'extension/teardown-leak.js',
+  'scripts/teardown-leak.test.mjs',
 ]);
 
 /** The glob each of the milestone's own files sits in, so the exclusion is stated without a lookup. */
 const OWN_ARTEFACT_GLOB = Object.freeze({
   'scripts/teardown-leak-shapes.test.mjs': 'scripts',
   'research/raw/m059-record-shapes.json': 'researchRaw',
+  'extension/teardown-leak.js': 'extension',
+  'scripts/teardown-leak.test.mjs': 'scripts',
 });
 
 /**
@@ -1663,7 +1670,9 @@ function derive(capturedAt, head) {
     capturedAt,
     instrument: INSTRUMENT,
     environment: deriveEnvironment(),
-    commands: COMMANDS,
+    commands: COMMANDS.map((entry) =>
+      entry.command === HEAD_COMMAND ? { ...entry, output: head } : entry,
+    ),
     digest,
     message,
     producible,
