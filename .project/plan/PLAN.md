@@ -57,9 +57,14 @@ Review depth: full
 Goal: the claims record with `quotes` and `ruling`, re-derived rather than typed.
 Review depth: full
 
-## Wave 5 — T005: the gate records and the project verify
+## Wave 5 — T005: re-derive this milestone’s own records
 
-Goal: re-derive both gate records after every suite edit this milestone makes, then run the project verify.
+Goal: re-derive the three recordings this milestone’s suites derive — the record-shapes record, the verdict claims, and the teardown record whose count this head moved — with the word scan excluding this milestone’s own module and suite, and the claims quoting the intent character for character after its SC1 and SC2 were restored.
+Review depth: full
+
+## Wave 6 — T006: re-derive the gate records and run the project verify
+
+Goal: capture both gate records at the final head, read them back unarmed, then run the project verify, which builds before it measures and uses no cache or daemon workaround. Last for the reason M060 needed a seventh task: a recording that derives from the tree moves with every later suite edit.
 Review depth: full
 
 ## Intent coverage
@@ -77,7 +82,10 @@ Review depth: full
 | SC1 | T004 | AC1 |
 | SC3 | T004 | AC2 |
 | SC1 | T005 | AC1 |
-| SC4 | T005 | AC2 |
+| SC3 | T005 | AC2 |
+| SC1 | T005 | AC3 |
+| SC1 | T006 | AC1 |
+| SC4 | T006 | AC2 |
 
 ## Held-out checks
 
