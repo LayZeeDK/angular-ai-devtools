@@ -7,6 +7,12 @@ Milestone: M062 — outlet-explainer
 
 Measured at `gsd-path/M062` before planning. Every claim below is a command's output, not a reading of the roadmap.
 
+## Dispatch
+
+No subagent was dispatched: the roadmap entry lists **no open questions**, and the two questions this phase would have
+asked are answered by a grep and by the router's own semantics, both recorded below. Every dimension was read directly
+at this head.
+
 ## What the tree carries
 
 - `grep -ri "\boutlet\b" extension/` over the extension source returns **0** matches. The only repository hits are the
