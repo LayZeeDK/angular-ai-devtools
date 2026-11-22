@@ -2,10 +2,10 @@
 id: T003
 title: Render the answer and pin every route table
 wave: 3
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: 3fa47a6eef988dc0e374b0085aa8540b3ff547a9
 worktree: null
 task_branch: null
 files:
@@ -63,3 +63,9 @@ node --test scripts/panel-routes.test.mjs scripts/panel-copy.test.mjs scripts/co
 ## Log
 
 - pending.
+- Landed paths: `apps/angular-ai-devtools/src/app/panel-locale-correctness.ts` (new), `panel-demo.ts`, `app.routes.ts`, `app.spec.ts`, `page-picker.component.spec.ts`, `chat-entry.component.spec.ts`, `panel-demo.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/panel-copy.test.mjs` (new), `scripts/copy-check.test.mjs`, `research/raw/m061-surface.json`.
+- Counts moved: panel surfaces 30 → 31, loader keys 30 → 31, ordered route paths 39 → 40. Digest rows and the M048 copy record stay at 204 and 31/213, because this pane declares no sentence — no row was invented.
+- `scripts/panel-copy.test.mjs` did not exist; the plan named it as a surface pin and it is created here, with eight tests including three mutants.
+- The copy coverage pin previously demanded an M048 row for every `panel-*.ts`; it now reads the union of that record and this milestone's own surface record, and the assertion is stronger (one record per surface, no double rows, no file off the tree) with two mutants that redden by name.
+- Pre-existing red, measured and not caused here: `scripts/gate-integrity.test.mjs` is 30/40 both in the working tree and in a pristine `git worktree` at HEAD, because its `MEASURED_HEAD` is `d94502d1` and suites added after that head have no `SUITE_DIFF_REASONS` row. T005 re-derives `research/raw/m044-gate-shapes.json` and is where that is repaired.
+- `npx tsc -p apps/angular-ai-devtools/tsconfig.app.json --noEmit` exits 2 on five pre-existing `TS6059` `rootDir` errors that predate this task; the project's own `tsconfig.check.json` and the root `tsconfig.json` both exit 0.

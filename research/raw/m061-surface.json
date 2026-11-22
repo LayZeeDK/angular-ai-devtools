@@ -1,0 +1,643 @@
+{
+  "schema": "m061-surface/v1",
+  "milestone": "M061 locale-correctness",
+  "task": "T003",
+  "title": "Record the locale-correctness route, its loader key, the four states the pane renders, the four absences the join carries and the copy this pane does not declare",
+  "question": "which route reaches the locale-correctness surface, which LOADERS key resolves it, what does each of the four states the pane renders read off the answer the shipped join gave, how is each absence rendered, and what does the panel and the copy count at this head?",
+  "head": "462cddb18d4392bdf9511bc9280b6a7a70cd16e4",
+  "headCommand": "git rev-parse HEAD",
+  "measuredAt": "static: every citation below was read out of the file it names in this task’s tree — the base above plus T003’s own working-tree edits, which is the tree this record was measured in — and re-resolved by searching that file for the exact line it quotes rather than by trusting a typed number; the answer the record states is `extension/locale-correctness.js` run node-side in a bare `node:vm` context over the provider entries `research/raw/m061-record-shapes.json` measures, printed by the `measurement` command below. The five readings this record describes are the route table (`app.routes.ts`), the loader map and the sample fact (`panel-demo.ts`), the display module (`panel-locale-correctness.ts`), the record shapes T001 measured (`research/raw/m061-record-shapes.json`) and the copy record (`research/raw/m048-surface-copy.json`) beside the digest (`extension/copy-digest.json`). No browser was opened for this record, no page was read, no capture was taken and no build was run: the same answer is re-derived node-side by `panel-demo.spec.ts` on every test run.",
+  "measurement": {
+    "what": "the shipped join’s own answer over the provider entries the demo’s fact was derived from — the injector walk’s reduction of the fixture’s provider list, in the shape T001 measured — run in a bare vm context: the state, the token, the provider kind, the import path, the absences and the claims",
+    "command": "node -e \"const fs=require('fs'),vm=require('vm');const ctx=vm.createContext({});vm.runInContext(fs.readFileSync('extension/locale-correctness.js','utf8'),ctx);const r=JSON.parse(fs.readFileSync('research/raw/m061-record-shapes.json','utf8'));console.log(JSON.stringify(ctx.angularAiLocaleCorrectness(r.providers.entries)))\"",
+    "output": [
+      "{\"state\":\"locale-provider-entry\",\"token\":\"InjectionToken LocaleId\",\"provider\":\"value\",\"importPath\":\"AppConfig\",\"absences\":[\"locale-value-not-recorded\",\"no-formatter-named\"],\"claims\":[]}"
+    ]
+  },
+  "counts": {
+    "what": "the numbers this record states about the panel, the route table and the copy, each measured at this head rather than typed",
+    "panelSurfaces": 31,
+    "panelSurfacesBefore": 30,
+    "loaderKeys": 31,
+    "loaderKeysBefore": 30,
+    "orderedPaths": 40,
+    "orderedPathsBefore": 39,
+    "digestRows": 204,
+    "digestRowsBefore": 204,
+    "digestRowsForThisSurface": 0,
+    "paneSentences": 0,
+    "digestSentencesForThisSurface": 0,
+    "copyRecordSurfaces": 31,
+    "copyRecordSurfacesBefore": 31,
+    "copyRecordSentencesCompared": 213,
+    "copyRecordSentencesBefore": 213,
+    "command": "node -e \"const fs=require('fs');const q=String.fromCharCode(39);const r=fs.readFileSync('apps/angular-ai-devtools/src/app/app.routes.ts','utf8');const s=r.indexOf('const PANEL_SURFACES = ');const e=r.indexOf('];',s);const d=r.slice(s,e).split('\\n').filter(l=>{const t=l.trim();return t.startsWith(q)&&t.endsWith(',');}).length;const m=fs.readFileSync('apps/angular-ai-devtools/src/app/panel-demo.ts','utf8');const a=m.indexOf('const LOADERS');const z=m.indexOf('const FACTS',a);const k=m.slice(a,z).split('\\n').filter(l=>l.includes('import(')).length;const g=JSON.parse(fs.readFileSync('extension/copy-digest.json','utf8'));console.log('panelSurfaces '+d);console.log('loaderKeys '+k);console.log('digestRows '+g.entries.length);console.log('digestRowsForThisSurface '+g.entries.filter(x=>x.surface==='locale-correctness').length)\"",
+    "output": [
+      "panelSurfaces 31",
+      "loaderKeys 31",
+      "digestRows 204",
+      "digestRowsForThisSurface 0"
+    ]
+  },
+  "sources": {
+    "routes": "apps/angular-ai-devtools/src/app/app.routes.ts",
+    "loaders": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+    "surface": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+    "join": "extension/locale-correctness.js",
+    "recordShapes": "research/raw/m061-record-shapes.json",
+    "copy": "research/raw/m048-surface-copy.json",
+    "copyDigest": "extension/copy-digest.json",
+    "specs": [
+      "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+      "apps/angular-ai-devtools/src/app/app.spec.ts",
+      "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
+      "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
+      "scripts/panel-routes.test.mjs",
+      "scripts/panel-copy.test.mjs",
+      "scripts/copy-check.test.mjs",
+      "scripts/component-search.test.mjs",
+      "scripts/gate-integrity.test.mjs",
+      "scripts/gate-integrity-default-tasks.test.mjs",
+      "tests/held-out/fixture-explainers-unchanged.test.mjs"
+    ]
+  },
+  "route": {
+    "name": "locale-correctness",
+    "path": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 107,
+      "lineText": "'locale-correctness',",
+      "holds": "locale-correctness"
+    },
+    "note": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 106,
+      "lineText": "// The M061 SC4, SC2 surface: the token, the kind and the import path the provider entry the record carries names — or the absence that stands where no entry carries the token, or the two absences a record that names no formatter leaves — each in its own line, and no locale value, because the value is in no field this tree records.",
+      "holds": "The M061 SC4, SC2 surface"
+    },
+    "loadComponent": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 146,
+      "lineText": "loadComponent: loadPanelDemo,",
+      "holds": "loadPanelDemo"
+    },
+    "surfaceData": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 147,
+      "lineText": "data: { surface },",
+      "holds": "surface"
+    },
+    "table": {
+      "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "line": 113,
+      "lineText": "export const appRoutes: Route[] = [",
+      "holds": "appRoutes"
+    },
+    "closure": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 14,
+        "lineText": "const loadPanelDemo = () =>",
+        "holds": "loadPanelDemo"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/app.routes.ts",
+        "line": 15,
+        "lineText": "import('./panel-demo').then((m) => m.PanelDemoComponent);",
+        "holds": "panel-demo"
+      }
+    ],
+    "position": "between `error-routing` and the `dead-click` note",
+    "statement": "one entry of the `PANEL_SURFACES` list, spread into the `appRoutes` table by the one mapped literal the table ends with, lazy through the shared `loadPanelDemo` closure the table defines once, and naming its surface in `data.surface` as every demo-backed route does. It sits between `error-routing` and the `dead-click` note rather than after `what-changed`, for the reason the list’s own note states: the `m047..m060` route records cite the loader’s two lines, the path lines above the entry, the `dead-click` and `what-changed` path lines below it and the declaration and mapped-literal lines below the list, so the entry’s two lines are paid for by folding the M050 note’s four lines into two and every line those records cite keeps its number. The route registers nothing and measures nothing at render time: it reaches the pane that renders the join’s answer."
+  },
+  "loader": {
+    "map": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 35,
+      "lineText": "const LOADERS: Record<",
+      "holds": "LOADERS"
+    },
+    "key": "locale-correctness",
+    "entry": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 69,
+      "lineText": "'locale-correctness': () => import('./panel-locale-correctness') as never,",
+      "holds": "'./panel-locale-correctness'"
+    },
+    "module": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+    "resolvedBy": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 717,
+        "lineText": "const loader = LOADERS[name];",
+        "holds": "LOADERS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 723,
+        "lineText": "void loader().then((mod) => {",
+        "holds": "loader()"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 724,
+        "lineText": "const surface = mod.default(FACTS[name]);",
+        "holds": "FACTS[name]"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 725,
+        "lineText": "this.state.set(surface.state);",
+        "holds": "surface.state"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 726,
+        "lineText": "this.lines.set(surface.lines);",
+        "holds": "surface.lines"
+      }
+    ],
+    "sampleFact": {
+      "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+      "line": 1128,
+      "lineText": "FACTS['locale-correctness'] = {",
+      "holds": "FACTS['locale-correctness']"
+    },
+    "sampleFactAnswer": [
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1129,
+        "lineText": "state: 'locale-provider-entry',",
+        "holds": "state: 'locale-provider-entry'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1130,
+        "lineText": "token: 'InjectionToken LocaleId',",
+        "holds": "InjectionToken LocaleId"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1131,
+        "lineText": "provider: 'value',",
+        "holds": "provider: 'value'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1132,
+        "lineText": "importPath: 'AppConfig',",
+        "holds": "importPath: 'AppConfig'"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1133,
+        "lineText": "absences: ['locale-value-not-recorded', 'no-formatter-named'],",
+        "holds": "locale-value-not-recorded"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+        "line": 1134,
+        "lineText": "claims: [],",
+        "holds": "claims: []"
+      }
+    ],
+    "statement": "the `locale-correctness` key is one entry of the `LOADERS` map and it is the only path to `panel-locale-correctness.ts`: the demo looks the key up by the name the route’s `data.surface` states, awaits the dynamic import, calls the module’s default export with the sample fact, and sets the state and the lines the module answers. The key cost one line, and that line is paid for by folding the `fields` note’s last two lines into one, so the loader resolution block (717, 723–726), the component template and every earlier fact keep their numbers. The fact is the join’s own answer over the entries T001 measured: `state: locale-provider-entry`, the token the walk derived for the installed locale token, the kind that entry was declared with, the module it came from, two absences in the join’s own order and no claim — because no record this answer read carries an `artefactPath` — and `panel-demo.spec.ts` re-reads that record, evaluates the shipped join from its own committed text and holds this fact to that answer field for field."
+  },
+  "answer": {
+    "statement": "the join answers `{ state, token, provider, importPath, absences, claims }` with every field in every state and no seventh. The demo’s sample is the `locale-provider-entry` answer: the token the walk derived, the kind `value`, the import path `AppConfig`, `locale-value-not-recorded` because the provided value is in no field the walk writes, `no-formatter-named` because no record in this tree names a formatter, and no claim, because a claim cites an `artefactPath` and no record this answer read carries one.",
+    "recordShapes": {
+      "localeEntry": {
+        "cite": {
+          "file": "research/raw/m061-record-shapes.json",
+          "line": 91,
+          "lineText": "\"localeEntry\": {",
+          "holds": "localeEntry"
+        }
+      },
+      "valueAbsence": {
+        "cite": {
+          "file": "research/raw/m061-record-shapes.json",
+          "line": 206,
+          "lineText": "\"locale-value-not-recorded\": {",
+          "holds": "locale-value-not-recorded"
+        }
+      },
+      "formatterAbsence": {
+        "cite": {
+          "file": "research/raw/m061-record-shapes.json",
+          "line": 211,
+          "lineText": "\"no-formatter-named\": {",
+          "holds": "no-formatter-named"
+        }
+      }
+    },
+    "otherAnswers": [
+      {
+        "state": "locale-token-absent",
+        "command": "the shipped join over a record whose one entry is the decoy",
+        "token": null,
+        "provider": null,
+        "importPath": null,
+        "absences": ["locale-token-absent", "no-formatter-named"],
+        "statement": "a record that carries provider entries and none of them the locale token: the three entry fields are null, so the pane renders no token, no kind and no import path — and no default locale in their place — and the absence `locale-token-absent` is what stands where the entry would be."
+      },
+      {
+        "state": "formatted-outside-i18n",
+        "command": "the shipped join over `{ formatter: null }`",
+        "token": null,
+        "provider": null,
+        "importPath": null,
+        "absences": ["no-provider-record", "no-formatter-named"],
+        "statement": "a record that states it names no formatter identity and carries no provider record: the pane renders the two absences the answer carries and never the nearest locale the page happens to render."
+      },
+      {
+        "state": "cannot-tell",
+        "command": "the shipped join over `{}`",
+        "token": null,
+        "provider": null,
+        "importPath": null,
+        "absences": ["no-provider-record", "no-formatter-named"],
+        "statement": "a record that states nothing this answer can use: the pane renders the state and the absences the answer carries and nothing else — no reason is transcribed, no identity is named and no sentence of the pane’s own is written."
+      }
+    ]
+  },
+  "fields": ["state", "token", "provider", "importPath", "absences", "claims"],
+  "surfaces": [
+    {
+      "id": "locale-correctness",
+      "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+      "declares": "inline-only",
+      "sentences": 0,
+      "statement": "one surface, recorded by this file as the copy record records its own: it declares no sentence, and the labels it writes are enumerated under `copy.inline` rather than digested. The M048 copy record does not carry it, and this file is what `scripts/copy-check.test.mjs` reads beside that record so every `panel-*.ts` surface on disk is named by one copy record."
+    }
+  ],
+  "fieldsAt": {
+    "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+    "line": 116,
+    "lineText": "export const FIELDS = [",
+    "holds": "FIELDS"
+  },
+  "states": [
+    {
+      "key": "state-locale-provider-entry",
+      "word": "locale-provider-entry",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 79,
+        "lineText": "export const LOCALE_PROVIDER_ENTRY = 'locale-provider-entry';",
+        "holds": "LOCALE_PROVIDER_ENTRY"
+      },
+      "joinAt": {
+        "file": "extension/locale-correctness.js",
+        "line": 63,
+        "lineText": "const LOCALE_PROVIDER_ENTRY = 'locale-provider-entry';",
+        "holds": "LOCALE_PROVIDER_ENTRY"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 264,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "token",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 277,
+            "lineText": "fieldLine(LABELS.token, 'token', answer, lines);",
+            "holds": "fieldLine(LABELS.token, 'token', answer, lines);"
+          }
+        },
+        {
+          "field": "provider",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 278,
+            "lineText": "fieldLine(LABELS.provider, 'provider', answer, lines);",
+            "holds": "fieldLine(LABELS.provider, 'provider', answer, lines);"
+          }
+        },
+        {
+          "field": "importPath",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 279,
+            "lineText": "fieldLine(LABELS.importPath, 'importPath', answer, lines);",
+            "holds": "fieldLine(LABELS.importPath, 'importPath', answer, lines);"
+          }
+        },
+        {
+          "field": "absences[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 216,
+            "lineText": "function absenceLines(answer: Record<string, unknown>): readonly string[] {",
+            "holds": "absenceLines("
+          }
+        },
+        {
+          "field": "claims[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 233,
+            "lineText": "function claimLines(answer: Record<string, unknown>): readonly string[] {",
+            "holds": "claimLines("
+          }
+        },
+        {
+          "field": "the line every label and value is joined by",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 185,
+            "lineText": "return `${label}: ${value}`;",
+            "holds": "`${label}: ${value}`"
+          }
+        }
+      ],
+      "renders": "the token, the kind and the import path the entry the answer read carries, then one line per absence the join decided — `locale-value-not-recorded` and `no-formatter-named` for this answer — then one pair of lines per claim the answer cites, and no value the answer does not carry"
+    },
+    {
+      "key": "state-locale-token-absent",
+      "word": "locale-token-absent",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 80,
+        "lineText": "export const LOCALE_TOKEN_ABSENT = 'locale-token-absent';",
+        "holds": "LOCALE_TOKEN_ABSENT"
+      },
+      "joinAt": {
+        "file": "extension/locale-correctness.js",
+        "line": 64,
+        "lineText": "const LOCALE_TOKEN_ABSENT = 'locale-token-absent';",
+        "holds": "LOCALE_TOKEN_ABSENT"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 264,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "absences[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 216,
+            "lineText": "function absenceLines(answer: Record<string, unknown>): readonly string[] {",
+            "holds": "absenceLines("
+          }
+        }
+      ],
+      "renders": "the state, then `locale-token-absent` and `no-formatter-named` as their own lines, and no token, no kind and no import path — because the answer carries none of the three, and the absence is never rendered as the default locale the answer assumed"
+    },
+    {
+      "key": "state-formatted-outside-i18n",
+      "word": "formatted-outside-i18n",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 81,
+        "lineText": "export const FORMATTED_OUTSIDE_I18N = 'formatted-outside-i18n';",
+        "holds": "FORMATTED_OUTSIDE_I18N"
+      },
+      "joinAt": {
+        "file": "extension/locale-correctness.js",
+        "line": 65,
+        "lineText": "const FORMATTED_OUTSIDE_I18N = 'formatted-outside-i18n';",
+        "holds": "FORMATTED_OUTSIDE_I18N"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 264,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "absences[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 216,
+            "lineText": "function absenceLines(answer: Record<string, unknown>): readonly string[] {",
+            "holds": "absenceLines("
+          }
+        }
+      ],
+      "renders": "the state, then `no-provider-record` and `no-formatter-named` as their own lines, and never the nearest locale the page renders"
+    },
+    {
+      "key": "state-cannot-tell",
+      "word": "cannot-tell",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 82,
+        "lineText": "export const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "joinAt": {
+        "file": "extension/locale-correctness.js",
+        "line": 66,
+        "lineText": "const CANNOT_TELL = 'cannot-tell';",
+        "holds": "CANNOT_TELL"
+      },
+      "reads": [
+        {
+          "field": "state",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 264,
+            "lineText": "const stateWord = writtenString(answer['state']);",
+            "holds": "answer['state']"
+          }
+        },
+        {
+          "field": "absences[]",
+          "drawnAt": {
+            "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+            "line": 216,
+            "lineText": "function absenceLines(answer: Record<string, unknown>): readonly string[] {",
+            "holds": "absenceLines("
+          }
+        }
+      ],
+      "renders": "the state, then the absences the answer carries as their own lines — and no reason, no identity and no sentence of the pane’s own"
+    }
+  ],
+  "absences": [
+    {
+      "key": "absence-no-provider-record",
+      "word": "no-provider-record",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 96,
+        "lineText": "export const NO_PROVIDER_RECORD = 'no-provider-record';",
+        "holds": "NO_PROVIDER_RECORD"
+      },
+      "joinAt": {
+        "file": "extension/locale-correctness.js",
+        "line": 69,
+        "lineText": "const NO_PROVIDER_RECORD = 'no-provider-record';",
+        "holds": "NO_PROVIDER_RECORD"
+      },
+      "holdsWhere": "the record carries no provider entry list at all, which is the `formatted-outside-i18n` and `cannot-tell` case",
+      "renders": "its own `absence` line, beside the formatter absence’s own line and never folded into it"
+    },
+    {
+      "key": "absence-locale-token-absent",
+      "word": "locale-token-absent",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 80,
+        "lineText": "export const LOCALE_TOKEN_ABSENT = 'locale-token-absent';",
+        "holds": "LOCALE_TOKEN_ABSENT"
+      },
+      "joinAt": {
+        "file": "extension/locale-correctness.js",
+        "line": 64,
+        "lineText": "const LOCALE_TOKEN_ABSENT = 'locale-token-absent';",
+        "holds": "LOCALE_TOKEN_ABSENT"
+      },
+      "holdsWhere": "the record carries provider entries and none of them is the locale token; the same word is the state and the absence, because the join names one fact",
+      "renders": "its own `absence` line, which is what stands where the token, the kind and the import path would be — never a default locale and never a blank line"
+    },
+    {
+      "key": "absence-locale-value-not-recorded",
+      "word": "locale-value-not-recorded",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 97,
+        "lineText": "export const LOCALE_VALUE_NOT_RECORDED = 'locale-value-not-recorded';",
+        "holds": "LOCALE_VALUE_NOT_RECORDED"
+      },
+      "joinAt": {
+        "file": "extension/locale-correctness.js",
+        "line": 70,
+        "lineText": "const LOCALE_VALUE_NOT_RECORDED = 'locale-value-not-recorded';",
+        "holds": "LOCALE_VALUE_NOT_RECORDED"
+      },
+      "holdsWhere": "every answer that names a provider entry, because the provided value is in no field the injector walk writes (T001’s absence, count 4)",
+      "renders": "its own `absence` line; the value itself is never printed, because the answer carries no field for it"
+    },
+    {
+      "key": "absence-no-formatter-named",
+      "word": "no-formatter-named",
+      "declaredAt": {
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 98,
+        "lineText": "export const NO_FORMATTER_NAMED = 'no-formatter-named';",
+        "holds": "NO_FORMATTER_NAMED"
+      },
+      "joinAt": {
+        "file": "extension/locale-correctness.js",
+        "line": 71,
+        "lineText": "const NO_FORMATTER_NAMED = 'no-formatter-named';",
+        "holds": "NO_FORMATTER_NAMED"
+      },
+      "holdsWhere": "every answer at this head, because no record in this tree names a formatter identity (T001’s absence, codeHits 0)",
+      "renders": "its own `absence` line in every state, beside the other absence each state carries"
+    }
+  ],
+  "copy": {
+    "declares": "inline-only",
+    "sentences": [],
+    "labels": [
+      "state",
+      "token",
+      "provider",
+      "importPath",
+      "absence",
+      "claim",
+      "artefactPath"
+    ],
+    "inline": [
+      {
+        "text": "${label}: ${value}",
+        "kind": "label",
+        "interpolated": true,
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 185,
+        "lineText": "return `${label}: ${value}`;"
+      },
+      {
+        "text": "state",
+        "kind": "word",
+        "interpolated": false,
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 132,
+        "lineText": "state: 'state',"
+      },
+      {
+        "text": "token",
+        "kind": "word",
+        "interpolated": false,
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 133,
+        "lineText": "token: 'token',"
+      },
+      {
+        "text": "provider",
+        "kind": "word",
+        "interpolated": false,
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 134,
+        "lineText": "provider: 'provider',"
+      },
+      {
+        "text": "importPath",
+        "kind": "word",
+        "interpolated": false,
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 135,
+        "lineText": "importPath: 'importPath',"
+      },
+      {
+        "text": "absence",
+        "kind": "word",
+        "interpolated": false,
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 136,
+        "lineText": "absence: 'absence',"
+      },
+      {
+        "text": "claim",
+        "kind": "word",
+        "interpolated": false,
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 137,
+        "lineText": "claim: 'claim',"
+      },
+      {
+        "text": "artefactPath",
+        "kind": "word",
+        "interpolated": false,
+        "file": "apps/angular-ai-devtools/src/app/panel-locale-correctness.ts",
+        "line": 138,
+        "lineText": "artefactPath: 'artefactPath',"
+      }
+    ],
+    "digestRows": 0,
+    "statement": "this pane declares no sentence at all: every line it writes is one of the seven labels above joined to a value one of the six fields carries, so there is no string for the copy digest to explain and no row was invented for one. The copy record `research/raw/m048-surface-copy.json` is T001’s measurement of the surfaces that existed at M048 and it is not re-measured here — its counts stay 31 surfaces and 213 sentences — because this surface adds no sentence to it; the surface itself is recorded by this file, and `scripts/copy-check.test.mjs` reads both records so every `panel-*.ts` surface on disk is named by one of them."
+  },
+  "notCaptured": [
+    "Nothing here was rendered, clicked or captured: every value is a static read of the files the `sources` block names, at the tree above, and the answer the record states is the shipped join run node-side over the entries T001 measured. No browser was opened, no page was read, no profiler was tapped and no build was run.",
+    "No page read produced this answer and none could: the token is the injector walk’s own derivation and the kind and the import path are the entry’s own fields. T001 measured those four fields and the two absences; this record adds no fifth field and no value, and the value the walk discards appears nowhere in it or in the pane.",
+    "The record does not measure what the pane looks like. It names the four states, the four absences and the line each reads, and its `copy` block states that the pane declares no sentence — which is why the digest gains no row and the copy record gains no sentence. `scripts/panel-copy.test.mjs` holds every citation here to the line it names and holds the rendered lines to the labels the answer carries.",
+    "The record does not claim the copy record was re-measured. `research/raw/m048-surface-copy.json` stated 31 surfaces and 213 sentences before this task and states the same after it, because this pane declares no sentence; the counts above record both, and `scripts/copy-check.test.mjs` reads this file beside that record so the thirty-second surface on disk is accounted for rather than dropped."
+  ],
+  "verdict": "measured: the panel route `locale-correctness` is one lazy route — a `PANEL_SURFACES` entry spread into `appRoutes` by the one mapped literal, sitting between `error-routing` and the `dead-click` note and costing the list two lines the M050 note’s own fold pays for, so no line the route records cite moves — whose `data.surface` names the `locale-correctness` key of `panel-demo.ts`’s `LOADERS`, and that key is the only path to `panel-locale-correctness.ts`. The pane renders the join’s six fields and nothing it did not state: the token, the kind and the import path the entry the answer read carries, one line per absence the answer carries, and one pair of lines per claim it cites — with every `null` rendered as no line at all, so `locale-token-absent` shows the absence and never a default locale, and `formatted-outside-i18n` shows the two absences rather than the nearest locale a page renders. The pane names no locale value, no remedy, no cause, no schematic and no identity the answer did not carry, and it writes no sentence of its own: the digest gains no row and the copy record gains no sentence. The panel carries 31 surfaces, 31 loader keys and 40 ordered paths, `extension/copy-digest.json` 204 rows with none of them this pane’s, and the copy record 31 surfaces and 213 sentences with this surface recorded by this file.",
+  "revision": {
+    "author": "T003",
+    "head": "462cddb18d4392bdf9511bc9280b6a7a70cd16e4",
+    "why": "M061’s T003 ships the thirty-first panel surface, `panel-locale-correctness.ts`, with its route, loader key and sample fact, and the record of that surface is owed before the milestone ships",
+    "what": "the route, the loader key, the four states and the four absences with the answer field each reads and the line each is rendered on, the join’s measured answer over the entries the demo carries, the copy this pane does not declare, the counts the panel and the copy carry at this head, and the verdict the surface is held to"
+  }
+}

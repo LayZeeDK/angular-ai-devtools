@@ -66,12 +66,12 @@ const LOADERS: Record<
   'tutor-routing': () => import('./panel-tutor-routing') as never,
   'teardown-leak': () => import('./panel-teardown-leak') as never,
   'error-routing': () => import('./panel-error-routing') as never,
+  'locale-correctness': () => import('./panel-locale-correctness') as never,
 };
-// The sample facts each surface renders; the spec holds each one to the recording it came from.
+// The sample facts each surface renders; the spec holds each one to the recording it came from. The M061 key above costs this map one line, and that line is paid for below by folding the `fields` note's last two lines into one, so every line the earlier surface records cite from 427 down — the loader resolution and the component template included — keeps its number.
 export const FACTS: Record<string, unknown> = {
   // The join's own field answer for the cross-field case (extension/field-state.js): every field valid, while the root carries its own error kind. The submit state is the recording's, not a
-  // label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact
-  // shape in `research/raw/m031-field-state.json` and names the element it was read off (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
+  // label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact shape in `research/raw/m031-field-state.json` and names the element it was read off (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
   fields: {
     fields: {
       name: { valid: true, invalid: false, errors: [] },
@@ -1100,4 +1100,36 @@ FACTS['error-routing'] = {
   ],
   detail:
     'the error "NG0910: No provider found for InjectionToken WIRE_TOKEN" is carried by no boundary entry and the ErrorHandler "ProxyErrorHandler" is in force, so nothing caught it',
+};
+
+// The join's own answer (`extension/locale-correctness.js`, T002) for the provider entries T001
+// measured (`research/raw/m061-record-shapes.json`, `providers.entries`), entered here after the
+// component for the reason the facts above are: every cited line of this file is pinned where it
+// sits, so a fact added inside the literal would move the template, the loader resolution and the
+// earlier facts those records quote. The two entries are the walk's own reduction of the fixture's
+// provider list — the `ErrorHandler` class provider first, the `LOCALE_ID` value provider second —
+// and every value below is what the shipped join answers over them, not a value written here:
+// `panel-demo.spec.ts` re-reads that record, evaluates the join from its own committed text and
+// holds this fact to that answer field for field, so a fact that drifted from the record or the
+// join reddens there rather than shipping.
+//
+// The answer names the entry the join's own token rule recognises — the token the walk derived for
+// the installed `LOCALE_ID`, the kind that entry was declared with and the module it came from — and
+// carries the two absences this tree can prove: `locale-value-not-recorded`, because the provided
+// value is in no field the walk writes (the entry has four fields and no fifth), and
+// `no-formatter-named`, because no record in this tree names a formatter, a pipe or a locale. The
+// value itself appears nowhere in this file: it is the thing no record carries, so the demo has
+// nothing to print for it and prints nothing (SC4, D3).
+//
+// `claims` is empty, and that is the join's own answer rather than an omission: a claim cites an
+// `artefactPath` a record carries, and no record this answer read carries one — T001 measured the
+// entry's four fields and no fifth, and the frame's own `providers` field is the entry list itself.
+// The pane therefore renders no claim line for this fact and invents no path in its place.
+FACTS['locale-correctness'] = {
+  state: 'locale-provider-entry',
+  token: 'InjectionToken LocaleId',
+  provider: 'value',
+  importPath: 'AppConfig',
+  absences: ['locale-value-not-recorded', 'no-formatter-named'],
+  claims: [],
 };
