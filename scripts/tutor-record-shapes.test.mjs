@@ -51,6 +51,13 @@
 // two shipped joins, the capture record and M045's map — and it names the two records M059 owes, the
 // surface T003 writes and the verdict-claims T004 writes, outside itself, so both are subtracted from
 // the census by the recording that says so rather than by a path listed here.
+//
+// M060 T001 added its map, `research/raw/m060-record-shapes.json`, to the same read for the same
+// reason: it measures no verdict-claims or surface record — its sections are read from
+// extension/agent-main.js — and it names the two records M060 owes, the surface T003 writes and the
+// verdict-claims T004 writes, outside itself through its own `inventory.outsideTheMap` (derived by its
+// capture suite), so both are subtracted from the census by the recording that says so rather than by a
+// path listed here.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -80,6 +87,7 @@ const LATER = Object.freeze(
     'research/raw/m057-record-shapes.json',
     'research/raw/m058-record-shapes.json',
     'research/raw/m059-record-shapes.json',
+    'research/raw/m060-record-shapes.json',
   ].map((rel) => ({
     rel,
     map: JSON.parse(readFileSync(join(ROOT, ...rel.split('/')), 'utf8')),
@@ -107,6 +115,10 @@ const PINNED_OUTSIDE = Object.freeze({
   M059: [
     'research/raw/m059-surface.json',
     'research/raw/m059-verdict-claims.json',
+  ],
+  M060: [
+    'research/raw/m060-surface.json',
+    'research/raw/m060-verdict-claims.json',
   ],
 });
 
@@ -621,7 +633,9 @@ function validateOwnMap(map = OWN, present = presentRecords()) {
     LATER.find((entry) => entry.map.milestone === map.milestone)?.rel ??
     `${String(map.milestone)}'s map`;
   const pinned =
-    PINNED_OUTSIDE[/** @type {'M057'|'M058'|'M059'} */ (map.milestone)] ?? null;
+    PINNED_OUTSIDE[
+      /** @type {'M057'|'M058'|'M059'|'M060'} */ (map.milestone)
+    ] ?? null;
   assert.ok(
     pinned !== null,
     `${where} is read beside M055's and must be a map of a milestone that owes two records, and it says ${String(map.milestone)}`,
@@ -1811,7 +1825,7 @@ test('every map read beside M055’s is its own statement, and the subtraction i
       assert.ok(
         (
           PINNED_OUTSIDE[
-            /** @type {'M055'|'M057'|'M058'|'M059'} */ (map.milestone)
+            /** @type {'M055'|'M057'|'M058'|'M059'|'M060'} */ (map.milestone)
           ] ?? []
         ).includes(path),
         `${String(map.milestone)}'s map names ${path} outside itself, and that is not a record ${String(map.milestone)} owes`,
@@ -1841,7 +1855,9 @@ test('each later map may name only its own records, and a record it neither meas
   for (const entry of LATER) {
     const map = entry.map;
     const pinned =
-      PINNED_OUTSIDE[/** @type {'M057'|'M058'|'M059'} */ (map.milestone)] ?? [];
+      PINNED_OUTSIDE[
+        /** @type {'M057'|'M058'|'M059'|'M060'} */ (map.milestone)
+      ] ?? [];
     const third = {
       ...map,
       inventory: {

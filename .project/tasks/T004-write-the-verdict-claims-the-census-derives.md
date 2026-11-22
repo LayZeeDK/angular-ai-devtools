@@ -2,10 +2,10 @@
 id: T004
 title: Write the verdict claims the census derives
 wave: 4
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T004
+base: a3d8e07b09753e8156261e3f644b29e5e64a89ab
 worktree: null
 task_branch: null
 files:
@@ -67,3 +67,9 @@ node --test scripts/navigation-blocking.test.mjs scripts/tutor-record-shapes.tes
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m060-verdict-claims.json`, `scripts/tutor-record-shapes.test.mjs`, `scripts/error-routing-shapes.test.mjs`, `research/raw/m060-record-shapes.json`.
+- The claims record is written by the census's own armed capture, so it is the derivation rather than a typed copy; `scripts/navigation-blocking.test.mjs` compares it with `assert.deepEqual` and passes 25/25.
+- M060 is registered in the record-shapes census: `LATER`, `PINNED_OUTSIDE` (its two records), all three milestone casts, and the counts stay 34 verdict-claims and 9 surface because the map now names its own records outside itself.
+- `buildRecord`'s `inventory.outsideTheMap` now holds exactly the two records M060 owes, each `{ path, why }` citing T003 and T004; the four descriptive strings it held are preserved as `inventory.measured`.
+- Recaptured record: head 8166b8b4, verdict states 4170 bytes. `error-routing-shapes` 9/9 and `tutor-record-shapes` 16/16.
+- No assertion was weakened, no test deleted, no count relaxed — the census's own failure named the exact derive() line to fix, and the fix was made there.

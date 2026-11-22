@@ -119,22 +119,25 @@ function buildRecord(head, byteTotal, producer) {
       },
     ],
     inventory: {
+      measured:
+        'the join T002 publishes, errorRouting(records) on globalThis.angularAiErrorRouting, taking ' +
+        '{errors, boundaries, handler} and returning {state, message, code, owner, phase, absences, ' +
+        'claims, detail}, is a runtime export, not one of the records this milestone measured (T002); ' +
+        'the route error-routing surface record — the PANEL_SURFACES entry, the LOADERS key, the exported ' +
+        'errorRoutingPanel, the digest rows and the surface record that T003 adds — renders the states of ' +
+        'the T002 join, and T001 names the surface but does not map the surface record itself (T003); the ' +
+        'verdict-claims record — the claims that cite this milestone\u2019s artefacts by artefactPath and ' +
+        're-derive each against the tree — is published by T004, reading this map rather than being mapped ' +
+        'by it (T004); and the re-derived gate shapes and gate stability records are published by T005 from ' +
+        'the gate shapes this record pins, not measured here (T005).',
       outsideTheMap: [
         {
-          path: 'errorRouting(records) on globalThis.angularAiErrorRouting',
-          why: 'the join T002 publishes, taking {errors, boundaries, handler} and returning {state, message, code, owner, phase, absences, claims, detail}; it is a runtime export, not one of the records this milestone measured (T002).',
+          path: 'research/raw/m060-surface.json',
+          why: 'the route error-routing surface record T003 adds — the PANEL_SURFACES entry, the LOADERS key, the exported errorRoutingPanel, the digest rows and the surface record rendering the states of the T002 join; T001 names the surface but does not map the surface record itself, so it is captured after this map was measured (T003).',
         },
         {
-          path: 'the route error-routing surface record',
-          why: 'the PANEL_SURFACES entry, the LOADERS key, the exported errorRoutingPanel, the digest rows and the surface record that T003 adds, rendering the states of the T002 join; T001 names the surface but does not map the surface record itself (T003).',
-        },
-        {
-          path: 'the verdict-claims record',
-          why: 'the claims that cite this milestone\u2019s artefacts by artefactPath and re-derive each against the tree are published by T004, reading this map rather than being mapped by it (T004).',
-        },
-        {
-          path: 'the re-derived gate shapes and gate stability records',
-          why: 'published by T005 from the gate shapes this record pins, not measured here (T005).',
+          path: 'research/raw/m060-verdict-claims.json',
+          why: 'the verdict-claims record T004 publishes — the claims that cite this milestone\u2019s artefacts by artefactPath and re-derive each against the tree, reading this map rather than being mapped by it (T004).',
         },
       ],
     },
