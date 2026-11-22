@@ -69,6 +69,7 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
 | SC1 | T006 | AC1 |
 | SC1 | T007 | AC1 |
 | SC5 | T008 | AC1 |
+| SC5 | T009 | AC1 |
 | SC6 | T004 | AC2 |
 
 The ordering is load-bearing and not aesthetic. `scripts/navigation-blocking.test.mjs` resolves an
@@ -207,5 +208,13 @@ Review depth: full
 
 Goal: T007 landed after T005 captured the gate records, so both are stale at HEAD. The last task to land
 owns the re-derivation.
+
+Review depth: full
+
+## Wave 9 — stop freezing a scope count as a measurement
+
+Goal: the ship gate found scripts/tutor-signals-shapes.test.mjs comparing the number of records under
+
+esearch/raw/ to a number M057 froze. The scope grows by design; the content counts stay strict.
 
 Review depth: full

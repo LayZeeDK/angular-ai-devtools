@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: teardown-leak
-phase: ship
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -1205,3 +1205,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — build — build started
 - 2026-11-22 — build — build done; final review pending
 - 2026-11-22 — ship — build done; final review pending
+- 2026-11-22 — ship — ship blocked by the project verify
+- 2026-11-22 — plan — patch plan reopened
