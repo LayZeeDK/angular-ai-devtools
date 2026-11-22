@@ -14,6 +14,10 @@ Task landed as `fce943d5` ("T005: Re-derive the two gate records and the census"
 record's, so every number below was re-derived here with my own commands rather than read off the
 records — the stronger check, and the one that found the staleness in GAP 1.
 
+- ✅ SC5: both gate records are re-derived by their own armed commands, stability last, and each is idempotent on a second armed run: the landing ran `M044_CAPTURE=1 node --experimental-strip-types --test scripts/gate-integrity.test.mjs` and then `M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs`, stability last, and the T005 Log records 40 pass / 0 fail default and 41 armed for the first, 8 pass / 0 fail default and 9 armed for the second, with a second armed run changing no byte; the landed census values still re-derive at this review head — the run prints `archiveReferences: 195 reference(s) in 167 suite(s) of 327 listed file(s)`, the recorded 327/167 — while the one divergent field at this head (`suiteDiff.differing[27].addedLines: 2689 -> 2717`) is T007's later edit to `scripts/teardown-leak-shapes.test.mjs`, not this landing (GAP 1).
+- ✅ No assertion is loosened and no recorded count is lowered to make a red green: the derived counters in the failing assertion's own dump report `removedAssertionLines: 196, recutAssertionLines: 196, droppedAssertionLines: 0` — every removed line was re-cut by its own suite, none dropped — and the two records' changed census rows move in the tree's direction (`323 -> 327` files, `165 -> 167` suites), never down to clear a red.
+- ✅ The moved values are recorded in the Log with the command that produced each: the T005 Log lists `archiveReferences.filesExamined` 323 → 327 and `archiveReferences.suitesExamined` 165 → 167, "all measured after the last T005 landing", beside the armed captures that produced them, and this review re-derived both at this head from the census line quoted above (`167 suite(s) of 327 listed file(s)`).
+
 ### The commanded checks, run verbatim at this review head
 
 `node --experimental-strip-types --test scripts/gate-integrity.test.mjs` — **40 tests, 39 pass, 1 fail**:

@@ -35,7 +35,7 @@ T007 was added to repair it; this cycle reviews T001 (landed `99afb9ea`) with th
   (`producible.targets.portal.missing`: "the observable that is absent is the page action, not the
   read: NG0205 is thrown by Injector.get on a destroyed injector…").
 
-## T007 — Count a quotation as a quotation, not as a page hit: pass
+#### T007 — Count a quotation as a quotation, not as a page hit: pass
 
 - ✅ The rule is now a record's capacity to state an observation, not a line's shape
   (`scripts/teardown-leak-shapes.test.mjs:487-497`):

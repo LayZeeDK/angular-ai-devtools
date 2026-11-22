@@ -10,6 +10,8 @@ Reviewed HEAD: a7a1e28acae204f781a6ccf30ea80423c22a85dd
 
 Task landed as `54398884` ("T003: Render the answer and pin every route table"), base `4635df7a`. Every artefact the task's `files:` names landed in that one commit (`git show 54398884 --stat`: 13 files, including `app.routes.ts`, `panel-demo.ts`, `panel-teardown-leak.ts`, `extension/copy-digest.json`, `scripts/panel-routes.test.mjs`, `scripts/copy-check.test.mjs`, `research/raw/m048-surface-copy.json`, `research/raw/m048-surface.json`) — the route, the loader key, the digest rows and the enumerating suites moved together, which is what SC5/E7 demands of one task.
 
+- ✅ SC1: the pane renders `finding` with the code and body, and renders `owner-not-in-the-message` beside the code when the join returned no owner; a mutant that hides the code reddens: the pane renders every line from the join's own answer — `panel-teardown-leak.ts:398` prints the owner only through `fieldLine` behind the `carried` guard at `:265-266`, and both absences come from `absences` as their own groups at `:334-351`, so no owner is ever composed; `node --test scripts/panel-routes.test.mjs` is 4 pass / 0 fail and its E4 drops the loader key to redden naming `teardown-leak`.
+
 ### Commands run at this review head
 
 ```
