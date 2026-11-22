@@ -4,8 +4,8 @@
   "task": "T001",
   "title": "Measure what the console record and the digest state",
   "question": "what does the digest state for NG0205, what does a console message carry once the shipped joins have read it, can the portal or spikes/ng222-app be driven to emit it, and which counts state the handle record this agent does not hold?",
-  "verdict": "the digest carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 38 extension modules, 136 suites and 146 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.",
-  "head": "54398884ec8b956ef46d5e7754461ea7731404e3",
+  "verdict": "the digest carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 38 extension modules, 136 suites and 148 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.",
+  "head": "d735ec00cdd51856bbaeda47fa7b81f9a20efe6d",
   "headCommand": "git rev-parse HEAD",
   "capturedAt": "2026-11-22T00:27:11.118Z",
   "instrument": {
@@ -66,7 +66,7 @@
   "commands": [
     {
       "command": "git rev-parse HEAD",
-      "output": "54398884ec8b956ef46d5e7754461ea7731404e3"
+      "output": "d735ec00cdd51856bbaeda47fa7b81f9a20efe6d"
     },
     {
       "command": "node -e \"const c=require('node:crypto'),f=require('node:fs');const b=f.readFileSync('extension/error-digest.json');const d=JSON.parse(b);const e=d.entries.find(x=>x.code==='NG0205');console.log(e.code, e.title);console.log(d.entries.length, c.createHash('sha256').update(b).digest('hex'), b.length)\"",
@@ -483,14 +483,22 @@
     },
     "researchRaw": {
       "glob": "research/raw/*.json",
-      "recordsSearched": 146,
+      "recordsSearched": 148,
       "excluded": [
         "research/raw/m059-record-shapes.json"
       ],
       "recordsCarryingTheCode": [
-        "research/raw/m045-console-shapes.json"
+        "research/raw/m044-gate-shapes.json",
+        "research/raw/m045-console-shapes.json",
+        "research/raw/m059-surface.json"
       ],
+      "observationRecords": [],
       "lines": [
+        {
+          "path": "research/raw/m044-gate-shapes.json",
+          "line": 2714,
+          "text": "\"reason\": \"edited here rather than renamed: M059 T006 added the four artefacts this milestone itself adds to the suite exclusion list - its own source, the record, extension/teardown-leak.js and scripts/teardown-leak.test.mjs - because without them a landing elsewhere moved the denominators from 38 modules and 136 suites to 39 and 137, and because a record that merely quotes NG0205 flipped the derived producible verdict from not-produced to produced with eighteen page hits nobody observed; the head recorded by the git rev-parse entry is now derived from the capture own head so the record cannot state one commit and print another; the thirteen default assertions and fourteen armed ones are additions to the rule, none removed\""
+        },
         {
           "path": "research/raw/m045-console-shapes.json",
           "line": 192,
@@ -500,12 +508,83 @@
           "path": "research/raw/m045-console-shapes.json",
           "line": 561,
           "text": "\"NG0205\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 14,
+          "text": "\"{\\\"state\\\":\\\"finding\\\",\\\"code\\\":\\\"NG0205\\\",\\\"message\\\":\\\"NG0205: Injector has already been destroyed.\\\",\\\"owner\\\":null,\\\"absences\\\":[\\\"owner-not-in-the-message\\\",\\\"handle-record-not-held\\\"],\\\"claims\\\":[\\\"code\\\",\\\"message\\\",\\\"digest\\\",\\\"sequence\\\",\\\"absence\\\",\\\"absence\\\"],\\\"artefacts\\\":[\\\"research/raw/m059-record-shapes.json\\\",\\\"extension/error-digest.json\\\"],\\\"detail\\\":\\\"the console record research/raw/m059-record-shapes.json states 1 console message and the first of them whose own body carries NG0205 is at order 3, with the body \\\\\\\"NG0205: Injector has already been destroyed.\\\\\\\" and the level \\\\\\\"error\\\\\\\" in `type`, and the stack frames dropped from it; the digest record extension/error-digest.json carries NG0205 \\\\\\\"Injector has already been destroyed\\\\\\\" among 64 codes; no field of the message names an owner, so owner-not-in-the-message stands beside the code; the sequence it read is release-then-diagnostic: 1 release record is ordered before the diagnostic at order 3 and none after it, so the release ran first and no handle is named as the cause of the diagnostic; the absences it renders are 2 states and never one line: owner-not-in-the-message beside handle-record-not-held\\\"}\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 168,
+          "text": "\"lineText\": \"code: 'NG0205',\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 169,
+          "text": "\"holds\": \"code: 'NG0205'\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 174,
+          "text": "\"lineText\": \"message: 'NG0205: Injector has already been destroyed.',\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 175,
+          "text": "\"holds\": \"message: 'NG0205: Injector has already been destroyed.',\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 202,
+          "text": "\"statement\": \"the `teardown-leak` key is one entry of the `LOADERS` map and it is the only path to `panel-teardown-leak.ts`: the demo looks the key up by the name the route’s `data.surface` states, awaits the dynamic import, calls the module’s default export with the sample fact, and sets the state and the lines the module answers. The key cost one line, and that line is paid for by folding one line of the `fields` fact’s comment into its neighbour rather than by adding a line — the loader resolution block (717, 723–726), the component template (671–687) and every earlier fact keep their numbers, so the surface records which pin this file’s lines re-resolve at this head. The fact is the join’s own answer over the console record and the shipped digest: `state: finding`, `code: NG0205`, the body the installed build prints, `owner: null`, both absences, six claims each carrying its artefact path and the sequence `release-then-diagnostic` — and `panel-demo.spec.ts` rebuilds that record from the shipped record and digest, evaluates the shipped join from its committed text and holds this fact to that answer field for field.\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 205,
+          "text": "\"statement\": \"the join answers `{ state, code, message, owner, absences, claims, detail }` with every field in every state. The demo’s sample is the `finding` answer: the code the message’s own body carries, the body with the stack frames dropped, no owner (no field of the message names one), `owner-not-in-the-message` beside `handle-record-not-held`, one claim per statement with the record or digest path that states it, and the join’s own detail sentence. T001 measured that the diagnostic is not producible on either driven target (`research/raw/m059-record-shapes.json` `producible`: 0 NG0205 over 38 portal console lines and 4 fixture lines), so this record states the sample’s record as one written in the measured shape from the measured printed string rather than one captured on a page.\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 207,
+          "text": "\"value\": \"NG0205: Injector has already been destroyed.\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 211,
+          "text": "\"lineText\": \"\\\"printedAs\\\": \\\"NG0205: Injector has already been destroyed.\\\",\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 212,
+          "text": "\"holds\": \"NG0205: Injector has already been destroyed.\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 216,
+          "text": "\"code\": \"NG0205\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 221,
+          "text": "\"lineText\": \"\\\"code\\\": \\\"NG0205\\\",\","
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 222,
+          "text": "\"holds\": \"NG0205\""
+        },
+        {
+          "path": "research/raw/m059-surface.json",
+          "line": 624,
+          "text": "\"No page read produced this answer and none could: T001 measured 0 NG0205 across 38 portal console lines and 4 fixture console lines over six navigations, so the diagnostic has never been captured on a page. The sample record is written in the measured shape from the measured printed string (`digest.printedByTheInstalledBuild.printedAs`) and its two `order` values are sample positions — the message’s and the one release record’s — not measurements. The milestone ships the absence-only answer and records that as its finding (PLAN R1).\","
         }
       ],
-      "occurrences": 2,
-      "inTheDigestEnumeration": 2,
+      "occurrences": 17,
+      "inTheDigestEnumeration": 0,
+      "quotationsOutsideARecordShape": 17,
       "onAPage": 0,
-      "finding": "No record under `research/raw/` carries NG0205 as a console line: the two occurrences are the digest enumeration M045 recorded — the generator command output that lists the 64 codes, and the digest section’s own code list — so the diagnostic has never been captured on a page."
+      "finding": "No record under `research/raw/` carries NG0205 as a console line: the two occurrences in the record that could state an observation are the digest enumeration M045 recorded — the generator command output that lists the 64 codes, and the digest section’s own code list — and every other record that names the code is quoting it, which is a citation and not a page hit."
     },
     "missing": "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`.",
     "notFabricated": "No probe was run against a destroyed injector to make the code appear. A page-side call that provoked it would be the instrumentation D7 forbids, and it would report the probe rather than the page; a second leaking fixture needs its own owner ruling (plan R2). R1’s absence-only outcome is therefore the measurement, recorded as an absence with the observable it lacks.",
@@ -562,7 +641,7 @@
         },
         "researchRaw": {
           "glob": "research/raw/*.json",
-          "filesSearched": 146,
+          "filesSearched": 148,
           "excluded": [
             "research/raw/m059-record-shapes.json"
           ],
@@ -884,7 +963,7 @@
     "windowsCommand": "set \"M059_CAPTURE=1\"&& node --test scripts/teardown-leak-shapes.test.mjs",
     "check": "node --test scripts/teardown-leak-shapes.test.mjs",
     "records": "research/raw/m059-record-shapes.json",
-    "head": "54398884ec8b956ef46d5e7754461ea7731404e3",
+    "head": "d735ec00cdd51856bbaeda47fa7b81f9a20efe6d",
     "criteria": [
       "SC1",
       "SC6"

@@ -2,10 +2,10 @@
 id: T007
 title: Count a quotation as a quotation, not as a page hit
 wave: 7
-status: pending
+status: done
 deps: [T006]
-agent: null
-base: null
+agent: build_T007
+base: c6ab2db0d3d2738201c53e02b7c63a511a47ebc8
 worktree: null
 task_branch: null
 files:

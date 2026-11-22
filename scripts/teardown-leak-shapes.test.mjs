@@ -479,17 +479,45 @@ function ng0205InResearchRaw() {
     (match) =>
       /^"output": "/.test(match.text) || /^"NG0205",$/.test(match.text),
   );
+  // A record can only state an observation if it has somewhere to state one: the record-shapes shape
+  // carries a `producible` section, and every other record that names the code is quoting it — a
+  // claim, a citation, a reason string. Counting a quotation as a page hit is the defect this rule
+  // exists to prevent: the milestone's own surface and claims records name the code a dozen times
+  // without any page having emitted it.
+  const observationRecords = new Set(
+    searched.filter((path) => {
+      try {
+        return isObject(
+          JSON.parse(readFileSync(fullPath(path), 'utf8')).producible,
+        );
+      } catch {
+        return false;
+      }
+    }),
+  );
+  const couldObserve = matches.filter((match) =>
+    observationRecords.has(match.path),
+  );
+  const quotations = matches.filter(
+    (match) => !observationRecords.has(match.path),
+  );
   return {
     glob: 'research/raw/*.json',
     recordsSearched: searched.length,
     excluded: excludedIn('researchRaw'),
     recordsCarryingTheCode: [...new Set(matches.map((match) => match.path))],
+    observationRecords: [...observationRecords],
     lines: matches,
     occurrences: matches.length,
-    inTheDigestEnumeration: enumeration.length,
-    onAPage: matches.length - enumeration.length,
+    inTheDigestEnumeration: enumeration.filter((match) =>
+      observationRecords.has(match.path),
+    ).length,
+    quotationsOutsideARecordShape: quotations.length,
+    onAPage:
+      couldObserve.length -
+      enumeration.filter((match) => observationRecords.has(match.path)).length,
     finding:
-      'No record under `research/raw/` carries NG0205 as a console line: the two occurrences are the digest enumeration M045 recorded — the generator command output that lists the 64 codes, and the digest section’s own code list — so the diagnostic has never been captured on a page.',
+      'No record under `research/raw/` carries NG0205 as a console line: the two occurrences in the record that could state an observation are the digest enumeration M045 recorded — the generator command output that lists the 64 codes, and the digest section’s own code list — and every other record that names the code is quoting it, which is a citation and not a page hit.',
   };
 }
 
