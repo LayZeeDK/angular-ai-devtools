@@ -16,8 +16,6 @@ No subagent was dispatched: the roadmap entry lists **no open questions**, so ea
 
 ## Question assignments
 
-None.
-
 ## R1 — The handler side is already recorded (M042)
 
 `extension/agent-main.js:1904-1944` resolves the page's `ErrorHandler`, installs an `onViewError` hook on it from
