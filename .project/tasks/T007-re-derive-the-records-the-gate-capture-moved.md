@@ -15,6 +15,14 @@ files:
   - scripts/teardown-leak-shapes.test.mjs
   - scripts/tutor-signals-shapes.test.mjs
   - scripts/visual-qa-style-read.test.mjs
+  - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+  - scripts/gate-integrity.test.mjs
+  - scripts/teardown-leak.test.mjs
+  - scripts/tutor-answer.test.mjs
+  - scripts/tutor-record-shapes.test.mjs
+  - scripts/gate-integrity-default-tasks.test.mjs
+  - scripts/tutor-signals.test.mjs
+  - scripts/visual-qa-style.test.mjs
 ---
 
 # T007 — Re-derive the records the gate capture moved and run the project verify
@@ -57,7 +65,7 @@ line another record pins, say which, and re-derive that record too rather than l
 ## Verify
 
 ```bash
-M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs && M057_CAPTURE=1 node --test scripts/tutor-signals-shapes.test.mjs && M054_CAPTURE=1 node --test scripts/visual-qa-style-read.test.mjs && node --test scripts/teardown-leak-shapes.test.mjs scripts/tutor-signals-shapes.test.mjs scripts/visual-qa-style-read.test.mjs
+M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs && node --test scripts/tutor-signals-shapes.test.mjs scripts/visual-qa-style-read.test.mjs
 ```
 
 ## Log
