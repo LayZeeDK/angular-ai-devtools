@@ -1,0 +1,60 @@
+{
+  "schema": "m060-record-shapes/v1",
+  "milestone": "M060",
+  "task": "T001",
+  "head": "9f8e31432b2e8e64ac879a40f4b6864506b6a37b",
+  "commands": [
+    {
+      "command": "git rev-parse HEAD",
+      "output": "9f8e31432b2e8e64ac879a40f4b6864506b6a37b"
+    },
+    {
+      "command": "M060_CAPTURE=1 node --test scripts/error-routing-shapes.test.mjs",
+      "output": "capture run: serialized every section from the source at the captured head and wrote research/raw/m060-record-shapes.json byte-exactly; the suite then asserted the file it wrote"
+    }
+  ],
+  "records": [
+    {
+      "path": "extension/agent-main.js",
+      "carries": "the global error listener record at agent-main.js:2550-2561: N4 wires 'error' and 'unhandledrejection' on globalThis beside the console.error override, and each arrival is reduced by captureErrorPayload to one payload of {code, message, component, timestamp} dispatched on ERROR_CAPTURE_EVENT — the code is the NG0NNN match in the message text and the component is getOwningComponent() of the active element, so no field is borrowed from a neighbouring arrival; this milestone added no listeners (listeners added: 0)"
+    },
+    {
+      "path": "extension/agent-main.js",
+      "carries": "the boundary record at agent-main.js:1904-1944: the resolved ErrorHandler's onViewError is hooked on the handler instance the page already resolved, and arrivals accumulate in boundaryEntries, one per arrival in arrival order, capped at BOUNDARY_ENTRY_LIMIT = 128 as a page-health guard rather than a curation; the change-detection catch passes a details shape with caughtBy and the construction catch one with boundary and no caughtBy, so an absent field reads as null and is never borrowed from the other shape"
+    }
+  ],
+  "inventory": {
+    "outsideTheMap": [
+      {
+        "path": "errorRouting(records) on globalThis.angularAiErrorRouting",
+        "why": "the join T002 publishes, taking {errors, boundaries, handler} and returning {state, message, code, owner, phase, absences, claims, detail}; it is a runtime export, not one of the records this milestone measured (T002)."
+      },
+      {
+        "path": "the route error-routing surface record",
+        "why": "the PANEL_SURFACES entry, the LOADERS key, the exported errorRoutingPanel, the digest rows and the surface record that T003 adds, rendering the states of the T002 join; T001 names the surface but does not map the surface record itself (T003)."
+      },
+      {
+        "path": "the verdict-claims record",
+        "why": "the claims that cite this milestone’s artefacts by artefactPath and re-derive each against the tree are published by T004, reading this map rather than being mapped by it (T004)."
+      },
+      {
+        "path": "the re-derived gate shapes and gate stability records",
+        "why": "published by T005 from the gate shapes this record pins, not measured here (T005)."
+      }
+    ]
+  },
+  "producer": {
+    "listeners": [
+      "error",
+      "unhandledrejection"
+    ],
+    "boundaryEntryLimit": 128
+  },
+  "absences": {
+    "phaseNotRecorded": {
+      "count": 2,
+      "detail": "no record in this tree names the phase an uncaught error was thrown in, so every arrival the listeners deliver is recorded without a phase; the count is the number of listeners read at the captured head, and this milestone added no listeners (listeners added: 0), so the count is a reading of the producer and never a claim of new wiring"
+    }
+  },
+  "verdict": "This record is 3635 bytes, the UTF-8 length of the file the armed capture wrote, stated so the byte-consistency scan has a count of this file to hold."
+}

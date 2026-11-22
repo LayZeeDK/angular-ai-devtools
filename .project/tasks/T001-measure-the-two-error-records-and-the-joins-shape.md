@@ -2,10 +2,10 @@
 id: T001
 title: Measure the two error records and the join's shape
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: de2948a77d48bbd5c67a8b066d8f680eba30fdeb
 worktree: null
 task_branch: null
 files:
@@ -69,3 +69,11 @@ M060_CAPTURE=1 node --test scripts/error-routing-shapes.test.mjs && node --test 
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m060-record-shapes.json`, `scripts/error-routing-shapes.test.mjs`.
+- `M060_CAPTURE=1` writes the record and the default run only asserts: 9 tests, 9 pass. The record re-derives byte-exactly on a second armed run, which the suite asserts.
+- The record's `head` is derived from `git rev-parse HEAD` and equals its own `commands[0].output` (a record that contradicts itself was the M059 defect; the suite pins the two together).
+- Keys produced: schema, milestone, task, head, commands, records, inventory, producer, absences, verdict. `inventory.outsideTheMap` names four records this milestone does not map, each with a `why` citing its task.
+- The verdict states the record's own byte total as 4121 bytes, and the serializer solves for that fixed point so the assertion cannot drift from the file.
+- Scans exclude exactly this milestone's four own files, so later landings cannot move the denominators (M059's T009/T012 class).
+- `npx prettier --check` clean on both files. Two earlier dispatch attempts on this task errored before writing; this one completed in 78 seconds.
+- Known and left untouched: `.commandcode/taste/communication/taste.md` was modified by something other than this task and was reverted before landing, because a taste write is not this task's path.
