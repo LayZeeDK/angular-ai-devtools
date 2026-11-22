@@ -9,10 +9,10 @@ Milestone: M060 — error-routing
 
 No subagent was dispatched: the roadmap entry lists **no open questions**, so each dimension was read directly at the base commit and is recorded here as skipped.
 
-- `domain` — skipped — R1: the handler side is already recorded by M042 — `extension/agent-main.js:1904-1944`.
-- `stack` — skipped — R2: the global listener record is already installed — `extension/agent-main.js:2550-2561`.
-- `pitfalls` — skipped — R3: no record states the phase an uncaught error was thrown in.
-- `similar` — skipped — M059 met six record censuses at the ship gate; the plan declares them up front.
+- `domain` — skipped → none — R1: the handler side is already recorded by M042 — `extension/agent-main.js:1904-1944`.
+- `stack` — skipped → none — R2: the global listener record is already installed — `extension/agent-main.js:2550-2561`.
+- `pitfalls` — skipped → none — R3: no record states the phase an uncaught error was thrown in.
+- `similar` — skipped → none — M059 met six record censuses at the ship gate; the plan declares them up front.
 
 ## Question assignments
 
