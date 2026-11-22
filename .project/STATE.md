@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: teardown-leak
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M059
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1215,3 +1215,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — plan — plan approved
 - 2026-11-22 — build — build started
 - 2026-11-22 — build — build blocked
+- 2026-11-22 — plan — build plan repair requested
+- 2026-11-22 — plan — build recovery: {"base": "1731b7ba159ec10da3c733e91163762d28e6c978", "branch": "gsd-path/M059", "kind": "plan", "source": "build"}
