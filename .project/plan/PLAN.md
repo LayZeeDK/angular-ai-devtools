@@ -71,6 +71,7 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
 | SC5 | T008 | AC1 |
 | SC5 | T009 | AC1 |
 | SC5 | T010 | AC1 |
+| SC5 | T011 | AC1 |
 | SC6 | T004 | AC2 |
 
 The ordering is load-bearing and not aesthetic. `scripts/navigation-blocking.test.mjs` resolves an
@@ -227,5 +228,12 @@ esearch/raw/ reddens. The map is
 authoring work, not a patch: the record gains 
 ecords[] and inventory.outsideTheMap with the why
 citations the census requires, and the suite learns the milestone from the recording rather than a list.
+
+Review depth: full
+
+## Wave 11 — re-derive the gate records the map's landing moved
+
+Goal: T010 edited four suites after T005's and T008's captures, so both gate records are stale again. The
+last landing owns the re-derivation.
 
 Review depth: full
