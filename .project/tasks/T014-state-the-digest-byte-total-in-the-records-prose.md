@@ -17,6 +17,10 @@ files:
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
   - scripts/navigation-blocking.test.mjs
+  - scripts/panel-routes.test.mjs
+  - scripts/copy-check.test.mjs
+  - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+  - scripts/tutor-signals-shapes.test.mjs
 ---
 
 # T014 — State the digest byte total in the record's prose
