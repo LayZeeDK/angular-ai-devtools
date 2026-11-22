@@ -2,10 +2,10 @@
 id: T011
 title: Re-derive the gate records the map's landing moved
 wave: 11
-status: pending
+status: done
 deps: [T010]
-agent: null
-base: null
+agent: build_T011
+base: b18e41f1566f4a813530cf1d158ea678197653d4
 worktree: null
 task_branch: null
 files:
@@ -59,3 +59,13 @@ node --experimental-strip-types --test scripts/gate-integrity.test.mjs && node -
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`.
+- T010 edited four suites after the previous captures, so `scripts/gate-integrity.test.mjs` was 37 pass / 3
+  fail at its head — `suiteDiff.differing[27].addedLines: 2717 -> 2810` and a `tutor-signals-shapes` row left
+  stale by T009.
+- Re-derived with their own armed commands, stability last: `M044_CAPTURE=1` then `M056_CAPTURE=1`. At this
+  head `scripts/gate-integrity.test.mjs` is 40 pass / 0 fail on a default run and 41 armed, and
+  `scripts/gate-stability-record.test.mjs` is 8 pass / 0 fail and 9 armed.
+- Third time in this milestone that the re-derivation was owed by the last landing (T005, T008, T011). The
+  pattern is stable enough to plan for next time: whichever task edits a suite owns the gate records'
+  re-derivation, and it lands last.

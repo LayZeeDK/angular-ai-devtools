@@ -1636,7 +1636,7 @@
       },
       {
         "file": "scripts/teardown-leak-shapes.test.mjs",
-        "line": 112,
+        "line": 133,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1644,7 +1644,7 @@
       },
       {
         "file": "scripts/tutor-answer.test.mjs",
-        "line": 137,
+        "line": 161,
         "path": null,
         "site": "pattern",
         "class": "undecided",
@@ -1652,7 +1652,7 @@
       },
       {
         "file": "scripts/tutor-answer.test.mjs",
-        "line": 541,
+        "line": 567,
         "path": null,
         "site": "pattern",
         "class": "undecided",
@@ -2704,7 +2704,7 @@
         "file": "scripts/teardown-leak-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 2717,
+        "addedLines": 2810,
         "removedLines": 0,
         "addedAssertionLines": 109,
         "removedAssertionLines": 0,
@@ -2730,7 +2730,7 @@
         "file": "scripts/tutor-answer.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1824,
+        "addedLines": 1852,
         "removedLines": 0,
         "addedAssertionLines": 120,
         "removedAssertionLines": 0,
@@ -2743,7 +2743,7 @@
         "file": "scripts/tutor-record-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1953,
+        "addedLines": 1965,
         "removedLines": 0,
         "addedAssertionLines": 181,
         "removedAssertionLines": 0,
@@ -2795,7 +2795,7 @@
         "file": "scripts/tutor-signals-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 575,
+        "addedLines": 577,
         "removedLines": 0,
         "addedAssertionLines": 84,
         "removedAssertionLines": 0,
@@ -3022,6 +3022,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-22T02:37:08.664Z"
+    "at": "2026-11-22T04:41:07.194Z"
   }
 }
