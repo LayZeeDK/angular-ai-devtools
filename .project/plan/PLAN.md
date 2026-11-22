@@ -3,9 +3,9 @@
 Milestone: M061 — locale-correctness · Branch: gsd-path/M061 · Baseline: `main` at binding
 Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test`
 
-Five waves, five tasks. T001 measures, T002 is the pure join, T003 the panel surface, T004 the verdict claims,
-T005 re-derives the gate records and runs the project verify. Every census that reads `research/raw/` is declared here,
-because M059 discovered six of them at the ship gate.
+Six waves, six tasks. T001 measures, T002 is the pure join, T003 the panel surface, T004 the verdict claims, T005
+re-derives this milestone’s own records, and T006 re-derives the two gate records and runs the project verify last.
+Every census that reads `research/raw/` is declared here, because M059 discovered six of them at the ship gate.
 
 ## Config
 
