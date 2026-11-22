@@ -1,0 +1,100 @@
+head: 46c502d172b65091b012a41b148dff7ecc7158db at 2026-11-22T22:55:58.677Z
+✔ armed: re-derive, write only what moved, and a second run changes no byte (114.7169ms)
+ℹ armed run: nothing moved, nothing written (sha256 1fd8a0e68244911ac1ff983fcdd88d2b79947623b5fe44a1c6264a0b2ec5dee1)
+ℹ armed idempotence: 59302 bytes, sha256 1fd8a0e68244911ac1ff983fcdd88d2b79947623b5fe44a1c6264a0b2ec5dee1 before and after the second run
+✔ the recording is the canonical serialisation of its own record (0.41ms)
+✔ the recording names the commit it was measured at, and that commit is behind this HEAD (61.3673ms)
+ℹ head 46c502d1 is a commit this checkout carries, captured at 2026-11-22T00:27:11.118Z
+✔ the digest section states the NG0205 entry verbatim, with the digest’s own hash (0.7857ms)
+ℹ digest 22.2.x: 64 entries, 64 codes, sha256 426a5be1f4e344c87e4b70817ac10da3de0f9c8a172325e704b3235953a01c35, 61577 bytes
+ℹ NG0205 — title “Injector has already been destroyed”; the build prints “NG0205: Injector has already been destroyed.”
+✔ the message section names the fields a joined message carries, and where the stack goes (1.2419ms)
+ℹ console join: text/code/title/reason/carriedCode, stack survives in text; lint join: state/construct/code/message, stack dropped by bodyOf
+ℹ the capture carries code/location/order/text/type and its location carries column/columnNumber/line/lineNumber/url; 1 of 4 messages carry a frame
+✔ the producible verdict states what was driven and, producing nothing, the observable it lacks (21.1385ms)
+ℹ producible: not-produced — 4 portal routes/38 lines, 2 fixture routes/4 lines, 0 NG0205
+ℹ research/raw: 20 occurrences in 4 record(s), 0 of them the digest enumeration, 0 on a page
+✔ the absences section states the handle record as an absence with its counts (0.402ms)
+ℹ handle record: 0 handleRecord and 0 postDestroy occurrences over 40 extension modules, 142 suites and 154 records
+ℹ teardown sites (3, 2 the agent’s own): uninstallRouterEvents at extension/agent-main.js:1858; uninstallStability at extension/agent-main.js:2435; CURRENCY at scripts/stability-measure.test.mjs:315
+✔ every citation is the line its own number names, found by searching the file it quotes (3.0376ms)
+ℹ extension/error-digest.json: 2 citation(s) re-resolved
+ℹ spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs: 4 citation(s) re-resolved
+ℹ extension/console-join.js: 8 citation(s) re-resolved
+ℹ extension/lint-core.js: 7 citation(s) re-resolved
+ℹ research/raw/m032-console-diagnostics.json: 2 citation(s) re-resolved
+ℹ extension/agent-main.js: 7 citation(s) re-resolved
+ℹ research/raw/m045-console-shapes.json: 2 citation(s) re-resolved
+ℹ spikes/ng222-app/src/app/stale-view-fixture.ts: 3 citation(s) re-resolved
+ℹ D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/shared/ui-directives/src/lib/button-action.directive.ts: 1 citation(s) re-resolved
+ℹ D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/contract/feature-list/src/lib/list.component.ts: 1 citation(s) re-resolved
+✔ every citation a section names is one the record makes, and no line is cited for nothing (0.508ms)
+✔ the record names no subscription, effect or timer as the owner (D6) (0.9464ms)
+✔ the recording is what this head derives, field by field (21.8611ms)
+ℹ the digest is 61577 bytes and carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 40 extension modules, 142 suites and 154 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.
+ℹ 12 section(s) re-derived, 37 citation(s), 0 NG0205 produced
+✔ a mutated copy of the record reddens naming its defect, and the untouched record passes first (212.3373ms)
+ℹ mutant a-digest-code-the-file-does-not-carry -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): digest.entry.code: "NG9999" -> "NG0205"
+ℹ mutant a-title-with-a-full-stop -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): digest.entry.title: "Injector has already been destroyed." -> "Injector has already been destroyed"
+ℹ mutant a-message-field-the-join-does-not-declare -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): message.joins.consoleJoin.findingFields: 6 row(s) -> 5 row(s)
+ℹ mutant a-stack-that-survives-the-lint-join -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): message.joins.lintJoin.stackSurvives: true -> false
+ℹ mutant a-route-that-is-not-a-string -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.targets.portal.routesTried[0]: 42 -> "/contract/list"; producible.targets.portal.routesTried[0] is the route it tried, as a string
+ℹ mutant a-verdict-with-nothing-missing -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.missing: "" -> "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`."; producible.missing must say what is missing when nothing was produced
+ℹ mutant a-handle-record-that-exists -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): absences.handle-record-not-held.occurrences: 1 -> 0; absences.handle-record-not-held.occurrences: 1 -> 0: the handle record does not exist
+ℹ mutant a-handle-named-as-the-cause -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.missing: "the leaked subscription wrote after teardown" -> "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`."; producible.missing names a leaked handle: "the leaked subscription wrote after teardown"
+✔ nothing was built (0.3938ms)
+✔ held-out E9: the record is read-only and no capture runs on a default run (19.6573ms)
+ℹ research/raw/m059-record-shapes.json at load: 59302 bytes, sha256 1fd8a0e68244911ac1ff983fcdd88d2b79947623b5fe44a1c6264a0b2ec5dee1
+ℹ after the run: 59302 bytes, sha256 1fd8a0e68244911ac1ff983fcdd88d2b79947623b5fe44a1c6264a0b2ec5dee1
+ℹ E9 idempotence: sha256 1fd8a0e68244911ac1ff983fcdd88d2b79947623b5fe44a1c6264a0b2ec5dee1 unchanged after the run
+ℹ armed run: E9 holds on the bytes this run wrote — the capture is the only writer, and it wrote only what moved
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 638.7725
+✔ the recording declares the two sides an answer may cite (0.9724ms)
+✔ the graph side is the serializer and the one per-check carry (1.4932ms)
+✔ a node is read for index, kind and label and every other field is ignored (0.1898ms)
+✔ an edge is its two ends and nothing else (0.2481ms)
+✔ the serializer writes an id, never an index (1.8285ms)
+✔ the render/effect entry declares the effect finding and its read list (0.2873ms)
+✔ the three absences are declared and distinct (0.203ms)
+✔ the two findings are never joined (0.1759ms)
+✔ every citation carries the cited line’s own trimmed text (5.9273ms)
+✔ every citation is re-resolved by searching its file for the quoted line (7.7416ms)
+✔ every citation id is unique and every reference resolves (0.2052ms)
+✔ no write record exists anywhere in extension/ (40.8457ms)
+✔ no edge carries a field to order a write in (25.1804ms)
+✔ the answer’s ordering vocabulary is the named absence and not a capture (0.0898ms)
+✔ the second measurement is re-run over the tree, not read back (15.5301ms)
+✔ exactly one record holds an effect node in the recorded shape (14.235ms)
+✔ the closest record carries an indexed effect node, unlike the plan’s prose (0.2932ms)
+✔ the existing join answers from that record without authoring anything (1.0327ms)
+✔ the recording states what no record carries: an index in the serializer’s output (0.0629ms)
+✔ every premise the measurement refuted is stated as refuted (0.0672ms)
+✔ nothing was built (0.0406ms)
+✔ the recording parses, names itself and declares the questions this task settles (2.1568ms)
+✔ every citation in the recording still names the line it quotes (13.4275ms)
+✔ every claim is cited, names its kind, and does not report an unwitnessed record as observed (0.3497ms)
+✔ the relay ruling is stated, with the citations that support it (0.2087ms)
+✔ the property list is the one the measured expression carried, each with its own declarations (0.24ms)
+✔ the reading is instrumented, and every hook carries a value for every declared property (0.2563ms)
+✔ the two artefacts measured read differently, and the recording says which is which (0.102ms)
+✔ the recording states its own absences, and names the artefact the portal lacks (0.1881ms)
+✔ mutant D1 a citation quotes a line it no longer sits on: the pin names what it broke (10.6824ms)
+✔ mutant D2 a citation slides one line off its text: the pin names what it broke (9.9335ms)
+✔ mutant D3 a citation names a file this tree does not hold: the pin names what it broke (9.7637ms)
+✔ mutant D4 the declared property list drops one the expression measured: the pin names what it broke (0.8869ms)
+✔ mutant D5 a record this task did not witness is reported as observed here: the pin names what it broke (0.8696ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 238.6849

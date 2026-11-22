@@ -2123,8 +2123,8 @@ Open questions
 Depends on: [M020]
 Programme: Generation 3 · Batch: 4 · Group: @angular/common
 Surfaces: panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/061-locale-correctness
 Integrated: null
 
 Goal: The panel answers why a formatted date, number or currency renders in the wrong locale, naming the LOCALE_ID in effect, the provider that set it and the call that used it.

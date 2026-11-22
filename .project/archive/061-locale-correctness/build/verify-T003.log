@@ -1,0 +1,79 @@
+head: 462cddb18d4392bdf9511bc9280b6a7a70cd16e4 at 2026-11-22T20:57:31.056Z
+T001 surfaces: 31 surfaces, 179 declared sentences, 34 inline sentences, 1 absence
+T001 citations: 574 lines re-read
+T001 verbatim: 251 sentences found in their files
+T001 coverage: 32 surfaces and 2 specs on disk, 31 measured by research/raw/m048-surface-copy.json and 1 by a later surface record
+T003 later surface: locale-correctness declares 8 literal(s) and no sentence; copyCheck → cannot-tell (surface-declares-nothing)
+T001 absence: context declares nothing, 13 single-token literals, 0 templates, and cites 5 lines
+T001 boundary: the copy is measured and the digest is T002’s, not this record’s
+T002 digest: 204 rows for 213 sentences (9 repeat(s)), 43641 bytes against the record's 270388
+T002 scope: 179 declared + 34 inline sentences read, 274 labels and value words read past
+T002 not digested: sanitizer "${count} ${noun}${count === 1 ? '' : 's'}" (composed-at-render)
+T002 per surface: components: clean, 9 sentences | console: clean, 11 sentences | console-read: clean, 7 sentences | stability: clean, 15 sentences | error-boundary: clean, 14 sentences | fields: clean, 6 sentences | navigation: clean, 6 sentences | performance: clean, 2 sentences | render-phase: clean, 7 sentences | linked-state: clean, 2 sentences | lint: clean, 3 sentences | router: clean, 3 sentences | resource: clean, 3 sentences | onpush: clean, 3 sentences | legacy: clean, 3 sentences | redirect: clean, 6 sentences | sanitizer: clean, 11 sentences | panel-demo: clean, 2 sentences | context: cannot-tell (surface-declares-nothing) | copy-check: clean, 9 sentences | interaction-story: clean, 13 sentences | dead-click: clean, 19 sentences | what-changed: clean, 11 sentences | webmcp: clean, 9 sentences | webmcp-rehearsal: clean, 10 sentences | visual-qa: clean, 5 sentences | tutor-foundations: clean, 6 sentences | tutor-signals: clean, 6 sentences | tutor-routing: clean, 5 sentences | teardown-leak: clean, 6 sentences | error-routing: clean, 1 sentences
+T002 record: clean, 213 sentences compared, 0 unexplained; context row: cannot-tell (surface-declares-nothing)
+T002 precedence: no digest → cannot-tell (no-digest), checked 0
+T002 precedence: zero strings → cannot-tell (surface-declares-nothing), checked 0
+T002 precedence: one unexplained string → unexplained, naming "listed: the record names…" (components)
+T002 precedence: fully explained record → clean (213 compared), context row → cannot-tell (surface-declares-nothing)
+T002 exact text: "filtered: the typed text kept the rows below, and the count states how many rows match" and "unstable: the page's isStable emitted false" are reported rather than explained
+T002 idempotency: 13 rows, twice, identical and in record order
+T002 mutants: digest-entry-dropped: every sentence the copy-bearing surfaces declare is in the digest, and the answer is "unexplained" naming "listed: the record names these components, and every row below is one the record carries" (components) as unexplained || similarity-match: a sentence is explained by the digest's own text and never by similarity, and this near-miss was explained: "filtered: the typed text kept the rows below, and the count states how many rows match" (components) || invented-row: an invented row is not an explanation, and this module explains "cannot tell: no panel copy can be named", which no surface in the record renders || missing-digest-reported-clean: a surface with strings and no digest reports cannot-tell with the reason "no-digest", because nobody compared the strings; this reported "clean"
+T004 surface: copy-check declares 9 sentences and builds 7 labels; the digest holds 204 rows for 213 sentences, nine of them one text
+T004 route record: 58 citations re-read, 3 states, loader key "copy-check", fields ["state","checked","unexplained","unexplained[].string","unexplained[].surface","reason"]
+T004 interaction-story record: 72 citations re-read, 2 states, loader key "interaction-story", fields ["state","steps","steps[].stream","steps[].at","steps[].fields","cannotTell","reason","bounded"]
+T004 dead-click record: 97 citations re-read, 3 states, loader key "dead-click", fields ["state","findings","findings[].chain","findings[].event","findings[].window","findings[].window.field","findings[].window.kind","findings[].window.length","findings[].window.final","considered","refusals","reason","chain"]
+✔ the record is every panel surface, the copy each declares, and the absence (12.2476ms)
+✔ every cited path and line is the one the record read (4.3747ms)
+✔ every declared sentence appears verbatim in the file it is cited in (1.2078ms)
+✔ every surface on disk is in a copy record, and the specs are named as excluded (4.0513ms)
+✔ T003 — the later surface record states a copy this suite can check, and its answer is the absence (1.4688ms)
+✔ the counts the record states are the counts its entries carry (0.311ms)
+✔ a surface that declares no sentences is recorded as an absence, not skipped (0.3829ms)
+✔ the record states what it does not claim (0.1334ms)
+✔ a citation that slid off its line, or lost its text, is refused (0.8316ms)
+✔ a surface that declares copy cannot be recorded as declaring nothing (1.3175ms)
+✔ the record names the task that authors the digest, and measures no join itself (0.1476ms)
+✔ T002 — the digest is the record’s sentences, under the surface and key each is declared under (1.4456ms)
+✔ T002 — the scope reads the sentences and reads past the labels and value words by count (0.9543ms)
+✔ T002 — the pluralised word the pane never renders whole is a recorded decision, not a digest row (1.1787ms)
+✔ T002 — every sentence a surface declares is explained, and the surface that renders no copy is cannot-tell (9.3914ms)
+✔ T002 — the record as measured is clean, and the surface that renders no copy is its own row (2.2754ms)
+✔ T002 / precedence 1 — a missing digest is cannot-tell with "no-digest", before anything else (4.2807ms)
+✔ T002 / precedence 2 — zero strings compared is cannot-tell with "surface-declares-nothing" (1.9022ms)
+✔ T002 / precedence 3 — one unexplained string is "unexplained" even when a surface renders no copy (2.4534ms)
+✔ T002 / precedence 4 — a fully explained record with an absent surface is clean, and its absent row is cannot-tell (11.0089ms)
+✔ T002 — the states and the reasons are closed lists the module publishes (3.9435ms)
+✔ T002 / E4 — a surface with strings and no digest is cannot-tell, and the same surface beside a stale digest is reported (1.6435ms)
+✔ T002 — a match is the digest’s own text: a near-miss sentence and a respelled apostrophe are reported (1.5067ms)
+✔ T002 / E6 — the same record and digest answer identical rows in identical order, and the join writes neither (7.3548ms)
+✔ T002 — the join is one implementation, reads no page, and reads no file (4.1543ms)
+✔ T002 mutants — every anchor is one place in the shipped module and really changes it (0.1239ms)
+✔ T002 mutants — each defect reddens its pin, and the failure names the defect by string (13.7192ms)
+✔ T004 — the twentieth surface is measured, and the digest explains every sentence the record carries (3.6889ms)
+✔ T004 — the route record names the route, the loader key, the three states and what each reads (1.4463ms)
+✔ T004 — the interaction-story route record names the route, the loader key, the two states, what each reads and the fifth field (1.3331ms)
+✔ T004 — the dead-click route record names the route, the loader key, the three states, what each reads and the fifth field (1.2844ms)
+✔ every citation the record makes is the line it names, and the line says what the record says it does (2.4912ms)
+✔ the record names the route, the loader key and the sample fact the tree carries (3.4182ms)
+✔ the four states and the four absences are the words the shipped join answers with (1.1846ms)
+✔ the pane declares no sentence: every line it writes is a label and a value the answer carries (3.3042ms)
+✔ the pane renders no locale value, no remedy and no identity the answer did not carry (2.7517ms)
+✔ the copy record does not grow by this surface, and the digest holds no row for it (2.3228ms)
+✔ the counts the record states are the counts the tree carries (0.5051ms)
+✔ mutants redden by name: a sentence, a page read, a citation off its line, an invented state, an unlabelled field (3.6696ms)
+✔ E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name (7.4149ms)
+✔ E2: the surface functions are still exported for their suites (1.7922ms)
+✔ E3: the demo module renders the surface text it is handed (0.7559ms)
+✔ E4: every declared route surface has a panel-demo LOADERS key (18.0727ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 231.1073
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check apps/angular-ai-devtools/src/app/panel-locale-correctness.ts apps/angular-ai-devtools/src/app/panel-demo.ts apps/angular-ai-devtools/src/app/app.routes.ts research/raw/m061-surface.json

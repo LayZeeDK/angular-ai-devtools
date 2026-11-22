@@ -1,0 +1,30 @@
+head: df76be193ca0f744de8b6d098999513ae14a3437 at 2026-11-22T20:04:10.104Z
+✔ a second armed run is byte-identical: two serializations and the committed file agree (318.6565ms)
+✔ the record pins its schema, milestone, task and the derived head (121.2935ms)
+✔ commands[0] is `git rev-parse HEAD` and its output is the head field (0.3482ms)
+✔ the entry shape is re-derived from extension/agent-main.js at run time (1.1205ms)
+✔ the provider reduction the source carries yields the entries the record states (2.7556ms)
+✔ the record names the LOCALE_ID entry by token, kind and import path, never by position (0.5518ms)
+✔ the provided value is in no field of the entry: locale-value-not-recorded (0.5542ms)
+✔ the token rule is routerTokenNameOf’s, and provider.provide is not read (0.196ms)
+✔ the injector walk is the only provider read the record reduces, and no second read was added (46.8674ms)
+✔ no record and no shipped field names a formatter, a pipe or a locale (43.2778ms)
+✔ the recorded scans and the absence agree line for line (0.2717ms)
+✔ the census map lists the measured artefact and names the records outside it, each why citing a task (0.3849ms)
+✔ the verdict states this file’s own byte total, and the file is that long (0.6809ms)
+✔ the suite’s scans exclude this milestone’s own records (18.8568ms)
+✔ mutant — an entry matched by position instead of by token reddens by name (0.9531ms)
+✔ mutant — an entry that carries the useValue reddens naming locale-value-not-recorded (1.1375ms)
+✔ mutant — a second provider read reddens by name (47.6118ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 895.9125
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/locale-correctness-shapes.test.mjs research/raw/m061-record-shapes.json

@@ -93,7 +93,6 @@ Review depth: full
 | SC4 | T006 | AC2 |
 | SC1 | T007 | AC1 |
 | SC4 | T007 | AC2 |
-| SC4 | T006 | AC2 |
 
 ## Held-out checks
 
