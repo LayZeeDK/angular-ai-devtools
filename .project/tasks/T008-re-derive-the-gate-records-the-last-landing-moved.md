@@ -2,10 +2,10 @@
 id: T008
 title: Re-derive the gate records the last landing moved
 wave: 8
-status: pending
+status: done
 deps: [T007]
-agent: null
-base: null
+agent: build_T008
+base: d9c5f833a1fa54dd99cab064305a96a49fb2ac98
 worktree: null
 task_branch: null
 files:
@@ -61,3 +61,13 @@ node --experimental-strip-types --test scripts/gate-integrity.test.mjs && node -
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`.
+- The wave-5 review found both records stale at HEAD and named the cause rather than a T005 defect: T005's
+  capture was exact at `fce943d5`, and T007's twenty-eight added lines moved the suite the record counts —
+  `suiteDiff.differing[27].addedLines: 2689 -> 2717` and `fixRecord.exitCode: 0 -> 1`.
+- Re-derived with their own armed commands, stability last: `M044_CAPTURE=1` then `M056_CAPTURE=1`. At this
+  head `scripts/gate-integrity.test.mjs` is 40 pass / 0 fail on a default run and 41 armed, and
+  `scripts/gate-stability-record.test.mjs` is 8 pass / 0 fail and 9 armed.
+- This is the M058 lesson met again: the record re-derivation belongs to the task that lands last, not to
+  the task that first measured it. The plan order is by task id, but the landing order is by dependency,
+  and only the last landing can see the tree that ships.
