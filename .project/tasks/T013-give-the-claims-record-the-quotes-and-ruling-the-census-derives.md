@@ -17,6 +17,11 @@ files:
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
   - scripts/teardown-leak-shapes.test.mjs
+  - scripts/tutor-answer.test.mjs
+  - scripts/tutor-record-shapes.test.mjs
+  - scripts/panel-routes.test.mjs
+  - scripts/copy-check.test.mjs
+  - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
 ---
 
 # T013 — Give the claims record the quotes and ruling the census derives

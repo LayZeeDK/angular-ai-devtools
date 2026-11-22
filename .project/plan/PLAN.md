@@ -73,6 +73,7 @@ These are owner decisions. They are recorded here to be executed, not re-litigat
 | SC5 | T010 | AC1 |
 | SC5 | T011 | AC1 |
 | SC5 | T012 | AC1 |
+| SC5 | T013 | AC1 |
 | SC6 | T004 | AC2 |
 
 The ordering is load-bearing and not aesthetic. `scripts/navigation-blocking.test.mjs` resolves an
@@ -243,5 +244,13 @@ Review depth: full
 
 Goal: the build-output pin takes the same floor rule as its two siblings, and both gate records are
 re-derived in the same task because it edits a suite they count.
+
+Review depth: full
+
+## Wave 13 — the claims record's quotes and ruling
+
+Goal: the navigation census derives a quotes and a 
+uling block for every milestone, and M059's record
+carries neither. The added sections are read from the artefacts they describe.
 
 Review depth: full
