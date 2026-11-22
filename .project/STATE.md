@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: error-routing
-phase: research
+phase: decide
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M060
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1245,3 +1245,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — define — milestone intent approved
 - 2026-11-22 — research — research opened; the entry lists no open questions
 - 2026-11-22 — research — no open questions to research; the entry lists none
+- 2026-11-22 — decide — decide opened; the entry lists no open decisions
