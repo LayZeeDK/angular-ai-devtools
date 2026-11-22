@@ -56,6 +56,35 @@ function gitHead() {
   }).trim();
 }
 
+/**
+ * Whether `sha` is a commit this checkout can reach from HEAD.
+ *
+ * An armed capture pins the commit it ran at, so the record must be an ancestor of HEAD rather than HEAD itself —
+ * an equality there reddens on the very next commit while every measured section stays byte-identical. A sha no
+ * branch carries resolves to nothing and is refused, which is what keeps the rule from being vacuous.
+ */
+function headIsAncestor(sha) {
+  try {
+    execFileSync('git', ['rev-parse', '--verify', `${sha}^{commit}`], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      stdio: 'pipe',
+    });
+  } catch {
+    return false;
+  }
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', sha, 'HEAD'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      stdio: 'pipe',
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** The global listeners the source installs, in source order, read — never remembered. */
 function readListeners(source) {
   const listeners = [];
@@ -198,8 +227,9 @@ function scanCorpus(relativeDir, extension) {
 }
 
 test('a second armed run is byte-identical: two serializations and the committed file agree', () => {
-  const first = serializeRecord(head);
-  const second = serializeRecord(head);
+  const recorded = loadRecord();
+  const first = serializeRecord(recorded.head);
+  const second = serializeRecord(recorded.head);
   assert.equal(
     second,
     first,
@@ -229,11 +259,14 @@ test('the record pins schema, milestone, task and the derived head', () => {
     /^[0-9a-f]{40}$/,
     `head is not a full sha: ${record.head}`,
   );
-  const current = gitHead();
+  assert.ok(
+    headIsAncestor(record.head),
+    `the record was measured at ${record.head}, which this checkout cannot reach from HEAD — an armed capture pins the commit it ran at, so the record must be an ancestor of this HEAD rather than the head itself`,
+  );
   assert.equal(
-    record.head,
-    current,
-    'the record was captured at a head that is not the current HEAD',
+    headIsAncestor('0'.repeat(40)),
+    false,
+    'the reachability rule does not bite: a sha no branch carries must be refused',
   );
 });
 

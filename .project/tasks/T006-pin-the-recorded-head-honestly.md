@@ -2,10 +2,10 @@
 id: T006
 title: Pin the recorded head honestly
 wave: 6
-status: pending
+status: done
 deps: [T005]
-agent: null
-base: null
+agent: build_T006
+base: 11c059e2e3421aa5dcbb5ced04f7ec200ce48590
 worktree: null
 task_branch: null
 files:
@@ -65,3 +65,9 @@ node --test scripts/error-routing-shapes.test.mjs && npx prettier --check script
 ## Log
 
 - pending.
+- Landed paths: `scripts/error-routing-shapes.test.mjs`.
+- The byte-identity check now serialises with the record's own head (`serializeRecord(recorded.head)`) instead of `gitHead()`, so a record captured at an earlier commit re-derives byte-for-byte.
+- The head assertion is now reachability rather than equality: `headIsAncestor(sha)` resolves the sha with `git rev-parse --verify <sha>^{commit}` and then requires `git merge-base --is-ancestor <sha> HEAD`, both via `execFileSync` with `stdio: 'pipe'` so a refusal is a catch rather than a crash.
+- The rule is proved to bite: a fabricated 40-hex sha resolves to nothing and must be refused, and the live record (`32b384b0`) exercises the positive ancestry path because it is genuinely behind this HEAD.
+- The intra-record pin — `commands[0].output === head` — is untouched, so the record still cannot contradict itself while its head is now required to be reachable.
+- Suite 9/9 at this head. The record itself was not edited: it honestly pins the commit its armed capture ran at.
