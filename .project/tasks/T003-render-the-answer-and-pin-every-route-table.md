@@ -18,6 +18,8 @@ files:
   - apps/angular-ai-devtools/src/app/panel-error-routing.ts
   - research/raw/m048-surface-copy.json
   - research/raw/m060-surface.json
+  - research/raw/m048-surface.json
+  - extension/panel/index.html
   - scripts/after-render-fixture.test.mjs
   - scripts/component-search.test.mjs
   - scripts/copy-check.test.mjs
