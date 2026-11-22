@@ -1,5 +1,8 @@
 # RESEARCH — M060 error-routing
 
+Phase: research
+Milestone: M060 — error-routing
+
 The roadmap entry lists no open questions, so this record carries the three facts define measured and the
 consequence each has for the plan. Nothing here is a new capture; every line cites a file that exists at the base.
 
