@@ -59,10 +59,7 @@ project verify exactly as the plan states it and record it with `lars-gsd verify
 ## Verify
 
 ```bash
-M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs
-M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs
-node --test scripts/gate-integrity.test.mjs scripts/gate-stability-record.test.mjs
-npx prettier --check research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json
+M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs && node --test scripts/gate-integrity.test.mjs scripts/gate-stability-record.test.mjs && npx prettier --check research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json
 ```
 
 ## Log

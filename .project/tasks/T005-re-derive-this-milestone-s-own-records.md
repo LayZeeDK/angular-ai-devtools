@@ -65,12 +65,7 @@ scan to exclude the milestone's own files — never widen the assertion.
 ## Verify
 
 ```bash
-M044_CAPTURE=1 node --test scripts/navigation-blocking.test.mjs
-M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs
-M061_CAPTURE=1 node --test scripts/locale-correctness-shapes.test.mjs
-node --test scripts/navigation-blocking.test.mjs scripts/teardown-leak-shapes.test.mjs scripts/locale-correctness-shapes.test.mjs
-node --test scripts/tutor-record-shapes.test.mjs scripts/recording-consistency.test.mjs
-npx prettier --check research/raw/m061-record-shapes.json research/raw/m061-verdict-claims.json research/raw/m059-record-shapes.json
+M044_CAPTURE=1 node --test scripts/navigation-blocking.test.mjs && M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs && M061_CAPTURE=1 node --test scripts/locale-correctness-shapes.test.mjs && node --test scripts/navigation-blocking.test.mjs scripts/teardown-leak-shapes.test.mjs scripts/locale-correctness-shapes.test.mjs && node --test scripts/tutor-record-shapes.test.mjs scripts/recording-consistency.test.mjs && npx prettier --check research/raw/m061-record-shapes.json research/raw/m061-verdict-claims.json research/raw/m059-record-shapes.json
 ```
 
 ## Log
