@@ -45,8 +45,8 @@ T001 publishes the record-shapes record: its records section lists the artefacts
 
 ## Intent coverage
 
-- SC6
 - SC1
+- SC6
 
 ## Acceptance criteria
 

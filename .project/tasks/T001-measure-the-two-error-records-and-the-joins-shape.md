@@ -49,7 +49,6 @@ T001 publishes the record-shapes record: its records section lists the artefacts
 
 - SC1
 - SC5
-- SC6
 
 ## Acceptance criteria
 

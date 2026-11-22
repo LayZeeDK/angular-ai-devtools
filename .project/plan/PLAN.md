@@ -90,11 +90,20 @@ Review depth: full
 
 ## Surface contract
 
-The milestone adds exactly one surface to the panel.
+### panel — T003
 
 Criteria: SC6
-Entry: the panel's route table gains one entry, whose loader renders the join's object.
-States: `uncaught-with-handler`, `reached-handler`, `no-handler-provided`, `cannot-tell`.
+
+Entry: the panel route `error-routing`, rendered through the `error-routing` key in `panel-demo.ts` `LOADERS`, its
+sample in `FACTS`, and the `PANEL_SURFACES` entry in `app.routes.ts` that the shared `loadPanelDemo` closure installs
+lazily.
+
+States: `uncaught-with-handler` — the answer names the error message, the code the message carries and the handler
+state, every claim carrying the artefact it rests on (SC6); `reached-handler` — a boundary entry carries the same
+text, rendered as that entry and never as an uncaught error (SC6); `no-handler-provided` — no `ErrorHandler`
+resolved, rendered as the token the walk looked for and the count it read, never as a handler name (SC6);
+`cannot-tell` — the record does not state what the answer asked, naming the reason it states and nothing else.
+`phase-not-recorded` and `no-boundary-entry` render as two separate sentences wherever they hold.
 
 Walkthrough:
 

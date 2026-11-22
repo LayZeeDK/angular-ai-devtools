@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: error-routing
-phase: decide
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -1246,3 +1246,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-22 — research — research opened; the entry lists no open questions
 - 2026-11-22 — research — no open questions to research; the entry lists none
 - 2026-11-22 — decide — decide opened; the entry lists no open decisions
+- 2026-11-22 — decide — no decisions to take; the entry lists none
+- 2026-11-22 — plan — planning started
