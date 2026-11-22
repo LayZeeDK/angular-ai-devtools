@@ -9,6 +9,12 @@ base: null
 worktree: null
 task_branch: null
 files:
+  - scripts/error-routing-shapes.test.mjs
+  - research/raw/m060-record-shapes.json
+  - scripts/teardown-leak-shapes.test.mjs
+  - research/raw/m059-record-shapes.json
+  - scripts/tutor-answer.test.mjs
+  - research/raw/m060-surface.json
   - research/raw/m060-verdict-claims.json
   - research/raw/m044-gate-shapes.json
   - research/raw/m056-gate-stability.json
