@@ -126,7 +126,7 @@ default assertions and fourteen armed ones are additions to the rule, none remov
 
 ## Findings
 
-### GAP 1 — The gate records T005 re-derived are stale at this review head, and both commanded checks fail
+#### GAP 1 — The gate records T005 re-derived are stale at this review head, and both commanded checks fail
 
 `m044-gate-shapes.json` pins `addedLines: 2689` for the shape suite; the tree derives 2717 (T007's
 +28-line rule rewrite), so `gate-integrity` exits 1 (39/40) and `m056-gate-stability.json`'s pinned
@@ -139,7 +139,7 @@ Risk: high for the ship gate — every subsequent verify that reads these record
 verdict on T005; blocking re-shipment. The repair belongs to wave 7's follow-up, since T007's edit
 created the drift.
 
-### GAP 2 — "eighteen page hits nobody observed" is a prediction carried into the reason string, not a number any tree produced
+#### GAP 2 — "eighteen page hits nobody observed" is a prediction carried into the reason string, not a number any tree produced
 
 T006's Context predicted the flip as "147 records … 20 occurrences instead of 2" with 18 page hits
 (`.project/tasks/T006-repair-the-shape-suite-the-milestones-own-artefacts-moved.md:31`). Measured
@@ -155,7 +155,7 @@ row, so a reader could take 18 as measured.
 Risk: low — the counts beside the prose are git-derived and correct, and the claim's substance was
 soon borne out at 15; reword at the next m044 re-derivation (which GAP 1 forces anyway).
 
-### GAP 3 — The reason string credits T006 with the whole four-file exclusion list; T006 added two of the four
+#### GAP 3 — The reason string credits T006 with the whole four-file exclusion list; T006 added two of the four
 
 `OWN_ARTEFACTS` held the suite's own source and the record from T001 (`99afb9ea`); T006's diff adds
 `extension/teardown-leak.js` and `scripts/teardown-leak.test.mjs`

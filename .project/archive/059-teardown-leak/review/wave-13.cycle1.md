@@ -37,6 +37,6 @@ Files read for this review:
 
 - ✅ Covered by T013: the route/loader-key halves of the criterion are held by `scripts/panel-routes.test.mjs` (mutant at :1267-1290 — "removing the teardown-leak loader must fail naming the missing surface teardown-leak"), the counts the criterion enumerates are measured with command output at `research/raw/m059-surface.json:17-38`, and `node --test scripts/navigation-blocking.test.mjs` is 25/25 at this HEAD.
 
-### GAP 1 — the T013 task log mis-attributes who re-derives the moved counters
+#### GAP 1 — the T013 task log mis-attributes who re-derives the moved counters
 
 - Risk: low, non-blocking. The log (`.project/tasks/T013-give-the-claims-record-the-quotes-and-ruling-the-census-derives.md`, Log) states the counters "live in `research/raw/m059-surface.json`'s `counts`, which is the record the copy suite measures" — but `scripts/copy-check.test.mjs` never names `m059`: it pins `research/raw/m048-surface-copy.json` (`scripts/copy-check.test.mjs:27` `const RECORD = 'research/raw/m048-surface-copy.json';`), which the m059 counts' `copyRecordSurfaces`/`copyRecordSentencesCompared` rows merely *describe*. The substance survives — the values are measured with command output at `m059-surface.json:31-37` and the route/loader halves are mutant-tested in `scripts/panel-routes.test.mjs` — so nothing is unclaimed, but the log's attribution should not be quoted forward as a suite pin that does not exist.

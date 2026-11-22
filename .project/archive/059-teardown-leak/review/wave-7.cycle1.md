@@ -102,7 +102,7 @@ observation. Latent at this head: the only `producible`-bearing record is the ex
 
 ## Findings
 
-### GAP 1 — A real `NG0205` captured in the m032 console-capture shape would be discarded as a quotation
+#### GAP 1 — A real `NG0205` captured in the m032 console-capture shape would be discarded as a quotation
 
 The rule classifies by the presence of a top-level `producible` object, and the repository's own
 console-capture shape (`research/raw/m032-console-diagnostics.json`, top-level `messages`) has none.
@@ -115,7 +115,7 @@ Not blocking this wave. The cheap repair is to add the m032 shape (a top-level `
 console lines) to the observation-record test, or to name that shape in the `finding` as a shape the
 rule does not yet cover.
 
-### GAP 2 — Unparseable records are demoted in silence, and one already exists
+#### GAP 2 — Unparseable records are demoted in silence, and one already exists
 
 `research/raw/stale-view-counter.json` fails `JSON.parse` (unescaped quotes at byte 130); the
 `catch { return false }` at `scripts/teardown-leak-shapes.test.mjs:493-495` counts it as a quotation
@@ -124,7 +124,7 @@ Risk: low today. An observation in a malformed record would be discarded without
 `recordsSearched` would still claim the record was searched. Not blocking; a one-line count of
 unparseable records, reported beside `quotationsOutsideARecordShape`, would close it.
 
-### GAP 3 — The record's `finding` prose misdescribes its own derived numbers
+#### GAP 3 — The record's `finding` prose misdescribes its own derived numbers
 
 `research/raw/m059-record-shapes.json:587` states "the two occurrences in the record that could state
 an observation are the digest enumeration M045 recorded", while the same section derives

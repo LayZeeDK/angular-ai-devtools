@@ -118,7 +118,7 @@ measured tree", T007's rule answers "what does a matching line mean". Neither ma
 
 ## Findings
 
-### GAP 1 — T006 excluded four of the milestone's five artefacts; the fifth (the surface record) landed quoting the code, and under T006's own rule it flipped the verdict T006 had just re-armed
+#### GAP 1 — T006 excluded four of the milestone's five artefacts; the fifth (the surface record) landed quoting the code, and under T006's own rule it flipped the verdict T006 had just re-armed
 
 T006's Context names the danger precisely: "T003's surface record repeats it under `knownDrift` … the
 record for the surface names the code, so the shapes suite's `research/raw` scan would read 147 records
@@ -140,7 +140,7 @@ classifies all 17 current occurrences as quotations (`onAPage: 0`, 13/13 green).
 lesson for the list's next growth: an exclusion list of the milestone's *current* files cannot anticipate
 records the milestone has not landed yet — the rule, not the list, is the general fix, and T007 wrote it.
 
-### GAP 2 — The exclusion is by path, not by content, so the scan is blind to the excluded files forever
+#### GAP 2 — The exclusion is by path, not by content, so the scan is blind to the excluded files forever
 
 `OWN_ARTEFACTS.includes(path)` (`:439`, `:467`, `:1524`) means the join and its suite will never be
 counted, even if a future edit to them introduced a real `.unsubscribe(` site or a needle string —
@@ -151,7 +151,7 @@ Risk: low — latent, and bounded by the fact that these two files are the miles
 matter; a one-line assertion that the excluded files carry zero occurrences of the needles (re-checked
 each run) would convert the trust into a check.
 
-### GAP 3 — The re-armed record's "tree this milestone found" framing has since drifted for the records denominator
+#### GAP 3 — The re-armed record's "tree this milestone found" framing has since drifted for the records denominator
 
 T006 re-armed the record to "38 extension modules, 136 suites and 146 records"; at this head it
 derives "… and 148 records" (two records T004 added, `git ls-tree` 147→149 top-level `research/raw/*.json`).

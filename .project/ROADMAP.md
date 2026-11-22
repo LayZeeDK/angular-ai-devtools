@@ -2059,8 +2059,8 @@ Open questions
 Depends on: [M020]
 Programme: Generation 3 · Batch: 4 · Group: @angular/core
 Surfaces: panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/059-teardown-leak
 Integrated: null
 
 Goal: The panel answers why a destroyed component still changes state, naming the subscription, effect or timer that outlived its injector and the owner it belonged to.

@@ -1,0 +1,200 @@
+head: 81fad8af9c5a2b62c459fe6bece1085c033f585e at 2026-11-22T04:40:32.049Z
+T002 index: 10 row(s), 9 naming a criterion whose record states an artefact path, 1 naming one whose record states none
+T002 records: 34 verdict-claims records, 44 claim(s) answered with their own claims[].artefactPath, 22 record(s) rendered as no-artefact-named
+T002 census mutant: research/raw/m901-verdict-claims.json is present and is not named outside the map by any recording, so the map must measure it: T001 measured 34 verdict-claims record(s) and the maps name 8 outside themselves (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json, research/raw/m059-surface.json, research/raw/m059-verdict-claims.json)
+T006 maps: M055 names 2 outside itself, M057 names 2 outside itself, M058 names 2 outside itself, M059 names 2 outside itself, the subtraction is 8 path(s) and the census reads 34 record(s)
+T006 mutants M057: third path -> M057's own map names research/raw/m901-verdict-claims.json outside itself, and the records M057 owes are research/raw/m057-surface.json, research/raw/m057-verdict-claims.json: a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording and a record another map measures is never subtracted here || unmeasured record -> research/raw/m057-verdict-claims.json is M057's own record and is present, and M057's map measures it nowhere and names it nowhere outside itself: the census below reads it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m057-verdict-claims.json in its inventory.outsideTheMap or measure it
+T006 mutants M058: third path -> M058's own map names research/raw/m901-verdict-claims.json outside itself, and the records M058 owes are research/raw/m058-surface.json, research/raw/m058-verdict-claims.json: a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording and a record another map measures is never subtracted here || unmeasured record -> research/raw/m058-verdict-claims.json is M058's own record and is present, and M058's map measures it nowhere and names it nowhere outside itself: the census below reads it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m058-verdict-claims.json in its inventory.outsideTheMap or measure it
+T002 mutants: row-carries-a-path: row {"question":"which check refuses a test that resolves a milestone path its own archive move deletes?","criterion":"SC1","milestone":"M044","artefactPath":"research/raw/m044-gate-shapes.json"} is two facts in three fields — question, criterion, milestone — and no path, no value and no answer text (N5) || row-carries-a-value: row {"question":"which check refuses a test that resolves a milestone path its own archive move deletes?","criterion":"SC1","milestone":"M044","value":"a recording of the gate shapes"} is two facts in three fields — question, criterion, milestone — and no path, no value and no answer text (N5) || row-carries-an-answer: row {"question":"which check refuses a test that resolves a milestone path its own archive move deletes?","criterion":"SC1","milestone":"M044","answer":"The gate refuses that test."} is two facts in three fields — question, criterion, milestone — and no path, no value and no answer text (N5) || row-names-a-criterion-no-record-holds: every criterion id the index names is one the named record's own claims[].criterion fields carry, and M044 carries no SC9 (N4) — row {"question":"does the ship gate run the archive-path and fix-record checks, rather than print them as advice?","criterion":"SC9","milestone":"M044"} || row-question-carries-a-path: the index spells no path: its code and its rows carry no slash, and this text does — research/raw/m044-gate-shapes.json (N5) || artefact-hard-coded: the answer renders the record's own claims[].artefactPath, verbatim — never a hard-coded constant, never a path assembled from the record's prose, and never one composed by a path convention: the record states "research/raw/fixture-recording.json" and the answer rendered ["scripts/copy-check.test.mjs"] || answer-from-prose: the answer renders the record's own claims[].artefactPath, verbatim — never a hard-coded constant, never a path assembled from the record's prose, and never one composed by a path convention: the record states "research/raw/fixture-recording.json" and the answer rendered ["research/raw/decoy-template-prose.json"] || path-from-convention: the answer renders the record's own claims[].artefactPath, verbatim — never a hard-coded constant, never a path assembled from the record's prose, and never one composed by a path convention: the record states "research/raw/fixture-recording.json" and the answer rendered ["scripts/sc1.test.mjs"] || path-renormalised: each path is rendered as the record spells it — never re-rooted, normalised or shortened to make the render match: the record states ["research/raw/fixture-recording.json","scripts/fixture-suite.test.mjs"] and the answer rendered ["./fixture-recording.json","./fixture-suite.test.mjs"] || missing-field-answered: a record that carries the criterion but states no claims[].artefactPath renders no-artefact-named — never an answer with a composed path in it — and the join said "answered" for research/raw/fixture-m904-verdict-claims.json || missing-file-as-unanswered: held-out E4: every rendered path is read through the injected reader at answer time, so a record that states a file which is not where the record says it lives answers missing-artefact, naming the record and the missing path — and never no-matching-criterion. The join said "no-matching-criterion" || reader-ignored: held-out E4: every rendered path is read through the injected reader at answer time, so a record that states a file which is not where the record says it lives answers missing-artefact, naming the record and the missing path — and never no-matching-criterion. The join said "answered" || criterion-not-carried: the criterion rendered is the record's own claims[].criterion for the claim that carries it, and an id the record does not carry for the question is never rendered (N4): the row named SC2, the record carries SC2, and the answer rendered "SC1" || milestone-from-id: the milestone rendered is the answering record's own milestone field, verbatim: the record states "M046 copy-to-agent" and the answer rendered "M046" — a milestone composed from the record's path or from the id the row named is not the record's field || absences-folded: the absence "no row of the mapping carries the question" names which absence holds, among the three absences the surface renders distinctly: nothing answered here || always-refuses: the record research/raw/m023-verdict-claims.json states no claims[].artefactPath for SC2, so the answer is no-artefact-named — naming the field that is missing, and never a path composed from the record's prose — and a surface that always refuses is not a surface: the join said "no-matching-criterion" || unanswered-as-answer: an unanswered question is unanswered, with nothing beside it: the join said "answered" for a question no row carries || second-call-differs: a second answer to the same question over the same records names the same artefact, milestone and criterion — purity, and the answer is stable across calls: the first named ["research/raw/fixture-recording.json"] and the second named []
+✔ T002 — the index is two facts in three fields, and every criterion id is one the record on disk carries (4.6647ms)
+✔ T002 — a criterion id no record carries is refused by the join rather than rendered (N4) (1.0038ms)
+✔ T002 — the join answers every claim that carries the field and renders the 22 records that carry none as the absence (C4) (3.9803ms)
+✔ T002 — a record present and not named outside the map still reddens the census (0.8698ms)
+✔ T006 — every map is read, and each may name outside itself only the record its own milestone owes (0.2903ms)
+✔ T006 — a third path named outside a map reddens, and a record no map names reddens naming it (0.4736ms)
+✔ T002 — the shipped index answers over the real records with a real reader, one row at a time (1.5852ms)
+✔ T002 — held-out E4: the dead-path state is constructed, because the recording measures no dead path (2.7432ms)
+✔ T002 — E1: a recording and a suite render through the same read, both answers carrying the same three fields (0.7425ms)
+✔ T002 — E2: one criterion whose record states more than one path renders each as the record spells it (0.7455ms)
+✔ T002 — E5: a second answer names the same artefact, milestone and criterion (0.6126ms)
+✔ T002 — the join is pure: no import, no filesystem, no network, no DOM, no clock, no prose field (1.8519ms)
+✔ T002 mutants — every anchor is one place in the shipped file and really changes it (0.2729ms)
+✔ T002 mutants — each defect reddens its pin, and the failure names the defect by string (29.8864ms)
+mutant: doctored citation -> records[research/raw/m023-verdict-claims.json].fields.criterionText (claim F3): cites research/raw/m023-verdict-claims.json:7 and searching the file for the quoted line finds it at 6 — the number is not where the line it quotes sits
+mutant: invented field -> records[research/raw/m023-verdict-claims.json].fields.artefactPath (claim F4): count is 4 and this head measures 0
+mutant: hidden field -> records[research/raw/m054-verdict-claims.json].fields.criterionText (claim F3): count is 0 and this head measures 3
+mutant: unmeasured record -> the table carries one entry per record present and no entry for a record that is not there, the records the maps name outside themselves excepted
+mutant: new unlisted record -> the map measures every surface record present, the records the maps name outside themselves excepted: the tree holds 14, and the maps name 8 outside themselves (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json, research/raw/m059-surface.json, research/raw/m059-verdict-claims.json)
+mutant research/raw/m057-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m057-record-shapes.json and is not one of the two records this milestone owes (research/raw/m057-surface.json, research/raw/m057-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m057-surface.json is this milestone's record and is present, and research/raw/m057-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m057-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m058-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m058-record-shapes.json and is not one of the two records this milestone owes (research/raw/m058-surface.json, research/raw/m058-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m058-surface.json is this milestone's record and is present, and research/raw/m058-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m058-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m059-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m059-record-shapes.json and is not one of the two records this milestone owes (research/raw/m059-surface.json, research/raw/m059-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m059-surface.json is this milestone's record and is present, and research/raw/m059-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m059-surface.json in its inventory.outsideTheMap or measure it
+✔ the recording is the shape map this head measures (140.4386ms)
+ℹ 43 record(s), 602 citation(s), 44 artefact path(s)
+ℹ the map: milestone 34/34+9/9, criterion 34/34+0/9, criterionText 34/34+0/9, artefactPath 12/34+0/9, recordings 11/34+0/9, suitePath 11/34+0/9, captureRecords 12/34+0/9
+✔ every citation is the line its own number names, found by searching the file it quotes (11.7558ms)
+ℹ 602 citation(s) re-resolved by search; the longest line quoted is in research/raw/m056-verdict-claims.json
+✔ every record present is measured and every record measured is present (0.648ms)
+ℹ 34 verdict-claims and 9 surface record(s) measured; 51 present, 2 named outside M055's map at T004 and 2 outside M057's map and 2 outside M058's map and 2 outside M059's map
+✔ the per-file per-field table states its own absences, and they are the absences this head holds (3.5816ms)
+ℹ artefactPath: absent from 31 record(s), each one stating the shape it uses instead
+ℹ recordings: absent from 32 record(s), each one stating the shape it uses instead
+ℹ suitePath: absent from 32 record(s), each one stating the shape it uses instead
+ℹ captureRecords: absent from 31 record(s), each one stating the shape it uses instead
+ℹ criterion: absent from 9 record(s), each one stating the shape it uses instead
+ℹ criterionText: absent from 9 record(s), each one stating the shape it uses instead
+✔ every artefact path a record names resolves at this head, and the recording states which do not (5.0249ms)
+ℹ 44 of 44 artefact path(s) resolve over 18 distinct file(s); 0 do not
+ℹ the missing-artefact state E4 renders has no live instance among them, and the index may never paper over a path that stops resolving
+ℹ m022-verdict-claims.json SC1 names .project/build/verify/sc1-overlay-rect/verdict.json, which is not there: verdictPath, not an artefact path
+ℹ m022-verdict-claims.json SC2 names .project/build/verify/sc2-picker-descriptor/verdict.json, which is not there: verdictPath, not an artefact path
+✔ no record carries an end-user question mapped to a criterion (12.1855ms)
+ℹ 34 verdict-claims record(s) carry 0 question-shaped key(s)
+ℹ m046-surface.json asks which surfaces the panel declares, which loader serves each one, and what the hand-off join states
+ℹ m047-surface.json asks which route renders the components surface, which LOADERS key serves it, which four states it renders, and which record field each state reads
+ℹ m048-surface.json asks which route renders the copy-check surface, its LOADERS key, its three states, and which answer field each state reads
+ℹ m049-surface.json asks which route renders the interaction-story surface, its two states, and the fifth answer field beside the four the contract names
+ℹ m050-surface.json asks which route renders the dead-click surface, its three states, and the fifth answer field beside the four the contract names
+ℹ m051-surface.json asks which route renders the what-changed surface, its three states, and how the pair is bound by the inspected tab rather than by a field of either record
+ℹ m052-surface.json asks which route reaches the webmcp surface, which LOADERS key resolves it, and what each of its three states reads off the reading the model context answered
+ℹ m053-surface.json asks which route reaches the webmcp-rehearsal surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+ℹ m054-surface.json asks which route reaches the visual-qa surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+✔ the C3 trap is quoted as a ruling, not repaired (12.2754ms)
+ℹ reason: 38 row(s) in 11 record(s), 1 template
+ℹ proves/capture: 46 row(s) in 13 record(s) cite scripts/navigation-blocking.test.mjs, and 0 record(s) name it in evidence.suites
+ℹ rulings: 2 required, 154 not-required
+✔ a doctored citation reddens naming the claim it belongs to (87.4614ms)
+✔ a record that claims a field it does not carry reddens naming the claim (63.538ms)
+✔ a record that hides a field it carries reddens naming the claim (63.0686ms)
+✔ a record the map does not measure reddens naming the record (59.8072ms)
+✔ a record present and not named outside the map reddens naming the record (0.6651ms)
+✔ every map read beside M055’s is its own statement, and the subtraction is what they state (0.9381ms)
+ℹ M057's map at research/raw/m057-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M058's map at research/raw/m058-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M059's map at research/raw/m059-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ the maps name 8 record(s) between them (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json, research/raw/m059-surface.json, research/raw/m059-verdict-claims.json)
+✔ each later map may name only its own records, and a record it neither measures nor names reddens naming it (1.2ms)
+✔ the recording is a read: it names its head and nothing here writes (57.6878ms)
+ℹ head b450c28b is a commit this checkout carries, and the suite resolves it through git rev-parse HEAD
+✔ git was reachable, so the head check above measured something (28.3952ms)
+✔ the recording declares the two sides an answer may cite (1.1754ms)
+✔ the graph side is the serializer and the one per-check carry (1.8342ms)
+✔ a node is read for index, kind and label and every other field is ignored (0.2433ms)
+✔ an edge is its two ends and nothing else (0.3656ms)
+✔ the serializer writes an id, never an index (2.3874ms)
+✔ the render/effect entry declares the effect finding and its read list (0.3643ms)
+✔ the three absences are declared and distinct (0.225ms)
+✔ the two findings are never joined (0.1865ms)
+✔ every citation carries the cited line’s own trimmed text (6.2821ms)
+✔ every citation is re-resolved by searching its file for the quoted line (8.0711ms)
+✔ every citation id is unique and every reference resolves (0.2062ms)
+✔ no write record exists anywhere in extension/ (40.422ms)
+✔ no edge carries a field to order a write in (24.2196ms)
+✔ the answer’s ordering vocabulary is the named absence and not a capture (0.1082ms)
+✔ the second measurement is re-run over the tree, not read back (17.3712ms)
+✔ exactly one record holds an effect node in the recorded shape (15.1054ms)
+✔ the closest record carries an indexed effect node, unlike the plan’s prose (0.3397ms)
+✔ the existing join answers from that record without authoring anything (1.281ms)
+✔ the recording states what no record carries: an index in the serializer’s output (0.0743ms)
+✔ every premise the measurement refuted is stated as refuted (0.0614ms)
+✔ nothing was built (0.0758ms)
+ℹ tests 51
+ℹ suites 0
+ℹ pass 51
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 724.8221
+Checking formatting...
+All matched files use Prettier code style!
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+  .project\review\VERIFICATION.json
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M059; stages archive-paths
+gate-integrity: archive-paths clean - examined 17 live path reference(s) of 195 reference(s) in 167 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M059; stages fix-record
+gate-integrity: fix-record clean - examined 45 claim(s) in 10 task log(s) of .project/tasks (logs of M059) against 55 changed path(s) of e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e (rule ship: M058's ship commit, e608978c (ship: M058 — tutor-routing); the head is this tree's HEAD, 81fad8af (state: M059 build resumed for T010); claims: declared)
+gate-integrity: fix-record pins - 8 declared path(s) byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e, recorded and not judged as changes
+gate-integrity: pin scripts/gate-stability-record.test.mjs at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:65 (T005) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e, recorded and not judged as a change
+gate-integrity: pin scripts/gate-stability-record.test.mjs at .project/tasks/T008-re-derive-the-gate-records-the-last-landing-moved.md:70 (T008) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T009-stop-freezing-a-scope-count-as-a-measurement.md:84 (T009) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T009-stop-freezing-a-scope-count-as-a-measurement.md:84 (T009) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T010-give-m059-the-claims-map-the-census-reads.md:82 (T010) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T010-give-m059-the-claims-map-the-census-reads.md:82 (T010) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T010-give-m059-the-claims-map-the-census-reads.md:85 (T010) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T010-give-m059-the-claims-map-the-census-reads.md:85 (T010) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..81fad8af9c5a2b62c459fe6bece1085c033f585e, recorded and not judged as a change
+gate-integrity: mention extension/error-digest.json at .project/tasks/T001-measure-what-the-console-record-and-the-digest-state.md:79 (T001) - recorded and not judged
+gate-integrity: mention scripts/error-digest-content.test.mjs at .project/tasks/T001-measure-what-the-console-record-and-the-digest-state.md:82 (T001) - recorded and not judged
+gate-integrity: mention scripts/panel-copy.test.mjs at .project/tasks/T001-measure-what-the-console-record-and-the-digest-state.md:82 (T001) - recorded and not judged
+gate-integrity: mention scripts/teardown-leak-shapes.test.mjs at .project/tasks/T002-answer-from-the-console-record-purely.md:84 (T002) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-answer-and-pin-every-route-table.md:90 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.ts at .project/tasks/T003-render-the-answer-and-pin-every-route-table.md:93 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m059-surface.json at .project/tasks/T003-render-the-answer-and-pin-every-route-table.md:94 (T003) - recorded and not judged
+gate-integrity: mention PLAN.md at .project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:74 (T004) - recorded and not judged
+gate-integrity: mention scripts/teardown-leak-shapes.test.mjs at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:66 (T005) - recorded and not judged
+gate-integrity: mention scripts/teardown-leak.test.mjs at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:66 (T005) - recorded and not judged
+gate-integrity: mention extension/teardown-leak.js at .project/tasks/T006-repair-the-shape-suite-the-milestones-own-artefacts-moved.md:71 (T006) - recorded and not judged
+gate-integrity: mention research/raw/m044-gate-shapes.json at .project/tasks/T010-give-m059-the-claims-map-the-census-reads.md:87 (T010) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 12 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check research/raw/m059-record-shapes.json scripts/tutor-record-shapes.test.mjs scripts/tutor-answer.test.mjs
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .

@@ -1,0 +1,116 @@
+head: 4f67e8376db034bd67ae519264e67f28ad727b75 at 2026-11-22T02:06:27.563Z
+✔ a default run is a read: the recording hashes the same before and after (0.9787ms)
+ℹ research/raw/m056-gate-stability.json at load: 6568 bytes, sha256 7ba99fcdc04a60c8eda4a26a169ffca340590d90e8cd5b230146ac1bbca25bf9
+ℹ research/raw/m056-gate-stability.json after the run: sha256 7ba99fcdc04a60c8eda4a26a169ffca340590d90e8cd5b230146ac1bbca25bf9
+✔ the recording is the canonical serialisation of its own record (0.2155ms)
+✔ the three sections are what this head derives, so the record cannot drift from the tree (14349.0269ms)
+ℹ archive: npm run gate:fix-record -- --milestone M044 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8 exited 0 with refusal null; counts {"refusalLines":0,"findings":0,"mentions":7,"claimsExamined":4,"taskLogsExamined":5,"changedPaths":52}
+ℹ fixRecord: node --test scripts/gate-integrity.test.mjs exited 0 with refusal null; counts {"watched":3,"green":3,"red":0}
+ℹ predecessor: node scripts/gate-integrity.mjs --check fix-record --milestone M056 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8 exited 0 with refusal null; counts {"refusalLines":0,"findings":0}
+✔ the commit carrying the record sits ahead of the head the record pins (70.9247ms)
+ℹ carrier: git log --format=%H 5290d939497448823ca0f5d1ce5c1d777805ddb8..HEAD -- research/raw/m056-gate-stability.json names 34 commit(s), newest 5b710326
+✔ the archive section records the clean pass the repaired task directory earns (1.5244ms)
+ℹ archive: exit 0 null over 5 task log(s); gate-integrity: pass - 0 finding(s), 7 mention(s)
+✔ the fixRecord section records the green suite its three repairs produced (0.6024ms)
+ℹ fixRecord: the recording still re-derives from the tree, the range and the stream this head carries is green at this head
+ℹ fixRecord: AC2: a red check reaches the gate as a refusal is green at this head
+ℹ fixRecord: AC7: a log token is a claim only where its task declares it is green at this head
+✔ the predecessor section records the range the repaired stage derives (0.2819ms)
+ℹ predecessor: exit 0 null - pass - 0 finding(s), 4 mention(s)
+✔ the arming gate guards the one write, and a default run spawns no writer (0.3707ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14547.6491
+Checking formatting...
+All matched files use Prettier code style!
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M059; stages archive-paths
+gate-integrity: archive-paths clean - examined 17 live path reference(s) of 195 reference(s) in 167 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M059; stages fix-record
+gate-integrity: fix-record clean - examined 29 claim(s) in 6 task log(s) of .project/tasks (logs of M059) against 30 changed path(s) of e608978c3a1b4161f20abc0bc3ba9de3b141884e..4f67e8376db034bd67ae519264e67f28ad727b75 (rule ship: M058's ship commit, e608978c (ship: M058 — tutor-routing); the head is this tree's HEAD, 4f67e837 (T004: Re-derive the verdict claims and run the project verify); claims: declared)
+gate-integrity: fix-record pins - 5 declared path(s) byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..4f67e8376db034bd67ae519264e67f28ad727b75, recorded and not judged as changes
+gate-integrity: pin research/raw/m044-gate-shapes.json at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:64 (T005) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..4f67e8376db034bd67ae519264e67f28ad727b75, recorded and not judged as a change
+gate-integrity: pin research/raw/m056-gate-stability.json at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:64 (T005) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..4f67e8376db034bd67ae519264e67f28ad727b75, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:64 (T005) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..4f67e8376db034bd67ae519264e67f28ad727b75, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:65 (T005) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..4f67e8376db034bd67ae519264e67f28ad727b75, recorded and not judged as a change
+gate-integrity: pin scripts/gate-stability-record.test.mjs at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:65 (T005) - declared and byte-identical across e608978c3a1b4161f20abc0bc3ba9de3b141884e..4f67e8376db034bd67ae519264e67f28ad727b75, recorded and not judged as a change
+gate-integrity: mention extension/error-digest.json at .project/tasks/T001-measure-what-the-console-record-and-the-digest-state.md:79 (T001) - recorded and not judged
+gate-integrity: mention scripts/error-digest-content.test.mjs at .project/tasks/T001-measure-what-the-console-record-and-the-digest-state.md:82 (T001) - recorded and not judged
+gate-integrity: mention scripts/panel-copy.test.mjs at .project/tasks/T001-measure-what-the-console-record-and-the-digest-state.md:82 (T001) - recorded and not judged
+gate-integrity: mention scripts/teardown-leak-shapes.test.mjs at .project/tasks/T002-answer-from-the-console-record-purely.md:84 (T002) - recorded and not judged
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-answer-and-pin-every-route-table.md:90 (T003) - recorded and not judged
+gate-integrity: mention panel-demo.ts at .project/tasks/T003-render-the-answer-and-pin-every-route-table.md:93 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m059-surface.json at .project/tasks/T003-render-the-answer-and-pin-every-route-table.md:94 (T003) - recorded and not judged
+gate-integrity: mention PLAN.md at .project/tasks/T004-re-derive-the-recordings-and-run-the-project-verify.md:74 (T004) - recorded and not judged
+gate-integrity: mention scripts/teardown-leak-shapes.test.mjs at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:66 (T005) - recorded and not judged
+gate-integrity: mention scripts/teardown-leak.test.mjs at .project/tasks/T005-re-derive-the-two-gate-records-and-the-census.md:66 (T005) - recorded and not judged
+gate-integrity: mention extension/teardown-leak.js at .project/tasks/T006-repair-the-shape-suite-the-milestones-own-artefacts-moved.md:71 (T006) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 11 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check research/raw/m044-gate-shapes.json research/raw/m056-gate-stability.json
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .

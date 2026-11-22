@@ -3,7 +3,7 @@
 Cycle: 2
 Depth: full
 Wave verdict: pass
-Tasks reviewed: 2
+Tasks reviewed: 1
 Reviewed HEAD: a7a1e28acae204f781a6ccf30ea80423c22a85dd
 
 Cycle 1 blocked this wave: at `fce943d5` the shape suite ran `tests 13, pass 9, fail 4` and the
@@ -90,7 +90,7 @@ T007 was added to repair it; this cycle reviews T001 (landed `99afb9ea`) with th
   `no listener` (`target.drive.listeners.includes('no listener')`); the only file an armed run writes
   is the record itself, behind `M059_CAPTURE=1`, and a default run writes no byte (E9, hash-verified).
 
-### GAP 1 — The landed record names a head one commit behind its own landing, so the first armed run after landing always rewrites it
+#### GAP 1 — The landed record names a head one commit behind its own landing, so the first armed run after landing always rewrites it
 
 The committed `m059-record-shapes.json` was captured at `d735ec00` (`settle before T007`); T007's own
 commit `a7a1e28a` moved nothing the record derives, but `head` and the recorded `git rev-parse HEAD`
@@ -101,7 +101,7 @@ Risk: low. Every default run still passes either way (the recorded head must onl
 HEAD), and the rewrite is the suite's designed behaviour — but a wave whose verify runs armed will
 always dirty the tree once per landing. Not blocking.
 
-### GAP 2 — The record's `finding` prose describes a classification the rule did not make
+#### GAP 2 — The record's `finding` prose describes a classification the rule did not make
 
 `research/raw/m059-record-shapes.json:587` states "the two occurrences in the record that could state
 an observation are the digest enumeration M045 recorded", but the derived fields on the same section
@@ -113,7 +113,7 @@ Risk: low. It misdescribes, it does not miscount, and the suite's own diagnostic
 `scripts/teardown-leak-shapes.test.mjs:519-520` should be brought back in line with the numbers at the
 next re-capture.
 
-### GAP 3 — One record under `research/raw/` is not valid JSON, and the rule silently demotes unparseable records
+#### GAP 3 — One record under `research/raw/` is not valid JSON, and the rule silently demotes unparseable records
 
 `research/raw/stale-view-counter.json` fails `JSON.parse` — its first key carries unescaped quotes:
 `"temporary change: timer(300).subscribe(() => (this.plain = "after")) with {{ plain }} in the

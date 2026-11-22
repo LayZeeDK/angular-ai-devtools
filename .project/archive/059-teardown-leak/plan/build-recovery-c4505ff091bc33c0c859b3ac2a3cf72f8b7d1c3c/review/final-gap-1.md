@@ -1,6 +1,6 @@
 # Gap Review — 1: project Verify
 
-Reviewed HEAD: b1105a91ac7439bdb7c3eb9cf79f1bbcd644109d
+Reviewed HEAD: d743ba03c655405abccb0afc7b29fa47290efbbb
 Gap verdict: blocked
 Risk: project Verify
 Waves checked: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
