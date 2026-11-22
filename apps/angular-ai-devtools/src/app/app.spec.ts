@@ -49,7 +49,12 @@ describe('App', () => {
  * note into that paragraph and deleting its line, which is why the count moves from thirty-six to
  * thirty-seven without moving one. M059's `teardown-leak` follows `webmcp` for the same reason and is
  * paid for by folding the M047 note's three lines into one, which is why the count moves from
- * thirty-seven to thirty-eight without moving a cited line.
+ * thirty-seven to thirty-eight without moving a cited line. M060's `error-routing` sits between
+ * `interaction-story` and `dead-click` for the same reason — the route records cite the loader's
+ * two lines, the `copy-check`, `interaction-story` and `dead-click` path lines and the declaration
+ * and mapped-literal lines below the list — and is paid for by folding two lines of the M050 note
+ * into their neighbours' text, which is why the count moves from thirty-eight to thirty-nine
+ * without moving a cited line.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -90,6 +95,7 @@ describe('the route table', () => {
       'components', // M047 SC1-2 surface: the names the record carries, filtered and counted, or the empty page, or the cannot-tell reason
       'copy-check', // M048 SC1-2 surface: the count compared when every string is explained, each unexplained string with its surface, or the reason
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
+      'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
@@ -383,6 +389,22 @@ describe('the route table', () => {
     // One entry, so the route this task appends is the only one that answers at that path.
     expect(
       appRoutes.filter((route) => route.path === 'tutor-routing'),
+    ).toHaveLength(1);
+
+    const errorRouting = appRoutes.find(
+      (route) => route.path === 'error-routing',
+    );
+    expect(errorRouting?.component).toBeUndefined();
+    if (errorRouting?.loadComponent === undefined) {
+      throw new Error('the error-routing surface must load lazily');
+    }
+    expect(await errorRouting.loadComponent()).toBe(PanelDemoComponent);
+    expect(errorRouting.data?.['surface']).toBe('error-routing');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(errorRouting.data?.['surface']).not.toBe('teardown-leak');
+    // One entry, so the route this task appends is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'error-routing'),
     ).toHaveLength(1);
   });
 });

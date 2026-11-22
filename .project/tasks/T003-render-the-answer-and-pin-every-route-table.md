@@ -2,10 +2,10 @@
 id: T003
 title: Render the answer and pin every route table
 wave: 3
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: fb796e678a75bc1139c416f07fa46c8a369eb4de
 worktree: null
 task_branch: null
 files:
@@ -74,3 +74,9 @@ node --test scripts/panel-routes.test.mjs scripts/copy-check.test.mjs scripts/af
 ## Log
 
 - pending.
+- Landed paths: `apps/angular-ai-devtools/src/app/panel-error-routing.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `research/raw/m060-surface.json`, `research/raw/m048-surface-copy.json`, `research/raw/m048-surface.json`, `scripts/panel-routes.test.mjs`, `scripts/copy-check.test.mjs`, `scripts/gate-integrity.test.mjs`, `extension/panel/index.html`.
+- One surface added: routes 29 -> 30, LOADERS 29 -> 30, ordered paths 38 -> 39, copy record 30 -> 31 surfaces and 212 -> 213 sentences. Digest rows stay 204 because the new pane's sentence is the shared `no-reason` text the digest already carries; no row was invented.
+- `scripts/copy-check.test.mjs` 30/30 and `scripts/panel-routes.test.mjs` 4/4; `after-render-fixture` 6/6 and `component-search` 16/16 unedited; `nx run angular-ai-devtools:test` 367/367; bundle 534.56 kB against a 535.44 kB budget.
+- `research/raw/m048-surface.json` carries the re-measured `checked: 213` in its three citations, which is what `copy-check:2934` names.
+- `extension/panel/index.html` is declared because the Verify requires the build that writes it — a build output a task's Verify requires is a declared path of that task.
+- Named and left for the repair task, all off this task's contract: the T001 shapes record's stale head, the teardown corpus's moved denominators, and the overlay claims record. `M044_CAPTURE=1` stays with T005.

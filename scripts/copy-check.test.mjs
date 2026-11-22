@@ -2322,10 +2322,11 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
 //
 // Two facts the pins below state rather than assume:
 //
-//   * the digest holds one row per distinct sentence text, so 204 rows explain 212 sentences: the
+//   * the digest holds one row per distinct sentence text, so 204 rows explain 213 sentences: the
 //     `no-reason` sentence `panel-copy-check.ts:128`, `panel-interaction-story.ts:150`,
-//     `panel-dead-click.ts:202`, `panel-what-changed.ts:154` and `panel-webmcp.ts:138` declare is byte
-//     for byte the one `panel-components.ts:147` declares, and the one row explains all six;
+//     `panel-dead-click.ts:202`, `panel-what-changed.ts:154`, `panel-webmcp.ts:138` and
+//     `panel-error-routing.ts:143` declare is byte for byte the one `panel-components.ts:147`
+//     declares, and the one row explains all seven;
 //   * no sentence is written inline on the copy-check pane. Its seven inline entries are labels
 //     (`state:`, `string:`, `surface:`, `checked:`, `reason:`), the answer's own fields, so every one
 //     of them is a kind the join reads past and none of them is a row the digest could hold. The
@@ -2346,7 +2347,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
 
   assert.equal(
     record.counts.surfaces,
-    30,
+    31,
     `the record measures every panel-*.ts surface the tree carries, and it measures ${record.counts.surfaces}`,
   );
   assert.equal(
@@ -2430,11 +2431,11 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     all.length,
-    212,
-    `the record carries ${all.length} sentences: 178 declared in a map or a constant and 34 written inline`,
+    213,
+    `the record carries ${all.length} sentences: 179 declared in a map or a constant and 34 written inline`,
   );
 
-  // The one repeated sentence: six surfaces declare it, the digest holds one row for it, and the
+  // The one repeated sentence: seven surfaces declare it, the digest holds one row for it, and the
   // row is filed under the surface that declared it first.
   const shared = recordSentenceText('copy-check', 'no-reason');
   assert.equal(
@@ -2881,8 +2882,8 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   assert.equal(
     whole.checked,
-    212,
-    `every sentence the record declares is compared, the shared one at all six surfaces, and ${whole.checked} were`,
+    213,
+    `every sentence the record declares is compared, the shared one at all seven surfaces, and ${whole.checked} were`,
   );
   assert.equal(
     whole.checked,
@@ -2896,7 +2897,7 @@ test('T004 — the twentieth surface is measured, and the digest explains every 
   );
   console.log(
     `T004 surface: copy-check declares ${sentences.length} sentences and builds ${copyCheck.inline.length} labels; ` +
-      `the digest holds ${shippedDigest.entries.length} rows for ${whole.checked} sentences, eight of them one text`,
+      `the digest holds ${shippedDigest.entries.length} rows for ${whole.checked} sentences, nine of them one text`,
   );
 });
 
