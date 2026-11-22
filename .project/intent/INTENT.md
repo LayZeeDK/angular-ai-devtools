@@ -27,8 +27,6 @@ must name the route tried and the artefact the portal lacks.
 ## Success criteria
 
 1. A fixture route that provides a non-default `LOCALE_ID` produces a finding naming the provider entry that carries the token, its kind and its import path, and reports the value as `locale-value-not-recorded`; a mutant that matches the entry by position rather than by token reddens the suite by name.
-   entry that carries it and the formatter the record names; a mutant that restores the default locale turns the
-   finding off and reddens the suite by name.
 2. A formatted value the record does not carry reports `cannot-tell` with the reason it is missing, and the answer
    never reads the rendered text, `navigator.language` or any DOM value as its own evidence; a mutant that renders the
    page's text to fill the gap reddens it.
