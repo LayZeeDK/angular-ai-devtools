@@ -33,3 +33,9 @@ Tasks reviewed: 1
 ## T003 — Render the answer and pin every route table: pass
 
 - ✅ The task landed at the commit this review names, its `## Verify` ran under `lars-gsd land` and the ledger row reads `verify: pass`, and the project verify at `4d4474ff` reports `npm run check` green with 2,167 tests, `fail 0` and `skipped 0`.
+
+Re-landed under the patch: the contract declared `scripts/page-picker.component.spec.mjs`, a name that has never
+existed, beside the `.ts` that does. The phantom entry is gone, so this wave's files are the ones the landing
+carries: `apps/angular-ai-devtools/src/app/panel-chunk-failure.ts`, `panel-demo.ts`, `app.routes.ts` and the four
+route-table pins. `land` now refuses a declaration that neither exists at the base nor appears in the diff, which
+is the check that would have refused this one before its Verify ran.

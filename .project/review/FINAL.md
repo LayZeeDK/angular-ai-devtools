@@ -1,6 +1,6 @@
 # FINAL — M064 lazy-chunk-failure
 
-Reviewed HEAD: 2c9d20fdb1009916a94fa9154a708062f71f6f0a
+Reviewed HEAD: c7641b88b1431d227794c80415c3c119b325fa0c
 
 Status: complete · eight waves · the project verify green to its last leg
 
@@ -66,3 +66,18 @@ At this head: `npm run check` green including `gate:fix-record`; `npm test` 2,16
 ## Carried forward
 
 - The two portal artefacts this milestone could not produce are named in `research/raw/m064-portal-capture.json`. No fixture verdict was taken in their place.
+
+## Patch correction
+
+The ship gate refused twice on `files:` declarations rather than on product code, and the patch re-landed both tasks so
+each file equals its own landing commit again. `gate:fix-record` now reports 0 findings at c7641b88, where it reported
+`claim-absent-from-the-range` and a five-artefact weight refusal before.
+
+- **P001 / T003** declared `scripts/page-picker.component.spec.mjs`, a path that has never existed, beside the `.ts` that
+  does. The entry is removed and T003 re-landed at `ffdd44f5`.
+- **P002 / T008** declared five authored artefacts where the ceiling is four. `research/raw/m059-record-shapes.json` is
+  T006's to re-derive; T008 re-landed at `c7641b88` with its Log saying so.
+
+Both defects are now refused by `land` in about a second, before the Verify: a declared path must exist at the task base
+or appear in the landing. `plan-lint` cannot make that call, because a declaration may legitimately name a file the task
+creates — `extension/import-failure.js` in T001 is exactly that case.
