@@ -1,0 +1,1 @@
+{"command": "node --test scripts/guard-phase.test.mjs && npx prettier --check extension/guard-phase.js scripts/guard-phase.test.mjs extension/manifest.json", "commit": "d455f85e0c105bb071a35c5a711956f1f67dde6a", "recorded_at": "2026-11-23T08:40:25+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
