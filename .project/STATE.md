@@ -2,7 +2,7 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: guard-phase
-phase: research
+phase: decide
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: active
@@ -1283,3 +1283,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-23 — define — milestone define started
 - 2026-11-23 — define — milestone intent approved
 - 2026-11-23 — research — research started
+- 2026-11-23 — research — research complete
+- 2026-11-23 — decide — decisions started
