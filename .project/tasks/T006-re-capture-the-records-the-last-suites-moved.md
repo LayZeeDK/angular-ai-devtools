@@ -15,6 +15,7 @@ files:
   - scripts/gate-stability-record.test.mjs
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
+  - research/raw/m044-gate-shapes.json
 ---
 
 # T006 — Re-capture the records the last suites moved
@@ -48,9 +49,10 @@ Capture both armed in that order, read both back unarmed, and stop rather than w
 ## Verify
 
 ```bash
-M063_CAPTURE=1 node --test scripts/guard-verdict-claims.test.mjs && M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs && node --test scripts/guard-verdict-claims.test.mjs scripts/gate-stability-record.test.mjs
+M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs && M063_CAPTURE=1 node --test scripts/guard-verdict-claims.test.mjs && node --test scripts/gate-integrity.test.mjs scripts/gate-stability-record.test.mjs scripts/guard-verdict-claims.test.mjs
 ```
 
 ## Log
 
 - pending.
+- Contract amended after the first dispatch, with the measurement it produced: the stability record derives the gate suite's own exit code, so it can only be stable **after** the gate record is re-captured. The capture order is now gate, then stability, then claims, and `research/raw/m044-gate-shapes.json` is declared here rather than left to the next wave. M062 captured both gate records in one task for exactly this reason.
