@@ -25,6 +25,8 @@ files:
   - scripts/outlet-verdict-claims.test.mjs
   - scripts/navigation-blocking.test.mjs
   - scripts/tutor-signals.test.mjs
+  - research/raw/m064-verdict-claims.json
+  - scripts/chunk-failure-claims.test.mjs
 ---
 
 # T006 — Re-derive the navigation and teardown recordings

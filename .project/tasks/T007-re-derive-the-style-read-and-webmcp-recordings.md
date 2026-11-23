@@ -26,6 +26,8 @@ files:
   - scripts/outlet-record-shapes.test.mjs
   - scripts/teardown-leak-shapes.test.mjs
   - scripts/tutor-answer.test.mjs
+  - research/raw/m064-verdict-claims.json
+  - scripts/chunk-failure-claims.test.mjs
 ---
 
 # T007 — Re-derive the style-read and webmcp recordings
