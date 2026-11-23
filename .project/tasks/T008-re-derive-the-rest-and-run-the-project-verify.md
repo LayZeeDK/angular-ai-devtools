@@ -2,10 +2,10 @@
 id: T008
 title: Re-derive the records the manifest line moved and run the project verify
 wave: 8
-status: pending
+status: done
 deps: [T007]
-agent: null
-base: null
+agent: build_T008
+base: 793eff4af725b989bd34fb848094efdb91b30f70
 worktree: null
 task_branch: null
 files:
@@ -74,3 +74,10 @@ M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs && node --test 
 ## Log
 
 - pending.
+
+- Landed paths: `research/raw/m054-style-read.json`, `research/raw/m057-record-shapes.json`, `research/raw/m059-record-shapes.json`.
+- `m054` moved one cited line (`"world": "MAIN"` 37 to 38) and `m059` moved its quote of `m044` (2809 to 2907). `m057` was **not** manifest drift: its red was the `research/raw` edge-key union, which grew because the claims record carries the intent's edge table as a list. That is the third mis-attribution of this repair wave, after `m042`.
+- Each record was mutated afterwards — a cited line moved, no re-capture — and each reddened naming the citation and what the line now reads; the armed runs then wrote nothing twice.
+- **Acceptance criterion 2 is unmet and is why the coder reported blocked.** The verify exits 1 at `npm test` leg 1 on six failures whose only repair writes two records outside this task's paths: `m062-verdict-claims.json` derives from the plan's coverage table, which waves 7 and 8 extended after its last capture, and `m056-gate-stability.json` counts a sixth mention that is literally T007's note saying `m059` belongs here.
+- The build and `npm run check` both pass inside the verify; the node-version trap did not fire (the verify ran under v26.13.0, which is what `m042` now pins).
+- `lars-gsd verify-final` is not runnable from a child session on this host (`Cannot find module ...\dist\loader.js`, the bare-name shim the project notes warn about), so no ledger row was written; the orchestrator records it.
