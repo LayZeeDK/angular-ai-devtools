@@ -5,7 +5,7 @@ milestone: guard-phase
 phase: decide
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M063
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1285,3 +1285,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-23 — research — research started
 - 2026-11-23 — research — research complete
 - 2026-11-23 — decide — decisions started
+- 2026-11-23 — decide — decisions complete

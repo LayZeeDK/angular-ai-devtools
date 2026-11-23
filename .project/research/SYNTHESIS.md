@@ -19,12 +19,12 @@ measured before the plan and what the planner is told. It is not the milestone's
 
 - The guard phase is recorded by a task this milestone writes, and the join reads that record and nothing else.
 - A verdict with a phase and no owner is a phase-only finding; it is never attributed to a route that matched later.
-- Wave-1 blockers: none. The record reads the navigation the agent already observes, with no new page-side
+- **Wave-1 blockers**: none. The record reads the navigation the agent already observes, with no new page-side
   instrumentation.
-- Walking skeleton: T001 records the ordered verdicts with their phases; T002 joins them into four states; T003 renders
+- **Walking skeleton**: T001 records the ordered verdicts with their phases; T002 joins them into four states; T003 renders
   the object and moves every route-table pin, the app spec and all three lists in the chat-entry spec; T004 records the
   claims census; T005 to T007 re-derive the records and the gate records and run the project verify.
-- Pitfalls → tasks: the claims record derives from the plan's coverage table, so it is re-captured in the last wave; a
+- **Pitfalls → tasks**: the claims record derives from the plan's coverage table, so it is re-captured in the last wave; a
   task Log that names paths moves the gate's mention count; the project verify must be observed reaching `test:app`, not
   only its first leg.
 
