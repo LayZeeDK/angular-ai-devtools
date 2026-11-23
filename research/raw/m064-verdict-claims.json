@@ -1,0 +1,664 @@
+{
+  "schema": "m064-verdict-claims/v1",
+  "milestone": "M064",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(ROOT, \"M064\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 4 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "proofs": "every citation in this record is a line read from this checkout at capture: 27 citation(s) over [\"apps/angular-ai-devtools/src/app/app.spec.ts\",\"apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts\",\"apps/angular-ai-devtools/src/app/panel-chunk-failure.ts\",\"apps/angular-ai-devtools/src/app/panel-demo.ts\",\"extension/chunk-failure.js\",\"research/raw/m064-import-failure.json\",\"scripts/chunk-failure-copy.test.mjs\",\"scripts/chunk-failure.test.mjs\",\"scripts/import-failure.test.mjs\",\"scripts/panel-routes.test.mjs\"], each resolved by searching its file for the exact text it states rather than by trusting a typed number, and each claim names the suite and the test title the suite declares at this head",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks section, which this path reads as 8 row(s) of edge -> task -> test in either form a plan writes it - the three-column Edge | Task | Test table, or the bullet '- E.. -> T.. -> test' - so a claim cites the suite the milestone's own plan assigns its edges rather than one this file chose: 8 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and the suites [\"scripts/chunk-failure.test.mjs\",\"scripts/import-failure.test.mjs\",\"scripts/panel-routes.test.mjs\",\"scripts/chunk-failure-copy.test.mjs\"]. The plan's ## Held-out checks and its ## Intent coverage table disagree at 0 row(s) [], recorded under evidence.plan.disagreements rather than refused, because a reader needs the citation and the disagreement in one place. 2 edge claim(s) state an absence for a part of the edge no line in this checkout carries"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 4,
+    "why": [
+      "No row is required, and the record therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext. Every fact the 4 criteria this milestone declares is written about is a fact about this repository's own failure record, the join that reads it and the lines that hold them, against 12 stage(s) of the check chain; none of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each claim names the line, the suite, the test and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": [
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E8"
+      ],
+      "coverage": [
+        "SC1 T001 AC1",
+        "SC3 T001 AC2",
+        "SC1 T002 AC1",
+        "SC2 T002 AC2",
+        "SC4 T003 AC1",
+        "SC1 T004 AC1",
+        "SC2 T004 AC2",
+        "SC4 T004 AC3",
+        "SC1 T005 AC1",
+        "SC2 T005 AC2",
+        "SC1 T006 AC1",
+        "SC1 T007 AC1",
+        "SC1 T008 AC1",
+        "SC4 T008 AC2"
+      ],
+      "disagreements": []
+    },
+    "edges": {
+      "rows": 8,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ],
+      "columns": [
+        "Edge",
+        "Criterion",
+        "Category",
+        "Disposition",
+        "Detail"
+      ]
+    },
+    "answerFields": [
+      "state",
+      "specifier",
+      "routePath",
+      "status",
+      "hash",
+      "consideredCount",
+      "reason"
+    ],
+    "specifierSources": [
+      "extension/chunk-failure.js",
+      "extension/import-failure.js"
+    ],
+    "suites": [
+      {
+        "path": "scripts/chunk-failure-copy.test.mjs",
+        "tests": 6,
+        "groups": 0
+      },
+      {
+        "path": "scripts/chunk-failure.test.mjs",
+        "tests": 16,
+        "groups": 0
+      },
+      {
+        "path": "scripts/import-failure.test.mjs",
+        "tests": 18,
+        "groups": 0
+      },
+      {
+        "path": "scripts/panel-routes.test.mjs",
+        "tests": 4,
+        "groups": 0
+      }
+    ],
+    "records": [
+      "research/raw/m064-import-failure.json"
+    ]
+  },
+  "capture": {
+    "command": "M064_CAPTURE=1 node --test scripts/chunk-failure-claims.test.mjs",
+    "check": "node --test scripts/chunk-failure-claims.test.mjs",
+    "records": "research/raw/m064-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3",
+      "SC4"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, its five-column edge coverage, the plan that holds each edge out, the join module whose fields it states and the lines each citation names, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives, naming the field that moved when it is not."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "A stubbed import failure produces a finding naming the import specifier, the owning route path and the response status; a mutant that resolves the import turns it off, and the red names the field that moved.",
+      "criterionCharacters": 207,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"A stubbed import failure produces a finding naming the import specifier, the owning route path and the response status; a mutant that resolves the import turns it off, and the red names the field that moved.\" - a fact about this repository's own failure record, the join that reads it and the lines that hold them, which no route of any page produces: it is proved by the citations this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say which line of a suite holds a claim, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E2\",\"E7\"] the intent itself assigns the criterion, held by the plan at [\"scripts/chunk-failure.test.mjs\"], and the 8 line citation(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/chunk-failure.test.mjs",
+      "test": "SC1 - a resolved import reports no failure, and the absence of a hash as absent",
+      "citations": [
+        {
+          "suite": "scripts/chunk-failure.test.mjs",
+          "test": "SC1 - a resolved import reports no failure, and the absence of a hash as absent",
+          "holds": "A lazy route whose import resolved answers `resolved` with the specifier the record carried, and never an absence that reads as a clean stream."
+        },
+        {
+          "suite": "scripts/chunk-failure.test.mjs",
+          "test": "SC1 - both failures of one navigation are named, in the order the router attempted them",
+          "holds": "Two failed imports in one record answer two rows in the order the record holds them, each with its own specifier, route path and count, and the last never stands in for the first."
+        },
+        {
+          "suite": "scripts/chunk-failure.test.mjs",
+          "test": "SC1 - a failure attributed to a route the router never attempted is refused",
+          "holds": "A failure the record attributes to a route path the router never attempted answers without that path, rather than naming a route no load reached."
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E1",
+          "category": "empty",
+          "disposition": "criterion SC1",
+          "detail": "A lazy route whose import resolved reports no finding, rather than an empty failure that reads as a success.",
+          "suite": "scripts/chunk-failure.test.mjs"
+        },
+        {
+          "edge": "E2",
+          "category": "ordering",
+          "disposition": "criterion SC1",
+          "detail": "Two failed imports on one navigation name both, in the order the router attempted them, and never collapse to the last.",
+          "suite": "scripts/chunk-failure.test.mjs"
+        },
+        {
+          "edge": "E7",
+          "category": "precision",
+          "disposition": "criterion SC1",
+          "detail": "A failure attributed to a route the router never attempted is not reported as that route's failure; a mutant that names it reddens.",
+          "suite": "scripts/chunk-failure.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/chunk-failure.test.mjs",
+      "artefact": "scripts/chunk-failure.test.mjs (test \"SC1 - a resolved import reports no failure, and the absence of a hash as absent\"; edge [\"E1\",\"E2\",\"E7\"] of the intent's own coverage: E1 empty criterion SC1: A lazy route whose import resolved reports no finding, rather than an empty failure that reads as a success.; E2 ordering criterion SC1: Two failed imports on one navigation name both, in the order the router attempted them, and never collapse to the last.; E7 precision criterion SC1: A failure attributed to a route the router never attempted is not reported as that route's failure; a mutant that names it reddens.; the suite carries 16 test declaration(s) in 0 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "3 edge claim(s) over 1 suite(s) and 8 line citation(s) hold SC1 through the edge row(s) [\"E1\",\"E2\",\"E7\"] the intent assigns it: every citation is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/chunk-failure.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "A request that never completed reports `cannot-tell` with its reason, and the answer never names a version drift, a cause or a remedy it did not measure; a mutant that infers a drift from a status reddens it.",
+      "criterionCharacters": 208,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"A request that never completed reports `cannot-tell` with its reason, and the answer never names a version drift, a cause or a remedy it did not measure; a mutant that infers a drift from a status reddens it.\" - a fact about this repository's own failure record, the join that reads it and the lines that hold them, which no route of any page produces: it is proved by the citations this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say which line of a suite holds a claim, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\",\"E4\"] the intent itself assigns the criterion, held by the plan at [\"scripts/chunk-failure.test.mjs\"], and the 7 line citation(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/chunk-failure.test.mjs",
+      "test": "SC2 - a request that produced no status is never-completed, and is never written as a 404",
+      "citations": [
+        {
+          "suite": "scripts/chunk-failure.test.mjs",
+          "test": "SC2 - a request that produced no status is never-completed, and is never written as a 404",
+          "holds": "A failed attempt whose request produced no status answers `never-completed` with `no-response`, carries no `status`, and is never written as a 404."
+        },
+        {
+          "suite": "scripts/chunk-failure.test.mjs",
+          "test": "SC1 - a failed import answers the status it produced, and a truncated hash stays truncated",
+          "holds": "A hash is answered character for character as the record carried it, and is never completed from the chunk filename the specifier names."
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E3",
+          "category": "boundary",
+          "disposition": "criterion SC2",
+          "detail": "A request with no response status is reported as never completed, never as a 404.",
+          "suite": "scripts/chunk-failure.test.mjs"
+        },
+        {
+          "edge": "E4",
+          "category": "encoding",
+          "disposition": "criterion SC2",
+          "detail": "A hash the record truncates is reported truncated, never completed from the chunk's filename.",
+          "suite": "scripts/chunk-failure.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/chunk-failure.test.mjs",
+      "artefact": "scripts/chunk-failure.test.mjs (test \"SC2 - a request that produced no status is never-completed, and is never written as a 404\"; edge [\"E3\",\"E4\"] of the intent's own coverage: E3 boundary criterion SC2: A request with no response status is reported as never completed, never as a 404.; E4 encoding criterion SC2: A hash the record truncates is reported truncated, never completed from the chunk's filename.; the suite carries 16 test declaration(s) in 0 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "2 edge claim(s) over 1 suite(s) and 7 line citation(s) hold SC2 through the edge row(s) [\"E3\",\"E4\"] the intent assigns it: every citation is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/chunk-failure.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "The failure is read from a record this milestone writes, with no new page-side instrumentation and no second read of the network; the record's fields and the join's inputs are the same list, asserted in one place.",
+      "criterionCharacters": 213,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"The failure is read from a record this milestone writes, with no new page-side instrumentation and no second read of the network; the record's fields and the join's inputs are the same list, asserted in one place.\" - a fact about this repository's own failure record, the join that reads it and the lines that hold them, which no route of any page produces: it is proved by the citations this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say which line of a suite holds a claim, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E5\"] the intent itself assigns the criterion, held by the plan at [\"scripts/import-failure.test.mjs\"], and the 4 line citation(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/import-failure.test.mjs",
+      "test": "SC3 - the record is the only producer of an import specifier under extension/, and one join reads it",
+      "citations": [
+        {
+          "suite": "scripts/import-failure.test.mjs",
+          "test": "SC3 - the record is the only producer of an import specifier under extension/, and one join reads it",
+          "holds": "The import-failure record is the only producer of an import specifier under `extension/`, the join is its single reader, and a third module naming that vocabulary is refused by the census."
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E5",
+          "category": "boundary",
+          "disposition": "criterion SC3",
+          "detail": "The task's Verify asserts the failure record is the only source of an import specifier; a second read reddens it.",
+          "suite": "scripts/import-failure.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/import-failure.test.mjs",
+      "artefact": "scripts/import-failure.test.mjs (test \"SC3 - the record is the only producer of an import specifier under extension/, and one join reads it\"; edge [\"E5\"] of the intent's own coverage: E5 boundary criterion SC3: The task's Verify asserts the failure record is the only source of an import specifier; a second read reddens it.; the suite carries 18 test declaration(s) in 0 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "1 edge claim(s) over 1 suite(s) and 4 line citation(s) hold SC3 through the edge row(s) [\"E5\"] the intent assigns it: every citation is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/import-failure.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "The panel renders exactly the object the join returns: one new surface, its loader key, its route-table pin and its copy record moved in the same task, and the answer carries no remedy, no cause and no identity it was not given.",
+      "criterionCharacters": 228,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC4 is \"The panel renders exactly the object the join returns: one new surface, its loader key, its route-table pin and its copy record moved in the same task, and the answer carries no remedy, no cause and no identity it was not given.\" - a fact about this repository's own failure record, the join that reads it and the lines that hold them, which no route of any page produces: it is proved by the citations this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say which line of a suite holds a claim, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E6\",\"E8\"] the intent itself assigns the criterion, held by the plan at [\"scripts/panel-routes.test.mjs\",\"scripts/chunk-failure-copy.test.mjs\"], and the 8 line citation(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/panel-routes.test.mjs",
+      "test": "E4: every declared route surface has a panel-demo LOADERS key",
+      "citations": [
+        {
+          "suite": "scripts/panel-routes.test.mjs",
+          "test": "E4: every declared route surface has a panel-demo LOADERS key",
+          "holds": "The surface is one entry of `PANEL_SURFACES`, one key of `LOADERS`, one fact of `FACTS` and one row of the specs that enumerate the panel, so a surface dropped from any of them reddens naming it."
+        },
+        {
+          "suite": "scripts/chunk-failure-copy.test.mjs",
+          "test": "mutants redden by name: a remedy sentence, two rows collapsed, a hash completed, a loader key dropped",
+          "holds": "No line of the pane prints a value the answer did not carry, and no literal the pane declares is a sentence-shaped repair, a schematic or an identity the answer was not given."
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E6",
+          "category": "boundary",
+          "disposition": "criterion SC4",
+          "detail": "The route table, the loader map, `app.spec.ts`, all three chat-entry lists and the copy records move together; a mutant that adds the surface without a loader reddens naming the key.",
+          "suite": "scripts/panel-routes.test.mjs"
+        },
+        {
+          "edge": "E8",
+          "category": "precision",
+          "disposition": "criterion SC4",
+          "detail": "No answer names a fix, a schematic, a cause or an identity it was not given; a mutant that adds a remedy reddens.",
+          "suite": "scripts/chunk-failure-copy.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/panel-routes.test.mjs",
+      "artefact": "scripts/panel-routes.test.mjs (test \"E4: every declared route surface has a panel-demo LOADERS key\"; edge [\"E6\",\"E8\"] of the intent's own coverage: E6 boundary criterion SC4: The route table, the loader map, `app.spec.ts`, all three chat-entry lists and the copy records move together; a mutant that adds the surface without a loader reddens naming the key.; E8 precision criterion SC4: No answer names a fix, a schematic, a cause or an identity it was not given; a mutant that adds a remedy reddens.; the suite carries 4 test declaration(s) in 0 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "2 edge claim(s) over 2 suite(s) and 8 line citation(s) hold SC4 through the edge row(s) [\"E6\",\"E8\"] the intent assigns it: every citation is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/panel-routes.test.mjs",
+        "node --test scripts/chunk-failure-copy.test.mjs",
+        "npm run check"
+      ]
+    }
+  ],
+  "edgeClaims": [
+    {
+      "edge": "E1",
+      "criterion": "SC1",
+      "category": "empty",
+      "disposition": "criterion SC1",
+      "detail": "A lazy route whose import resolved reports no finding, rather than an empty failure that reads as a success.",
+      "claim": "A lazy route whose import resolved answers `resolved` with the specifier the record carried, and never an absence that reads as a clean stream.",
+      "fields": [
+        "state",
+        "specifier"
+      ],
+      "suite": "scripts/chunk-failure.test.mjs",
+      "test": "SC1 - a resolved import reports no failure, and the absence of a hash as absent",
+      "citations": [
+        {
+          "file": "scripts/chunk-failure.test.mjs",
+          "line": 1036,
+          "lineText": "test('SC1 - a resolved import reports no failure, and the absence of a hash as absent', () => {",
+          "holds": "the resolved answer is a resolution and not an empty absence that reads as a clean stream"
+        },
+        {
+          "file": "extension/chunk-failure.js",
+          "line": 214,
+          "lineText": "if (entry.outcome === LOADED) return RESOLVED;",
+          "holds": "the state is read from the outcome the record carried, so a loaded import answers resolved"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-chunk-failure.ts",
+          "line": 61,
+          "lineText": "export const RESOLVED = 'resolved';",
+          "holds": "the surface enumerates the resolved state it renders for that answer, and no other word"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/chunk-failure.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "edge": "E2",
+      "criterion": "SC1",
+      "category": "ordering",
+      "disposition": "criterion SC1",
+      "detail": "Two failed imports on one navigation name both, in the order the router attempted them, and never collapse to the last.",
+      "claim": "Two failed imports in one record answer two rows in the order the record holds them, each with its own specifier, route path and count, and the last never stands in for the first.",
+      "fields": [
+        "state",
+        "specifier",
+        "routePath",
+        "consideredCount"
+      ],
+      "suite": "scripts/chunk-failure.test.mjs",
+      "test": "SC1 - both failures of one navigation are named, in the order the router attempted them",
+      "citations": [
+        {
+          "file": "scripts/chunk-failure.test.mjs",
+          "line": 1115,
+          "lineText": "test('SC1 - both failures of one navigation are named, in the order the router attempted them', () => {",
+          "holds": "two failed imports of one navigation stay two answers, in the order the record holds them"
+        },
+        {
+          "file": "extension/chunk-failure.js",
+          "line": 316,
+          "lineText": "for (let i = 0; i < attempts.length; i += 1) {",
+          "holds": "the join walks every attempt in the order the list holds them and answers each one"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-chunk-failure.ts",
+          "line": 255,
+          "lineText": "const rows = answer.map((entry) =>",
+          "holds": "the pane keeps one row per answer, in the order the join answered them, and drops none"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/chunk-failure.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "edge": "E3",
+      "criterion": "SC2",
+      "category": "boundary",
+      "disposition": "criterion SC2",
+      "detail": "A request with no response status is reported as never completed, never as a 404.",
+      "claim": "A failed attempt whose request produced no status answers `never-completed` with `no-response`, carries no `status`, and is never written as a 404.",
+      "fields": [
+        "state",
+        "reason",
+        "status"
+      ],
+      "suite": "scripts/chunk-failure.test.mjs",
+      "test": "SC2 - a request that produced no status is never-completed, and is never written as a 404",
+      "citations": [
+        {
+          "file": "scripts/chunk-failure.test.mjs",
+          "line": 1009,
+          "lineText": "test('SC2 - a request that produced no status is never-completed, and is never written as a 404', () => {",
+          "holds": "a request that produced no status answers never-completed and names no 404 anywhere"
+        },
+        {
+          "file": "extension/chunk-failure.js",
+          "line": 217,
+          "lineText": "return entry.status === null ? NEVER_COMPLETED : MISSING_IMPORT;",
+          "holds": "the missing status decides the state rather than a number the join would have to invent"
+        },
+        {
+          "file": "scripts/import-failure.test.mjs",
+          "line": 1062,
+          "lineText": "test('an attempt with no response is never-completed, names no-response and carries no status', () => {",
+          "holds": "the record itself states no status where no response arrived, and names the absence"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/chunk-failure.test.mjs",
+        "node --test scripts/import-failure.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "edge": "E4",
+      "criterion": "SC2",
+      "category": "encoding",
+      "disposition": "criterion SC2",
+      "detail": "A hash the record truncates is reported truncated, never completed from the chunk's filename.",
+      "claim": "A hash is answered character for character as the record carried it, and is never completed from the chunk filename the specifier names.",
+      "fields": [
+        "hash",
+        "specifier"
+      ],
+      "suite": "scripts/chunk-failure.test.mjs",
+      "test": "SC1 - a failed import answers the status it produced, and a truncated hash stays truncated",
+      "citations": [
+        {
+          "file": "scripts/chunk-failure.test.mjs",
+          "line": 968,
+          "lineText": "test('SC1 - a failed import answers the status it produced, and a truncated hash stays truncated', () => {",
+          "holds": "the hash is the record own value, and never the chunk filename the specifier ends with"
+        },
+        {
+          "file": "extension/chunk-failure.js",
+          "line": 271,
+          "lineText": "put(written, 'hash', entry.hash);",
+          "holds": "the hash is copied from the record and from nowhere else, so no branch completes it"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-chunk-failure.ts",
+          "line": 157,
+          "lineText": "* A truncated hash is printed exactly as the record carried it: this reader never pads, completes or",
+          "holds": "the surface pads and completes nothing, so a short hash renders as short as it arrived"
+        },
+        {
+          "file": "scripts/chunk-failure-copy.test.mjs",
+          "line": 661,
+          "lineText": "const completed = mutatedPane(",
+          "holds": "the mutant that completes a hash reddens the line pin, so the rule is measured and not stated"
+        }
+      ],
+      "absence": {
+        "part": "a sample whose hash the record marks as truncated",
+        "reason": "no attempt sample in this checkout marks its hash as truncated: the join has no truncation branch, so what the tree holds is that a hash is carried character for character and never completed from a filename. The edge own words - a hash the record truncates - are recorded as this absence rather than cited from a line that does not exist."
+      },
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/chunk-failure.test.mjs",
+        "node --test scripts/chunk-failure-copy.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "edge": "E5",
+      "criterion": "SC3",
+      "category": "boundary",
+      "disposition": "criterion SC3",
+      "detail": "The task's Verify asserts the failure record is the only source of an import specifier; a second read reddens it.",
+      "claim": "The import-failure record is the only producer of an import specifier under `extension/`, the join is its single reader, and a third module naming that vocabulary is refused by the census.",
+      "fields": [
+        "specifier"
+      ],
+      "suite": "scripts/import-failure.test.mjs",
+      "test": "SC3 - the record is the only producer of an import specifier under extension/, and one join reads it",
+      "citations": [
+        {
+          "file": "scripts/import-failure.test.mjs",
+          "line": 1346,
+          "lineText": "test('SC3 - the record is the only producer of an import specifier under extension/, and one join reads it', () => {",
+          "holds": "the census names one producer and one reader, and a third module naming the word reddens it"
+        },
+        {
+          "file": "scripts/chunk-failure.test.mjs",
+          "line": 824,
+          "lineText": "test('the join and the record read one list of fields, and the record module publishes it', () => {",
+          "holds": "the fields the join reads are the fields the record publishes, asserted as one list"
+        },
+        {
+          "file": "extension/chunk-failure.js",
+          "line": 143,
+          "lineText": "const ATTEMPT_FIELDS = [",
+          "holds": "the join names the attempt fields it reads, so its inputs and the record are one list"
+        },
+        {
+          "file": "research/raw/m064-import-failure.json",
+          "line": 179,
+          "lineText": "\"producer\": \"extension/import-failure.js\",",
+          "holds": "the recording states the one module that produces an import specifier for this milestone"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/import-failure.test.mjs",
+        "node --test scripts/chunk-failure.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "edge": "E6",
+      "criterion": "SC4",
+      "category": "boundary",
+      "disposition": "criterion SC4",
+      "detail": "The route table, the loader map, `app.spec.ts`, all three chat-entry lists and the copy records move together; a mutant that adds the surface without a loader reddens naming the key.",
+      "claim": "The surface is one entry of `PANEL_SURFACES`, one key of `LOADERS`, one fact of `FACTS` and one row of the specs that enumerate the panel, so a surface dropped from any of them reddens naming it.",
+      "fields": [
+        "state"
+      ],
+      "suite": "scripts/panel-routes.test.mjs",
+      "test": "E4: every declared route surface has a panel-demo LOADERS key",
+      "citations": [
+        {
+          "file": "scripts/panel-routes.test.mjs",
+          "line": 814,
+          "lineText": "test('E4: every declared route surface has a panel-demo LOADERS key', () => {",
+          "holds": "every declared surface has a loader key, and a dropped key reddens naming the surface"
+        },
+        {
+          "file": "scripts/panel-routes.test.mjs",
+          "line": 223,
+          "lineText": "test('E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name', () => {",
+          "holds": "the route table is one list mapped over one literal, and every surface keeps its own path"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+          "line": 72,
+          "lineText": "'chunk-failure': () => import('./panel-chunk-failure') as never,",
+          "holds": "the demo loader map carries the key that reaches this surface and no second importer"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
+          "line": 118,
+          "lineText": "'chunk-failure', // M064 SC4 surface: the specifier the router could not load, the route path that owns it, the status and the hash the attempt carried, one row per attempt in router order, or the named absence",
+          "holds": "the app spec enumerates the surface in the route order the table installs it in"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
+          "line": 733,
+          "lineText": "'chunk-failure', // M064 SC4 surface: the specifier the router could not load, the route path that owns it, the status and the hash the attempt carried, one row per attempt in router order, or the named absence",
+          "holds": "the chat-entry spec enumerates the surface in the first of the three lists it carries"
+        }
+      ],
+      "absence": {
+        "part": "one assertion that the three chat-entry lists and app.spec.ts move together",
+        "reason": "no node suite in this checkout asserts the three chat-entry lists and app.spec.ts as one statement: each list is pinned by the TypeScript spec that carries it and run by `npx nx run angular-ai-devtools:test`, so the citations below name the line each list carries the surface at, and this record states no assertion it cannot cite."
+      },
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/panel-routes.test.mjs",
+        "npx nx run angular-ai-devtools:test",
+        "npm run check"
+      ]
+    },
+    {
+      "edge": "E7",
+      "criterion": "SC1",
+      "category": "precision",
+      "disposition": "criterion SC1",
+      "detail": "A failure attributed to a route the router never attempted is not reported as that route's failure; a mutant that names it reddens.",
+      "claim": "A failure the record attributes to a route path the router never attempted answers without that path, rather than naming a route no load reached.",
+      "fields": [
+        "state",
+        "routePath"
+      ],
+      "suite": "scripts/chunk-failure.test.mjs",
+      "test": "SC1 - a failure attributed to a route the router never attempted is refused",
+      "citations": [
+        {
+          "file": "scripts/chunk-failure.test.mjs",
+          "line": 1184,
+          "lineText": "test('SC1 - a failure attributed to a route the router never attempted is refused', () => {",
+          "holds": "a route path the router never attempted is refused, and the answer keeps the failure"
+        },
+        {
+          "file": "extension/chunk-failure.js",
+          "line": 260,
+          "lineText": "return attempted.indexOf(routePath) === -1 ? null : routePath;",
+          "holds": "the attribution is written only where the router stream names that path as one it tried"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/chunk-failure.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "edge": "E8",
+      "criterion": "SC4",
+      "category": "precision",
+      "disposition": "criterion SC4",
+      "detail": "No answer names a fix, a schematic, a cause or an identity it was not given; a mutant that adds a remedy reddens.",
+      "claim": "No line of the pane prints a value the answer did not carry, and no literal the pane declares is a sentence-shaped repair, a schematic or an identity the answer was not given.",
+      "fields": [
+        "state",
+        "specifier",
+        "routePath",
+        "status",
+        "hash",
+        "reason"
+      ],
+      "suite": "scripts/chunk-failure-copy.test.mjs",
+      "test": "mutants redden by name: a remedy sentence, two rows collapsed, a hash completed, a loader key dropped",
+      "citations": [
+        {
+          "file": "scripts/chunk-failure-copy.test.mjs",
+          "line": 577,
+          "lineText": "test('mutants redden by name: a remedy sentence, two rows collapsed, a hash completed, a loader key dropped', () => {",
+          "holds": "a sentence the pane would print reddens the scan, so the no-sentence rule is measured"
+        },
+        {
+          "file": "scripts/chunk-failure-copy.test.mjs",
+          "line": 541,
+          "lineText": "test('the pane declares no sentence and reads no page', () => {",
+          "holds": "the pane declares no sentence of its own and reads no page, and the scan is not vacuous"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-chunk-failure.ts",
+          "line": 37,
+          "lineText": "* - No remedy, no cause and no schematic. The answer carries none of the three, so no line of this",
+          "holds": "the pane states that it offers no repair and no schematic, and it carries none of the three"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/chunk-failure-claims.test.mjs",
+        "node --test scripts/chunk-failure-copy.test.mjs",
+        "npm run check"
+      ]
+    }
+  ]
+}
