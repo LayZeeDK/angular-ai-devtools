@@ -74,6 +74,17 @@ Goal: repair the one lazy-route list that never gained the new surface, re-captu
 moves, and run the project verify.
 Review depth: full
 
+## Surface contract
+
+### panel — T003
+
+One new surface, `apps/angular-ai-devtools/src/app/panel-outlet.ts`, rendering exactly the five fields the join
+returns (`state`, `requested`, `matched`, `path`, `absences`), one `label: value-the-answer-carries` line per field and
+one line per absence, with no line for a `null` and no sentence anywhere. It is declared in `app.routes.ts`, has a key
+in `panel-demo.ts`'s `LOADERS`, a sample fact in `FACTS`, a row in the copy record and a spec. Every list that
+enumerates the route table moves in the same task: the app spec, the picker spec, the chat-entry spec (all three of its
+lists), `panel-routes.test.mjs` and the copy records the surface is measured in.
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
