@@ -12,6 +12,9 @@ files:
   - research/raw/m044-gate-shapes.json
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
+  - research/raw/m056-tutor-signals.json
+  - scripts/tutor-signals-shapes.test.mjs
+  - research/raw/m056-gate-stability.json
 ---
 
 # T007 — Re-derive the gate records and run the project verify
@@ -51,3 +54,5 @@ M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && node --test script
 ## Log
 
 - pending.
+- Contract amended before the wave opened: `research/raw/m056-tutor-signals.json` and `scripts/tutor-signals-shapes.test.mjs` are declared. That suite is a read-only pin with no writer, and it reddens because T004's claims record added eight edge rows to the vocabulary it counts — so the record must be re-derived from the tree the suite derives, and the `node --version` of the run recorded beside it.
+- `research/raw/m056-gate-stability.json` is declared because this task's Log will name paths, and a Log that names an undeclared path moves the gate's mention count again.
