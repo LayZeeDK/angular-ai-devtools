@@ -1,0 +1,1 @@
+{"command": "node --test scripts/outlet-state.test.mjs scripts/extension-manifest.test.mjs && npx prettier --check extension/outlet-state.js scripts/outlet-state.test.mjs", "commit": "32d639cdf1b61a00179d953b1e4dc5cf9adcb346", "recorded_at": "2026-11-23T00:22:57+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
