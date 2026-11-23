@@ -35,6 +35,7 @@ files:
   - scripts/outlet-record-shapes.test.mjs
   - scripts/teardown-leak-shapes.test.mjs
   - scripts/tutor-record-shapes.test.mjs
+  - research/raw/m061-surface.json
 ---
 
 # T003 — Render the answer and pin every route table
@@ -82,3 +83,4 @@ node --test scripts/panel-routes.test.mjs scripts/chunk-failure-copy.test.mjs sc
 ## Log
 
 - pending.
+- Landed paths: `apps/angular-ai-devtools/src/app/panel-chunk-failure.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/chunk-failure-copy.test.mjs`, `scripts/after-render-fixture.test.mjs`, `scripts/page-picker.component.spec.mjs`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/component-search.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/panel-copy.test.mjs`, `scripts/tutor-answer.test.mjs`, `tests/held-out/fixture-explainers-unchanged.test.mjs`, `apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts`, `apps/angular-ai-devtools/src/app/panel-outlet.spec.ts`, `scripts/guard-record-shapes.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `research/raw/m061-surface.json` — each is read from this tree, ready.
