@@ -2,10 +2,10 @@
 id: T002
 title: Answer from the outlet record, purely
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 95dc4af16721100e55c68b41d50fc6c8f077e3a9
 worktree: null
 task_branch: null
 files:
@@ -52,3 +52,10 @@ node --test scripts/outlet-answer.test.mjs && npx prettier --check extension/out
 ## Log
 
 - pending.
+- Landed paths: `extension/outlet-answer.js`, `scripts/outlet-answer.test.mjs`.
+- `outletAnswer(record)` is a pure function of the record T001 writes, published at `globalThis.angularAiOutletAnswer` the way M061's join is published. Every answer is one object of the five contract fields built in one place, so a pin on its keys is a pin on every state.
+- The one normalisation is written once: an absent `requested` is reported as `primary`. The record keeps `null`, because an unnamed outlet and `primary` are the same outlet while a configuration that states nothing is still a distinct fact.
+- `outlet-absent` is the state where both names are recorded and differ; a missing `matched` is `cannot-tell` with the record's own reason. E7 and E2 pin the boundaries that the four state names leave open: a route the state never reached is not a mismatch, and two outlets declared in order name the first rather than the last read.
+- Nine mutants were measured both ways — each drives the mutated value first and asserts it bit, then asserts the pin reddens — including a DOM fallback, a remedy string, a component-name fallback, a dropped normalisation, a last-name selection, dropped chain-level absences and a template-derived name.
+- `scripts/gate-integrity.test.mjs` is red at this head because the new suite has no `SUITE_DIFF_REASONS` row; the coder recorded that instead of editing a path outside its contract, and the re-derivation task owns the row.
+- Recorded tension, not silently resolved: AC2 makes a missing name `cannot-tell`, which leaves `outlet-absent` to mean only that the two recorded names differ. If that is not the intended reading, AC2's wording is what moves.
