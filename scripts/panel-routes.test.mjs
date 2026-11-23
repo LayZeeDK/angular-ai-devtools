@@ -48,6 +48,7 @@ const surfaces = [
   'error-routing',
   'locale-correctness',
   'guard-phase',
+  'chunk-failure',
   'dead-click',
   'what-changed',
 ];
@@ -656,6 +657,26 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
       String(err.message).includes('route locale-correctness must exist'),
     'a table without the locale-correctness route must fail naming the missing surface',
   );
+
+  // Mutant: the M064 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the chunk-failure pane — the specifier the router could not load, the route path
+  // that owns it, the status and the hash the attempt carried, one row per attempt in router order —
+  // so the per-surface half must name it rather than pass on the older surfaces alone. This is the
+  // mutation the task's own red-then-green proof applies to `app.routes.ts`: a route entry that was
+  // never added must fail naming the surface whose route is gone.
+  const withoutChunkFailure = source.replace("  'chunk-failure',\n", '');
+  assert.notEqual(
+    withoutChunkFailure,
+    source,
+    'the removed-chunk-failure-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutChunkFailure),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route chunk-failure must exist'),
+    'a table without the chunk-failure route must fail naming the missing surface',
+  );
 });
 
 test('E2: the surface functions are still exported for their suites', () => {
@@ -693,6 +714,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'tutor-foundations': ['panel-tutor-foundations', 'tutorFoundationsPanel'],
     'tutor-signals': ['panel-tutor-signals', 'tutorSignalsPanel'],
     'tutor-routing': ['panel-tutor-routing', 'tutorRoutingPanel'],
+    'chunk-failure': ['panel-chunk-failure', 'chunkFailurePanel'],
   };
   for (const [surface, [base, exportName]] of Object.entries(files)) {
     const source = readFileSync(
@@ -748,6 +770,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'localeCorrectnessPanel(',
     'outletPanel(',
     'guardPhasePanel(',
+    'chunkFailurePanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -1430,5 +1453,30 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: guard-phase'),
     'removing the guard-phase loader must fail naming the missing surface guard-phase',
+  );
+
+  // Mutant: remove the chunk-failure key from LOADERS. The M064 route is the one this task adds,
+  // so the check must name it when its loader is gone rather than pass on the surfaces before it. It
+  // is a quoted key whose import is the only reference to `panel-chunk-failure.ts`, so a route that
+  // dropped it would leave the chunk-failure surface unreachable while every earlier surface still
+  // loaded. This is the mutation the task's own red-then-green proof applies to `panel-demo.ts`.
+  const withoutChunkFailure = demoSource.replace(
+    "  'chunk-failure': () => import('./panel-chunk-failure') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutChunkFailure,
+    demoSource,
+    'the chunk-failure loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutChunkFailure),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: chunk-failure'),
+    'removing the chunk-failure loader must fail naming the missing surface chunk-failure',
   );
 });

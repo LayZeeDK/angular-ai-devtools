@@ -316,6 +316,16 @@ import {
   STATES as GUARD_PHASE_STATES,
   guardPhasePanel,
 } from './panel-guard-phase';
+import {
+  CANNOT_TELL as CHUNK_FAILURE_CANNOT_TELL,
+  FIELDS as CHUNK_FAILURE_FIELDS,
+  LABELS as CHUNK_FAILURE_LABELS,
+  MISSING_IMPORT as CHUNK_FAILURE_MISSING_IMPORT,
+  NEVER_COMPLETED as CHUNK_FAILURE_NEVER_COMPLETED,
+  RESOLVED as CHUNK_FAILURE_RESOLVED,
+  STATES as CHUNK_FAILURE_STATES,
+  chunkFailurePanel,
+} from './panel-chunk-failure';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -3015,7 +3025,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — forty-two paths, the same ordered list
+    // The whole table, in order and to the count — forty-three paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -3060,10 +3070,11 @@ describe('the panel demo', () => {
       'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
       'locale-correctness', // M061 SC4, SC2 surface: the provider entry's token, kind and import path or the absence that stands where no entry carries the token, each absence in its own line, and no locale value
       'guard-phase', // M063 SC4 surface: the guard whose verdict cancelled the navigation, the phase it ran in and the verdict it stated, or no guard where the row names none, each in its own line and no remedy
+      'chunk-failure', // M064 SC4 surface: the specifier the router could not load, the route path that owns it, the status and the hash the attempt carried, one row per attempt in router order, or the named absence
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(42);
+    expect(appRoutes).toHaveLength(43);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -8595,5 +8606,341 @@ describe('the guard-phase surface', () => {
       guardPhasePanel(join(guardRecord())).lines,
     );
     expect(guardPhasePanel(smuggled).text.includes('declare')).toBe(false);
+  });
+});
+
+// The chunk-failure surface, and the discipline this milestone is about: the sample fact is the
+// shipped join's own answer over two attempts T001's recording carries, and the pane prints that
+// answer and nothing beside it — no 404 the record did not read, no hash completed from a filename,
+// no cause, no remedy and no version drift, because none of the three is in the answer.
+
+/** One attempt T001's recording carries, as the join is handed it. */
+interface ChunkFailureAttempt {
+  specifier?: string;
+  routePath?: string;
+  status?: number;
+  hash?: string;
+  outcome?: string;
+}
+
+/** The part of the M064 recording this spec reads: the attempts and the answers T001 measured. */
+interface ChunkFailureRecording {
+  samples: { attempt: ChunkFailureAttempt; answer: ChunkFailureAnswer }[];
+}
+
+/** One answer the join writes: the four states and the fields each attempt's record carried. */
+interface ChunkFailureAnswer {
+  state: string;
+  specifier?: string;
+  routePath?: string;
+  status?: number;
+  hash?: string;
+  consideredCount?: number;
+  reason?: string;
+}
+
+/** The join `extension/chunk-failure.js` publishes: one answer, or one per attempt. */
+interface ChunkFailureJoin {
+  (
+    record: unknown,
+    navigation?: unknown,
+  ): ChunkFailureAnswer | ChunkFailureAnswer[];
+}
+
+/** T001's recording and its text, inlined from disk the way every recording in this spec arrives. */
+function readChunkFailureRecording(): ChunkFailureRecording {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m064-import-failure.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  return JSON.parse(
+    inlinedText(modules, 'research/raw/m064-import-failure.json'),
+  ) as ChunkFailureRecording;
+}
+
+/**
+ * The join `extension/chunk-failure.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `chunk-failure` fact is held to the join's answer, not to a copy of it.
+ * The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function chunkFailureJoin(): ChunkFailureJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/chunk-failure.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  new Function(inlinedText(modules, 'extension/chunk-failure.js'))();
+  const api = (
+    globalThis as unknown as {
+      angularAiChunkFailure?: { chunkFailure?: ChunkFailureJoin };
+    }
+  ).angularAiChunkFailure;
+  if (api === undefined || typeof api.chunkFailure !== 'function') {
+    throw new Error(
+      'extension/chunk-failure.js published no chunkFailure on the global',
+    );
+  }
+  return api.chunkFailure;
+}
+
+/** One answer or a list of them, read as a list: the join answers in the shape it was handed. */
+function chunkFailureAnswers(
+  answer: ChunkFailureAnswer | ChunkFailureAnswer[],
+): ChunkFailureAnswer[] {
+  return Array.isArray(answer) ? answer : [answer];
+}
+
+/** One row of a list the join answered, by position: a list answer that carries no row throws. */
+function chunkFailureRow(
+  answers: ChunkFailureAnswer[],
+  index: number,
+): ChunkFailureAnswer {
+  const answer = answers[index];
+  if (answer === undefined) {
+    throw new Error('the join answered no row at ' + String(index));
+  }
+  return answer;
+}
+
+/** The two attempts the demo's sample fact is the join's answer over, in the recording's order. */
+function chunkFailureSampleAttempts(
+  recording: ChunkFailureRecording,
+): ChunkFailureAttempt[] {
+  const first = recording.samples[0];
+  const second = recording.samples[1];
+  if (first === undefined || second === undefined) {
+    throw new Error(
+      'the M064 recording must carry at least two sample attempts',
+    );
+  }
+  return [first.attempt, second.attempt];
+}
+
+describe('the chunk-failure surface', () => {
+  it('renders the seven fields the join answers, and the sample fact is that answer field for field (SC4)', async () => {
+    const join = chunkFailureJoin();
+    const recording = readChunkFailureRecording();
+    const attempts = chunkFailureSampleAttempts(recording);
+    const answers = chunkFailureAnswers(join(attempts));
+
+    // The four states and the seven fields the pane was written for, in the contract's own order.
+    expect([...CHUNK_FAILURE_STATES]).toEqual([
+      CHUNK_FAILURE_MISSING_IMPORT,
+      CHUNK_FAILURE_NEVER_COMPLETED,
+      CHUNK_FAILURE_RESOLVED,
+      CHUNK_FAILURE_CANNOT_TELL,
+    ]);
+    expect([...CHUNK_FAILURE_FIELDS]).toEqual([
+      'state',
+      'specifier',
+      'routePath',
+      'status',
+      'hash',
+      'consideredCount',
+      'reason',
+    ]);
+
+    // The join's own answer over the two attempts: two rows, in the recording's order, each stating
+    // the count it walked — and the second one `never-completed` with its own reason and no status.
+    expect(answers).toHaveLength(2);
+    expect(answers[0]).toEqual({
+      state: CHUNK_FAILURE_MISSING_IMPORT,
+      specifier: attempts[0]?.specifier,
+      routePath: attempts[0]?.routePath,
+      status: 404,
+      consideredCount: 2,
+    });
+    expect(answers[1]).toEqual({
+      state: CHUNK_FAILURE_NEVER_COMPLETED,
+      specifier: attempts[1]?.specifier,
+      routePath: attempts[1]?.routePath,
+      consideredCount: 2,
+      reason: 'no-response',
+    });
+    expect('status' in (answers[1] ?? {})).toBe(false);
+
+    // The sample fact is that answer, field for field — not a value written beside it.
+    expect(FACTS['chunk-failure']).toEqual(answers);
+    const fields: readonly string[] = [...CHUNK_FAILURE_FIELDS];
+    for (const answer of chunkFailureAnswers(
+      FACTS['chunk-failure'] as ChunkFailureAnswer[],
+    )) {
+      // Every key is a field of the contract, and the keys keep the contract's order.
+      const positions = Object.keys(answer).map((key) => fields.indexOf(key));
+      expect(positions).toEqual([...positions].sort((a, b) => a - b));
+      expect(answer.state).toBeDefined();
+      expect(answer.specifier).toBeDefined();
+      expect(answer.routePath).toBeDefined();
+      expect(answer.consideredCount).toBe(2);
+    }
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'chunk-failure',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the chunk-failure surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('chunk-failure');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'chunk-failure'),
+    ).toHaveLength(1);
+
+    // The demo renders the two rows the loader resolved: the first row's state is the pane's, and
+    // the whole pane is the lines the surface handed over.
+    const demo = await renderDemo('chunk-failure');
+    const pane = chunkFailurePanel(FACTS['chunk-failure']);
+    expect(demo.state()).toBe(CHUNK_FAILURE_MISSING_IMPORT);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(pane.lines.join('\n'));
+    expect(demo.blocks()).toHaveLength(2);
+  });
+
+  it('renders each of the four states, two failures as two rows, and no cause, remedy or version drift (SC4)', () => {
+    const join = chunkFailureJoin();
+    const recording = readChunkFailureRecording();
+
+    // Every state the pane was written for is reachable from the record's own attempts, and each
+    // answer carries exactly the seven contract fields or fewer.
+    const seen = new Set<string>();
+    for (const sample of recording.samples) {
+      const answer = chunkFailureAnswers(join(sample.attempt))[0];
+      if (answer === undefined) throw new Error('the join answered no row');
+      expect([...CHUNK_FAILURE_STATES]).toContain(answer.state);
+      for (const key of Object.keys(answer))
+        expect([...CHUNK_FAILURE_FIELDS]).toContain(key);
+      seen.add(answer.state);
+    }
+    expect([...seen].sort()).toEqual([...CHUNK_FAILURE_STATES].sort());
+
+    // missing-import: the specifier, the route path, the status and the count, and no reason.
+    const missing = chunkFailureRow(
+      chunkFailureAnswers(join(recording.samples[0]?.attempt)),
+      0,
+    );
+    expect(missing.state).toBe(CHUNK_FAILURE_MISSING_IMPORT);
+    expect(chunkFailurePanel(missing).lines).toEqual([
+      `${CHUNK_FAILURE_LABELS.state}: ${CHUNK_FAILURE_MISSING_IMPORT}`,
+      `${CHUNK_FAILURE_LABELS.specifier}: ${String(missing.specifier)}`,
+      `${CHUNK_FAILURE_LABELS.routePath}: ${String(missing.routePath)}`,
+      `${CHUNK_FAILURE_LABELS.status}: ${String(missing.status)}`,
+    ]);
+
+    // never-completed: the absence's own reason, and no status line at all — never a 404.
+    const never = chunkFailureRow(
+      chunkFailureAnswers(join(recording.samples[1]?.attempt)),
+      0,
+    );
+    const neverPane = chunkFailurePanel(never);
+    expect(neverPane.lines).toEqual([
+      `${CHUNK_FAILURE_LABELS.state}: ${CHUNK_FAILURE_NEVER_COMPLETED}`,
+      `${CHUNK_FAILURE_LABELS.specifier}: ${String(never.specifier)}`,
+      `${CHUNK_FAILURE_LABELS.routePath}: ${String(never.routePath)}`,
+      `${CHUNK_FAILURE_LABELS.reason}: no-response`,
+    ]);
+    expect(
+      neverPane.lines.some((line) =>
+        line.startsWith(`${CHUNK_FAILURE_LABELS.status}: `),
+      ),
+    ).toBe(false);
+    expect(neverPane.text.includes('404')).toBe(false);
+
+    // resolved: a hash the record truncated is rendered truncated — the bytes it carried and no
+    // completion from the attempt's chunk filename (E4).
+    const resolvedSample = recording.samples.find(
+      (sample) => sample.attempt.hash !== undefined,
+    );
+    if (resolvedSample === undefined) {
+      throw new Error(
+        'the recording must carry a resolved attempt with a hash',
+      );
+    }
+    const resolved = chunkFailureRow(
+      chunkFailureAnswers(join(resolvedSample.attempt)),
+      0,
+    );
+    expect(resolved.state).toBe(CHUNK_FAILURE_RESOLVED);
+    const hashLines = chunkFailurePanel(resolved).lines.filter((line) =>
+      line.startsWith(`${CHUNK_FAILURE_LABELS.hash}: `),
+    );
+    expect(hashLines).toEqual([
+      `${CHUNK_FAILURE_LABELS.hash}: ${String(resolvedSample.attempt.hash)}`,
+    ]);
+    expect(String(resolvedSample.attempt.hash).length).toBeLessThan(64);
+
+    // A route path the record states as the empty string is a value and prints as its own spelling,
+    // so the componentless route does not lose the path it stated.
+    const emptyPathSample = recording.samples.find(
+      (sample) => sample.attempt.routePath === '',
+    );
+    if (emptyPathSample === undefined) {
+      throw new Error(
+        'the recording must carry an attempt whose route path is ""',
+      );
+    }
+    expect(
+      chunkFailurePanel(
+        chunkFailureRow(chunkFailureAnswers(join(emptyPathSample.attempt)), 0),
+      ).lines,
+    ).toContain(`${CHUNK_FAILURE_LABELS.routePath}: ""`);
+
+    // Two failures of one navigation are two rows in the order the record holds them, and neither
+    // collapses onto the other (E2).
+    const two = chunkFailureAnswers(
+      join([recording.samples[0]?.attempt, recording.samples[1]?.attempt]),
+    );
+    const twoPane = chunkFailurePanel(two);
+    expect(twoPane.blocks).toHaveLength(2);
+    expect(twoPane.blocks.map((row) => row.state)).toEqual([
+      CHUNK_FAILURE_MISSING_IMPORT,
+      CHUNK_FAILURE_NEVER_COMPLETED,
+    ]);
+    expect(twoPane.blocks[0]?.lines).toEqual(
+      chunkFailurePanel(chunkFailureRow(two, 0)).lines,
+    );
+    expect(twoPane.blocks[1]?.lines).toEqual(
+      chunkFailurePanel(chunkFailureRow(two, 1)).lines,
+    );
+    const specifierLines = twoPane.lines.filter((line) =>
+      line.startsWith(`${CHUNK_FAILURE_LABELS.specifier}: `),
+    );
+    expect(specifierLines).toEqual([
+      `${CHUNK_FAILURE_LABELS.specifier}: ${String(chunkFailureRow(two, 0).specifier)}`,
+      `${CHUNK_FAILURE_LABELS.specifier}: ${String(chunkFailureRow(two, 1).specifier)}`,
+    ]);
+
+    // No cause, no remedy, no schematic and no version drift: the words a pane would have to write
+    // for itself, scanned over every state the join answers and over the two-row pane.
+    const everyState = recording.samples
+      .map((sample) => chunkFailurePanel(join(sample.attempt)).text)
+      .concat(twoPane.text)
+      .join('\n');
+    for (const word of [
+      'fix',
+      'remedy',
+      'schematic',
+      'cause',
+      'because',
+      'should',
+      'drift',
+      'stale',
+    ])
+      expect(new RegExp(`\\b${word}\\b`, 'i').test(everyState)).toBe(false);
+
+    // A seventh field on the answer renders nothing: the pane reads the contract's fields and no
+    // other, so a value smuggled in beside them has no label to appear under (N4).
+    const baseRow = chunkFailureRow(
+      chunkFailureAnswers(join(recording.samples[0]?.attempt)),
+      0,
+    );
+    const smuggled: Record<string, unknown> = {
+      ...baseRow,
+      remedy: 'redeploy the chunk and clear the service worker',
+    };
+    expect(chunkFailurePanel(smuggled).lines).toEqual(
+      chunkFailurePanel(baseRow).lines,
+    );
+    expect(chunkFailurePanel(smuggled).text.includes('redeploy')).toBe(false);
   });
 });

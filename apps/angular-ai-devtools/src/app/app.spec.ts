@@ -66,7 +66,11 @@ describe('App', () => {
  * same reason — the route records cite the loader's two lines, the path lines above it, the
  * `dead-click` and `what-changed` path lines below it and the declaration and mapped-literal lines
  * below the list — and is paid for by folding the M050 note's two lines into one, which is why the
- * count moves from forty-one to forty-two without moving a cited line.
+ * count moves from forty-one to forty-two without moving a cited line. M064's `chunk-failure`
+ * takes the line the M050 note stood on, so it costs the table no line at all — its own note and
+ * that note's are stated in `app.routes.ts`'s paragraph — and the `dead-click` and `what-changed`
+ * path lines, the declaration and mapped-literal lines and this count all keep their numbers, which
+ * is why the count moves from forty-two to forty-three.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -111,6 +115,7 @@ describe('the route table', () => {
       'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
       'locale-correctness', // M061 SC4, SC2 surface: the provider entry's token, kind and import path or the absence that stands where no entry carries the token, each absence in its own line, and no locale value
       'guard-phase', // M063 SC4 surface: the guard whose verdict cancelled the navigation, the phase it ran in and the verdict it stated — or no guard where the row names none, each in its own line and no remedy
+      'chunk-failure', // M064 SC4 surface: the specifier the router could not load, the route path that owns it, the status and the hash the attempt carried, one row per attempt in router order, or the named absence
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
@@ -464,6 +469,22 @@ describe('the route table', () => {
     // One entry, so the route this task adds is the only one that answers at that path.
     expect(
       appRoutes.filter((route) => route.path === 'guard-phase'),
+    ).toHaveLength(1);
+
+    const chunkFailure = appRoutes.find(
+      (route) => route.path === 'chunk-failure',
+    );
+    expect(chunkFailure?.component).toBeUndefined();
+    if (chunkFailure?.loadComponent === undefined) {
+      throw new Error('the chunk-failure surface must load lazily');
+    }
+    expect(await chunkFailure.loadComponent()).toBe(PanelDemoComponent);
+    expect(chunkFailure.data?.['surface']).toBe('chunk-failure');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(chunkFailure.data?.['surface']).not.toBe('guard-phase');
+    // One entry, so the route this task adds is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'chunk-failure'),
     ).toHaveLength(1);
   });
 });

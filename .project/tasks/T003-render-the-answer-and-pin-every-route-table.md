@@ -2,10 +2,10 @@
 id: T003
 title: Render the answer and pin every route table
 wave: 3
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: a8e53f4806fd6efd2f10d976996e44c243a78b94
 worktree: null
 task_branch: null
 files:
@@ -84,3 +84,9 @@ node --test scripts/panel-routes.test.mjs scripts/chunk-failure-copy.test.mjs sc
 
 - pending.
 - Landed paths: `apps/angular-ai-devtools/src/app/panel-chunk-failure.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `scripts/panel-routes.test.mjs`, `scripts/chunk-failure-copy.test.mjs`, `scripts/after-render-fixture.test.mjs`, `scripts/page-picker.component.spec.mjs`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/component-search.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/panel-copy.test.mjs`, `scripts/tutor-answer.test.mjs`, `tests/held-out/fixture-explainers-unchanged.test.mjs`, `apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts`, `apps/angular-ai-devtools/src/app/panel-outlet.spec.ts`, `scripts/guard-record-shapes.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `research/raw/m061-surface.json` — each is read from this tree, ready.
+- New surface pps/angular-ai-devtools/src/app/panel-chunk-failure.ts, plus every list that enumerates a surface: the PANEL_SURFACES entry, the LOADERS key and its FACTS sample, the pp.spec.ts pin, scripts/panel-routes.test.mjs and the three lists in chat-entry.component.spec.ts and page-picker.component.spec.ts.
+- scripts/after-render-fixture.test.mjs needed no change: it pins the spike fixture's nineteen routes, not the panel's surface table, so a panel surface cannot appear there without editing an undeclared file. The plan assumed otherwise and the measurement refuted it.
+- 
+esearch/raw/m061-surface.json moved twice: its three counts and their Before fields, then a fourth surfaces row for the pane that declares no sentence, which scripts/copy-check.test.mjs demanded. copyRecordSurfaces was re-derived rather than assumed and did not move.
+- The loader mutant was run both ways: dropping the key reddens E4 with missing: chunk-failure, and restoring it returns the suite green.
+
