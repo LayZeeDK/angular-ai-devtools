@@ -62,6 +62,12 @@ Goal: re-derive the three recordings left after wave 7 — including the teardow
 the gate record — then run the project verify and record it.
 Review depth: full
 
+## Wave 9 — T009: re-capture the two records the repair waves moved and run the project verify
+
+Goal: re-capture the claims record whose quotes follow the plan's coverage table and the stability record whose
+mention count follows the gate, then run the project verify and record it.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
@@ -84,6 +90,8 @@ Review depth: full
 | SC4 | T007 | AC2 |
 | SC1 | T008 | AC1 |
 | SC4 | T008 | AC2 |
+| SC1 | T009 | AC1 |
+| SC4 | T009 | AC2 |
 
 ## Held-out checks
 
