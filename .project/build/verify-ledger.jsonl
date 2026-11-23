@@ -1,3 +1,4 @@
 {"command": "node --test scripts/import-failure.test.mjs", "commit": "af12a8dcebf240cd083f9a868191406bad16c1c7", "recorded_at": "2026-11-23T15:53:05+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "node --test scripts/chunk-failure.test.mjs", "commit": "15d8f12f49c14b912fd67c959d7320401d74a172", "recorded_at": "2026-11-23T16:12:22+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "node --test scripts/chunk-failure.test.mjs", "commit": "085567cefd727f91e68a1a19c9e8db488b2ad491", "recorded_at": "2026-11-23T16:13:14+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "node --test scripts/panel-routes.test.mjs scripts/chunk-failure-copy.test.mjs scripts/after-render-fixture.test.mjs && npx nx run angular-ai-devtools:test", "commit": "9e1e21593baa9628e6320dde44b83346735be5b0", "recorded_at": "2026-11-23T16:35:15+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
