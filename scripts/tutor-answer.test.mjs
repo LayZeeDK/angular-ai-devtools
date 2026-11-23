@@ -1333,7 +1333,7 @@ test('T002 — a record present and not named outside the map still reddens the 
 
   // The self-held subtraction is not a licence for a record nothing holds. A record present, named
   // outside no map and held by no census of its own is measured, so the census above names it; and the
-  // subtraction itself is pinned to exactly the one record this milestone lands before its map.
+  // subtraction itself is pinned to exactly the records their own censuses write and read back.
   const heldByNobody = {
     path: `${RECORD_DIR}/m902-verdict-claims.json`,
     record: { milestone: 'M902', claims: [] },
@@ -1348,8 +1348,11 @@ test('T002 — a record present and not named outside the map still reddens the 
   const selfHeld = presentRecords.filter((entry) => heldByItsOwnCensus(entry));
   assert.deepEqual(
     selfHeld.map((entry) => entry.path),
-    [`${RECORD_DIR}/m062-verdict-claims.json`],
-    `exactly the claim list M062 T004 writes is held by its own census at this head, and no other record is excused this way: ${JSON.stringify(selfHeld.map((entry) => entry.path))}`,
+    [
+      `${RECORD_DIR}/m062-verdict-claims.json`,
+      `${RECORD_DIR}/m063-verdict-claims.json`,
+    ],
+    `exactly the claim lists M062 T004 and M063 T004 write are held by their own censuses at this head, and no other record is excused this way: ${JSON.stringify(selfHeld.map((entry) => entry.path))}`,
   );
   assert.ok(
     selfHeld.every(
