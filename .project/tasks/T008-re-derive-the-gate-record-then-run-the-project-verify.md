@@ -2,10 +2,10 @@
 id: T008
 title: Re-derive the gate record, then run the project verify
 wave: 8
-status: done
+status: pending
 deps: [T007]
-agent: build_T008
-base: 9b5a97dd366c2ce58568b1843ebe56b190af4527
+agent: null
+base: null
 worktree: null
 task_branch: null
 files:
