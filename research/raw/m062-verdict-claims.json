@@ -5,7 +5,7 @@
     "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(ROOT, \"M062\"))",
     "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 4 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
     "proofs": "every claim's suite and test are read from this checkout at capture: 15 citation(s) over [\"scripts/outlet-answer.test.mjs\",\"scripts/outlet-state.test.mjs\",\"apps/angular-ai-devtools/src/app/panel-outlet.spec.ts\",\"scripts/panel-routes.test.mjs\",\"scripts/panel-copy.test.mjs\"], each checked to declare the test title it names on the line that declares it, and each claim names every suite the plan resolves one of its criterion's edges to",
-    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks section, which this path reads as 8 row(s) of edge -> task -> test in either form a plan writes it - the three-column Edge | Task | Test table, or the bullet '- E.. -> T.. -> test' - so a claim cites the suite the milestone's own plan assigns its edges rather than one this file chose: 8 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and the suites [\"scripts/outlet-answer.test.mjs\",\"scripts/outlet-state.test.mjs\",\"apps/angular-ai-devtools/src/app/panel-outlet.spec.ts\",\"scripts/panel-routes.test.mjs\",\"scripts/panel-copy.test.mjs\"]. The plan's ## Held-out checks and its ## Intent coverage table disagree at 1 row(s) [\"E8 is held by T002 and SC4 is assigned to T003/T005/T006\"], recorded under evidence.plan.disagreements rather than refused, because a reader needs the citation and the disagreement in one place"
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks section, which this path reads as 8 row(s) of edge -> task -> test in either form a plan writes it - the three-column Edge | Task | Test table, or the bullet '- E.. -> T.. -> test' - so a claim cites the suite the milestone's own plan assigns its edges rather than one this file chose: 8 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and the suites [\"scripts/outlet-answer.test.mjs\",\"scripts/outlet-state.test.mjs\",\"apps/angular-ai-devtools/src/app/panel-outlet.spec.ts\",\"scripts/panel-routes.test.mjs\",\"scripts/panel-copy.test.mjs\"]. The plan's ## Held-out checks and its ## Intent coverage table disagree at 1 row(s) [\"E8 is held by T002 and SC4 is assigned to T003/T005/T006/T007/T008/T009\"], recorded under evidence.plan.disagreements rather than refused, because a reader needs the citation and the disagreement in one place"
   },
   "ruling": {
     "required": 0,
@@ -52,7 +52,13 @@
         "SC1 T005 AC1",
         "SC4 T005 AC2",
         "SC1 T006 AC1",
-        "SC4 T006 AC2"
+        "SC4 T006 AC2",
+        "SC1 T007 AC1",
+        "SC4 T007 AC2",
+        "SC1 T008 AC1",
+        "SC4 T008 AC2",
+        "SC1 T009 AC1",
+        "SC4 T009 AC2"
       ],
       "disagreements": [
         {
@@ -62,7 +68,10 @@
           "assignedByCoverage": [
             "T003",
             "T005",
-            "T006"
+            "T006",
+            "T007",
+            "T008",
+            "T009"
           ]
         }
       ]

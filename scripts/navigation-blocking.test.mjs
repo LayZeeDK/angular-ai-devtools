@@ -4036,11 +4036,11 @@ describe('the claim list', () => {
       'the drifted SC3 claim cites the one suite the fallback resolved',
     );
 
-    // 3. A row whose task the plan's own coverage table does not assign that edge's criterion. T009
-    // declares no file in this milestone, and the plan assigns SC1 to T001, T002, T004 and T005, so
-    // the row and the coverage table disagree about who holds E1.
+    // 3. A row whose task the plan's own coverage table does not assign that edge's criterion: the task
+    // named here is one the table names for no criterion, because a task it does name can gain a
+    // coverage row and satisfy the mutant - T009 did, when wave 9 gave it SC1 and SC4 rows.
     const movedTask = rewritten((test, task, line) =>
-      line.replace(`→ ${task} →`, '→ T009 →'),
+      line.replace(`→ ${task} →`, '→ T999 →'),
     );
     let movedMessage = '';
     try {
@@ -4055,7 +4055,7 @@ describe('the claim list', () => {
     );
     assert.match(
       movedMessage,
-      /E1 to T009/,
+      /E1 to T999/,
       `the refusal names the edge and the task the mutated row states; it produced ${JSON.stringify(movedMessage.slice(0, 320))}`,
     );
 
