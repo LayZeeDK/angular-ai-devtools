@@ -11,8 +11,8 @@ max_review_cycles: 2
 The panel answers why routed content appeared in the wrong outlet, or in none, naming the outlet the route requested,
 the name the router state matched and the route path — or stating the absence the state cannot fill. Six waves, six
 tasks: T001 records the outlet names the router state carries, T002 is the pure join, T003 the panel surface and its
-pins, T004 the verdict claims, T005 re-derives this milestone's own records, and T006 re-derives the two gate records and
-runs the project verify last.
+pins, T004 the verdict claims, T005 re-derives this milestone's own records, T006 re-derives the two gate records, and T007 re-derives the six recordings the manifest line moved and runs the
+project verify last.
 
 Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test`
 
@@ -50,6 +50,18 @@ Goal: capture both gate records at this head, read them back, and run the projec
 reach the final review.
 Review depth: full
 
+## Wave 7 — T007: re-derive the records the manifest line moved and run the project verify
+
+Goal: re-derive the six recordings that cite `extension/manifest.json` at or below the line T001 added, including
+the teardown census whose citations point into the gate record, then run the project verify and record it.
+Review depth: full
+
+## Wave 8 — T008: re-derive the remaining records and run the project verify
+
+Goal: re-derive the three recordings left after wave 7 — including the teardown census whose citations point into
+the gate record — then run the project verify and record it.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
@@ -68,6 +80,10 @@ Review depth: full
 | SC4 | T005 | AC2 |
 | SC1 | T006 | AC1 |
 | SC4 | T006 | AC2 |
+| SC1 | T007 | AC1 |
+| SC4 | T007 | AC2 |
+| SC1 | T008 | AC1 |
+| SC4 | T008 | AC2 |
 
 ## Held-out checks
 
