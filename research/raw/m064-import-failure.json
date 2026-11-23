@@ -1,0 +1,208 @@
+{
+  "schema": "m064-import-failure/v1",
+  "milestone": "M064",
+  "task": "T001",
+  "title": "Record the import failures the router produces",
+  "module": {
+    "path": "extension/import-failure.js",
+    "namespace": "angularAiImportFailure",
+    "exports": [
+      "importFailure",
+      "observeImportFailures"
+    ],
+    "joinedAgainst": "extension/navigation-narrator.js"
+  },
+  "interface": {
+    "fields": [
+      "state",
+      "specifier",
+      "routePath",
+      "status",
+      "hash",
+      "consideredCount",
+      "reason"
+    ],
+    "states": [
+      "missing-import",
+      "never-completed",
+      "resolved",
+      "cannot-tell"
+    ],
+    "reasons": [
+      "record-unreadable",
+      "no-import-recorded",
+      "specifier-not-recorded",
+      "no-response",
+      "outcome-not-recorded"
+    ],
+    "attemptFields": [
+      "specifier",
+      "routePath",
+      "status",
+      "hash",
+      "outcome"
+    ],
+    "outcomes": [
+      "loaded",
+      "failed"
+    ]
+  },
+  "carries": "one answer per dynamic-import attempt: `missing-import` for an import that failed and names its specifier, with the response status and the content hash when the attempt produced them; `never-completed` for an attempt whose request produced no status, with `no-response` named; `resolved` for an import that loaded, recorded as resolved rather than omitted; and `cannot-tell` with one named reason where the record does not say what happened. An answer produced from a list also states `consideredCount`, the number of attempts it walked.",
+  "doesNotCarry": "no cause, no remedy, no version drift and no identity the attempt did not produce: a chunk filename is never read back as a specifier, a hash is never derived from a filename or a status, and a missing status is never written as a 404.",
+  "measured": [
+    {
+      "claim": "the agent’s own record names no chunk, so the specifier this record carries has no second source in it",
+      "command": "grep -c \"chunk\" extension/agent-main.js",
+      "output": "0"
+    },
+    {
+      "claim": "the navigation payloads carry `{route, type}` and no chunk, so the stream that already exists does not name what was imported",
+      "command": "extension/navigation-narrator.js:26",
+      "output": "//     payloads carry `{route, type}`: no key of either names a guard, a resolver, a chunk or a task, so"
+    }
+  ],
+  "samples": [
+    {
+      "attempt": {
+        "specifier": "./chunk-claim-4f2a.js",
+        "routePath": "claim",
+        "status": 404,
+        "outcome": "failed"
+      },
+      "answer": {
+        "state": "missing-import",
+        "specifier": "./chunk-claim-4f2a.js",
+        "routePath": "claim",
+        "status": 404
+      }
+    },
+    {
+      "attempt": {
+        "specifier": "./chunk-contract-7b31.js",
+        "routePath": "contract",
+        "outcome": "failed"
+      },
+      "answer": {
+        "state": "never-completed",
+        "specifier": "./chunk-contract-7b31.js",
+        "routePath": "contract",
+        "reason": "no-response"
+      }
+    },
+    {
+      "attempt": {
+        "specifier": "./chunk-list-91bd.js",
+        "routePath": "list",
+        "status": 200,
+        "hash": "sha256-2c9f57a1d0e64b18f3c7a9be2d54e8c1",
+        "outcome": "loaded"
+      },
+      "answer": {
+        "state": "resolved",
+        "specifier": "./chunk-list-91bd.js",
+        "routePath": "list",
+        "status": 200,
+        "hash": "sha256-2c9f57a1d0e64b18f3c7a9be2d54e8c1"
+      }
+    },
+    {
+      "attempt": {
+        "specifier": "./chunk-list-91bd.js",
+        "routePath": "",
+        "status": 200,
+        "outcome": "loaded"
+      },
+      "answer": {
+        "state": "resolved",
+        "specifier": "./chunk-list-91bd.js",
+        "routePath": "",
+        "status": 200
+      }
+    },
+    {
+      "attempt": {
+        "specifier": "./chunk-claim-4f2a.js",
+        "routePath": "claim"
+      },
+      "answer": {
+        "state": "cannot-tell",
+        "reason": "outcome-not-recorded"
+      }
+    },
+    {
+      "attempt": {
+        "routePath": "claim",
+        "status": 500,
+        "outcome": "failed"
+      },
+      "answer": {
+        "state": "cannot-tell",
+        "reason": "specifier-not-recorded"
+      }
+    }
+  ],
+  "observer": {
+    "attempts": 3,
+    "answers": [
+      {
+        "state": "resolved",
+        "specifier": "./chunk-list-91bd.js",
+        "routePath": "list",
+        "status": 200,
+        "hash": "sha256-2c9f57a1d0e64b18f3c7a9be2d54e8c1"
+      },
+      {
+        "state": "missing-import",
+        "specifier": "./chunk-claim-4f2a.js",
+        "routePath": "claim",
+        "status": 404
+      },
+      {
+        "state": "never-completed",
+        "specifier": "./chunk-contract-7b31.js",
+        "routePath": "contract",
+        "reason": "no-response"
+      }
+    ],
+    "summary": {
+      "state": "missing-import",
+      "specifier": "./chunk-claim-4f2a.js",
+      "routePath": "claim",
+      "status": 404,
+      "consideredCount": 3
+    },
+    "totalConsidered": 3
+  },
+  "census": {
+    "rule": "no module directly under `extension/` other than this one names an import specifier (the token `specifier`) in its code, none other names the attempt record (`importAttempts`), and none other names one of this record’s state words (`missing-import`) — so the import specifier this record carries has one source and no second reader (SC3).",
+    "scanned": "every top-level `.js` module under `extension/`",
+    "specifierSources": [
+      "extension/import-failure.js"
+    ],
+    "attemptRecordSources": [
+      "extension/import-failure.js"
+    ],
+    "stateWordSources": [
+      "extension/import-failure.js"
+    ]
+  },
+  "capture": {
+    "task": "T001",
+    "command": "M064_CAPTURE=1 node --test scripts/import-failure.test.mjs",
+    "windowsCommand": "set \"M064_CAPTURE=1\"&& node --test scripts/import-failure.test.mjs",
+    "check": "node --test scripts/import-failure.test.mjs",
+    "records": "research/raw/m064-import-failure.json",
+    "reads": "the shipped module is run in a bare `node:vm` context and its own answers read back: one answer per attempt fixture, the observer’s answer list and the summary it warrants, and the closed sets the namespace exports. No page is opened, no request is made and no browser is started.",
+    "reading": "a default run derives the whole record again and asserts the committed bytes are exactly that serialization, so a value that moved is named by field and path rather than found by a reader; an armed run derives the same record and writes it only when a value moved, so two armed runs in a row are byte-identical and a default run writes nothing at all."
+  },
+  "counts": {
+    "fields": 7,
+    "states": 4,
+    "reasons": 5,
+    "attemptFields": 5,
+    "outcomes": 2,
+    "samples": 6,
+    "observerAttempts": 3,
+    "censusSources": 1
+  }
+}
