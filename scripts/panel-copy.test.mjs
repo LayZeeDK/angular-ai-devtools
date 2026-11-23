@@ -5,6 +5,13 @@
 // (`research/raw/m061-surface.json`), the pane it records (`panel-locale-correctness.ts`), the route
 // and loader key that reach the pane, and the copy the pane does not declare.
 //
+// M062 T003 extends the same record with the second surface it pins — `panel-outlet.ts`, the outlet
+// answer's pane — and the last test below holds that row to the pane, because a copy record that
+// names a surface it does not describe is a count rather than a measurement. The row lives in this
+// record and not in `research/raw/m048-surface-copy.json` for the reason the locale-correctness row
+// does: that record's own pins state that every surface it carries but `panel-context.ts` declares
+// copy the copy join can check, and a pane whose whole copy is a label table declares none.
+//
 // The premise of this suite is the one the milestone is built on: a panel surface may render the six
 // fields the join answers with and nothing beside them. The join is `extension/locale-correctness.js`
 // (T002), and every sentence a pane writes for itself has to be explained by the shipped copy digest
@@ -63,6 +70,10 @@ const COPY_RECORD = 'research/raw/m048-surface-copy.json';
 
 /** The surface's name, which is its route path, its `data.surface` and its `LOADERS` key. */
 const SURFACE_NAME = 'locale-correctness';
+
+/** The second surface this record pins: M062 T003's pane, and the file it is. */
+const OUTLET_SURFACE = 'apps/angular-ai-devtools/src/app/panel-outlet.ts';
+const OUTLET_SPEC = 'apps/angular-ai-devtools/src/app/panel-outlet.spec.ts';
 
 const record = JSON.parse(readFileSync(join(ROOT, RECORD), 'utf8'));
 const panel = await import(pathToFileURL(join(ROOT, SURFACE)).href);
@@ -759,6 +770,84 @@ test('the copy record does not grow by this surface, and the digest holds no row
     answer.unexplained,
     [],
     'an absence is not a list of unexplained strings',
+  );
+});
+
+test('the record’s second surface is the outlet pane, and its row is measured rather than counted', async () => {
+  // M062 T003's pane: the row this record carries for it, held to the pane itself. The copy record
+  // that precedes this one states a surface that declares no sentence only as an absence, so a pane
+  // whose whole copy is a label table is recorded here — and this pin is what keeps the two records
+  // from each deciding the other's rule: the surface row is this file's, the spec row is that one's.
+  const outlet = record.surfaces.find(
+    (surface) => surface.file === OUTLET_SURFACE,
+  );
+  assert.ok(outlet, 'the record carries a row for the outlet pane');
+  assert.equal(outlet.id, 'outlet', 'the row is named by the surface’s key');
+  assert.equal(
+    outlet.declares,
+    'inline-only',
+    'the pane declares its copy inline and in no map, and the record says so',
+  );
+  assert.equal(
+    outlet.sentences,
+    0,
+    'the pane declares no sentence, so the digest has nothing to explain for it',
+  );
+  assert.equal(
+    record.surfaces.filter((surface) => surface.file === OUTLET_SURFACE).length,
+    1,
+    'one row per surface: a second would be a second measurement of one pane',
+  );
+
+  // The copy record states no surface row for the pane, and names its spec instead: a surface that
+  // declares no sentence has no row in a record whose pins say every surface it carries declares one.
+  const copyRecord = JSON.parse(readFileSync(join(ROOT, COPY_RECORD), 'utf8'));
+  assert.deepEqual(
+    copyRecord.surfaces.filter((surface) => surface.file === OUTLET_SURFACE),
+    [],
+    'the copy record carries no row for a surface that declares no sentence',
+  );
+  assert.equal(
+    copyRecord.excluded.filter((entry) => entry.file === OUTLET_SPEC).length,
+    1,
+    'the copy record names the spec that measures the pane, rather than dropping it',
+  );
+  assert.equal(
+    copyRecord.counts.surfaces,
+    record.counts.copyRecordSurfaces,
+    'the record states the copy record’s surface count and the copy record states the same',
+  );
+
+  // No digest row is the outlet pane's, so the digest gained none for a sentence it does not write.
+  const digest = JSON.parse(readFileSync(join(ROOT, DIGEST), 'utf8'));
+  assert.deepEqual(
+    digest.entries.filter((entry) => entry.surface === 'outlet'),
+    [],
+    'the digest holds no row rendered by the outlet pane',
+  );
+
+  // The seven labels the outlet pane renders under are the labels its row enumerates, so the copy
+  // this surface does declare is described here rather than left to the pane's own word.
+  const outletPanelModule = await import(
+    pathToFileURL(join(ROOT, OUTLET_SURFACE)).href
+  );
+  assert.deepEqual(
+    Object.values(outletPanelModule.LABELS),
+    [
+      'state',
+      'requested',
+      'matched',
+      'path',
+      'absence',
+      'absencePath',
+      'reason',
+    ],
+    'the outlet pane renders under exactly these seven labels',
+  );
+  assert.deepEqual(
+    [...outletPanelModule.FIELDS],
+    ['state', 'requested', 'matched', 'path', 'absences'],
+    'the outlet pane enumerates the join’s five fields and no sixth',
   );
 });
 

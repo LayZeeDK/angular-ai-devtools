@@ -296,6 +296,16 @@ import {
   STATES as LOCALE_CORRECTNESS_STATES,
   localeCorrectnessPanel,
 } from './panel-locale-correctness';
+import {
+  CANNOT_TELL as OUTLET_CANNOT_TELL,
+  FIELDS as OUTLET_FIELDS,
+  LABELS as OUTLET_LABELS,
+  OUTLET_ABSENT as OUTLET_ABSENT_STATE,
+  OUTLET_MATCHED as OUTLET_MATCHED_STATE,
+  OUTLET_UNNAMED_PRIMARY as OUTLET_UNNAMED_PRIMARY_STATE,
+  STATES as OUTLET_STATES,
+  outletPanel,
+} from './panel-outlet';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -3026,6 +3036,7 @@ describe('the panel demo', () => {
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
+      'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
       'tutor-signals', // M057 SC1, SC3 surface: the effect node by label and index, its upstream nodes, the ordering absence, or the three absences named apart
@@ -3041,7 +3052,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(40);
+    expect(appRoutes).toHaveLength(41);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -7959,3 +7970,275 @@ function answerWithClaims(): LocaleCorrectnessAnswer {
     ),
   });
 }
+
+// ------------------------------------------------------------------------------- M062 T003 ----
+// The outlet surface, and the discipline the milestone is about: the sample fact is the shipped
+// join's own answer over a record written in the shape T001 measured, and the pane prints that
+// answer and nothing beside it — no cause, no remedy and no outlet the answer did not name, and no
+// sentence of its own, because a sentence here would be a claim the join did not produce.
+
+/** One route row of the record `extension/outlet-state.js` writes. */
+interface OutletRouteRow {
+  requested: string | null;
+  matched: string | null;
+  path: string | null;
+}
+
+/** One absence the record states: the field it names, the path it sits at, the reason it gives. */
+interface OutletAbsenceRow {
+  field: string;
+  path: string | null;
+  reason: string | null;
+}
+
+/** The outlet record T001's reader writes, as this section rebuilds it. */
+interface OutletRecord {
+  state: string;
+  routes: OutletRouteRow[];
+  absences: OutletAbsenceRow[];
+}
+
+/** The join's answer: the five fields every state carries, and no sixth. */
+interface OutletAnswer {
+  readonly state: string;
+  readonly requested: string | null;
+  readonly matched: string | null;
+  readonly path: string | null;
+  readonly absences: readonly OutletAbsenceRow[];
+}
+
+/** The page's own join namespace, as `extension/outlet-answer.js` publishes it. */
+interface OutletJoin {
+  (record: unknown): OutletAnswer;
+}
+
+/**
+ * The join `extension/outlet-answer.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `outlet` fact is held to the join's answer, not to a copy of it. The
+ * module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function outletJoin(): OutletJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/outlet-answer.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(
+      'extension/outlet-answer.js was not inlined above this spec file',
+    );
+  }
+  new Function(text)();
+  const join = (globalThis as unknown as { angularAiOutletAnswer?: OutletJoin })
+    .angularAiOutletAnswer;
+  if (join === undefined || typeof join !== 'function') {
+    throw new Error(
+      'extension/outlet-answer.js published no outletAnswer on the global',
+    );
+  }
+  return join;
+}
+
+/**
+ * The record the demo's sample fact is the join's answer over, written in the shape T001 measured
+ * (`{ state, routes: [{ requested, matched, path }], absences: [{ field, path, reason }] }`). No
+ * record this tree holds carries a page's outlets, so the rows are sample data — and every word in
+ * them (`requested`, `matched`, `path`, `field`, `outlet-not-requested`, `outlet-name-absent`,
+ * `path-absent`, `chain-truncated`) is T001's own vocabulary. The first row is the unnamed primary
+ * the join passes over; the answered row is the second, which is why the third absence — stated at a
+ * path the answered route is not — is filtered out of the answer.
+ */
+function outletRecord(): OutletRecord {
+  return {
+    state: 'outlet-recorded',
+    routes: [
+      { requested: null, matched: 'primary', path: '' },
+      { requested: 'sidebar', matched: 'sidebar', path: null },
+    ],
+    absences: [
+      { field: 'path', path: null, reason: 'path-absent' },
+      { field: 'matched', path: 'other', reason: 'outlet-name-absent' },
+      { field: 'route', path: null, reason: 'chain-truncated' },
+    ],
+  };
+}
+
+describe('the outlet surface', () => {
+  it('renders the five fields the join answers, and the sample fact is that answer field for field (SC4)', async () => {
+    const join = outletJoin();
+    const answer = join(outletRecord());
+
+    // The four states and the five fields the pane was written for, in the contract's own order.
+    expect([...OUTLET_STATES]).toEqual([
+      OUTLET_MATCHED_STATE,
+      OUTLET_UNNAMED_PRIMARY_STATE,
+      OUTLET_ABSENT_STATE,
+      OUTLET_CANNOT_TELL,
+    ]);
+    expect([...OUTLET_FIELDS]).toEqual([
+      'state',
+      'requested',
+      'matched',
+      'path',
+      'absences',
+    ]);
+
+    // The sample fact is that answer, field for field, and carries exactly the five contract fields.
+    expect(FACTS['outlet']).toEqual(answer);
+    expect(Object.keys(FACTS['outlet'] as object).sort()).toEqual([
+      'absences',
+      'matched',
+      'path',
+      'requested',
+      'state',
+    ]);
+
+    // SC4: the answer names the outlet the row requested, the outlet name the state matched and that
+    // route's own path — every one of them the record's, and the pane's rule already visible here: the
+    // record states three absences and the answer carries the two attributed to the answered route.
+    expect(answer.state).toBe(OUTLET_MATCHED_STATE);
+    expect(answer.requested).toBe('sidebar');
+    expect(answer.matched).toBe('sidebar');
+    expect(answer.path).toBeNull();
+    expect(outletRecord().absences).toHaveLength(3);
+    expect(answer.absences.map((absence) => absence.field)).toEqual([
+      'path',
+      'route',
+    ]);
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find((candidate) => candidate.path === 'outlet');
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the outlet surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('outlet');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'outlet'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo('outlet');
+    const pane = outletPanel(FACTS['outlet']);
+    expect(demo.state()).toBe(OUTLET_MATCHED_STATE);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(pane.state).toBe(OUTLET_MATCHED_STATE);
+
+    // The whole pane, in the answer's order: the state, the fields the answer carries, and each
+    // absence's own lines — with no path line, because the answer's path is null.
+    expect(pane.lines).toEqual([
+      `state: ${OUTLET_MATCHED_STATE}`,
+      `${OUTLET_LABELS.requested}: ${String(answer.requested)}`,
+      `${OUTLET_LABELS.matched}: ${String(answer.matched)}`,
+      `${OUTLET_LABELS.absence}: path`,
+      `${OUTLET_LABELS.reason}: path-absent`,
+      `${OUTLET_LABELS.absence}: route`,
+      `${OUTLET_LABELS.reason}: chain-truncated`,
+    ]);
+    expect(
+      pane.lines.some((line) => line.startsWith(`${OUTLET_LABELS.path}: `)),
+    ).toBe(false);
+    // One absence line per absence the answer carries, in the answer's own order.
+    expect(
+      pane.lines.filter((line) =>
+        line.startsWith(`${OUTLET_LABELS.absence}: `),
+      ),
+    ).toHaveLength(answer.absences.length);
+  });
+
+  it('renders no cause, no remedy and no outlet the answer did not carry, in every state the join answers (SC4)', () => {
+    const join = outletJoin();
+
+    // The four answers the pane must render, each the shipped join's own over a record.
+    const unnamed = join({
+      state: 'outlet-recorded',
+      routes: [{ requested: null, matched: 'primary', path: '' }],
+      absences: [
+        { field: 'requested', path: '', reason: 'outlet-not-requested' },
+      ],
+    });
+    const absent = join({
+      state: 'outlet-absent',
+      routes: [{ requested: 'sidebar', matched: 'primary', path: 'shell' }],
+      absences: [],
+    });
+    const unmatched = join({
+      state: 'cannot-tell',
+      routes: [{ requested: 'sidebar', matched: null, path: 'shell' }],
+      absences: [
+        { field: 'matched', path: 'shell', reason: 'outlet-name-absent' },
+      ],
+    });
+
+    // outlet-unnamed-primary: the request the answer reports is `primary`, because an unnamed outlet
+    // and `primary` are the same outlet, and the empty path is a path and is printed as one.
+    expect(unnamed.state).toBe(OUTLET_UNNAMED_PRIMARY_STATE);
+    expect(unnamed.requested).toBe('primary');
+    const unnamedPane = outletPanel(unnamed);
+    expect(unnamedPane.lines).toEqual([
+      `state: ${OUTLET_UNNAMED_PRIMARY_STATE}`,
+      `${OUTLET_LABELS.requested}: primary`,
+      `${OUTLET_LABELS.matched}: primary`,
+      `${OUTLET_LABELS.path}: ""`,
+      `${OUTLET_LABELS.absence}: requested`,
+      `${OUTLET_LABELS.absencePath}: ""`,
+      `${OUTLET_LABELS.reason}: outlet-not-requested`,
+    ]);
+
+    // outlet-absent: both names are rendered, so a reader sees which one moved, and the answer names
+    // no cause for the difference.
+    expect(absent.state).toBe(OUTLET_ABSENT_STATE);
+    expect(outletPanel(absent).lines).toEqual([
+      `state: ${OUTLET_ABSENT_STATE}`,
+      `${OUTLET_LABELS.requested}: sidebar`,
+      `${OUTLET_LABELS.matched}: primary`,
+      `${OUTLET_LABELS.path}: shell`,
+    ]);
+
+    // cannot-tell: the matched name the answer does not carry renders no line, and the absence that
+    // stands for it is the one the record stated.
+    expect(unmatched.state).toBe(OUTLET_CANNOT_TELL);
+    expect(unmatched.matched).toBeNull();
+    expect(outletPanel(unmatched).lines).toEqual([
+      `state: ${OUTLET_CANNOT_TELL}`,
+      `${OUTLET_LABELS.requested}: sidebar`,
+      `${OUTLET_LABELS.path}: shell`,
+      `${OUTLET_LABELS.absence}: matched`,
+      `${OUTLET_LABELS.absencePath}: shell`,
+      `${OUTLET_LABELS.reason}: outlet-name-absent`,
+    ]);
+
+    // No remedy, no cause and no schematic: the words a pane would have to write for itself, scanned
+    // over all four states so a word in one of them cannot hide behind the other three.
+    const everyState = [outletPanel(join(outletRecord())), unnamedPane]
+      .concat([absent, unmatched].map((answer) => outletPanel(answer)))
+      .map((pane) => pane.text)
+      .join('\n');
+    for (const word of [
+      'fix',
+      'remedy',
+      'schematic',
+      'cause',
+      'because',
+      'should',
+    ])
+      expect(new RegExp(`\\b${word}\\b`, 'i').test(everyState)).toBe(false);
+
+    // A seventh field on the answer renders nothing: the pane reads the five fields and no other, so
+    // a value smuggled in beside them has no label to appear under. The probe's value is a remedy no
+    // record carries, which is exactly what this pin is about.
+    const smuggled = {
+      ...(join(outletRecord()) as OutletAnswer),
+      remedy: 'declare the sidebar outlet',
+    };
+    expect(outletPanel(smuggled).lines).toEqual(
+      outletPanel(join(outletRecord())).lines,
+    );
+    expect(outletPanel(smuggled).text.includes('declare')).toBe(false);
+  });
+});

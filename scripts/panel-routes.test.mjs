@@ -34,6 +34,7 @@ const surfaces = [
   'stability',
   'console',
   'console-read',
+  'outlet',
   'visual-qa',
   'tutor-foundations',
   'tutor-signals',
@@ -615,6 +616,24 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
     'a table without the tutor-signals route must fail naming the missing surface',
   );
 
+  // Mutant: the M062 surface dropped from the list the factory is handed. It is the route the table
+  // answers for the outlet record — the request the configuration stated, the name the state matched,
+  // that route's own path and each absence the record states — so the per-surface half must name it
+  // rather than pass on the older surfaces alone.
+  const withoutOutlet = source.replace("  'outlet',\n", '');
+  assert.notEqual(
+    withoutOutlet,
+    source,
+    'the removed-outlet-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutOutlet),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route outlet must exist'),
+    'a table without the outlet route must fail naming the missing surface',
+  );
+
   // Mutant: the M061 surface dropped from the list the factory is handed. It is the route the table
   // answers for the locale-correctness pane — the provider entry's token, kind and import path, or
   // the absence that stands where no entry carries the token, with every absence and claim the
@@ -654,6 +673,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     'error-boundary': ['panel-error-boundary', 'errorBoundaryPanel'],
     stability: ['panel-stability', 'stabilityPanel'],
     'console-read': ['panel-copy-to-agent', 'consoleReadPanel'],
+    outlet: ['panel-outlet', 'outletPanel'],
     'webmcp-rehearsal': ['panel-webmcp-rehearsal', 'webmcpRehearsalPanel'],
     webmcp: ['panel-webmcp', 'webmcpPanel'],
     'teardown-leak': ['panel-teardown-leak', 'teardownLeakPanel'],
@@ -724,6 +744,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'tutorSignalsPanel(',
     'tutorRoutingPanel(',
     'localeCorrectnessPanel(',
+    'outletPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -1352,5 +1373,31 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: locale-correctness'),
     'removing the locale-correctness loader must fail naming the missing surface locale-correctness',
+  );
+
+  // Mutant: remove the outlet key from LOADERS. The M062 route is the one this task adds, so the
+  // check must name it when its loader is gone rather than pass on the surfaces before it. It is a
+  // bare identifier key whose import is the only reference to `panel-outlet.ts`, so a route that
+  // dropped it would leave the outlet surface unreachable while every earlier surface still loaded.
+  // This is also the mutation the task's own red-then-green proof applies to `panel-demo.ts`: a route
+  // entry with no loader beside it must fail naming the key rather than rendering nothing.
+  const withoutOutlet = demoSource.replace(
+    "  outlet: () => import('./panel-outlet') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutOutlet,
+    demoSource,
+    'the outlet loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutOutlet),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: outlet'),
+    'removing the outlet loader must fail naming the missing surface outlet',
   );
 });

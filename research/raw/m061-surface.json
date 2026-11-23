@@ -15,13 +15,13 @@
     ]
   },
   "counts": {
-    "what": "the numbers this record states about the panel, the route table and the copy, each measured at this head rather than typed",
-    "panelSurfaces": 31,
-    "panelSurfacesBefore": 30,
-    "loaderKeys": 31,
-    "loaderKeysBefore": 30,
-    "orderedPaths": 40,
-    "orderedPathsBefore": 39,
+    "what": "the numbers this record states about the panel, the route table and the copy, each measured at this head rather than typed Every one of these values is re-read from the tree by `scripts/panel-copy.test.mjs` on every run, so a later task that moves one of them moves this record with it rather than leaving it saying yesterday’s number: M062’s T003 adds the one `outlet` entry to `PANEL_SURFACES`, the one `outlet` key to `LOADERS` and the one route that key answers, so the three counts that measure those lists move by one each from the numbers this task measured. The four copy counts do not move: that pane declares no sentence, so `research/raw/m048-surface-copy.json` gains no surface row and no sentence — only one `excluded` row for the spec that measures the new pane — and the row that records the pane itself is the second entry of this record’s own `surfaces` list, which is the list `scripts/copy-check.test.mjs` reads beside that record.",
+    "panelSurfaces": 32,
+    "panelSurfacesBefore": 31,
+    "loaderKeys": 32,
+    "loaderKeysBefore": 31,
+    "orderedPaths": 41,
+    "orderedPathsBefore": 40,
     "digestRows": 204,
     "digestRowsBefore": 204,
     "digestRowsForThisSurface": 0,
@@ -33,8 +33,8 @@
     "copyRecordSentencesBefore": 213,
     "command": "node -e \"const fs=require('fs');const q=String.fromCharCode(39);const r=fs.readFileSync('apps/angular-ai-devtools/src/app/app.routes.ts','utf8');const s=r.indexOf('const PANEL_SURFACES = ');const e=r.indexOf('];',s);const d=r.slice(s,e).split('\\n').filter(l=>{const t=l.trim();return t.startsWith(q)&&t.endsWith(',');}).length;const m=fs.readFileSync('apps/angular-ai-devtools/src/app/panel-demo.ts','utf8');const a=m.indexOf('const LOADERS');const z=m.indexOf('const FACTS',a);const k=m.slice(a,z).split('\\n').filter(l=>l.includes('import(')).length;const g=JSON.parse(fs.readFileSync('extension/copy-digest.json','utf8'));console.log('panelSurfaces '+d);console.log('loaderKeys '+k);console.log('digestRows '+g.entries.length);console.log('digestRowsForThisSurface '+g.entries.filter(x=>x.surface==='locale-correctness').length)\"",
     "output": [
-      "panelSurfaces 31",
-      "loaderKeys 31",
+      "panelSurfaces 32",
+      "loaderKeys 32",
       "digestRows 204",
       "digestRowsForThisSurface 0"
     ]
@@ -238,7 +238,10 @@
         "token": null,
         "provider": null,
         "importPath": null,
-        "absences": ["locale-token-absent", "no-formatter-named"],
+        "absences": [
+          "locale-token-absent",
+          "no-formatter-named"
+        ],
         "statement": "a record that carries provider entries and none of them the locale token: the three entry fields are null, so the pane renders no token, no kind and no import path — and no default locale in their place — and the absence `locale-token-absent` is what stands where the entry would be."
       },
       {
@@ -247,7 +250,10 @@
         "token": null,
         "provider": null,
         "importPath": null,
-        "absences": ["no-provider-record", "no-formatter-named"],
+        "absences": [
+          "no-provider-record",
+          "no-formatter-named"
+        ],
         "statement": "a record that states it names no formatter identity and carries no provider record: the pane renders the two absences the answer carries and never the nearest locale the page happens to render."
       },
       {
@@ -256,12 +262,22 @@
         "token": null,
         "provider": null,
         "importPath": null,
-        "absences": ["no-provider-record", "no-formatter-named"],
+        "absences": [
+          "no-provider-record",
+          "no-formatter-named"
+        ],
         "statement": "a record that states nothing this answer can use: the pane renders the state and the absences the answer carries and nothing else — no reason is transcribed, no identity is named and no sentence of the pane’s own is written."
       }
     ]
   },
-  "fields": ["state", "token", "provider", "importPath", "absences", "claims"],
+  "fields": [
+    "state",
+    "token",
+    "provider",
+    "importPath",
+    "absences",
+    "claims"
+  ],
   "surfaces": [
     {
       "id": "locale-correctness",
@@ -269,6 +285,13 @@
       "declares": "inline-only",
       "sentences": 0,
       "statement": "one surface, recorded by this file as the copy record records its own: it declares no sentence, and the labels it writes are enumerated under `copy.inline` rather than digested. The M048 copy record does not carry it, and this file is what `scripts/copy-check.test.mjs` reads beside that record so every `panel-*.ts` surface on disk is named by one copy record."
+    },
+    {
+      "id": "outlet",
+      "file": "apps/angular-ai-devtools/src/app/panel-outlet.ts",
+      "declares": "inline-only",
+      "sentences": 0,
+      "statement": "the second surface recorded by this file, and M062 T003’s own pane: it declares no sentence, and the eight literals it writes — its seven labels and the one template that joins a label to a value — are enumerated under `copy.inline` rather than digested. It is recorded here rather than in the M048 copy record for the reason the first entry is: that record’s own pins state that every surface it carries but `panel-context.ts` declares copy the copy join can check, and a pane whose whole copy is a label table has nothing for the digest to explain. `scripts/copy-check.test.mjs` reads this list beside that record so every `panel-*.ts` surface on disk is named by one copy record, and `scripts/panel-copy.test.mjs` holds this row to the pane: its id, its file, its `inline-only` declaration and its empty sentence list."
     }
   ],
   "fieldsAt": {
@@ -625,19 +648,27 @@
       }
     ],
     "digestRows": 0,
-    "statement": "this pane declares no sentence at all: every line it writes is one of the seven labels above joined to a value one of the six fields carries, so there is no string for the copy digest to explain and no row was invented for one. The copy record `research/raw/m048-surface-copy.json` is T001’s measurement of the surfaces that existed at M048 and it is not re-measured here — its counts stay 31 surfaces and 213 sentences — because this surface adds no sentence to it; the surface itself is recorded by this file, and `scripts/copy-check.test.mjs` reads both records so every `panel-*.ts` surface on disk is named by one of them."
+    "statement": "this pane declares no sentence at all: every line it writes is one of the seven labels above joined to a value one of the six fields carries, so there is no string for the copy digest to explain and no row was invented for one. The copy record `research/raw/m048-surface-copy.json` is T001’s measurement of the surfaces that existed at M048 and it is not re-measured here — its counts stay 31 surfaces and 213 sentences — because this surface adds no sentence to it; the surface itself is recorded by this file, and `scripts/copy-check.test.mjs` reads both records so every `panel-*.ts` surface on disk is named by one of them. M062’s T003 records its own pane beside this one, in the second entry of the `surfaces` list: that pane declares no sentence either, so the digest still gains no row and the copy record still gains no sentence."
   },
   "notCaptured": [
     "Nothing here was rendered, clicked or captured: every value is a static read of the files the `sources` block names, at the tree above, and the answer the record states is the shipped join run node-side over the entries T001 measured. No browser was opened, no page was read, no profiler was tapped and no build was run.",
     "No page read produced this answer and none could: the token is the injector walk’s own derivation and the kind and the import path are the entry’s own fields. T001 measured those four fields and the two absences; this record adds no fifth field and no value, and the value the walk discards appears nowhere in it or in the pane.",
     "The record does not measure what the pane looks like. It names the four states, the four absences and the line each reads, and its `copy` block states that the pane declares no sentence — which is why the digest gains no row and the copy record gains no sentence. `scripts/panel-copy.test.mjs` holds every citation here to the line it names and holds the rendered lines to the labels the answer carries.",
-    "The record does not claim the copy record was re-measured. `research/raw/m048-surface-copy.json` stated 31 surfaces and 213 sentences before this task and states the same after it, because this pane declares no sentence; the counts above record both, and `scripts/copy-check.test.mjs` reads this file beside that record so the thirty-second surface on disk is accounted for rather than dropped."
+    "The record does not claim the copy record was re-measured by this task. `research/raw/m048-surface-copy.json` stated 31 surfaces and 213 sentences before this task and states the same after it, because this pane declares no sentence; M062’s T003 later added one `excluded` row there for the spec that measures its own pane, and no surface row, for the same reason. The counts above record both readings, and `scripts/copy-check.test.mjs` reads this file beside that record so every `panel-*.ts` surface on disk is accounted for rather than dropped."
   ],
-  "verdict": "measured: the panel route `locale-correctness` is one lazy route — a `PANEL_SURFACES` entry spread into `appRoutes` by the one mapped literal, sitting between `error-routing` and the `dead-click` note and costing the list two lines the M050 note’s own fold pays for, so no line the route records cite moves — whose `data.surface` names the `locale-correctness` key of `panel-demo.ts`’s `LOADERS`, and that key is the only path to `panel-locale-correctness.ts`. The pane renders the join’s six fields and nothing it did not state: the token, the kind and the import path the entry the answer read carries, one line per absence the answer carries, and one pair of lines per claim it cites — with every `null` rendered as no line at all, so `locale-token-absent` shows the absence and never a default locale, and `formatted-outside-i18n` shows the two absences rather than the nearest locale a page renders. The pane names no locale value, no remedy, no cause, no schematic and no identity the answer did not carry, and it writes no sentence of its own: the digest gains no row and the copy record gains no sentence. The panel carries 31 surfaces, 31 loader keys and 40 ordered paths, `extension/copy-digest.json` 204 rows with none of them this pane’s, and the copy record 31 surfaces and 213 sentences with this surface recorded by this file.",
+  "verdict": "measured: the panel route `locale-correctness` is one lazy route — a `PANEL_SURFACES` entry spread into `appRoutes` by the one mapped literal, sitting between `error-routing` and the `dead-click` note and costing the list two lines the M050 note’s own fold pays for, so no line the route records cite moves — whose `data.surface` names the `locale-correctness` key of `panel-demo.ts`’s `LOADERS`, and that key is the only path to `panel-locale-correctness.ts`. The pane renders the join’s six fields and nothing it did not state: the token, the kind and the import path the entry the answer read carries, one line per absence the answer carries, and one pair of lines per claim it cites — with every `null` rendered as no line at all, so `locale-token-absent` shows the absence and never a default locale, and `formatted-outside-i18n` shows the two absences rather than the nearest locale a page renders. The pane names no locale value, no remedy, no cause, no schematic and no identity the answer did not carry, and it writes no sentence of its own: the digest gains no row and the copy record gains no sentence. The panel carries 32 surfaces, 32 loader keys and 41 ordered paths at this reading — M062’s T003 adds its own `outlet` surface, loader key and route to the three lists and adds no sentence to any pane — `extension/copy-digest.json` 204 rows with none of them this pane’s, and the copy record 31 surfaces and 213 sentences with this surface recorded by this file and the `outlet` pane by the second entry of the `surfaces` list below.",
   "revision": {
     "author": "T003",
     "head": "462cddb18d4392bdf9511bc9280b6a7a70cd16e4",
     "why": "M061’s T003 ships the thirty-first panel surface, `panel-locale-correctness.ts`, with its route, loader key and sample fact, and the record of that surface is owed before the milestone ships",
-    "what": "the route, the loader key, the four states and the four absences with the answer field each reads and the line each is rendered on, the join’s measured answer over the entries the demo carries, the copy this pane does not declare, the counts the panel and the copy carry at this head, and the verdict the surface is held to"
+    "what": "the route, the loader key, the four states and the four absences with the answer field each reads and the line each is rendered on, the join’s measured answer over the entries the demo carries, the copy this pane does not declare, the counts the panel and the copy carry at this head, and the verdict the surface is held to",
+    "remeasuredBy": [
+      {
+        "task": "T003",
+        "milestone": "M062",
+        "why": "M062’s T003 ships the thirty-second panel surface, `panel-outlet.ts`, with its route, loader key and sample fact, so the counts this record states about the panel and the route table each move by one and its own copy record gains the pane’s row — the pane declares no sentence, which is why the sentence counts and the digest’s row count do not move",
+        "what": "the three counts that measure the panel’s own lists re-read from the tree with the record’s own command (32 surfaces, 32 loader keys, 41 ordered paths, 204 digest rows, none of them this pane’s), the second entry of the `surfaces` list for the new pane, the copy block’s statement extended to say what it records, the verdict and the absence above re-stated for that reading, and this note added; no citation, state, absence or answer field of this record moved, because the route line, the loader key and the sample fact it names all kept their numbers"
+      }
+    ]
   }
 }

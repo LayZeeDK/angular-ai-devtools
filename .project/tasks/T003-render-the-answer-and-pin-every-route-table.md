@@ -2,10 +2,10 @@
 id: T003
 title: Render the answer and pin every route table
 wave: 3
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: d287b975695fcf0f2b8c355c7250467ec1901611
 worktree: null
 task_branch: null
 files:
@@ -67,3 +67,11 @@ node --test scripts/panel-routes.test.mjs scripts/after-render-fixture.test.mjs 
   spec (`research/raw/m048-surface-copy.json`) and the counts the panel-copy suite pins
   (`research/raw/m061-surface.json`) are now declared, because the first dispatch measured that writing the surface
   without them reddens two suites the contract does not own.
+- Landed paths: the pane and its spec, the route entry, the loader key and the sample fact, plus the records the surface is measured in.
+- `panel-outlet.ts` renders one `label: value-the-answer-carries` line per field, one line per absence, no line for a `null`, and the empty path as `""` so a componentless route does not lose it. The remedy mutant reddens on the sentence scan, naming the sentence.
+- The route table, the loader map, `m061-surface.json`'s surface row and its counts (32/32/41/204), and the spec's `excluded` row moved in one commit. The loader mutant reddens as `every app.routes.ts surface must have a panel-demo LOADERS key; missing: outlet`.
+- The surface row went into `m061-surface.json`, not a new `m048` row: `m048` deliberately carries no sentence-less surface and its own pins redden if one is added — its mechanism for later surfaces is `LATER_COPY_RECORDS`. Only the spec's `excluded` row belongs in `m048`, and that is what was added.
+- Line pins were paid for rather than re-cited: the route entry sits in the uncited 16-80 region and the demo's `fields` note was folded, so all 310 citations into the two files hold except four pre-existing stale ones in `m047-surface.json`, proven pre-existing at HEAD.
+- `scripts/panel-bundle-budget.test.mjs` is red because the built bundle predates the new pane; the project verify rebuilds first, which is where that pin resolves.
+- The gate record needed `SUITE_DIFF_REASONS` rows for this milestone's suites to derive at all; they were added, and the two remaining reds are the armed re-capture the re-derivation task owns.
+- The app suites (`app.spec.ts`, the picker, the demo) run only through `nx run ...:test`; they were edited by pattern and held by `tsc -p tsconfig.check.json` plus the held-out corpus, which compiles the real route table and answers through four routes.

@@ -58,7 +58,11 @@ describe('App', () => {
  * dead-click note for the same reason — the route records cite the path lines above it, the
  * `dead-click` and `what-changed` path lines below it and the declaration and mapped-literal lines
  * below the list — and is paid for by folding the M050 note's four lines into two, which is why the
- * count moves from thirty-nine to forty without moving a cited line.
+ * count moves from thirty-nine to forty without moving a cited line. M062's `outlet` sits after
+ * `console-read` for the same reason — the route records cite the loader's two lines, the path lines
+ * above it, the `visual-qa` path line below it and the declaration and mapped-literal lines below the
+ * list — and is paid for by the M046 note's own fold, which is why the count moves from forty to
+ * forty-one without moving a cited line.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -89,6 +93,7 @@ describe('the route table', () => {
       'stability', // M043 SC5 surface: the state and its emission, the settle time or its absence, the repeated work, apart
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic, the unmatched code named
       'console-read', // M046 SC1-3 surface: the control that names what will be sent, the body the pane drew, and the absence or the cannot-tell reason
+      'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
       'tutor-signals', // M057 SC1, SC3 surface: the effect node by label and index, its upstream nodes, the ordering absence, or the three absences named apart
@@ -427,5 +432,19 @@ describe('the route table', () => {
     expect(
       appRoutes.filter((route) => route.path === 'locale-correctness'),
     ).toHaveLength(1);
+
+    const outlet = appRoutes.find((route) => route.path === 'outlet');
+    expect(outlet?.component).toBeUndefined();
+    if (outlet?.loadComponent === undefined) {
+      throw new Error('the outlet surface must load lazily');
+    }
+    expect(await outlet.loadComponent()).toBe(PanelDemoComponent);
+    expect(outlet.data?.['surface']).toBe('outlet');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(outlet.data?.['surface']).not.toBe('console-read');
+    // One entry, so the route this task adds is the only one that answers at that path.
+    expect(appRoutes.filter((route) => route.path === 'outlet')).toHaveLength(
+      1,
+    );
   });
 });
