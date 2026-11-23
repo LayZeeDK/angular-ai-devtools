@@ -1,0 +1,212 @@
+{
+  "mode": "structure",
+  "at": "2026-11-23T06:55:34.377Z",
+  "pass": true,
+  "blockers": [],
+  "findings": [
+    {
+      "id": "check-loads:di-doctor",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:di-doctor",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 6, pass 6, fail 0"
+    },
+    {
+      "id": "check-loads:error-explainer",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:error-explainer",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 6, pass 6, fail 0"
+    },
+    {
+      "id": "check-loads:extension-panel",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:extension-panel",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 6, pass 6, fail 0"
+    },
+    {
+      "id": "check-loads:interop",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:interop",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 10, pass 10, fail 0"
+    },
+    {
+      "id": "check-loads:model-init",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:model-init",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 6, pass 6, fail 0"
+    },
+    {
+      "id": "check-loads:signal-provenance",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:signal-provenance",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 6, pass 6, fail 0"
+    },
+    {
+      "id": "check-loads:stale-view",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:stale-view",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 6, pass 6, fail 0"
+    },
+    {
+      "id": "check-loads:state",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:state",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 12, pass 12, fail 0"
+    },
+    {
+      "id": "check-loads:attached",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:attached",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 4, pass 4, fail 0"
+    },
+    {
+      "id": "check-loads:coexist",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:coexist",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 6, pass 6, fail 0"
+    },
+    {
+      "id": "check-loads:extension-enabled",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:extension-enabled",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 7, pass 7, fail 0"
+    },
+    {
+      "id": "check-loads:live-reads",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:live-reads",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 10, pass 10, fail 0"
+    },
+    {
+      "id": "check-loads:read-only",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:read-only",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 6, pass 6, fail 0"
+    },
+    {
+      "id": "check-loads:setup",
+      "kind": "structure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "check-tested:setup",
+      "kind": "structure",
+      "ok": true,
+      "detail": "tests 8, pass 8, fail 0"
+    },
+    {
+      "id": "contract:control-ai-browsers",
+      "kind": "structure",
+      "ok": true,
+      "detail": "contract checks pass"
+    },
+    {
+      "id": "contract:control-angular-dev-app",
+      "kind": "structure",
+      "ok": true,
+      "detail": "contract checks pass"
+    },
+    {
+      "id": "contract:control-angular-devtools",
+      "kind": "structure",
+      "ok": true,
+      "detail": "contract checks pass"
+    },
+    {
+      "id": "contract:control-pangular-inspector",
+      "kind": "structure",
+      "ok": true,
+      "detail": "contract checks pass"
+    },
+    {
+      "id": "contract:control-vitest-browser-angular",
+      "kind": "structure",
+      "ok": true,
+      "detail": "contract checks pass"
+    },
+    {
+      "id": "scripts-in-step",
+      "kind": "structure",
+      "ok": true,
+      "detail": "3 copies in step"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+head: 32d639cdf1b61a00179d953b1e4dc5cf9adcb346 at 2026-11-23T00:22:57.399Z
+▶ the outlet record reader the manifest registers
+  ✔ loads beside the page-realm agent, before the script that reads it (0.7981ms)
+  ✔ is the only outlet reader the manifest registers, and a second registration reddens that pin (2.2441ms)
+  ℹ SC3 registration mutant red: the manifest registers ["outlet-mirror.js","outlet-state.js"] as outlet readers; the record is the only source of an outlet name
+  ✔ keeps the manifest unmutated: the pins above read the shipped file (0.0722ms)
+✔ the outlet record reader the manifest registers (4.7365ms)
+▶ SC3 — the outlet record is the only source of an outlet name
+  ✔ is the only module under extension/ that produces one, and a second reader reddens the scan (13.6307ms)
+  ✔ SC3 mutant — a second reader beside the shipped modules reddens the scan and is named (17.6975ms)
+  ℹ SC3 mutant red: a second reader produces an outlet name: ["outlet-mirror.js"] — the record is the only source (N1, N3)
+✔ SC3 — the outlet record is the only source of an outlet name (32.2258ms)
+▶ SC1 — a route that declares a second named outlet names both names and the path
+  ✔ reduces every activated route to requested, matched and path, in declaration order (1.0055ms)
+  ✔ SC1 mutant — renaming the outlet in the route configuration reddens the pin, naming `requested` (0.6955ms)
+  ℹ SC1 mutant red: requested moved: the record names requested "aside" where the route configuration of "settings" requests "sidebar"
+  ✔ SC1 mutant — reading `requested` from the state instead of the configuration reddens the pin (0.8469ms)
+  ℹ SC1 mutant red: requested moved: the record names requested "sidebar" where the route configuration requests "aside" — requested is the configuration's name, never the state's
+  ✔ SC1 mutant — reading `matched` from the route configuration instead of the state reddens the pin (0.7107ms)
+  ℹ SC1 mutant red: matched moved: the record names matched "aside" where the router state matched "sidebar" — matched is the state's name, never the configuration's
+✔ SC1 — a route that declares a second named outlet names both names and the path (3.4901ms)
+▶ SC2 — an outlet the router state does not carry leaves matched absent
+  ✔ names the absence for that route and never borrows the nearest outlet in the tree (0.5571ms)
+  ✔ SC2 mutant — filling `matched` from a selector over the rendered tree reddens the absence, naming `matched` (0.7804ms)
+  ℹ SC2 mutant red: matched moved: the record names matched "sidebar" from the rendered tree where the router state carries no outlet name — matched is the state's name or it is absent (N1, N2)
+✔ SC2 — an outlet the router state does not carry leaves matched absent (1.5325ms)
+▶ an unnamed outlet and one named primary are the same outlet, kept as stated
+  ✔ leaves requested absent for the unnamed outlet and names it where the configuration states it (0.4947ms)
+✔ an unnamed outlet and one named primary are the same outlet, kept as stated (0.5582ms)
+▶ the record names absences from a closed set and reads no page surface
+  ✔ publishes the states, the route fields and the absence tokens it uses (0.6043ms)
+  ✔ loads in a context with no page surface and needs none (0.4041ms)
+✔ the record names absences from a closed set and reads no page surface (1.0909ms)
+▶ no input makes the function throw
+  ✔ answers cannot-tell for every unreadable value rather than throwing (1.1714ms)
+  ✔ reads a payload whose getters throw as an absent field, never as an exception (0.4832ms)
+  ✔ reads a cyclic chain as a truncated record rather than hanging (0.5744ms)
+✔ no input makes the function throw (2.3186ms)
+ℹ tests 17
+ℹ suites 7
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 180.1303
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/outlet-state.js scripts/outlet-state.test.mjs
