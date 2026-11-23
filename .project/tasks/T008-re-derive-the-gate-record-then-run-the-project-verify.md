@@ -25,6 +25,7 @@ files:
   - scripts/tutor-answer.test.mjs
   - scripts/chunk-failure-claims.test.mjs
   - research/raw/m064-verdict-claims.json
+  - research/raw/m059-record-shapes.json
   - scripts/chunk-failure-capture.test.mjs
 ---
 
