@@ -75,6 +75,12 @@ const SURFACE_NAME = 'locale-correctness';
 const OUTLET_SURFACE = 'apps/angular-ai-devtools/src/app/panel-outlet.ts';
 const OUTLET_SPEC = 'apps/angular-ai-devtools/src/app/panel-outlet.spec.ts';
 
+/** The third surface this record pins: M063 T003's pane, and the file it is. */
+const GUARD_PHASE_SURFACE =
+  'apps/angular-ai-devtools/src/app/panel-guard-phase.ts';
+const GUARD_PHASE_SPEC =
+  'apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts';
+
 const record = JSON.parse(readFileSync(join(ROOT, RECORD), 'utf8'));
 const panel = await import(pathToFileURL(join(ROOT, SURFACE)).href);
 
@@ -848,6 +854,89 @@ test('the record’s second surface is the outlet pane, and its row is measured 
     [...outletPanelModule.FIELDS],
     ['state', 'requested', 'matched', 'path', 'absences'],
     'the outlet pane enumerates the join’s five fields and no sixth',
+  );
+});
+
+test('the record’s third surface is the guard-phase pane, and its row is measured rather than counted', async () => {
+  // M063 T003's pane: the row this record carries for it, held to the pane itself. The two rows
+  // before it state the same shape — a pane whose whole copy is a label table is recorded here, and
+  // only here — so this pin keeps the three records from each deciding another's rule.
+  const guardPhase = record.surfaces.find(
+    (surface) => surface.file === GUARD_PHASE_SURFACE,
+  );
+  assert.ok(guardPhase, 'the record carries a row for the guard-phase pane');
+  assert.equal(
+    guardPhase.id,
+    'guard-phase',
+    'the row is named by the surface’s key',
+  );
+  assert.equal(
+    guardPhase.declares,
+    'inline-only',
+    'the pane declares its copy inline and in no map, and the record says so',
+  );
+  assert.equal(
+    guardPhase.sentences,
+    0,
+    'the pane declares no sentence, so the digest has nothing to explain for it',
+  );
+  assert.equal(
+    record.surfaces.filter((surface) => surface.file === GUARD_PHASE_SURFACE)
+      .length,
+    1,
+    'one row per surface: a second would be a second measurement of one pane',
+  );
+
+  // The copy record states no surface row for the pane, and names its spec instead: a surface that
+  // declares no sentence has no row in a record whose pins say every surface it carries declares one.
+  const copyRecord = JSON.parse(readFileSync(join(ROOT, COPY_RECORD), 'utf8'));
+  assert.deepEqual(
+    copyRecord.surfaces.filter(
+      (surface) => surface.file === GUARD_PHASE_SURFACE,
+    ),
+    [],
+    'the copy record carries no row for a surface that declares no sentence',
+  );
+  assert.equal(
+    copyRecord.excluded.filter((entry) => entry.file === GUARD_PHASE_SPEC)
+      .length,
+    1,
+    'the copy record names the spec that measures the pane, rather than dropping it',
+  );
+  assert.equal(
+    copyRecord.counts.surfaces,
+    record.counts.copyRecordSurfaces,
+    'the record states the copy record’s surface count and the copy record states the same',
+  );
+
+  // No digest row is the guard-phase pane's, so the digest gained none for a sentence it does not
+  // write.
+  const digest = JSON.parse(readFileSync(join(ROOT, DIGEST), 'utf8'));
+  assert.deepEqual(
+    digest.entries.filter((entry) => entry.surface === 'guard-phase'),
+    [],
+    'the digest holds no row rendered by the guard-phase pane',
+  );
+
+  // The seven labels the pane renders under are the labels its row describes, so the copy this
+  // surface does declare is described here rather than left to the pane's own word.
+  const guardPhaseModule = await import(
+    pathToFileURL(join(ROOT, GUARD_PHASE_SURFACE)).href
+  );
+  assert.deepEqual(
+    Object.values(guardPhaseModule.LABELS),
+    ['state', 'phase', 'guard', 'verdict', 'absence', 'absencePath', 'reason'],
+    'the guard-phase pane renders under exactly these seven labels',
+  );
+  assert.deepEqual(
+    [...guardPhaseModule.FIELDS],
+    ['state', 'phase', 'guard', 'verdict', 'absences'],
+    'the guard-phase pane enumerates the join’s five fields and no sixth',
+  );
+  assert.deepEqual(
+    [...guardPhaseModule.STATES],
+    ['guard-cancelled', 'guard-phase-only', 'guard-allowed', 'cannot-tell'],
+    'the guard-phase pane enumerates the join’s four states and no fifth',
   );
 });
 

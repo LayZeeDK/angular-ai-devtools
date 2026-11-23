@@ -62,7 +62,11 @@ describe('App', () => {
  * `console-read` for the same reason — the route records cite the loader's two lines, the path lines
  * above it, the `visual-qa` path line below it and the declaration and mapped-literal lines below the
  * list — and is paid for by the M046 note's own fold, which is why the count moves from forty to
- * forty-one without moving a cited line.
+ * forty-one without moving a cited line. M063's `guard-phase` follows `locale-correctness` for the
+ * same reason — the route records cite the loader's two lines, the path lines above it, the
+ * `dead-click` and `what-changed` path lines below it and the declaration and mapped-literal lines
+ * below the list — and is paid for by folding the M050 note's two lines into one, which is why the
+ * count moves from forty-one to forty-two without moving a cited line.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -106,6 +110,7 @@ describe('the route table', () => {
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
       'locale-correctness', // M061 SC4, SC2 surface: the provider entry's token, kind and import path or the absence that stands where no entry carries the token, each absence in its own line, and no locale value
+      'guard-phase', // M063 SC4 surface: the guard whose verdict cancelled the navigation, the phase it ran in and the verdict it stated — or no guard where the row names none, each in its own line and no remedy
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
@@ -446,5 +451,19 @@ describe('the route table', () => {
     expect(appRoutes.filter((route) => route.path === 'outlet')).toHaveLength(
       1,
     );
+
+    const guardPhase = appRoutes.find((route) => route.path === 'guard-phase');
+    expect(guardPhase?.component).toBeUndefined();
+    if (guardPhase?.loadComponent === undefined) {
+      throw new Error('the guard-phase surface must load lazily');
+    }
+    expect(await guardPhase.loadComponent()).toBe(PanelDemoComponent);
+    expect(guardPhase.data?.['surface']).toBe('guard-phase');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(guardPhase.data?.['surface']).not.toBe('locale-correctness');
+    // One entry, so the route this task adds is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'guard-phase'),
+    ).toHaveLength(1);
   });
 });

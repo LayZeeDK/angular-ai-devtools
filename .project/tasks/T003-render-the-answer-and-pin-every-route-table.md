@@ -2,10 +2,10 @@
 id: T003
 title: Render the answer and pin every route table
 wave: 3
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: 1d140b35c7cfc779b471c3c0f4c593e1df632c34
 worktree: null
 task_branch: null
 files:
@@ -72,3 +72,10 @@ node --test scripts/panel-routes.test.mjs scripts/panel-copy.test.mjs && npx pre
 ## Log
 
 - pending.
+- Landed paths: the pane and its spec, the route entry, the loader key and sample fact, and every enumeration of the route table — `app.spec.ts`, `page-picker.component.spec.ts`, all three lists in `chat-entry.component.spec.ts`, `panel-demo.spec.ts`, `panel-routes.test.mjs`, `panel-copy.test.mjs` and the two copy records.
+- The brief named six enumeration places; the tree carries **seven** — `panel-demo.spec.ts` also pins the ordered table and a `toHaveLength`. A reader trusting the brief would have shipped a red demo suite.
+- Line pins were paid for rather than re-cited: the route entry cost net 0 lines by folding the M050 note, and the loader key net 0 above line 427 by folding the `onpush` note. A walk of all 2,205 citations under `research/raw/` before and after shows the same seven mismatches in both runs, all pre-existing and none introduced here.
+- Both pins were proved by breaking them: the route without a `LOADERS` key reddens as `every app.routes.ts surface must have a panel-demo LOADERS key; missing: guard-phase`, and dropping the lazy-route entry reddens the chat-entry spec naming `guard-phase`.
+- Copy-record counts moved as the records' own commands derive them: surfaces 32 to 33, loader keys 32 to 33, ordered paths 41 to 42, `m048` citations 575 to 576.
+- The pane reuses the outlet pane's `absence`/`absencePath`/`reason` labels rather than inventing vocabulary, because the join's absences are the same three fields.
+- Four suites are red at this head for reasons the earlier waves created and only a `.project` fix-record can settle: the claims record that has never been captured, the gate record's missing suite reason, and the teardown census. The failing-test name sets before and after this task are identical, 27 to 27.
