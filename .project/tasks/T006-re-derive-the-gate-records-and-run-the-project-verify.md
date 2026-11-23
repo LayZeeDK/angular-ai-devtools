@@ -2,10 +2,10 @@
 id: T006
 title: Re-derive the gate records and run the project verify
 wave: 6
-status: pending
+status: done
 deps: [T005]
-agent: null
-base: null
+agent: build_T006
+base: 8d1e8825ed6855b684d8fcc122f85df0fb7503af
 worktree: null
 task_branch: null
 files:
@@ -53,3 +53,10 @@ M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M056_CAPTURE=1 nod
 ## Log
 
 - pending.
+- Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`.
+- Both records re-derive and read back with no byte written twice: m044 moved 346 files examined, 179 suites, 209 suite diffs and 2,683 declared tests; m056 moved only its live milestone and mention count.
+- Ordering matters and was measured: capturing m044 first repairs the gate `m056` spawns, so its `fixRecord.exitCode` stays 0 and the record moves two fields rather than three.
+- **Acceptance criterion 2 is unmet and is why the coder reported blocked.** The project verify exits 1 in 4.8 minutes, on 33 pre-existing failures across five suites whose recordings were never re-derived after M062 T001 added one line to `extension/manifest.json` (`m042`, `m043`, `m052`, `m054`, `m057`), plus three in the teardown census that this task's own capture induces: `m059` quotes m044's line numbers, which the re-capture moved from 2809 to 2907.
+- The manifest drift is one line wide and exactly attributable: `outlet-state.js` at position 34 pushed `agent-main.js` 34 to 35, `run_at` 36 to 37 and `world: MAIN` 37 to 38, and five recordings cite those lines.
+- `scripts/gate-integrity-default-tasks.test.mjs` needed no edit, and no declared suite needed one: the inherited failures were the stale records, exactly as the brief said.
+- T007 owns the five re-derivations and the teardown census, then the project verify again.
