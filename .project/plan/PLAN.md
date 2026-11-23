@@ -68,6 +68,12 @@ Goal: re-capture the claims record whose quotes follow the plan's coverage table
 mention count follows the gate, then run the project verify and record it.
 Review depth: full
 
+## Wave 10 — T010: add the surface to the lazy-route list and run the project verify
+
+Goal: repair the one lazy-route list that never gained the new surface, re-capture the stability record the repair
+moves, and run the project verify.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
@@ -92,6 +98,7 @@ Review depth: full
 | SC4 | T008 | AC2 |
 | SC1 | T009 | AC1 |
 | SC4 | T009 | AC2 |
+| SC4 | T010 | AC1 |
 
 ## Held-out checks
 
