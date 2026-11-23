@@ -40,11 +40,14 @@
 // no `importAttempts` exists) — and for an empty one. Both are `cannot-tell`; neither names an import,
 // a route path, a status, a hash or a drift, because nothing was given it.
 //
-// Read-only by default. A default run writes nothing: it reads the record, re-derives every fact this
-// head can derive without a browser (the join's answers, the manifest scan, the extension module, the
-// portal route source when the checkpoint is present) and the last test hashes the record before and
-// after the run to prove the bytes never moved. Only `M064_CAPTURE=1` runs the capture above, and an
-// armed run writes only when a byte moved, so two armed runs in a row are byte-identical.
+// Read-only by default, and nothing here is skipped. A default run writes nothing to the record: it
+// reads it, re-derives every fact this head can derive without a browser (the join's answers, the
+// manifest scan, the extension module, the portal route source when the checkpoint is present) and the
+// last test hashes the record before and after the run to prove the bytes never moved. The write path
+// is proved on every run anyway, on a copy in this run's own temporary directory: a stale copy is
+// corrected once and a second pass writes nothing. `M064_CAPTURE=1` registers the capture above as a
+// test of its own rather than arming a skipped one, and an armed run writes only when a byte moved, so
+// two armed runs in a row are byte-identical.
 //
 // When the portal or the browser cannot be started in a session at all, the armed run records that
 // as the measurement: the exact command, its output and the reason, with `verdict.taken` false and no
@@ -53,7 +56,15 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -119,6 +130,26 @@ function readRecord() {
 /** The record exactly as a capture would serialize it — one writing rule for armed and unarmed. */
 function serialized(record) {
   return `${JSON.stringify(record, null, 2)}\n`;
+}
+
+/**
+ * The capture's writing rule, as a function of a path: serialize the record and write it only when a
+ * byte moved, reporting the hash either side of the decision. One rule for the armed capture and for
+ * the proof copy the default run drives, so the copy proves the write the armed run performs rather
+ * than a second copy of it, and `wrote` is the difference the second pass has to answer `false` to.
+ * @param {string} path
+ * @param {any} record
+ * @returns {{path: string, before: string | null, after: string | null, wrote: boolean}}
+ */
+function writeOnlyIfMoved(path, record) {
+  const before = sha256Of(path);
+  const bytes = serialized(record);
+  const current = existsSync(path) ? readFileSync(path, 'utf8') : null;
+  if (current === bytes) {
+    return { path: path, before: before, after: before, wrote: false };
+  }
+  writeFileSync(path, bytes);
+  return { path: path, before: before, after: sha256Of(path), wrote: true };
 }
 
 /** How many times a needle occurs in a file's text; -1 when the file is not there. */
@@ -1134,7 +1165,7 @@ function takenRecord() {
 }
 
 // ---------------------------------------------------------------------------------------------
-// tests — the armed capture first, then everything a read-only run can hold to the tree
+// tests — the armed capture behind its own gate, then everything a read-only run can hold to the tree
 // ---------------------------------------------------------------------------------------------
 
 /**
@@ -1143,36 +1174,71 @@ function takenRecord() {
  */
 const RECORD_BYTES_AT_START = sha256Of(RECORD_PATH);
 
-test(
-  'the armed capture: the portal is driven, the chunk is failed, and the record is written only when a byte moved',
-  {
-    skip: ARMED
-      ? false
-      : 'read-only by default: set M064_CAPTURE=1 to run the capture',
-  },
-  async () => {
-    const before = sha256Of(RECORD_PATH);
-    const record = await capture();
-    const bytes = serialized(record);
-    const current = existsSync(RECORD_PATH)
-      ? readFileSync(RECORD_PATH, 'utf8')
-      : null;
-    if (current === bytes) {
-      assert.equal(
-        sha256Of(RECORD_PATH),
-        before,
-        'an unchanged record keeps its bytes',
-      );
-      return;
-    }
-    writeFileSync(RECORD_PATH, bytes);
+// The capture above runs only in a session that can start the portal and drive a browser, so it is
+// registered behind its own gate rather than armed as a skipped test: a default run prints no skip,
+// and no test it prints is one that did not run.
+if (ARMED) {
+  test('armed: the portal is driven, the chunk is failed, and the record is written only when a byte moved', async () => {
+    const derived = await capture();
+    const first = writeOnlyIfMoved(RECORD_PATH, derived);
     assert.equal(
+      first.after,
       sha256Of(RECORD_PATH),
-      createHash('sha256').update(bytes).digest('hex'),
+      'the bytes the armed run reports are not the bytes on disk',
+    );
+    assert.equal(
+      first.after,
+      createHash('sha256').update(serialized(derived)).digest('hex'),
       'the record written is the record derived',
     );
-  },
-);
+  });
+}
+
+test('the writing rule the capture uses, driven on a copy in a temporary directory: the stale copy is corrected once, and a second pass writes nothing', () => {
+  const record = readRecord();
+  const directory = mkdtempSync(join(tmpdir(), 'm064-capture-proof-'));
+  try {
+    const copy = join(directory, 'recording.json');
+    const stale = JSON.parse(JSON.stringify(record));
+    stale.verdict.routeTried = `${ROUTE_TRIED}-stale`;
+    writeFileSync(copy, serialized(stale));
+
+    const first = writeOnlyIfMoved(copy, record);
+    assert.equal(first.wrote, true, 'the stale copy was not corrected');
+    assert.equal(
+      first.after,
+      RECORD_BYTES_AT_START,
+      'the corrected copy does not carry the bytes the record itself carries',
+    );
+    assert.equal(
+      first.after,
+      sha256Of(copy),
+      'the bytes the first pass reports are not the bytes on disk',
+    );
+
+    const second = writeOnlyIfMoved(copy, record);
+    assert.equal(
+      second.wrote,
+      false,
+      'a second pass wrote, and nothing had moved',
+    );
+    assert.equal(
+      second.before,
+      second.after,
+      'the corrected copy changed on a second pass',
+    );
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+
+  // The copy lived outside the checkout and is gone: a default run leaves the record exactly as it
+  // found it, which the last test proves by the hash it took before any test read the file.
+  assert.equal(
+    sha256Of(RECORD_PATH),
+    RECORD_BYTES_AT_START,
+    'a run that wrote only a copy in a temporary directory moved the record',
+  );
+});
 
 test('the record names the target, the route tried and the two arms the capture ran', () => {
   const record = takenRecord();
