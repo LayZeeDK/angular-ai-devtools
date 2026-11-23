@@ -1,0 +1,343 @@
+{
+  "schema": "m062-verdict-claims/v1",
+  "milestone": "M062",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(ROOT, \"M062\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 4 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "proofs": "every claim's suite and test are read from this checkout at capture: 15 citation(s) over [\"scripts/outlet-answer.test.mjs\",\"scripts/outlet-state.test.mjs\",\"apps/angular-ai-devtools/src/app/panel-outlet.spec.ts\",\"scripts/panel-routes.test.mjs\",\"scripts/panel-copy.test.mjs\"], each checked to declare the test title it names on the line that declares it, and each claim names every suite the plan resolves one of its criterion's edges to",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks section, which this path reads as 8 row(s) of edge -> task -> test in either form a plan writes it - the three-column Edge | Task | Test table, or the bullet '- E.. -> T.. -> test' - so a claim cites the suite the milestone's own plan assigns its edges rather than one this file chose: 8 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and the suites [\"scripts/outlet-answer.test.mjs\",\"scripts/outlet-state.test.mjs\",\"apps/angular-ai-devtools/src/app/panel-outlet.spec.ts\",\"scripts/panel-routes.test.mjs\",\"scripts/panel-copy.test.mjs\"]. The plan's ## Held-out checks and its ## Intent coverage table disagree at 1 row(s) [\"E8 is held by T002 and SC4 is assigned to T003/T005/T006\"], recorded under evidence.plan.disagreements rather than refused, because a reader needs the citation and the disagreement in one place"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 4,
+    "why": [
+      "No row is required, and the record therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext. Every fact the 4 criteria this milestone declares is written about is a fact about this repository's own gate and the tests that hold it, against 12 stage(s) of the check chain; none of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each claim names the suite, the test and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": [
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E8"
+      ],
+      "coverage": [
+        "SC1 T001 AC2",
+        "SC1 T002 AC1",
+        "SC2 T001 AC3",
+        "SC2 T002 AC2",
+        "SC3 T001 AC1",
+        "SC3 T002 AC3",
+        "SC4 T003 AC1",
+        "SC4 T003 AC2",
+        "SC1 T004 AC1",
+        "SC2 T004 AC2",
+        "SC1 T005 AC1",
+        "SC4 T005 AC2",
+        "SC1 T006 AC1",
+        "SC4 T006 AC2"
+      ],
+      "disagreements": [
+        {
+          "edge": "E8",
+          "criterion": "SC4",
+          "heldBy": "T002",
+          "assignedByCoverage": [
+            "T003",
+            "T005",
+            "T006"
+          ]
+        }
+      ]
+    },
+    "edges": {
+      "rows": 8,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ]
+    },
+    "suites": [
+      {
+        "path": "apps/angular-ai-devtools/src/app/panel-outlet.spec.ts",
+        "tests": 12,
+        "groups": 2
+      },
+      {
+        "path": "scripts/outlet-answer.test.mjs",
+        "tests": 24,
+        "groups": 3
+      },
+      {
+        "path": "scripts/outlet-state.test.mjs",
+        "tests": 14,
+        "groups": 6
+      },
+      {
+        "path": "scripts/panel-copy.test.mjs",
+        "tests": 9,
+        "groups": 0
+      },
+      {
+        "path": "scripts/panel-routes.test.mjs",
+        "tests": 4,
+        "groups": 0
+      }
+    ],
+    "records": []
+  },
+  "capture": {
+    "command": "set \"M062_CAPTURE=1\"&& node --test \"scripts/outlet-verdict-claims.test.mjs\"",
+    "check": "node --test \"scripts/outlet-verdict-claims.test.mjs\"",
+    "records": "research/raw/m062-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3",
+      "SC4"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, its five-column edge coverage, the suites the plan assigns each edge and the tests this checkout declares, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives, naming the field that moved when it is not."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "A fixture route that declares a second named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved.",
+      "criterionCharacters": 256,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"A fixture route that declares a second named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces: it is proved by the suite and test this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a test reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E2\",\"E7\"] the intent itself assigns the criterion, held by the plan at [\"scripts/outlet-answer.test.mjs\"], and the 3 citation(s) below name the tests that carry them.",
+      "suite": "scripts/outlet-answer.test.mjs",
+      "test": "SC1 — a record naming a second outlet names both names and the path",
+      "citations": [
+        {
+          "suite": "scripts/outlet-answer.test.mjs",
+          "test": "SC1 — a record naming a second outlet names both names and the path",
+          "holds": "the finding names the outlet the route requested, the name the state matched and the route path"
+        },
+        {
+          "suite": "scripts/outlet-state.test.mjs",
+          "test": "reduces every activated route to requested, matched and path, in declaration order",
+          "holds": "a route that declares a second named outlet is recorded with both names and its path"
+        },
+        {
+          "suite": "scripts/outlet-state.test.mjs",
+          "test": "SC1 mutant — renaming the outlet in the route configuration reddens the pin, naming `requested`",
+          "holds": "the mutant that renames the outlet in the route config reddens, and the red names the field that moved"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E1",
+          "category": "empty",
+          "disposition": "criterion SC1",
+          "detail": "A route with no outlet declared asks for `primary`, and the answer names `primary` rather than reporting an absence.",
+          "suite": "scripts/outlet-answer.test.mjs"
+        },
+        {
+          "edge": "E2",
+          "category": "ordering",
+          "disposition": "criterion SC1",
+          "detail": "Two outlets declared on one route name both, in declaration order, and never collapse to the last one read.",
+          "suite": "scripts/outlet-answer.test.mjs"
+        },
+        {
+          "edge": "E7",
+          "category": "precision",
+          "disposition": "criterion SC1",
+          "detail": "An outlet the state carries but the route never reached is not reported as a mismatch; a mutant that reports it reddens.",
+          "suite": "scripts/outlet-answer.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/outlet-answer.test.mjs",
+      "artefact": "scripts/outlet-answer.test.mjs (test \"SC1 — a record naming a second outlet names both names and the path\"; edge [\"E1\",\"E2\",\"E7\"] of the intent's own coverage: E1 empty criterion SC1: A route with no outlet declared asks for `primary`, and the answer names `primary` rather than reporting an absence.; E2 ordering criterion SC1: Two outlets declared on one route name both, in declaration order, and never collapse to the last one read.; E7 precision criterion SC1: An outlet the state carries but the route never reached is not reported as a mismatch; a mutant that reports it reddens.; the suite carries 24 test declaration(s) in 3 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "3 citation(s) over 2 suite(s) hold SC1 through the edge row(s) [\"E1\",\"E2\",\"E7\"] the intent assigns it: every one is a test this checkout declares at this head, read from the file that declares it, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --test \"scripts/outlet-verdict-claims.test.mjs\"",
+        "node --test \"scripts/outlet-answer.test.mjs\"",
+        "node --test \"scripts/outlet-state.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "An outlet the router state does not carry reports `cannot-tell` with the reason the name is missing, and the answer never names the nearest outlet in the rendered tree; a mutant that falls back to a DOM-derived name reddens it.",
+      "criterionCharacters": 227,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"An outlet the router state does not carry reports `cannot-tell` with the reason the name is missing, and the answer never names the nearest outlet in the rendered tree; a mutant that falls back to a DOM-derived name reddens it.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces: it is proved by the suite and test this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a test reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\",\"E4\"] the intent itself assigns the criterion, held by the plan at [\"scripts/outlet-answer.test.mjs\"], and the 4 citation(s) below name the tests that carry them.",
+      "suite": "scripts/outlet-answer.test.mjs",
+      "test": "SC2 — a record whose route carries no matched name is cannot-tell, with the reason",
+      "citations": [
+        {
+          "suite": "scripts/outlet-answer.test.mjs",
+          "test": "SC2 — a record whose route carries no matched name is cannot-tell, with the reason",
+          "holds": "an outlet the router state does not carry is cannot-tell, with the reason the name is missing"
+        },
+        {
+          "suite": "scripts/outlet-answer.test.mjs",
+          "test": "E3 — an outlet only the template names is an absence, never the answer name",
+          "holds": "the answer never names the nearest outlet in the rendered tree"
+        },
+        {
+          "suite": "scripts/outlet-answer.test.mjs",
+          "test": "M1 — a DOM fallback filling `matched` reddens the absence pin and the page-surface scan",
+          "holds": "the mutant that falls back to a DOM-derived name reddens it"
+        },
+        {
+          "suite": "scripts/outlet-state.test.mjs",
+          "test": "SC2 mutant — filling `matched` from a selector over the rendered tree reddens the absence, naming `matched`",
+          "holds": "the record itself carries no name taken from the rendered tree"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E3",
+          "category": "boundary",
+          "disposition": "criterion SC2",
+          "detail": "An outlet named only in the template and never in the route config is reported as absent from the state, never as the template's name.",
+          "suite": "scripts/outlet-answer.test.mjs"
+        },
+        {
+          "edge": "E4",
+          "category": "encoding",
+          "disposition": "criterion SC2",
+          "detail": "An outlet name the record truncates is reported truncated, never completed from the rendered tree.",
+          "suite": "scripts/outlet-answer.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/outlet-answer.test.mjs",
+      "artefact": "scripts/outlet-answer.test.mjs (test \"SC2 — a record whose route carries no matched name is cannot-tell, with the reason\"; edge [\"E3\",\"E4\"] of the intent's own coverage: E3 boundary criterion SC2: An outlet named only in the template and never in the route config is reported as absent from the state, never as the template's name.; E4 encoding criterion SC2: An outlet name the record truncates is reported truncated, never completed from the rendered tree.; the suite carries 24 test declaration(s) in 3 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "4 citation(s) over 2 suite(s) hold SC2 through the edge row(s) [\"E3\",\"E4\"] the intent assigns it: every one is a test this checkout declares at this head, read from the file that declares it, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --test \"scripts/outlet-verdict-claims.test.mjs\"",
+        "node --test \"scripts/outlet-answer.test.mjs\"",
+        "node --test \"scripts/outlet-state.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "The outlet name is read from a record this milestone writes, with no new page-side instrumentation and no second read of the inspected page; the record's shape and the join's inputs are the same list, asserted in one place.",
+      "criterionCharacters": 223,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"The outlet name is read from a record this milestone writes, with no new page-side instrumentation and no second read of the inspected page; the record's shape and the join's inputs are the same list, asserted in one place.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces: it is proved by the suite and test this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a test reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E5\"] the intent itself assigns the criterion, held by the plan at [\"scripts/outlet-state.test.mjs\"], and the 3 citation(s) below name the tests that carry them.",
+      "suite": "scripts/outlet-state.test.mjs",
+      "test": "is the only module under extension/ that produces one, and a second reader reddens the scan",
+      "citations": [
+        {
+          "suite": "scripts/outlet-state.test.mjs",
+          "test": "is the only module under extension/ that produces one, and a second reader reddens the scan",
+          "holds": "the outlet name is read from one record this milestone writes, with no second read of the page"
+        },
+        {
+          "suite": "scripts/outlet-state.test.mjs",
+          "test": "SC3 mutant — a second reader beside the shipped modules reddens the scan and is named",
+          "holds": "a second outlet read reddens the scan, and the reader is named"
+        },
+        {
+          "suite": "scripts/outlet-answer.test.mjs",
+          "test": "SC3 — the answer is the same when a second record is handed in beside the first",
+          "holds": "the record's shape and the join's inputs are the same list"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E5",
+          "category": "boundary",
+          "disposition": "criterion SC3",
+          "detail": "The task's Verify asserts the outlet record is the only source of a name; a second read reddens it.",
+          "suite": "scripts/outlet-state.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/outlet-state.test.mjs",
+      "artefact": "scripts/outlet-state.test.mjs (test \"is the only module under extension/ that produces one, and a second reader reddens the scan\"; edge [\"E5\"] of the intent's own coverage: E5 boundary criterion SC3: The task's Verify asserts the outlet record is the only source of a name; a second read reddens it.; the suite carries 14 test declaration(s) in 6 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "3 citation(s) over 2 suite(s) hold SC3 through the edge row(s) [\"E5\"] the intent assigns it: every one is a test this checkout declares at this head, read from the file that declares it, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --test \"scripts/outlet-verdict-claims.test.mjs\"",
+        "node --test \"scripts/outlet-state.test.mjs\"",
+        "node --test \"scripts/outlet-answer.test.mjs\"",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "The panel renders exactly the object the join returns: one new surface, its loader key, its route-table pin and its copy record moved in the same task, and the answer carries no remedy, no cause and no identity it was not given.",
+      "criterionCharacters": 228,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC4 is \"The panel renders exactly the object the join returns: one new surface, its loader key, its route-table pin and its copy record moved in the same task, and the answer carries no remedy, no cause and no identity it was not given.\" - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces: it is proved by the suite and test this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a test reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E6\",\"E8\"] the intent itself assigns the criterion, held by the plan at [\"scripts/panel-routes.test.mjs\",\"scripts/outlet-answer.test.mjs\"], and the 5 citation(s) below name the tests that carry them.",
+      "suite": "apps/angular-ai-devtools/src/app/panel-outlet.spec.ts",
+      "test": "renders the state and the three name fields the answer carries (SC4)",
+      "citations": [
+        {
+          "suite": "apps/angular-ai-devtools/src/app/panel-outlet.spec.ts",
+          "test": "renders the state and the three name fields the answer carries (SC4)",
+          "holds": "the panel renders exactly the object the join returns"
+        },
+        {
+          "suite": "scripts/panel-routes.test.mjs",
+          "test": "E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name",
+          "holds": "its route-table pin, moved in the same task as the surface"
+        },
+        {
+          "suite": "scripts/panel-routes.test.mjs",
+          "test": "E4: every declared route surface has a panel-demo LOADERS key",
+          "holds": "its loader key, so the surface is reached by its own name"
+        },
+        {
+          "suite": "scripts/panel-copy.test.mjs",
+          "test": "the record’s second surface is the outlet pane, and its row is measured rather than counted",
+          "holds": "its copy record, moved in the same task as the surface"
+        },
+        {
+          "suite": "scripts/outlet-answer.test.mjs",
+          "test": "M2 — a remedy string added to the answer reddens the five-field pin and the literal scan",
+          "holds": "the answer carries no remedy, no cause and no identity it was not given"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E6",
+          "category": "boundary",
+          "disposition": "criterion SC4",
+          "detail": "The route table, the loader map and the copy record move together; a mutant that adds the surface without a loader reddens naming the key.",
+          "suite": "scripts/panel-routes.test.mjs"
+        },
+        {
+          "edge": "E8",
+          "category": "precision",
+          "disposition": "criterion SC4",
+          "detail": "No answer names a fix, a schematic, a cause or an identity it was not given; a mutant that adds a remedy reddens.",
+          "suite": "scripts/outlet-answer.test.mjs"
+        }
+      ],
+      "artefactPath": "apps/angular-ai-devtools/src/app/panel-outlet.spec.ts",
+      "artefact": "apps/angular-ai-devtools/src/app/panel-outlet.spec.ts (test \"renders the state and the three name fields the answer carries (SC4)\"; edge [\"E6\",\"E8\"] of the intent's own coverage: E6 boundary criterion SC4: The route table, the loader map and the copy record move together; a mutant that adds the surface without a loader reddens naming the key.; E8 precision criterion SC4: No answer names a fix, a schematic, a cause or an identity it was not given; a mutant that adds a remedy reddens.; the suite carries 12 test declaration(s) in 2 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "5 citation(s) over 4 suite(s) hold SC4 through the edge row(s) [\"E6\",\"E8\"] the intent assigns it: every one is a test this checkout declares at this head, read from the file that declares it, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --test \"scripts/outlet-verdict-claims.test.mjs\"",
+        "npx nx run angular-ai-devtools:test",
+        "node --test \"scripts/panel-routes.test.mjs\"",
+        "node --test \"scripts/panel-copy.test.mjs\"",
+        "node --test \"scripts/outlet-answer.test.mjs\"",
+        "npm run check"
+      ]
+    }
+  ]
+}

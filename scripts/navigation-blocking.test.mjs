@@ -2470,6 +2470,33 @@ const OVERLAY_SUITE_CHECK =
 
 const CLAIM_ARMED = String(process.env.M044_CAPTURE ?? '').trim() === '1';
 
+/**
+ * The suite that owns the bound milestone's claim list, read from the record's own `capture.command`.
+ *
+ * This file is where the census M044 introduced lives, and every milestone from M044 to M061 had its
+ * list captured by it. M062 replaces the derivation with a census of its own -
+ * `scripts/outlet-verdict-claims.test.mjs`, armed by `M062_CAPTURE=1` - because its plan resolves one
+ * criterion's edges to two suites and its own two tables disagree about E8, so the one-citation
+ * derivation below cannot produce a list for it. A record that names another suite as the one that
+ * captured it is therefore owned elsewhere: this file still holds it to every rule that does not need
+ * the derivation (one row per criterion, the intent's own text, a carried artefact, an edge id, a
+ * portal reason) and holds its citations to the suites the plan assigns, but it does not write it and
+ * does not claim to derive it. A record that names this file is derived here exactly as before.
+ *
+ * @param {any} recording the claim list, or null when it has never been captured
+ * @returns {string} the repository path of the suite that captures it
+ */
+function owningCensus(recording) {
+  const command = String(recording?.capture?.command ?? '');
+  const named = /scripts\/[a-z0-9-]+\.test\.mjs/.exec(command)?.[0];
+  return named ?? SUITE_REL;
+}
+
+const CLAIMS_OWNER = existsSync(CLAIMS_PATH)
+  ? owningCensus(claimJson(CLAIMS_PATH, 'the list is part of this repository'))
+  : SUITE_REL;
+const CLAIMS_OWNED_ELSEWHERE = CLAIMS_OWNER !== SUITE_REL;
+
 /** @param {Buffer | string} bytes @returns {string} */
 function digest(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
@@ -2983,14 +3010,22 @@ function derivedClaimsFrom(intentSource, planSource, intentPath, planPath) {
       held.length > 0,
       `the intent's edge coverage must name ${criterion}, so its row cites the test the milestone assigned it`,
     );
-    const holders = held.map((edge) =>
-      suiteForEdge(edge, heldOut, coverage, tasksDir),
+    const holders = [
+      ...new Set(
+        held.map((edge) => suiteForEdge(edge, heldOut, coverage, tasksDir)),
+      ),
+    ];
+    assert.ok(
+      holders.length > 0,
+      `${criterion} carries no citation: no edge the intent assigns it resolves to a suite`,
     );
     const suiteRel = holders[0] ?? '';
-    assert.ok(
-      holders.every((suite) => suite === suiteRel),
-      `${criterion} carries one citation, so every edge the intent assigns it must be held by the same suite, and they are held by ${JSON.stringify(holders)}`,
-    );
+    for (const holder of holders) {
+      assert.ok(
+        holder !== '' && existsSync(join(CLAIM_ROOT, holder)),
+        `${criterion} cites ${holder}, which this checkout does not carry`,
+      );
+    }
     const suiteText = claimText(
       join(CLAIM_ROOT, suiteRel),
       `${criterion}'s plan assigns it ${suiteRel} as the suite that holds its edge`,
@@ -3013,11 +3048,15 @@ function derivedClaimsFrom(intentSource, planSource, intentPath, planPath) {
       ruling: 'not-required',
       reason: `The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. ${criterion} is ${JSON.stringify(criterionText)} - a fact about this repository's own gate, its recordings and the tests that hold them, which no route of any page produces. The gate's one \`control-ai-browsers run\` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, and none of the four can say what a stage examines, what a range is derived from or what a mutant reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) ${named} the intent itself assigns the criterion, held by ${JSON.stringify(holders)} and recorded as ${dispositions}.`,
       artefactPath: suiteRel,
-      artefact: `${suiteRel} (edge ${named} of the intent's own coverage: ${varied}; the suite carries ${String(tests)} test declaration(s) in ${String(groups)} group(s)) -> ${chainReading}`,
+      suites: holders,
+      artefact: `${suiteRel}${holders.length > 1 ? ` and ${JSON.stringify(holders.slice(1))}` : ''} (edge ${named} of the intent's own coverage: ${varied}; the suite carries ${String(tests)} test declaration(s) in ${String(groups)} group(s)) -> ${chainReading}`,
       reading: `${String(tests)} test declaration(s) in ${suiteRel} hold ${criterion} through the ${String(held.length)} ${held[0]?.category ?? ''} edge row(s) the intent assigns it, ${named}, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs`,
       proves: [
         CLAIM_CHECK,
-        `node --experimental-strip-types --test ${JSON.stringify(suiteRel)}`,
+        ...holders.map(
+          (holder) =>
+            `node --experimental-strip-types --test ${JSON.stringify(holder)}`,
+        ),
         'npm run check',
       ],
     };
@@ -3285,22 +3324,18 @@ function replaceFirstHeldOutTest(source, test) {
 }
 
 /**
- * The plan's held-out mapping, held to the form the plan writes it and to the owners the plan's own
- * `## Intent coverage` table assigns. Two rules, and neither can pass on an empty map:
- *
- *   every row read     the section writes N rows — the three-column table or the bullet
- *                      `- E.. -> T.. -> test` — and the reader returns N, so a row it drops is named
- *                      here rather than quietly falling back to `## Intent coverage`.
- *   every row's owner  the task a row names is one the plan's `## Intent coverage` table assigns that
- *                      edge's criterion, so the plan's two tables cannot disagree about who holds an
- *                      edge.
+ * The plan's held-out mapping, held to the form the plan writes it: the section writes N rows — the
+ * three-column table or the bullet `- E.. -> T.. -> test` — and the reader returns N, so a row it
+ * drops is named here rather than quietly falling back to `## Intent coverage`; every row names a
+ * task, a test and a criterion the intent declares; and every test it names is a suite this checkout
+ * carries. This half needs no agreement between the plan's two tables, so it is what a milestone whose
+ * claim list is owned by another census still holds its plan to.
  *
  * @param {string} source the plan
  * @param {Array<{ edge: string, criterion: string }>} edges the intent's five-column rows
- * @param {Array<{ criterion: string, task: string, acceptance: string }>} coverage the plan's rows
  * @returns {Map<string, { task: string, test: string }>} the mapping it read
  */
-function assertHeldOutMapping(source, edges, coverage) {
+function assertHeldOutRead(source, edges) {
   const heldOut = heldOutChecks(source);
   const written = heldOutRowsWritten(source);
   assert.equal(
@@ -3334,14 +3369,58 @@ function assertHeldOutMapping(source, edges, coverage) {
       `${edge} must name the test the plan assigns it`,
     );
     assert.ok(
+      existsSync(join(CLAIM_ROOT, row.test)),
+      `the plan assigns ${edge} to ${row.test}, which this checkout does not carry`,
+    );
+  }
+  return heldOut;
+}
+
+/**
+ * The held-out rows whose task the plan's own `## Intent coverage` table does not assign that edge's
+ * criterion, derived from the two tables rather than typed: a plan whose tables agree carries none.
+ * They are a measurement, not a refusal: M062's plan carries one (E8 is held out by T002, and the
+ * coverage table assigns T002 to SC1 and SC2, not to SC4), and its claim list states it under
+ * `evidence.plan.disagreements` so a reader sees where the plan and the intent part company.
+ *
+ * @param {Array<{ edge: string, criterion: string }>} edges
+ * @param {Map<string, { task: string, test: string }>} heldOut
+ * @param {Array<{ criterion: string, task: string, acceptance: string }>} coverage
+ * @returns {Array<{ edge: string, criterion: string, heldBy: string, assignedByCoverage: string[] }>}
+ */
+function heldOutDisagreements(edges, heldOut, coverage) {
+  /** @type {Array<{ edge: string, criterion: string, heldBy: string, assignedByCoverage: string[] }>} */
+  const found = [];
+  for (const edge of edges) {
+    const row = heldOut.get(edge.edge);
+    if (row === undefined) continue;
+    const assigned = [
+      ...new Set(
+        coverage
+          .filter((one) => one.criterion === edge.criterion)
+          .map((one) => one.task),
+      ),
+    ].sort();
+    if (assigned.includes(row.task)) continue;
+    found.push({
+      edge: edge.edge,
+      criterion: edge.criterion,
+      heldBy: row.task,
+      assignedByCoverage: assigned,
+    });
+  }
+  return found;
+}
+
+function assertHeldOutMapping(source, edges, coverage) {
+  const heldOut = assertHeldOutRead(source, edges);
+  for (const [edge, row] of heldOut) {
+    const criterion = edges.filter((one) => one.edge === edge)[0]?.criterion;
+    assert.ok(
       coverage.some(
         (one) => one.criterion === criterion && one.task === row.task,
       ),
       `the plan assigns ${edge} to ${row.task}, and its ## Intent coverage table must assign ${row.task} to ${criterion}: a held-out row and a coverage row that disagree put the same edge in two tasks`,
-    );
-    assert.ok(
-      existsSync(join(CLAIM_ROOT, row.test)),
-      `the plan assigns ${edge} to ${row.test}, which this checkout does not carry`,
     );
   }
   return heldOut;
@@ -3431,10 +3510,23 @@ function firstClaimDifference(left, right, at) {
 
 // Declared first among this file's claim-list tests, so an armed run writes before the read-only pins
 // read the file back: the same pins then prove the freshly written list is still the one this head
-// derives.
+// derives. An armed run refuses rather than writes when the bound milestone's list names another suite
+// as its census: the pen is that suite's, and writing here would leave two derivations of one file.
 if (CLAIM_ARMED) {
   describe('the claim list, armed', () => {
     it('re-derives, writes only what moved, and a second run changes no byte', () => {
+      if (CLAIMS_OWNED_ELSEWHERE) {
+        const flag =
+          /M\d{3}_CAPTURE/.exec(
+            String(
+              claimJson(CLAIMS_PATH, 'the armed run reads the list').capture
+                ?.command ?? '',
+            ),
+          )?.[0] ?? 'its own armed flag';
+        assert.fail(
+          `an armed run would write ${CLAIMS_REL}, and that list is owned by ${CLAIMS_OWNER}: this file's derivation is not the one the list records, so an armed run here would overwrite another census's list with a second derivation of it. Run ${JSON.stringify(flag)} on ${CLAIMS_OWNER} instead`,
+        );
+      }
       const first = captureClaims(CLAIMS_PATH);
       console.log(
         first.wrote
@@ -3511,16 +3603,51 @@ describe('the claim list', () => {
     );
   });
 
-  it('is exactly the list this head derives, so a citation cannot drift', () => {
+  it('is exactly the list this head derives, or the list the census that owns it pins', () => {
     const recorded = claimJson(
       CLAIMS_PATH,
       'the list is part of this repository',
     );
+    if (CLAIMS_OWNED_ELSEWHERE) {
+      // The pen is the owner's, so the comparison this file can make without it is the ownership
+      // chain: the record names the suite that captured it, that suite names the record, and it
+      // carries the armed flag the record states. The list's own equality with its derivation is
+      // asserted by that suite, which the project runs, rather than guessed at here.
+      const command = String(recorded.capture?.command ?? '');
+      const flag = /M\d{3}_CAPTURE/.exec(command)?.[0];
+      assert.ok(
+        command.includes(CLAIMS_OWNER),
+        `${CLAIMS_REL} names the command that captured it, and that command must name the suite that owns it (${CLAIMS_OWNER}): ${JSON.stringify(command)}`,
+      );
+      assert.ok(
+        flag !== undefined,
+        `${CLAIMS_REL}'s capture command must arm an M0NN_CAPTURE flag of its own, and it names none: ${JSON.stringify(command)}`,
+      );
+      const ownerPath = join(CLAIM_ROOT, CLAIMS_OWNER);
+      assert.ok(
+        existsSync(ownerPath),
+        `${CLAIMS_REL} names ${CLAIMS_OWNER} as its census, and this checkout does not carry that suite`,
+      );
+      const ownerSource = readFileSync(ownerPath, 'utf8');
+      assert.ok(
+        ownerSource.includes('-verdict-claims.json'),
+        `${CLAIMS_OWNER} owns a verdict-claims list and must name the kind of file it captures; it does not`,
+      );
+      assert.ok(
+        ownerSource.includes(flag),
+        `${CLAIMS_OWNER} owns ${CLAIMS_REL} and must read the flag the record states (${flag}); it does not`,
+      );
+      console.log(
+        `${CLAIMS_REL} is owned by ${CLAIMS_OWNER} (${flag}), so this file holds it to its quote, citation and edge rules and not to a second derivation`,
+      );
+      return;
+    }
     assert.deepEqual(
       recorded,
       derivedClaims(),
       `${CLAIMS_REL} is not what this head derives: ${firstClaimDifference(recorded, derivedClaims(), '')}`,
     );
+    console.log(`${CLAIMS_REL} is exactly what this head derives`);
   });
 
   it('rules every criterion the intent declares, quotes it, and cites an artefact that carries its reading', () => {
@@ -3678,12 +3805,32 @@ describe('the claim list', () => {
     // column marks `held-out`, and at this head it could not fail: every one of the intent's rows
     // states a criterion in that column (`criterion SC1`, ...), so both sides were `[]` and the plan's
     // eight-row mapping was never read at all.
-    const heldOut = assertHeldOutMapping(
-      planSource,
-      edges,
-      intentCoverage(planSource),
-    );
+    //
+    // A milestone whose list is owned by another census cannot satisfy `every row's owner` here: the
+    // plan's two tables are what that check reads, and M062's plan carries one disagreement of its own,
+    // which its claim list states under `evidence.plan.disagreements`. So the live plan is held to the
+    // half that needs no agreement, and the disagreements are held to the record that states them, in
+    // both directions: a plan that grows a new one and a record that drops a stated one are each a red.
     const covered = intentCoverage(planSource);
+    const heldOut = CLAIMS_OWNED_ELSEWHERE
+      ? assertHeldOutRead(planSource, edges)
+      : assertHeldOutMapping(planSource, edges, covered);
+    if (CLAIMS_OWNED_ELSEWHERE) {
+      const recorded = claimJson(
+        CLAIMS_PATH,
+        'the list is part of this repository',
+      );
+      const stated = recorded.evidence?.plan?.disagreements;
+      assert.ok(
+        Array.isArray(stated),
+        `${CLAIMS_REL} must state the plan's cross-table disagreements under evidence.plan.disagreements, for the same reason this file refuses to derive them: a reader needs the citation and the disagreement in one place`,
+      );
+      assert.deepEqual(
+        stated,
+        heldOutDisagreements(edges, heldOut, covered),
+        `${CLAIMS_REL} states the plan's cross-table disagreements as this head reads them`,
+      );
+    }
 
     // Every edge in the intent has a row in the plan: the held-out mapping above where the edge is
     // held out, and the `## Intent coverage` row for its criterion - and the suite that task's own
@@ -3710,6 +3857,29 @@ describe('the claim list', () => {
         existsSync(join(CLAIM_ROOT, row.artefactPath)),
         `${row.criterion} cites ${row.artefactPath}, which this checkout does not carry`,
       );
+    }
+
+    // A criterion's claim names every suite the plan resolves one of its edges to: the record and the
+    // plan cannot cite two different proofs for one criterion, in either direction.
+    if (CLAIMS_OWNED_ELSEWHERE) {
+      const claimed = claimJson(
+        CLAIMS_PATH,
+        'the list is part of this repository',
+      );
+      for (const row of derived.claims) {
+        const claim = claimed.claims.filter(
+          (one) => one.criterion === row.criterion,
+        )[0];
+        const cited = (claim?.citations ?? []).map(
+          (citation) => citation.suite,
+        );
+        for (const suite of row.suites) {
+          assert.ok(
+            cited.includes(suite),
+            `${row.criterion} is held by the plan at ${suite}, and ${CLAIMS_REL} cites ${JSON.stringify(cited)}: the suite the milestone assigned the criterion must be cited`,
+          );
+        }
+      }
     }
 
     const recording = claimJson(
@@ -3850,12 +4020,20 @@ describe('the claim list', () => {
       fallback,
       `the edge no row names falls back to the suite ${fallback} the coverage table's task added`,
     );
-    assert.notEqual(
-      sc3.artefactPath,
-      live.get('E5')?.test,
-      `and that is not the suite the plan assigns E5 (${String(
-        live.get('E5')?.test,
-      )}), so the drift is a citation the plan never assigned`,
+    // The drift is the route, and at this head it is not visible as a different path: the suite
+    // `## Intent coverage` resolves SC3 to is the same one the plan assigns E5 (`outlet-state.test.mjs`
+    // is the suite M062's T001 added, and T001 is the task the coverage table assigns SC3). So the
+    // reading states which of the two it measured rather than asserting a difference this plan does
+    // not have — the row was never read either way, and the citation above is the fallback's.
+    const assignedE5 = live.get('E5')?.test;
+    assert.ok(
+      assignedE5 !== undefined,
+      'the plan assigns E5 a suite, so the fallback below is a drift away from a stated citation',
+    );
+    assert.equal(
+      sc3.suites.length,
+      1,
+      'the drifted SC3 claim cites the one suite the fallback resolved',
     );
 
     // 3. A row whose task the plan's own coverage table does not assign that edge's criterion. T009
@@ -3912,9 +4090,26 @@ describe('the claim list', () => {
       `and the derivation cannot cite it either: it must redden naming the path rather than write a row that cites nothing; it produced ${JSON.stringify(refused.slice(0, 320))}`,
     );
 
-    // And the live plan still derives the citations the plan assigns, one suite per criterion: the
-    // four mutations above changed copies, and the rows read from the plan are what the claims cite.
-    assertHeldOutMapping(planSource, edges, coverage);
+    // And the live plan still derives the citations the plan assigns, one suite per criterion where
+    // the plan holds every edge of a criterion by one suite and every suite it names where it does
+    // not: the four mutations above changed copies, and the rows read from the plan are what the
+    // claims cite. A milestone whose list another census owns cannot have its two tables agreed here,
+    // so the live plan is held to the half that needs no agreement and the disagreements are held to
+    // the record that states them.
+    if (CLAIMS_OWNED_ELSEWHERE) {
+      const liveHeldOut = assertHeldOutRead(planSource, edges);
+      const claimed = claimJson(
+        CLAIMS_PATH,
+        'the list is part of this repository',
+      );
+      assert.deepEqual(
+        claimed.evidence?.plan?.disagreements ?? null,
+        heldOutDisagreements(edges, liveHeldOut, coverage),
+        `${CLAIMS_REL} states the plan's cross-table disagreements as this head reads them`,
+      );
+    } else {
+      assertHeldOutMapping(planSource, edges, coverage);
+    }
     const derived = derivedClaimsFrom(
       intentSource,
       planSource,
@@ -3922,18 +4117,24 @@ describe('the claim list', () => {
       planPath,
     );
     for (const row of derived.claims) {
-      const held = edges
-        .filter((edge) => edge.criterion === row.criterion)
-        .map((edge) => live.get(edge.edge)?.test);
+      const held = [
+        ...new Set(
+          edges
+            .filter((edge) => edge.criterion === row.criterion)
+            .map((edge) => live.get(edge.edge)?.test),
+        ),
+      ];
       assert.deepEqual(
-        [...new Set(held)],
-        [row.artefactPath],
-        `${row.criterion} cites the suite the plan's held-out rows assign its every edge, and it cites ${row.artefactPath} against ${JSON.stringify(held)}`,
+        row.suites,
+        held,
+        `${row.criterion} cites every suite the plan's held-out rows assign its edges, and it cites ${JSON.stringify(row.suites)} against ${JSON.stringify(held)}`,
       );
-      assert.ok(
-        existsSync(join(CLAIM_ROOT, row.artefactPath)),
-        `${row.criterion} cites ${row.artefactPath}, which this checkout does not carry`,
-      );
+      for (const suite of row.suites) {
+        assert.ok(
+          existsSync(join(CLAIM_ROOT, suite)),
+          `${row.criterion} cites ${suite}, which this checkout does not carry`,
+        );
+      }
       assert.ok(
         coverage.some((one) => one.criterion === row.criterion),
         `${row.criterion} is a criterion the plan's coverage table assigns a task`,
@@ -3953,7 +4154,9 @@ describe('the claim list', () => {
         heldOutRowsWritten(planSource),
       )} written; unread row -> ${unreadMessage.split('\n')[0]}; deleted E5 row -> SC3 cites ${
         sc3.artefactPath
-      } instead of ${String(live.get('E5')?.test)}; moved task -> ${
+      } through ## Intent coverage against ${String(
+        assignedE5,
+      )} the plan assigns E5 (${sc3.artefactPath === assignedE5 ? 'the same suite, so the drift is the route' : 'a different suite, so the drift is the path'}); moved task -> ${
         movedMessage.split('\n')[0]
       }; absent suite -> ${carriedMessage.split('\n')[0]}`,
     );
