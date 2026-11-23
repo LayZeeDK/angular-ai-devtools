@@ -2,11 +2,11 @@
 id: T007
 title: Re-derive the gate records and run the project verify
 wave: 7
-status: in-progress
+status: pending
 deps: [T006]
-agent: build_T007
-base: 0015a91b3d9e9616099532c7250b66ec0a54b471
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
   - research/raw/m044-gate-shapes.json
