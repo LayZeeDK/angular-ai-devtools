@@ -1,0 +1,1 @@
+{"command": "node --test scripts/import-failure.test.mjs", "commit": "af12a8dcebf240cd083f9a868191406bad16c1c7", "recorded_at": "2026-11-23T15:53:05+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
