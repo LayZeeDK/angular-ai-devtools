@@ -1,0 +1,73 @@
+head: 7b77bb90ff1e402b4e46c630a58c25a293924b22 at 2026-11-23T01:55:17.646Z
+armed run: nothing moved, nothing written
+armed idempotence: 24045 characters, sha256 f569f220c826a73c2110667f7385c3878330b13e8ce5cecd61405c045d52d2e0 before and after the second run
+M062: 4 criteria, 8 edge row(s), 8 held-out row(s), 7 agreeing, 1 disagreement(s) ["E8: held by T002, coverage assigns T003/T005/T006"]
+research/raw/m062-verdict-claims.json at load and after the run: 24045 characters, sha256 f569f220c826a73c2110667f7385c3878330b13e8ce5cecd61405c045d52d2e0
+research/raw/m062-verdict-claims.json: 4 criterion(a) ruled, 0 required; suites ["scripts/outlet-answer.test.mjs","scripts/outlet-answer.test.mjs","scripts/outlet-state.test.mjs","apps/angular-ai-devtools/src/app/panel-outlet.spec.ts"]; tests ["SC1 — a record naming a second outlet names both names and the path","SC2 — a record whose route carries no matched name is cannot-tell, with the reason","is the only module under extension/ that produces one, and a second reader reddens the scan","renders the state and the three name fields the answer carries (SC4)"]
+quote mutant: SC1 must quote the intent character for character: claims[0].criterionText is "A fixture route that declares another outlet produces a finding naming the outlet the route requested, the name the state matched and its path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved." and the intent states "A fixture route that declares a second named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved."
+stale-criterion mutant: claims[0].criterionText: "A fixture route that declares a second named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved." -> "A fixture route that declares a named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved."
+missing-test mutant: SC1 cites scripts/outlet-answer.test.mjs for the test "a test no suite in this checkout declares", and that suite declares no such test at this head: it declares ["evaluates in a bare context and publishes the join itself, and nothing else of its own","SC3 — two node:vm contexts with throw-on-touch globals produce deep-equal answers","SC3 — the module mentions no DOM API, no second record and no component identity","SC3 — the answer is the same when a second record is handed in beside the first","answers the same record twice with the same value and mutates nothing it was handed","throws on no input","carries exactly the five contract fields in every state, and reaches all four","SC1 — a record naming a second outlet names both names and the path","E1 — a route that declares no outlet asks for primary, and the answer says primary","E2 — two outlets named one after the other: the first is named, never the last","SC2 — a record whose route carries no matched name is cannot-tell, with the reason","E3 — an outlet only the template names is an absence, never the answer name","E4 — the name the record truncates is reported truncated, never completed","E7 — an outlet the route never reached is cannot-tell, never a mismatch","SC3 — the answer names no identity the record did not carry, and no remedy","M1 — a DOM fallback filling `matched` reddens the absence pin and the page-surface scan","M2 — a remedy string added to the answer reddens the five-field pin and the literal scan","M3 — a name taken from a component reddens the absence pin and the component scan","M4 — the outlet renamed in the record reddens the pin, naming `requested`","M5 — the primary normalisation dropped reddens the unnamed-primary pin","M6 — the last named outlet chosen reddens the declaration-order pin","M7 — the chain-level absences dropped reddens the truncation pin","M8 — a stated absence reported as a mismatch reddens the not-a-mismatch pin","M9 — a name taken from the template reddens the template-absence pin"] | absent suite: SC2 cites scripts/absent-claims-suite.test.mjs, which this checkout does not carry
+plan disagreements: 1 at this head ([{"edge":"E8","criterion":"SC4","heldBy":"T002","assignedByCoverage":["T003","T005","T006"]}]); the moved-row mutant derives 2
+▶ the claim list, armed
+  ✔ re-derives, writes only what moved, and a second run changes no byte (15.6675ms)
+✔ the claim list, armed (16.4395ms)
+▶ measurement
+  ✔ the intent, the plan and this checkout carry the criteria, edges, suites and tests the claims rest on (7.5272ms)
+✔ measurement (7.6361ms)
+▶ the claim list
+  ✔ is a read: a default run hashes the list the same before and after (0.3592ms)
+  ✔ is exactly the list this head derives, and a value that moved is named (4.6308ms)
+  ✔ rules every criterion the intent declares, quotes it verbatim, and names the suite and test that prove it (6.6772ms)
+  ✔ reddens by claim id when a row quotes its criterion in its own words (1.5933ms)
+  ✔ reddens naming the field that moved when the intent is edited after the capture (9.2869ms)
+  ✔ reddens naming the missing test when a claim names a test this head does not declare (14.0819ms)
+  ✔ records the plan’s cross-table disagreements rather than refusing to derive (0.9901ms)
+✔ the claim list (38.0331ms)
+ℹ tests 9
+ℹ suites 3
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191.6617
+M062: 4 criteria, 8 edge row(s), 8 held-out row(s), 7 agreeing, 1 disagreement(s) ["E8: held by T002, coverage assigns T003/T005/T006"]
+research/raw/m062-verdict-claims.json at load and after the run: 24045 characters, sha256 f569f220c826a73c2110667f7385c3878330b13e8ce5cecd61405c045d52d2e0
+research/raw/m062-verdict-claims.json: 4 criterion(a) ruled, 0 required; suites ["scripts/outlet-answer.test.mjs","scripts/outlet-answer.test.mjs","scripts/outlet-state.test.mjs","apps/angular-ai-devtools/src/app/panel-outlet.spec.ts"]; tests ["SC1 — a record naming a second outlet names both names and the path","SC2 — a record whose route carries no matched name is cannot-tell, with the reason","is the only module under extension/ that produces one, and a second reader reddens the scan","renders the state and the three name fields the answer carries (SC4)"]
+quote mutant: SC1 must quote the intent character for character: claims[0].criterionText is "A fixture route that declares another outlet produces a finding naming the outlet the route requested, the name the state matched and its path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved." and the intent states "A fixture route that declares a second named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved."
+stale-criterion mutant: claims[0].criterionText: "A fixture route that declares a second named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved." -> "A fixture route that declares a named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved."
+missing-test mutant: SC1 cites scripts/outlet-answer.test.mjs for the test "a test no suite in this checkout declares", and that suite declares no such test at this head: it declares ["evaluates in a bare context and publishes the join itself, and nothing else of its own","SC3 — two node:vm contexts with throw-on-touch globals produce deep-equal answers","SC3 — the module mentions no DOM API, no second record and no component identity","SC3 — the answer is the same when a second record is handed in beside the first","answers the same record twice with the same value and mutates nothing it was handed","throws on no input","carries exactly the five contract fields in every state, and reaches all four","SC1 — a record naming a second outlet names both names and the path","E1 — a route that declares no outlet asks for primary, and the answer says primary","E2 — two outlets named one after the other: the first is named, never the last","SC2 — a record whose route carries no matched name is cannot-tell, with the reason","E3 — an outlet only the template names is an absence, never the answer name","E4 — the name the record truncates is reported truncated, never completed","E7 — an outlet the route never reached is cannot-tell, never a mismatch","SC3 — the answer names no identity the record did not carry, and no remedy","M1 — a DOM fallback filling `matched` reddens the absence pin and the page-surface scan","M2 — a remedy string added to the answer reddens the five-field pin and the literal scan","M3 — a name taken from a component reddens the absence pin and the component scan","M4 — the outlet renamed in the record reddens the pin, naming `requested`","M5 — the primary normalisation dropped reddens the unnamed-primary pin","M6 — the last named outlet chosen reddens the declaration-order pin","M7 — the chain-level absences dropped reddens the truncation pin","M8 — a stated absence reported as a mismatch reddens the not-a-mismatch pin","M9 — a name taken from the template reddens the template-absence pin"] | absent suite: SC2 cites scripts/absent-claims-suite.test.mjs, which this checkout does not carry
+plan disagreements: 1 at this head ([{"edge":"E8","criterion":"SC4","heldBy":"T002","assignedByCoverage":["T003","T005","T006"]}]); the moved-row mutant derives 2
+▶ measurement
+  ✔ the intent, the plan and this checkout carry the criteria, edges, suites and tests the claims rest on (12.2503ms)
+✔ measurement (13.058ms)
+▶ the claim list
+  ✔ is a read: a default run hashes the list the same before and after (0.5007ms)
+  ✔ is exactly the list this head derives, and a value that moved is named (5.7004ms)
+  ✔ rules every criterion the intent declares, quotes it verbatim, and names the suite and test that prove it (6.7564ms)
+  ✔ reddens by claim id when a row quotes its criterion in its own words (1.5332ms)
+  ✔ reddens naming the field that moved when the intent is edited after the capture (8.5105ms)
+  ✔ reddens naming the missing test when a claim names a test this head does not declare (13.3507ms)
+  ✔ records the plan’s cross-table disagreements rather than refusing to derive (0.8859ms)
+✔ the claim list (37.6356ms)
+✔ every citation the record makes is the line it names, and the line says what the record says it does (3.3832ms)
+✔ the record names the route, the loader key and the sample fact the tree carries (3.4992ms)
+✔ the four states and the four absences are the words the shipped join answers with (1.0277ms)
+✔ the pane declares no sentence: every line it writes is a label and a value the answer carries (2.1398ms)
+✔ the pane renders no locale value, no remedy and no identity the answer did not carry (2.4295ms)
+✔ the copy record does not grow by this surface, and the digest holds no row for it (2.6753ms)
+✔ the record’s second surface is the outlet pane, and its row is measured rather than counted (2.6163ms)
+✔ the counts the record states are the counts the tree carries (0.8267ms)
+✔ mutants redden by name: a sentence, a page read, a citation off its line, an invented state, an unlabelled field (5.1197ms)
+ℹ tests 17
+ℹ suites 2
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 222.3371
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check research/raw/m062-verdict-claims.json

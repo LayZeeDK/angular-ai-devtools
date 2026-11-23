@@ -105,7 +105,7 @@
         "(no matches)",
         "(no matches)"
       ],
-      "note": "the panels and the page-world agent therefore neither register nor read a WebMCP tool at this head. The content script that could read one is extension/agent-main.js, loaded with `\"world\": \"MAIN\"` (extension/manifest.json:37)."
+      "note": "the panels and the page-world agent therefore neither register nor read a WebMCP tool at this head. The content script that could read one is extension/agent-main.js, loaded with `\"world\": \"MAIN\"` (extension/manifest.json:38)."
     }
   ],
   "exposure": {
@@ -277,14 +277,14 @@
     {
       "id": "which-realm-reads-it",
       "question": "which realm would read the list, and is the surface present there?",
-      "statement": "Unobserved. The panel is an extension realm that reads the inspected tab's id from the DevTools API (apps/angular-ai-devtools/src/app/extension-message.service.ts:156); the only content script the extension loads into the page's own JavaScript world (`\"world\": \"MAIN\"`) is extension/agent-main.js (extension/manifest.json:37), and that file contains no reference to the model context at this head. A read would have to be relayed from a page context, and whether `document.modelContext` is populated in that context is not measured here.",
+      "statement": "Unobserved. The panel is an extension realm that reads the inspected tab's id from the DevTools API (apps/angular-ai-devtools/src/app/extension-message.service.ts:156); the only content script the extension loads into the page's own JavaScript world (`\"world\": \"MAIN\"`) is extension/agent-main.js (extension/manifest.json:38), and that file contains no reference to the model context at this head. A read would have to be relayed from a page context, and whether `document.modelContext` is populated in that context is not measured here.",
       "citations": [
         {
           "at": "apps/angular-ai-devtools/src/app/extension-message.service.ts:156",
           "lineText": "this.inspectedTabId = chrome?.devtools?.inspectedWindow?.tabId;"
         },
         {
-          "at": "extension/manifest.json:37",
+          "at": "extension/manifest.json:38",
           "lineText": "\"world\": \"MAIN\""
         }
       ]

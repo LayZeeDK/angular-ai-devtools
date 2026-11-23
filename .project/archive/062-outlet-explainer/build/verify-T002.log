@@ -1,0 +1,56 @@
+head: a8a1706bc4c3fbe20170367281a37c04044c4b46 at 2026-11-23T00:43:17.511Z
+▶ outlet-answer.js is pure
+  ✔ evaluates in a bare context and publishes the join itself, and nothing else of its own (1.6597ms)
+  ✔ SC3 — two node:vm contexts with throw-on-touch globals produce deep-equal answers (7.0546ms)
+  ✔ SC3 — the module mentions no DOM API, no second record and no component identity (1.0168ms)
+  ✔ SC3 — the answer is the same when a second record is handed in beside the first (0.5182ms)
+  ✔ answers the same record twice with the same value and mutates nothing it was handed (0.4814ms)
+  ✔ throws on no input (0.9472ms)
+✔ outlet-answer.js is pure (13.4731ms)
+▶ the shipped join answers the outlet record
+  ✔ carries exactly the five contract fields in every state, and reaches all four (0.9915ms)
+  ✔ SC1 — a record naming a second outlet names both names and the path (0.4644ms)
+  ✔ E1 — a route that declares no outlet asks for primary, and the answer says primary (0.5192ms)
+  ✔ E2 — two outlets named one after the other: the first is named, never the last (0.5259ms)
+  ✔ SC2 — a record whose route carries no matched name is cannot-tell, with the reason (0.4933ms)
+  ✔ E3 — an outlet only the template names is an absence, never the answer name (0.4307ms)
+  ✔ E4 — the name the record truncates is reported truncated, never completed (0.5395ms)
+  ✔ E7 — an outlet the route never reached is cannot-tell, never a mismatch (0.4183ms)
+  ✔ SC3 — the answer names no identity the record did not carry, and no remedy (0.7356ms)
+✔ the shipped join answers the outlet record (5.431ms)
+▶ mutants redden by name
+  ✔ M1 — a DOM fallback filling `matched` reddens the absence pin and the page-surface scan (4.5618ms)
+  ℹ SC2 DOM mutant red: the mutant module: matched is null where the record carries no outlet name — no nearby outlet is borrowed for it ("sidebar")
+  ℹ AC3 scan red: the mutant module: outlet-answer.js names a document read ("document"), which is a surface the answer must not read
+  ℹ AC3 purity red: the module reached for document
+  ✔ M2 — a remedy string added to the answer reddens the five-field pin and the literal scan (2.0075ms)
+  ℹ E8 mutant red: the mutant module: every answer carries exactly the five contract fields and no sixth (the record naming a second outlet)
+  ℹ E8 literal scan red: the mutant module: a string the module can answer with names a remedy, a cause or a schematic: "declare the outlet in the route table, so the state matches it instead"
+  ✔ M3 — a name taken from a component reddens the absence pin and the component scan (2.5818ms)
+  ℹ N1 mutant red: the mutant module: matched is null where the record carries no outlet name — no nearby outlet is borrowed for it ("RouterOutlet")
+  ℹ N1 scan red: the mutant module: outlet-answer.js names a component-name field ("componentName"), so a name could be taken from a component rather than from the record
+  ✔ M4 — the outlet renamed in the record reddens the pin, naming `requested` (0.8857ms)
+  ℹ SC1 mutant red: requested moved: the answer names requested "aside" where the route configuration of "settings" requests "sidebar" — the name is the record's, never a rename of the join's
+  ✔ M5 — the primary normalisation dropped reddens the unnamed-primary pin (1.0756ms)
+  ℹ E1 mutant red: the mutant module: an unnamed outlet is reported as "primary" — the name is not left null and no absence stands in for it (null)
+  ✔ M6 — the last named outlet chosen reddens the declaration-order pin (1.068ms)
+  ℹ E2 mutant red: the mutant module: two outlets are declared one after the other, and the answer names the first in declaration order ("chat")
+  ✔ M7 — the chain-level absences dropped reddens the truncation pin (1.633ms)
+  ℹ E4 mutant red: the mutant module: the truncation the record states is carried in the answer, so the outlet name it could not read is reported truncated — the answer's reasons are ["outlet-not-requested"]
+  ✔ M8 — a stated absence reported as a mismatch reddens the not-a-mismatch pin (1.8093ms)
+  ℹ E7 mutant red: the mutant module: an outlet the route never reached is not a mismatch, and the answer never reports one ("outlet-absent")
+  ✔ M9 — a name taken from the template reddens the template-absence pin (1.081ms)
+  ℹ E3 mutant red: the mutant module: the outlet the template declares and the configuration never requests is in no field of the answer — it is absent from the record, and the answer says so rather than naming it ({"state":"outlet-absent","requested":"chat","matched":"primary","path":"contract","absences":[{"field":"requested","path":"contract","reason":"outlet-not-requested"}]})
+✔ mutants redden by name (17.0482ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 160.0229
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/outlet-answer.js scripts/outlet-answer.test.mjs

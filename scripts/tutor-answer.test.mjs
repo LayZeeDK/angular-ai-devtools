@@ -366,14 +366,37 @@ function pinNamedOutside(present = presentRecords, maps = MAPS) {
 }
 
 /**
+ * A record its own census writes and reads back, so the map census is not the only thing that measures
+ * it: the record's own `capture.command` names a suite this checkout carries, that suite names this
+ * record's path and reads the armed flag the command states. M062's plan lands its claim list at T004 and
+ * the map that would excuse it at T005, so the record arrives before the map and is held by the suite
+ * that captures it; a record that merely names a suite, or whose census derives its path instead of
+ * naming it, earns nothing. The rule is the same one `scripts/tutor-record-shapes.test.mjs` applies, made
+ * here so the two suites hold the tree to one rule.
+ * @param {{path: string, record: any}} entry
+ * @returns {boolean}
+ */
+function heldByItsOwnCensus(entry) {
+  const command = String(entry?.record?.capture?.command ?? '');
+  const owner = /scripts\/[a-z0-9-]+\.test\.mjs/.exec(command)?.[0];
+  const flag = /M\d{3}_CAPTURE/.exec(command)?.[0];
+  if (owner === undefined || flag === undefined) return false;
+  const ownerPath = join(ROOT, owner);
+  if (!existsSync(ownerPath)) return false;
+  const source = readFileSync(ownerPath, 'utf8');
+  return source.includes(entry.path) && source.includes(flag);
+}
+
+/**
  * The records the map is measured over: every verdict-claims record present except the ones the maps
- * name in `inventory.outsideTheMap` — the same subtraction
- * `scripts/tutor-record-shapes.test.mjs` makes through its `mappedRecords`, made here so the two
- * suites hold the tree to one rule. M055's T004 captured `research/raw/m055-verdict-claims.json`
- * after the 34 beneath it were measured and named it outside the map for exactly that reason, and the
- * later maps are read the same way rather than by a second rule. Only the named paths are subtracted,
- * so a record that is present and named outside no map is still measured and still reddens the census
- * below — which is what the census mutant proves.
+ * name in `inventory.outsideTheMap` and except a record its own census captures and reads back — the
+ * same subtraction `scripts/tutor-record-shapes.test.mjs` makes through its `mappedRecords`, made here
+ * so the two suites hold the tree to one rule. M055's T004 captured
+ * `research/raw/m055-verdict-claims.json` after the 34 beneath it were measured and named it outside
+ * the map for exactly that reason, and the later maps are read the same way rather than by a second
+ * rule. Only the named paths and the self-held ones are subtracted, so a record that is present and
+ * named outside no map is still measured and still reddens the census below — which is what the census
+ * mutant proves.
  * @param {{path: string, record: any}[]} [present] the records the tree holds, by default read from
  *   disk; the mutant passes a synthetic list so a record that is not on disk is held to the maps too
  * @param {any[]} [maps] the maps to subtract by, by default every map on disk; the mutant drops the
@@ -382,7 +405,9 @@ function pinNamedOutside(present = presentRecords, maps = MAPS) {
  */
 function mappedRecords(present = presentRecords, maps = MAPS) {
   const outside = outsideTheMap(maps);
-  return present.filter((entry) => !outside.includes(entry.path));
+  return present.filter(
+    (entry) => !outside.includes(entry.path) && !heldByItsOwnCensus(entry),
+  );
 }
 
 /** T001's 34 records, as the join answers over them: the records the map is measured over. */
@@ -1297,9 +1322,40 @@ test('T002 — a record present and not named outside the map still reddens the 
       .filter((entry) => outsideTheMap().includes(entry.path))
       .map((entry) => entry.path),
     presentRecords
-      .filter((entry) => !realRecords.some((kept) => kept.path === entry.path))
+      .filter(
+        (entry) =>
+          !realRecords.some((kept) => kept.path === entry.path) &&
+          !heldByItsOwnCensus(entry),
+      )
       .map((entry) => entry.path),
     'the census subtracts exactly the verdict-claims records the maps name outside themselves and no others, so the exclusion is the recordings’ own rather than this suite’s — and a name that resolves to no record on disk subtracts nothing',
+  );
+
+  // The self-held subtraction is not a licence for a record nothing holds. A record present, named
+  // outside no map and held by no census of its own is measured, so the census above names it; and the
+  // subtraction itself is pinned to exactly the one record this milestone lands before its map.
+  const heldByNobody = {
+    path: `${RECORD_DIR}/m902-verdict-claims.json`,
+    record: { milestone: 'M902', claims: [] },
+  };
+  const measuredWith = mappedRecords([...presentRecords, heldByNobody]).map(
+    (entry) => entry.path,
+  );
+  assert.ok(
+    measuredWith.includes(heldByNobody.path),
+    'a record present, named outside no map and held by no census of its own is measured rather than subtracted',
+  );
+  const selfHeld = presentRecords.filter((entry) => heldByItsOwnCensus(entry));
+  assert.deepEqual(
+    selfHeld.map((entry) => entry.path),
+    [`${RECORD_DIR}/m062-verdict-claims.json`],
+    `exactly the claim list M062 T004 writes is held by its own census at this head, and no other record is excused this way: ${JSON.stringify(selfHeld.map((entry) => entry.path))}`,
+  );
+  assert.ok(
+    selfHeld.every(
+      (entry) => !measuredWith.some((path) => path === entry.path),
+    ),
+    'the records their own census holds are subtracted from the census and not measured by it',
   );
 
   // The row this milestone's T004 owes the census, dropped: the record it excuses is present on disk,

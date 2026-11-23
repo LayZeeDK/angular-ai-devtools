@@ -1,0 +1,61 @@
+head: 6543d5d534f1c31fc11a91a830e94708aa106e80 at 2026-11-23T03:18:15.205Z
+✔ PRECONDITION: the two installs are the two copies this recording names (34.1084ms)
+✔ the recording validates against the agent, the two installs and its own quotations (56.1788ms)
+✔ the recording is the canonical serialisation of its own record (3.3819ms)
+✔ no emission throws, a non-object identity lands its frame, and the delta is skipped for it (0.6035ms)
+✔ the epoch record names a moved epoch, holds on a still one, and is keyed by the instance (0.2391ms)
+✔ the hook record carries both details shapes, the error view context and the fallback apart from the error (3.9347ms)
+✔ the 22.1.8 install carries no boundary machinery at all (0.2526ms)
+✔ no page can report its version and exactly one key separates the two installs (0.1859ms)
+✔ this suite drives no browser, starts nothing and writes nothing by default (0.6835ms)
+✔ an armed run writes the recording and a second armed run changes no byte (0.3356ms)
+✔ held-out: a throw cited on the wrong line reddens, naming the line (0.6792ms)
+✔ held-out: a recording that blames the wrong emission reddens (1.8141ms)
+✔ held-out: a recording that says the defect still reproduces reddens (1.3923ms)
+✔ held-out: a repaired frame recorded as lost reddens (3.2345ms)
+✔ held-out: a non-keyed identity that kept an epoch record reddens, naming the skip (3.1714ms)
+✔ held-out: a keyed identity whose delta was emptied reddens, naming N6 (3.1502ms)
+✔ held-out: a repair claimed for a function that does not own the write reddens (3.183ms)
+✔ held-out: silencing the moved-node list reddens, naming the pass it empties (2.9682ms)
+✔ held-out: constant-folding the held list reddens (2.4071ms)
+✔ held-out: a keyed-by claim of anything but the instance reddens (2.3261ms)
+✔ held-out: a moved non-object emission site reddens, naming it (0.911ms)
+✔ held-out: a details record without caughtBy reddens (2.4109ms)
+✔ held-out: a construction path that carries caughtBy reddens (2.4039ms)
+✔ held-out: an error view context that lost $reset reddens (3.1218ms)
+✔ held-out: the fallback presented as Angular own text reddens (2.5816ms)
+✔ held-out: a quotation whose anchor no longer carries it reddens (20.9106ms)
+✔ held-out: machinery counted in the 22.1.8 install reddens (19.8076ms)
+✔ held-out: a boundary count that moved since the measurement reddens (19.9161ms)
+✔ held-out: a version read off the page reddens (19.0822ms)
+✔ held-out: a discriminator of more than one key reddens (19.7533ms)
+✔ held-out: a declared version that is not the measured install reddens (20.0434ms)
+✔ held-out: an absent answer that became an empty boundary list reddens (22.3895ms)
+✔ the page produced the transition: settle.at is after attachAt (5.2056ms)
+✔ a settle taken from the attach reading reddens the pin that holds the transition (0.7043ms)
+✔ a transition claimed where the page emitted nothing reddens the pin (0.4133ms)
+✔ an interval taken from the record’s quiet tail reddens the pin (0.3885ms)
+✔ the sequence is the read’s own, and the drive’s second subscription sees the same two values (0.2839ms)
+✔ the join reports the interval between the page’s own two readings (1.3539ms)
+✔ a measured 0 is still reported as 0 - the recording’s own control says so (0.3231ms)
+✔ the route survey names the routes that can and cannot produce it (0.3547ms)
+✔ the recording is its own derivation, and a drifted byte reddens it (1.2989ms)
+✔ a default run is a read: the recording hashes the same before and after (0.5584ms)
+ℹ research/raw/m043-settle-page.json at load: 38279 bytes, sha256 bf408c444915905d3827a5c4f6f883471685f2fc1b5c7037fdc98a00f7831be4
+ℹ research/raw/m043-settle-page.json after the run: sha256 bf408c444915905d3827a5c4f6f883471685f2fc1b5c7037fdc98a00f7831be4
+ℹ an armed run would write: research/raw/m043-settle-page.json - set "M043_CAPTURE=1"&& node --experimental-strip-types --test "scripts/stability-page-settle.test.mjs"
+✔ the arming gate guards every side effect this suite could have (0.3282ms)
+✔ the recording answers the three exposure questions and names the canary (11.9077ms)
+✔ every cited path and line is the one the record read (6.6379ms)
+✔ the tool list is readable by the recorded surface, and never read by anything here (0.0873ms)
+✔ the canary asks only for a typeof, and still does (2.1344ms)
+✔ the page-world agent the extension ships reads no model context (0.2152ms)
+✔ a doctored citation reddens naming the claim it breaks (17.5563ms)
+ℹ tests 49
+ℹ suites 0
+ℹ pass 49
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 407.338

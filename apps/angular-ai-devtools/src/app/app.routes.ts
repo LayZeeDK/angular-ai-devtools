@@ -71,11 +71,11 @@ const PANEL_SURFACES = [
   // block of lines per captured diagnostic, each named by the code it carried — and nothing else: no
   // cause, no element and no remedy, because the capture records none of the three.
   'console',
-  // The M046 SC1-SC3 surface: the hand-off the join `extension/copy-to-agent.js` answers for the
-  // text a pane drew — the control sentence naming what will be sent and the body itself as the pane
-  // rendered it, the same with the absence a finding names still stated, or the `cannot-tell` reason
-  // and nothing beside it.
+  // The M046 SC1-SC3 surface: the hand-off the join `extension/copy-to-agent.js` answers for the text
+  // a pane drew — the control sentence naming what will be sent and the body itself as the pane rendered it, the same with the absence a finding names still stated, or the `cannot-tell` reason and nothing beside it.
   'console-read',
+  // The M062 SC4 surface: the outlet a route's own configuration requested, the outlet name the router state matched for it, that route's own path and every absence the record states about it — each under its own label, and no cause, no remedy and no outlet the answer did not carry.
+  'outlet',
   // The M054 SC1-SC3 surface: each measured property's computed value beside the baseline
   // stylesheet's declared value, each under its own label — or the three absences, named apart.
   'visual-qa',

@@ -8,7 +8,7 @@
   "environment": {
     "platform": "win32",
     "shell": "cmd.exe",
-    "node": "v24.22.0"
+    "node": "v26.13.0"
   },
   "commands": {
     "check": "node --check scripts/error-boundary-measure.test.mjs && node --experimental-strip-types --test \"scripts/error-boundary-measure.test.mjs\" && npx prettier --check scripts/error-boundary-measure.test.mjs research/raw/m042-error-boundary.json && npm run check",

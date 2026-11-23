@@ -2155,8 +2155,8 @@ Open questions
 Depends on: [M020]
 Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/062-outlet-explainer
 Integrated: null
 
 Goal: The panel answers why routed content appeared in the wrong outlet, or in none, naming the outlet name requested, the name matched and the route that supplied it.

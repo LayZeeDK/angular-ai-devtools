@@ -8,9 +8,9 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 337,
-    "suitesExamined": 173,
-    "examined": 196,
+    "filesExamined": 346,
+    "suitesExamined": 179,
+    "examined": 198,
     "movedSubtrees": [
       "build",
       "intent",
@@ -21,18 +21,18 @@
     ],
     "movedSubtreesDerivedFrom": {
       "command": "readdir .project\\archive/<NNN>-<slug>",
-      "archivesExamined": 60,
+      "archivesExamined": 61,
       "rule": "every directory name any archived milestone directory carries is a subtree the archive move relocates; a file the archive writes there (MANIFEST.md) is not"
     },
     "counts": {
       "archived-by-the-move": 17,
       "deliberate-archive-read": 29,
-      "undecided": 150
+      "undecided": 152
     },
     "sites": {
       "path": 11,
-      "comment": 73,
-      "segment": 62,
+      "comment": 74,
+      "segment": 63,
       "citation": 8,
       "message": 33,
       "pattern": 9
@@ -1226,7 +1226,7 @@
       },
       {
         "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2890,
+        "line": 2917,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1234,7 +1234,7 @@
       },
       {
         "file": "scripts/navigation-blocking.test.mjs",
-        "line": 2891,
+        "line": 2918,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1389,6 +1389,24 @@
         "site": "comment",
         "class": "undecided",
         "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/outlet-verdict-claims.test.mjs",
+        "line": 213,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/outlet-verdict-claims.test.mjs",
+        "line": 219,
+        "path": ".project/STATE.md",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
+        "root": "ROOT",
+        "construct": "call"
       },
       {
         "file": "scripts/overlay-hit-test-recording.test.mjs",
@@ -1660,7 +1678,7 @@
       },
       {
         "file": "scripts/tutor-answer.test.mjs",
-        "line": 615,
+        "line": 640,
         "path": null,
         "site": "pattern",
         "class": "undecided",
@@ -1915,6 +1933,8 @@
           ".project/archive/058-tutor-routing/research/SYNTHESIS.md",
           ".project/archive/059-teardown-leak/research/SYNTHESIS.md",
           ".project/archive/060-error-routing/research/SYNTHESIS.md",
+          ".project/archive/061-locale-correctness/research/SYNTHESIS.md",
+          ".project/research/SYNTHESIS.md",
           "research/SYNTHESIS.md"
         ],
         "presentInTheTree": true
@@ -2155,16 +2175,16 @@
       "named": "d94502d1",
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
-    "examined": 203,
-    "filesListed": 512,
+    "examined": 209,
+    "filesListed": 521,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 254,
+        "addedLines": 273,
         "removedLines": 1,
-        "addedAssertionLines": 70,
+        "addedAssertionLines": 75,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2175,7 +2195,7 @@
         "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 48,
+        "addedLines": 51,
         "removedLines": 0,
         "addedAssertionLines": 0,
         "removedAssertionLines": 0,
@@ -2188,9 +2208,9 @@
         "file": "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 92,
+        "addedLines": 95,
         "removedLines": 3,
-        "addedAssertionLines": 18,
+        "addedAssertionLines": 19,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2201,9 +2221,9 @@
         "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 6984,
-        "removedLines": 755,
-        "addedAssertionLines": 1075,
+        "addedLines": 7273,
+        "removedLines": 761,
+        "addedAssertionLines": 1107,
         "removedAssertionLines": 171,
         "recutAssertionLines": 171,
         "droppedAssertionLines": 0,
@@ -2287,6 +2307,8 @@
           "expect(demo.text()",
           "expect(unprinted",
           "expect(demo.text()",
+          "expect(route.component",
+          "expect(await route.loadComponent()",
           "expect(surfaceName",
           "expect(FACTS['navigation']",
           "expect(answer.state",
@@ -2325,8 +2347,6 @@
           "expect(",
           "expect(",
           "expect(",
-          "expect(route.component",
-          "expect(await route.loadComponent()",
           "expect(surfaceName",
           "expect(FACTS['stability']",
           "expect(answer.state",
@@ -2381,6 +2401,19 @@
           "expect(tellable.text"
         ],
         "reason": "the demo suite gained the M045 T003 console pin: its route, its sample fact held to the shipped digest and to the join, and its rendered lines held to E7 — no cause, no element, no remedy, no count and no empty list; the earlier surfaces’ pins are unchanged and no assertion line was removed; M047 T003 adds the components pin — its route, its sample fact held to the shipped component-search join, and the four states with a stated count, a stated absence for a missing count, the filtered count and the cannot-tell reason — and the table pin gains `components`; M048 T003 adds the copy-check pin — its route, its sample fact held to the shipped copy-check join over T001’s recorded surfaces and the digest, and the three states with the clean count, each unexplained string named with its surface verbatim, and the cannot-tell reason never rendered as clean — and the table pin gains `copy-check`; M049 T003 adds the interaction-story pin — its route, its sample fact held to the shipped interaction-story join over a record rebuilt from T001’s measured field lists, the steps in `at` order with their recorded fields, the empty stream named beside the story, and the cannot-tell reasons — and the table pin gains `interaction-story`"
+      },
+      {
+        "file": "apps/angular-ai-devtools/src/app/panel-outlet.spec.ts",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 419,
+        "removedLines": 0,
+        "addedAssertionLines": 35,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M062 T003 pins the display half of the same milestone, `outletPanel(answer)` in `apps/angular-ai-devtools/src/app/panel-outlet.ts` — the state, the request, the matched name and the route’s own path each under its own label, one line per absence the answer carries with the absence’s own path and reason on lines of their own, no line at all for a field the answer carries as null, the empty path rendered as its own value because a componentless route’s path is a path, and an answer that is no answer or names a state nobody wrote rendered as the bare word it was given; every line is held to the pane’s own label table and to a value the answer carries, so a seventh field renders nothing and no remedy, cause or schematic can appear; the file also scans the pane’s code with its comments stripped and refuses a sentence-shaped literal, a page read and a runtime import, and four mutants — a remedy sentence, a page read, a seventh label and a label with no value behind it — each redden the pin that names the defect by string, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
       },
       {
         "file": "scripts/autonomy-gaps.test.mjs",
@@ -2581,6 +2614,19 @@
         "reason": "wholly added at this head: M060 T002 pins the pure join `extension/error-routing.js`, `errorRouting(records)`, over the two records T001 measured — an uncaught text beside a handler in force is `uncaught-with-handler` naming the message, the code the message’s own text carries and the owner the arrival’s own record states, a text a boundary entry carries is `reached-handler` with no finding, no handler resolved is `no-handler-provided` with no handler name invented, the phase is a record’s own field or the absence `phase-not-recorded` and never the message’s, an empty boundary record is its own `no-boundary-entry` absence beside the other, and whatever the records do not name is `cannot-tell` — every answer carrying exactly the eight contract fields in every state, the owner never borrowed from a neighbouring arrival or from the live page. Purity is proved by running the module in a bare `node:vm` context with every host global a trap, by a token scan of its code for every reach a pure join must not have, and by an answer that does not move on a second read; seven in-memory mutants each redden the pin that names its defect by string, and the assertion lines are all additions with none removed, a reading the measured commit carries no file to edit"
       },
       {
+        "file": "scripts/extension-manifest.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 162,
+        "removedLines": 0,
+        "addedAssertionLines": 16,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M062 T001 pins the manifest registration of the outlet record reader the milestone writes, `outlet-state.js` — it is declared by exactly one `content_scripts` entry, that entry is the MAIN-world declaration `agent-main.js` is declared in, at its shipped `document_idle`, listed before the script that reads it, and it is the only module the manifest registers whose name carries an outlet, because a second registration would be a second place an outlet name comes from (N3, E5); the second registration is applied to a copy of the parsed manifest and asserted to be the red, naming `outlet-mirror.js`, before the shipped pins are read again, so the mutant cannot be the object the pins read; nothing here builds and nothing writes, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
         "file": "scripts/gate-integrity-default-tasks.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
@@ -2597,7 +2643,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5769,
+        "addedLines": 5813,
         "removedLines": 0,
         "addedAssertionLines": 347,
         "removedAssertionLines": 0,
@@ -2662,9 +2708,9 @@
         "file": "scripts/navigation-blocking.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 1943,
+        "addedLines": 2146,
         "removedLines": 4,
-        "addedAssertionLines": 113,
+        "addedAssertionLines": 125,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2700,6 +2746,58 @@
         "reason": "wholly added at this head by the cache-policy commit that edits `nx.json`, not by a task suite: it holds the policy SC4 states as a check rather than as a comment — `build-extension` and the app unit-test target set `\"cache\": false`, `targetDefaults[\"@angular/build:unit-test\"]` sets it too so a later test target cannot inherit a cacheable verdict, the unit-test inputs include the `extensionArtifacts` and `projectBookkeeping` named inputs `nx.json` defines, `generate-error-digest` declares the output it writes so the digest is in the graph, and no live source asks a reader to skip the cache or disable the daemon; each assertion carries the reason it is a correctness rule rather than a preference, measured in M060 when a cache restore left the built panel at its checkout mtime and the freshness suites refused a current build; five tests, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
       },
       {
+        "file": "scripts/outlet-answer.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1549,
+        "removedLines": 0,
+        "addedAssertionLines": 114,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M062 T002 pins the join `extension/outlet-answer.js`, `outletAnswer(record)`, published on `globalThis.angularAiOutletAnswer` — one object of five fields in every state, `outlet-matched`, `outlet-unnamed-primary`, `outlet-absent` and `cannot-tell`, with `requested` and `matched` filled only from fields the record carries and an absent `requested` reported as `primary` because an unnamed outlet and the outlet named `primary` are the same outlet; the route it answers about is the first row naming an outlet other than the unnamed primary in the record’s own order, and the record’s absences are copied as stated, filtered to that route by its own path with every entry about the chain itself kept; purity is proved by running the module in a bare `node:vm` context and by a scan of its code for every reach a pure join must not have, the join throws on no input because a non-record is answered `cannot-tell` and a field whose getter throws reads as an absent field, every in-memory mutant reddens the pin that names its defect by string, and the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/outlet-record-shapes.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 837,
+        "removedLines": 0,
+        "addedAssertionLines": 50,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M062 T005 re-derives this milestone’s own map, `research/raw/m062-record-shapes.json`, behind its own armed flag `M062_CAPTURE=1` and reads it back unarmed. The record states the shape of the two artefacts the milestone ships, and every value it states is measured rather than typed: `extension/outlet-state.js` and `extension/outlet-answer.js` are each run in a bare `node:vm` context and their publications read back, so the record carries the reader’s three fields, its route rows’ and absence rows’ three fields, its three states and seven absence reasons, the route cap a chain deeper than it admits answers (64 rows and the `chain-truncated` absence), one sample record for a route whose configuration requested `panel` while the state matched `sidebar`, and the join’s five fields, four observed states, two own absences and the `primary` normalisation. Three rules hold it to the tree: a default run derives the same record at the head the file names and asserts the committed bytes are that serialization, so a mutant that moves one counted field without re-capturing reddens naming the record and the field `records[0].shape.counts.routeLimit`; a record whose head is a commit this history does not carry, or one that predates a change in a file it measures, refuses to land naming both heads and the file that moved, proven on the parent of the commit that last changed `extension/outlet-answer.js`; and the map names the claim list T004 publishes outside itself, states its own capture command, and the suite that command names carries this record’s path and the flag — the rule `scripts/tutor-record-shapes.test.mjs` and `scripts/tutor-answer.test.mjs` apply to a record its own census holds. Nothing here builds, opens a page or starts a browser, an armed run writes only when a value moved, a second armed run is byte-identical and a default run writes nothing; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/outlet-state.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 645,
+        "removedLines": 0,
+        "addedAssertionLines": 65,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M062 T001 pins the record `extension/outlet-state.js` — the router state the agent already holds reduced to `{ requested, matched, path }` per activated route, `state` one of `outlet-recorded`, `outlet-absent` and `cannot-tell`, `requested` and `matched` filled only from the fields the record carries and otherwise null with the absence named (`outlet-not-requested`, `route-config-absent`, `outlet-name-absent`, `outlet-name-empty`, `path-absent`, `no-route-chain`, `chain-truncated`), an unnamed outlet kept as the absence it is rather than normalised into `primary`, and two outlets declared on one route both named in declaration order; the module is loaded in a bare `node:vm` context and proved to need no page surface, its source scanned so no other module under `extension/` produces an outlet record (a planted second reader reddens the scan by name), and every pin carries an in-memory mutant — the outlet renamed in the route configuration, `requested` read from the state, `matched` read from the configuration, and `matched` filled from a selector over the rendered tree — each driven with a fake DOM only where the mutant is supposed to use one, each asserted to move the field it names and to redden the pin that names it, plus the unreadable values and getters that throw, held to `cannot-tell` rather than an exception; nothing here builds and nothing writes, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/outlet-verdict-claims.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1368,
+        "removedLines": 0,
+        "addedAssertionLines": 80,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M062 T004 writes the milestone’s claim list, `research/raw/m062-verdict-claims.json`, behind its own armed flag `M062_CAPTURE=1` and reads it back unarmed, because the census `scripts/navigation-blocking.test.mjs` carries cannot derive a list for this milestone — its plan resolves SC4’s two edges to two suites, so the one-citation rule refuses, and its `## Held-out checks` row for E8 names T002 while its `## Intent coverage` table assigns T002 to SC1/SC2 and SC4 to T003, so the cross-table rule refuses as well; the new suite derives every criterion from the resolved intent with the parser `scripts/overlay-verdict-claims.test.mjs` uses, quotes each one character for character with its length, reads each edge’s suite from the plan’s held-out rows and each claim’s suite and test from this checkout, and refuses a claim whose suite does not declare the test it names, naming both — proven on a planted missing test and on a planted absent suite; it also refuses a row that quotes a criterion in its own words, naming the claim and the field `claims[0].criterionText`, and proves the stale-capture direction by editing the intent in memory and showing the derivation names `claims[0].criterionText` as the field that moved; the plan’s own two-table disagreements are recorded under `evidence.plan.disagreements` and held to both tables in both directions rather than refused; an armed run writes only when a value moved and a second armed run is byte-identical, a default run asserts the list is exactly what this head derives and that its own bytes did not move, and the suite reads and writes nothing but that one record — the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
         "file": "scripts/panel-bundle-budget.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
@@ -2716,9 +2814,9 @@
         "file": "scripts/panel-copy.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 968,
+        "addedLines": 1057,
         "removedLines": 0,
-        "addedAssertionLines": 91,
+        "addedAssertionLines": 102,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2729,9 +2827,9 @@
         "file": "scripts/panel-routes.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 792,
+        "addedLines": 839,
         "removedLines": 89,
-        "addedAssertionLines": 92,
+        "addedAssertionLines": 98,
         "removedAssertionLines": 4,
         "recutAssertionLines": 4,
         "droppedAssertionLines": 0,
@@ -2825,9 +2923,9 @@
         "file": "scripts/tutor-answer.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1940,
+        "addedLines": 1996,
         "removedLines": 0,
-        "addedAssertionLines": 126,
+        "addedAssertionLines": 129,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2838,7 +2936,7 @@
         "file": "scripts/tutor-record-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1992,
+        "addedLines": 2032,
         "removedLines": 0,
         "addedAssertionLines": 181,
         "removedAssertionLines": 0,
@@ -3018,32 +3116,32 @@
       }
     ],
     "counts": {
-      "differing": 50,
+      "differing": 56,
       "edited": 16,
-      "added": 34,
+      "added": 40,
       "removedAssertionLines": 203,
       "recutAssertionLines": 203,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 5920
+      "addedAssertionLines": 6350
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
-    "examined": 203,
-    "filesListed": 512,
+    "examined": 209,
+    "filesListed": 521,
     "suites": {
-      "scripts": 128,
+      "scripts": 133,
       "extension": 11,
-      "apps": 34,
+      "apps": 35,
       "src": 2,
       "skills": 28,
-      "total": 203
+      "total": 209
     },
     "declarations": {
-      "tests": 2611,
-      "describes": 337,
-      "total": 2948
+      "tests": 2683,
+      "describes": 353,
+      "total": 3036
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -3117,6 +3215,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-22T21:49:21.169Z"
+    "at": "2026-11-23T04:55:16.885Z"
   }
 }

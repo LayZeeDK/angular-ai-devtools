@@ -1,0 +1,60 @@
+head: b2310c27124493cf51c907894e28520edf968f6a at 2026-11-23T04:16:01.199Z
+armed run: nothing moved, nothing written
+armed idempotence: 24314 characters, sha256 6a6938613f2d45f5f19b3590e04b3094f1dd403b094b55fe3ac357c2bf7d731f before and after the second run
+M062: 4 criteria, 8 edge row(s), 8 held-out row(s), 7 agreeing, 1 disagreement(s) ["E8: held by T002, coverage assigns T003/T005/T006/T007/T008/T009"]
+research/raw/m062-verdict-claims.json at load and after the run: 24314 characters, sha256 6a6938613f2d45f5f19b3590e04b3094f1dd403b094b55fe3ac357c2bf7d731f
+research/raw/m062-verdict-claims.json: 4 criterion(a) ruled, 0 required; suites ["scripts/outlet-answer.test.mjs","scripts/outlet-answer.test.mjs","scripts/outlet-state.test.mjs","apps/angular-ai-devtools/src/app/panel-outlet.spec.ts"]; tests ["SC1 — a record naming a second outlet names both names and the path","SC2 — a record whose route carries no matched name is cannot-tell, with the reason","is the only module under extension/ that produces one, and a second reader reddens the scan","renders the state and the three name fields the answer carries (SC4)"]
+quote mutant: SC1 must quote the intent character for character: claims[0].criterionText is "A fixture route that declares another outlet produces a finding naming the outlet the route requested, the name the state matched and its path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved." and the intent states "A fixture route that declares a second named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved."
+stale-criterion mutant: claims[0].criterionText: "A fixture route that declares a second named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved." -> "A fixture route that declares a named outlet produces a finding naming the outlet the route requested, the name the state matched and the route path; a mutant that renames the outlet in the route config reddens it, and the red says which name moved."
+missing-test mutant: SC1 cites scripts/outlet-answer.test.mjs for the test "a test no suite in this checkout declares", and that suite declares no such test at this head: it declares ["evaluates in a bare context and publishes the join itself, and nothing else of its own","SC3 — two node:vm contexts with throw-on-touch globals produce deep-equal answers","SC3 — the module mentions no DOM API, no second record and no component identity","SC3 — the answer is the same when a second record is handed in beside the first","answers the same record twice with the same value and mutates nothing it was handed","throws on no input","carries exactly the five contract fields in every state, and reaches all four","SC1 — a record naming a second outlet names both names and the path","E1 — a route that declares no outlet asks for primary, and the answer says primary","E2 — two outlets named one after the other: the first is named, never the last","SC2 — a record whose route carries no matched name is cannot-tell, with the reason","E3 — an outlet only the template names is an absence, never the answer name","E4 — the name the record truncates is reported truncated, never completed","E7 — an outlet the route never reached is cannot-tell, never a mismatch","SC3 — the answer names no identity the record did not carry, and no remedy","M1 — a DOM fallback filling `matched` reddens the absence pin and the page-surface scan","M2 — a remedy string added to the answer reddens the five-field pin and the literal scan","M3 — a name taken from a component reddens the absence pin and the component scan","M4 — the outlet renamed in the record reddens the pin, naming `requested`","M5 — the primary normalisation dropped reddens the unnamed-primary pin","M6 — the last named outlet chosen reddens the declaration-order pin","M7 — the chain-level absences dropped reddens the truncation pin","M8 — a stated absence reported as a mismatch reddens the not-a-mismatch pin","M9 — a name taken from the template reddens the template-absence pin"] | absent suite: SC2 cites scripts/absent-claims-suite.test.mjs, which this checkout does not carry
+plan disagreements: 1 at this head ([{"edge":"E8","criterion":"SC4","heldBy":"T002","assignedByCoverage":["T003","T005","T006","T007","T008","T009"]}]); the moved-row mutant derives 2
+▶ the claim list, armed
+  ✔ re-derives, writes only what moved, and a second run changes no byte (12.3026ms)
+✔ the claim list, armed (12.9011ms)
+▶ measurement
+  ✔ the intent, the plan and this checkout carry the criteria, edges, suites and tests the claims rest on (6.0362ms)
+✔ measurement (6.13ms)
+▶ the claim list
+  ✔ is a read: a default run hashes the list the same before and after (0.3069ms)
+  ✔ is exactly the list this head derives, and a value that moved is named (3.9494ms)
+  ✔ rules every criterion the intent declares, quotes it verbatim, and names the suite and test that prove it (5.5235ms)
+  ✔ reddens by claim id when a row quotes its criterion in its own words (1.357ms)
+  ✔ reddens naming the field that moved when the intent is edited after the capture (7.104ms)
+  ✔ reddens naming the missing test when a claim names a test this head does not declare (10.4738ms)
+  ✔ records the plan’s cross-table disagreements rather than refusing to derive (0.7264ms)
+✔ the claim list (29.7539ms)
+ℹ tests 9
+ℹ suites 3
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 151.9833
+✔ a default run is a read: the recording hashes the same before and after (0.805ms)
+ℹ research/raw/m056-gate-stability.json at load: 6568 bytes, sha256 8cf54aca2bb50e18bdba6c6f07da12e057b558fe1d6fdd293e2a60c360b6809e
+ℹ research/raw/m056-gate-stability.json after the run: sha256 8cf54aca2bb50e18bdba6c6f07da12e057b558fe1d6fdd293e2a60c360b6809e
+✔ the recording is the canonical serialisation of its own record (0.1975ms)
+✔ the three sections are what this head derives, so the record cannot drift from the tree (12719.8029ms)
+ℹ archive: npm run gate:fix-record -- --milestone M044 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8 exited 0 with refusal null; counts {"refusalLines":0,"findings":0,"mentions":7,"claimsExamined":4,"taskLogsExamined":5,"changedPaths":52}
+ℹ fixRecord: node --test scripts/gate-integrity.test.mjs exited 0 with refusal null; counts {"watched":3,"green":3,"red":0}
+ℹ predecessor: node scripts/gate-integrity.mjs --check fix-record --milestone M056 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8 exited 0 with refusal null; counts {"refusalLines":0,"findings":0}
+✔ the commit carrying the record sits ahead of the head the record pins (61.0952ms)
+ℹ carrier: git log --format=%H 5290d939497448823ca0f5d1ce5c1d777805ddb8..HEAD -- research/raw/m056-gate-stability.json names 42 commit(s), newest 84a605ed
+✔ the archive section records the clean pass the repaired task directory earns (0.7592ms)
+ℹ archive: exit 0 null over 5 task log(s); gate-integrity: pass - 0 finding(s), 7 mention(s)
+✔ the fixRecord section records the green suite its three repairs produced (0.253ms)
+ℹ fixRecord: the recording still re-derives from the tree, the range and the stream this head carries is green at this head
+ℹ fixRecord: AC2: a red check reaches the gate as a refusal is green at this head
+ℹ fixRecord: AC7: a log token is a claim only where its task declares it is green at this head
+✔ the predecessor section records the range the repaired stage derives (0.2581ms)
+ℹ predecessor: exit 0 null - pass - 0 finding(s), 4 mention(s)
+✔ the arming gate guards the one write, and a default run spawns no writer (0.3639ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12887.1317

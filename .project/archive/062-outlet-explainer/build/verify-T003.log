@@ -1,0 +1,32 @@
+head: 6b5c06ece7b457842c59d6d621bdd339cca9f790 at 2026-11-23T01:27:28.419Z
+✔ readTargetWidth returns 0 and does not throw when the element has no box yet (36.7437ms)
+✔ readTargetWidth returns the element value 640, not a constant (5.4448ms)
+✔ the afterNextRender callback reads offsetWidth from the element without throwing (3.2821ms)
+✔ PRECONDITION: the after-render route is registered with AfterRenderPage (0.205ms)
+✔ PRECONDITION: the route table declares all nineteen routes in order (0.2735ms)
+✔ PRECONDITION: the fixture adds no profiler instrumentation (0.1471ms)
+✔ every citation the record makes is the line it names, and the line says what the record says it does (3.2734ms)
+✔ the record names the route, the loader key and the sample fact the tree carries (2.0897ms)
+✔ the four states and the four absences are the words the shipped join answers with (1.0272ms)
+✔ the pane declares no sentence: every line it writes is a label and a value the answer carries (2.9438ms)
+✔ the pane renders no locale value, no remedy and no identity the answer did not carry (2.1393ms)
+✔ the copy record does not grow by this surface, and the digest holds no row for it (2.2179ms)
+✔ the record’s second surface is the outlet pane, and its row is measured rather than counted (2.5194ms)
+✔ the counts the record states are the counts the tree carries (0.797ms)
+✔ mutants redden by name: a sentence, a page read, a citation off its line, an invented state, an unlabelled field (3.9989ms)
+✔ E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name (6.6197ms)
+✔ E2: the surface functions are still exported for their suites (1.8586ms)
+✔ E3: the demo module renders the surface text it is handed (0.8927ms)
+✔ E4: every declared route surface has a panel-demo LOADERS key (21.262ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 375.0786
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check apps/angular-ai-devtools/src/app/panel-outlet.ts apps/angular-ai-devtools/src/app/panel-outlet.spec.ts

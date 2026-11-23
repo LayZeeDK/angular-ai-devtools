@@ -67,11 +67,11 @@ const LOADERS: Record<
   'teardown-leak': () => import('./panel-teardown-leak') as never,
   'error-routing': () => import('./panel-error-routing') as never,
   'locale-correctness': () => import('./panel-locale-correctness') as never,
+  outlet: () => import('./panel-outlet') as never,
 };
-// The sample facts each surface renders; the spec holds each one to the recording it came from. The M061 key above costs this map one line, and that line is paid for below by folding the `fields` note's last two lines into one, so every line the earlier surface records cite from 427 down — the loader resolution and the component template included — keeps its number.
+// The sample facts each surface renders; the spec holds each one to the recording it came from. The M061 key above costs this map one line, and that line is paid for below by folding the `fields` note's last two lines into one, so every line the earlier surface records cite from 427 down — the loader resolution and the component template included — keeps its number. M062's `outlet` key costs the map one more line and is paid for the same way, by folding one more line of that note, so the region those records cite keeps its numbers again.
 export const FACTS: Record<string, unknown> = {
-  // The join's own field answer for the cross-field case (extension/field-state.js): every field valid, while the root carries its own error kind. The submit state is the recording's, not a
-  // label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact shape in `research/raw/m031-field-state.json` and names the element it was read off (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
+  // The join's own field answer for the cross-field case (extension/field-state.js): every field valid, while the root carries its own error kind. The submit state is the recording's, not a label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact shape in `research/raw/m031-field-state.json` and names the element it was read off (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
   fields: {
     fields: {
       name: { valid: true, invalid: false, errors: [] },
@@ -1132,4 +1132,39 @@ FACTS['locale-correctness'] = {
   importPath: 'AppConfig',
   absences: ['locale-value-not-recorded', 'no-formatter-named'],
   claims: [],
+};
+
+// The join's own answer (`extension/outlet-answer.js`, T002) for a record written in the shape T001
+// measured (`extension/outlet-state.js`: `{ state, routes: [{ requested, matched, path }], absences:
+// [{ field, path, reason }] }`), entered here after the component for the reason the facts above are:
+// every cited line of this file is pinned where it sits, so a fact added inside the literal would
+// move the template, the loader resolution and the earlier facts those records quote.
+//
+// The record is sample data and says so: no record this tree holds carries a page's outlets — T001
+// measured the *shape* the agent's router state reduces to, and the words `requested`, `matched`,
+// `path`, `field` and the reasons are that measurement's own — so the two route rows and the three
+// absences below are written here rather than read from a recording, the way the `what-changed` fact
+// above writes a pair of snapshots in the shape its own recording measures. `panel-demo.spec.ts`
+// rebuilds this record, evaluates the shipped join from its own committed text and holds this fact to
+// that answer field for field, so a fact that drifted from the join reddens there rather than
+// shipping.
+//
+// Every value below is the join's, and the join's own rule is visible in it: the record states three
+// absences and the answer carries two, because the third is attributed to a path the answered route
+// is not — the join filters the record's absences to the route it answers about, and this pane
+// renders the answer and never the record. The answered route is the first row that names an outlet
+// other than the unnamed primary, so its `path` is the second row's `null`: no path line is rendered
+// at all, which is the pane's "no line for a field the answer does not carry" rule, and the two
+// absences the answer kept carry a `null` path and a reason each, which is why each renders its
+// `absence:` line and its `reason:` line and no `absencePath:` line. No cause, no remedy and no
+// outlet the answer did not name is written here.
+FACTS['outlet'] = {
+  state: 'outlet-matched',
+  requested: 'sidebar',
+  matched: 'sidebar',
+  path: null,
+  absences: [
+    { field: 'path', path: null, reason: 'path-absent' },
+    { field: 'route', path: null, reason: 'chain-truncated' },
+  ],
 };

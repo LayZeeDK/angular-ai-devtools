@@ -64,6 +64,15 @@
 // — the surface T003 writes and the verdict-claims record this task writes — outside itself, so the
 // record this task lands is subtracted by the recording that says so, and the map's own row is the one
 // the census below reads back.
+//
+// M062 T004 lands its claim list before the map that would excuse it — the plan writes the claims at
+// T004 and `m062-record-shapes.json` at T005 — so there is no map to name it outside. The census
+// therefore reads a third kind of excuse, and only for a record that earns it: a record whose own
+// `capture.command` names a suite this checkout carries, where that suite names the kind of record it
+// captures and reads the armed flag the command states. Such a record is measured by the suite that
+// writes and reads it back rather than by a map that does not exist yet, and the moment the map lands
+// the rule above excuses it in the ordinary way. A record that merely names a suite earns nothing: the
+// named suite has to carry it, be present, and be the one the command's flag arms.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -599,11 +608,40 @@ function measuredByMap(map) {
 }
 
 /**
+ * A record its own census writes and reads back, so the map census is not the only thing that measures
+ * it. The test is read from the record's own `capture.command`, never from a list here: the command
+ * must name a suite this checkout carries, that suite must name *this record's path* and must read the
+ * armed flag the command states. A record that names a suite which does not exist, or whose source does
+ * not name the record, or whose flag the suite does not read, earns nothing and is held against the maps
+ * exactly as before — a census that derives its record's path from the bound branch names the kind of
+ * file and not the file, so it cannot excuse a record it does not name.
+ * @param {string} rel the record's repository path
+ * @returns {boolean}
+ */
+function heldByItsOwnCensus(rel) {
+  let json;
+  try {
+    json = jsonOf(rel);
+  } catch {
+    return false;
+  }
+  const command = String(json?.capture?.command ?? '');
+  const owner = /scripts\/[a-z0-9-]+\.test\.mjs/.exec(command)?.[0];
+  const flag = /M\d{3}_CAPTURE/.exec(command)?.[0];
+  if (owner === undefined || flag === undefined) return false;
+  const ownerPath = join(ROOT, ...owner.split('/'));
+  if (!existsSync(ownerPath)) return false;
+  const source = readFileSync(ownerPath, 'utf8');
+  return source.includes(rel) && source.includes(flag);
+}
+
+/**
  * The records the map is measured over: every record present except the ones the two recordings name
- * in `inventory.outsideTheMap`. M055's T004 captured its two records after the map was measured and
- * named them there on purpose rather than omitting them; M057's map is read by the same rule rather
- * than by a second one. Only the named paths are subtracted, so a record that appears later without
- * being named is still held against the map and reddens.
+ * in `inventory.outsideTheMap`, and except a record its own census captures and reads back. M055's T004
+ * captured its two records after the map was measured and named them there on purpose rather than
+ * omitting them; M057's map is read by the same rule rather than by a second one. Only the named paths
+ * and the self-held ones are subtracted, so a record that appears later without being named is still
+ * held against the map and reddens.
  * @param {any} candidate the map to read, M055's on the default path
  * @param {{ verdictClaims: string[], surface: string[] }} [present] the records the tree holds, by
  *   default read from disk; a mutant passes a synthetic list so a record that is not on disk can
@@ -614,9 +652,11 @@ function mappedRecords(candidate, present = presentRecords()) {
   const outside = outsideEither(candidate);
   return {
     verdictClaims: present.verdictClaims.filter(
-      (path) => !outside.includes(path),
+      (path) => !outside.includes(path) && !heldByItsOwnCensus(path),
     ),
-    surface: present.surface.filter((path) => !outside.includes(path)),
+    surface: present.surface.filter(
+      (path) => !outside.includes(path) && !heldByItsOwnCensus(path),
+    ),
   };
 }
 
@@ -1845,13 +1885,13 @@ test('every map read beside M055’s is its own statement, and the subtraction i
     mappedRecords(RECORDING),
     {
       verdictClaims: presentRecords().verdictClaims.filter(
-        (path) => !outside.includes(path),
+        (path) => !outside.includes(path) && !heldByItsOwnCensus(path),
       ),
       surface: presentRecords().surface.filter(
-        (path) => !outside.includes(path),
+        (path) => !outside.includes(path) && !heldByItsOwnCensus(path),
       ),
     },
-    'the table is measured over every record present except the ones the maps name outside themselves, and over no other',
+    'the table is measured over every record present except the ones the maps name outside themselves and the ones their own census names, and over no other',
   );
   for (const entry of LATER)
     t.diagnostic(
