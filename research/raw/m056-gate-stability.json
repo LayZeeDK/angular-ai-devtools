@@ -30,7 +30,7 @@
         "milestone": "M063",
         "exitCode": 0,
         "refusal": null,
-        "summary": "gate-integrity: pass - 0 finding(s), 20 mention(s)",
+        "summary": "gate-integrity: pass - 0 finding(s), 21 mention(s)",
         "refusalLines": []
       }
     }
