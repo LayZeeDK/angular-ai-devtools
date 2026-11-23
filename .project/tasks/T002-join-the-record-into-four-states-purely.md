@@ -2,11 +2,11 @@
 id: T002
 title: Join the record into four states, purely
 wave: 2
-status: in-progress
+status: pending
 deps: [T001]
-agent: build_T002
-base: 537aed5e7df5e45a74608315a7ab87f1b4dc870f
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
   - extension/chunk-failure.js
