@@ -65,9 +65,10 @@ record it with `lars-gsd verify-final`.
 ## Verify
 
 ```bash
-M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs && node --test scripts/error-boundary-measure.test.mjs scripts/stability-page-settle.test.mjs scripts/webmcp-api.test.mjs
+node --test scripts/error-boundary-measure.test.mjs scripts/stability-page-settle.test.mjs scripts/webmcp-api.test.mjs
 ```
 
 ## Log
 
 - pending.
+- Verify amended before landing: the `m059` capture was dropped from this task's check. It writes `research/raw/m059-record-shapes.json`, which is T008's declared file, and the measurement it stands on (`producible.researchRaw.lines[0].line` 2809 to 2907) is unchanged with or without this task's three records.
