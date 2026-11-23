@@ -23,6 +23,8 @@ files:
   - scripts/outlet-record-shapes.test.mjs
   - scripts/teardown-leak-shapes.test.mjs
   - scripts/tutor-answer.test.mjs
+  - scripts/chunk-failure-claims.test.mjs
+  - research/raw/m064-verdict-claims.json
 ---
 
 # T008 — Re-derive the gate record, then run the project verify
