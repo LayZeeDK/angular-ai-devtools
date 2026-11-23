@@ -78,6 +78,20 @@ const ARMED = String(process.env[CAPTURE_ENV] ?? '').trim() === '1';
 const NARRATOR_REL = 'extension/navigation-narrator.js';
 const AGENT_REL = 'extension/agent-main.js';
 
+/**
+ * The one module that reads this record: M064's join. It names this record's vocabulary because it
+ * answers in it, and its own suite (`scripts/chunk-failure.test.mjs`) asserts that the fields it reads
+ * are the fields this record states and that it reads no page — so it is the specifier's single reader
+ * and not a second producer of one.
+ */
+const JOIN_REL = 'extension/chunk-failure.js';
+
+/**
+ * The modules this census must be the whole of: the record that produces an import specifier and the
+ * one join that reads it, in the order the walk over the tree finds them.
+ */
+const CENSUS_MODULES = [MODULE_REL, JOIN_REL].sort();
+
 const MODULE_SOURCE = read(MODULE_REL);
 
 /** Every assertion this file executes, counted by wrapping the assertion methods before any test. */
@@ -702,8 +716,10 @@ function derive() {
 
 /**
  * The census SC3 is written about: the modules directly under `extension/` whose code names an import
- * specifier, the attempt record, or one of this record's state words. This record must be the only
- * source of an import specifier, so each list below is this module and nothing else.
+ * specifier, the attempt record, or one of this record's state words. This record is the only
+ * *producer* of an import specifier and `extension/chunk-failure.js` is its single *reader*, so each
+ * list below is exactly those two — the producer and its one reader — and a third module naming any of
+ * the three tokens is the second source this census refuses.
  *
  * Each module is read once per run and its code kept, so the walk is one read of the tree rather than
  * one per token — a census that re-read the directory for every word would cost more the more modules
@@ -736,8 +752,10 @@ function takeCensus() {
       .filter((name, index) => codes[index].includes(token))
       .map((name) => `extension/${name}`);
   return {
-    rule: 'no module directly under `extension/` other than this one names an import specifier (the token `specifier`) in its code, none other names the attempt record (`importAttempts`), and none other names one of this record\u2019s state words (`missing-import`) — so the import specifier this record carries has one source and no second reader (SC3).',
+    rule: 'the record is the only producer of an import specifier under `extension/`, and `extension/chunk-failure.js` \u2014 this milestone\u2019s join \u2014 is its single reader: exactly these two modules name an import specifier (the token `specifier`) in their code, and exactly these two name the attempt record (`importAttempts`) and this record\u2019s state word (`missing-import`). The join names that vocabulary because it answers in it \u2014 its own suite asserts the fields it reads are the fields this record states, and that it reads no page \u2014 so it is the specifier\u2019s one reader and not a second producer of one. A third module naming any of the three tokens is the second source this census refuses (SC3).',
     scanned: 'every top-level `.js` module under `extension/`',
+    producer: MODULE_REL,
+    readers: [JOIN_REL],
     specifierSources: naming('specifier'),
     attemptRecordSources: naming('importAttempts'),
     stateWordSources: naming('missing-import'),
@@ -1325,23 +1343,41 @@ test('the observer records each attempt in arrival order and answers the run it 
   }
 });
 
-test('SC3 - the record is the only source of an import specifier under extension/', () => {
+test('SC3 - the record is the only producer of an import specifier under extension/, and one join reads it', () => {
   const census = censusOf();
-  assert.deepEqual(
-    census.specifierSources,
-    [MODULE_REL],
-    `${MODULE_REL} must be the only module under extension/ whose code names an import specifier, and these do: ${JSON.stringify(census.specifierSources)}`,
+
+  // The roles, stated as the census states them: the record produces the specifier and the join is its
+  // single reader. They are a partition of what the walk found, so the two names below are measured
+  // against the tree rather than kept as a roster beside it.
+  assert.equal(
+    census.producer,
+    MODULE_REL,
+    `${MODULE_REL} must be the module this census names as the one producer of an import specifier, and it names ${JSON.stringify(census.producer)}`,
   );
   assert.deepEqual(
-    census.attemptRecordSources,
-    [MODULE_REL],
-    `${MODULE_REL} must be the only module that names the attempt record, and these do: ${JSON.stringify(census.attemptRecordSources)}`,
+    census.readers,
+    [JOIN_REL],
+    `${MODULE_REL} must have exactly one reader and no second, and the census names ${JSON.stringify(census.readers)}`,
   );
   assert.deepEqual(
-    census.stateWordSources,
-    [MODULE_REL],
-    `${MODULE_REL} must be the only module that names a missing import, and these do: ${JSON.stringify(census.stateWordSources)}`,
+    [census.producer].concat(census.readers).sort(),
+    CENSUS_MODULES,
+    `the producer and its readers must be the two modules this census accounts for, and they are ${JSON.stringify([census.producer].concat(census.readers).sort())}`,
   );
+
+  // Each list is the producer and its one reader and no third module: a second producer of a specifier,
+  // or a second reader of this record, arrives here as a third name and reddens this pin.
+  for (const [list, what] of [
+    ['specifierSources', 'name an import specifier'],
+    ['attemptRecordSources', 'name the attempt record'],
+    ['stateWordSources', 'name a missing import'],
+  ]) {
+    assert.deepEqual(
+      census[list],
+      CENSUS_MODULES,
+      `exactly ${MODULE_REL} and its one reader ${JOIN_REL} must ${what}, and these do: ${JSON.stringify(census[list])}`,
+    );
+  }
 
   // The scan is not vacuous: the module it names does carry the word, so a census that found nothing
   // because it read nothing would fail here.
@@ -1359,6 +1395,10 @@ test('SC3 - the record is the only source of an import specifier under extension
   assert.ok(
     names.includes('import-failure.js'),
     'the census must walk the module this task wrote',
+  );
+  assert.ok(
+    names.includes('chunk-failure.js'),
+    'the census must walk the join that reads this record, or its reader would be accounted for by a list rather than by the tree',
   );
   assert.ok(
     names.length > 20,
@@ -1576,9 +1616,19 @@ test('the record states the command that writes it, and that command names this 
     `the capture command must arm the flag the suite reads, and it names ${JSON.stringify(recorded.capture.command)}`,
   );
 
-  // The census the record states is the census this run takes: the record cannot claim one source
-  // while the tree has two.
+  // The census the record states is the census this run takes: the record cannot claim one producer
+  // and one reader while the tree has two of either.
   const census = censusOf();
+  assert.deepEqual(
+    recorded.census.producer,
+    census.producer,
+    'the record must name the producer of an import specifier this run finds',
+  );
+  assert.deepEqual(
+    recorded.census.readers,
+    census.readers,
+    'the record must name the readers of an import specifier this run finds',
+  );
   assert.deepEqual(
     recorded.census.specifierSources,
     census.specifierSources,

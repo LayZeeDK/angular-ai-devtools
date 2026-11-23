@@ -2,10 +2,10 @@
 id: T002
 title: Join the record into four states, purely
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: ac08b8e2a276158379f0e547478ef97f142604b4
 worktree: null
 task_branch: null
 files:
@@ -63,3 +63,8 @@ node --test scripts/chunk-failure.test.mjs
 
 - Contract amended at dispatch: `scripts/import-failure.test.mjs` and `research/raw/m064-import-failure.json` are declared, because T001's SC3 census asserts its module is the only one under `extension/` that names `specifier`, `importAttempts` or `missing-import` — and a join that reads the record and answers `missing-import` necessarily names all three. The repair is the census's own sentence, not the join's vocabulary: the record is the only *producer* of a specifier, and this join is its single reader. Narrow the rule to say exactly that and re-capture the record's census block.
 - pending.
+- Wrote xtension/chunk-failure.js (353 lines, four states, five reasons) and scripts/chunk-failure.test.mjs (16 tests, 919 assertions, eight mutants).
+- T001's SC3 census asserted its module was the only one under xtension/ naming specifier, importAttempts or missing-import, and this join necessarily names all three. The census now states one producer and one reader, and it was falsified: a planted second producer reddens naming it as a third module.
+- The join answers one attempt at a time and one answer per attempt for a list, so E2 is met by answering every row in the order the record holds them rather than by collapsing a navigation to one finding.
+- E7 reads the router stream the narrator already publishes: a route the stream never names is dropped from the answer while the failure it does state is kept, and no stream handed over means the record's own path is carried.
+- Landed paths: `extension/chunk-failure.js`, `scripts/chunk-failure.test.mjs`, `scripts/import-failure.test.mjs`, `research/raw/m064-import-failure.json` — each is read from this tree, ready.

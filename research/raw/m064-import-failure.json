@@ -174,15 +174,22 @@
     "totalConsidered": 3
   },
   "census": {
-    "rule": "no module directly under `extension/` other than this one names an import specifier (the token `specifier`) in its code, none other names the attempt record (`importAttempts`), and none other names one of this record’s state words (`missing-import`) — so the import specifier this record carries has one source and no second reader (SC3).",
+    "rule": "the record is the only producer of an import specifier under `extension/`, and `extension/chunk-failure.js` — this milestone’s join — is its single reader: exactly these two modules name an import specifier (the token `specifier`) in their code, and exactly these two name the attempt record (`importAttempts`) and this record’s state word (`missing-import`). The join names that vocabulary because it answers in it — its own suite asserts the fields it reads are the fields this record states, and that it reads no page — so it is the specifier’s one reader and not a second producer of one. A third module naming any of the three tokens is the second source this census refuses (SC3).",
     "scanned": "every top-level `.js` module under `extension/`",
+    "producer": "extension/import-failure.js",
+    "readers": [
+      "extension/chunk-failure.js"
+    ],
     "specifierSources": [
+      "extension/chunk-failure.js",
       "extension/import-failure.js"
     ],
     "attemptRecordSources": [
+      "extension/chunk-failure.js",
       "extension/import-failure.js"
     ],
     "stateWordSources": [
+      "extension/chunk-failure.js",
       "extension/import-failure.js"
     ]
   },
@@ -203,6 +210,6 @@
     "outcomes": 2,
     "samples": 6,
     "observerAttempts": 3,
-    "censusSources": 1
+    "censusSources": 2
   }
 }
