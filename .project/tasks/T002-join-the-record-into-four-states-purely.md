@@ -2,15 +2,17 @@
 id: T002
 title: Join the record into four states, purely
 wave: 2
-status: pending
+status: in-progress
 deps: [T001]
-agent: null
-base: null
-worktree: null
+agent: build_T002
+base: 537aed5e7df5e45a74608315a7ab87f1b4dc870f
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
   - extension/chunk-failure.js
   - scripts/chunk-failure.test.mjs
+  - scripts/import-failure.test.mjs
+  - research/raw/m064-import-failure.json
 ---
 
 # T002 — Join the record into four states, purely
@@ -59,4 +61,5 @@ node --test scripts/chunk-failure.test.mjs
 
 ## Log
 
+- Contract amended at dispatch: `scripts/import-failure.test.mjs` and `research/raw/m064-import-failure.json` are declared, because T001's SC3 census asserts its module is the only one under `extension/` that names `specifier`, `importAttempts` or `missing-import` — and a join that reads the record and answers `missing-import` necessarily names all three. The repair is the census's own sentence, not the join's vocabulary: the record is the only *producer* of a specifier, and this join is its single reader. Narrow the rule to say exactly that and re-capture the record's census block.
 - pending.
