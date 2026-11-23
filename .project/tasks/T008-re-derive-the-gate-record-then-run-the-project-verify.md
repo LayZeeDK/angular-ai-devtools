@@ -26,6 +26,7 @@ files:
   - scripts/chunk-failure-claims.test.mjs
   - research/raw/m064-verdict-claims.json
   - research/raw/m059-record-shapes.json
+  - scripts/chunk-failure-capture.test.mjs
 ---
 
 # T008 — Re-derive the gate record, then run the project verify
@@ -64,4 +65,6 @@ M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M056_CAPTURE=1 nod
 
 ## Log
 
+
+- Contract widened by one path, on the measurement the verify produced: the held-out test `E3: npm test reports 0 skipped and 0 todo` fails on `scripts/chunk-failure-capture.test.mjs`, which registers its armed capture with a `skip:` and so prints one skip in every default run. The repair is that suite's own shape — the sibling capture suites keep the armed leg non-skipped by running the capture in a temporary directory and asserting that a second run writes nothing — and this task owns it because it is the task whose verify cannot otherwise reach its last leg.
 - pending.
