@@ -19,6 +19,7 @@ const FILTER = 'observer-filter.js';
 const RELAY = 'relay.js';
 const AGENT_MAIN = 'agent-main.js';
 const OVERLAY = 'overlay.js';
+const GUARD_PHASE = 'guard-phase.js';
 
 /** Every file the manifest names, whichever declaration names it. */
 function namedFiles(manifest) {
@@ -38,6 +39,13 @@ function declarationFor(file) {
   );
   assert.ok(found, `no content_scripts declaration lists ${file}`);
   return found;
+}
+
+/** How many of a manifest's declarations list a file: one is the only answer that does not run it twice. */
+function countOfDeclarations(manifest, file) {
+  return (manifest.content_scripts || []).filter((declaration) =>
+    (declaration.js || []).includes(file),
+  ).length;
 }
 
 describe('extension/manifest.json', () => {
@@ -139,6 +147,58 @@ describe('extension/manifest.json', () => {
         'and in each of them the filter is listed before the script that calls it',
       );
     }
+  });
+
+  it('loads the guard-phase record in the page-realm declaration, exactly once, and a second registration reddens it', () => {
+    const declaration = declarationFor(GUARD_PHASE);
+    assert.equal(
+      declaration,
+      declarationFor(AGENT_MAIN),
+      `the record must be declared in the declaration ${AGENT_MAIN} is declared in: it reduces what the agent observes, and a declaration of its own would be a second place it is loaded`,
+    );
+    assert.equal(
+      declaration.world,
+      'MAIN',
+      'the record runs in the MAIN world, where the navigation the agent observes exists',
+    );
+    assert.equal(
+      declaration.run_at,
+      'document_idle',
+      'and at the shipped run_at of that declaration',
+    );
+    assert.ok(
+      existsSync(join(EXTENSION_DIR, GUARD_PHASE)),
+      `extension/${GUARD_PHASE} is named by the manifest but does not exist`,
+    );
+
+    // The mutant: one more declaration registering the record, which is a second place it loads. A
+    // module registered by two declarations runs its namespace twice in a page, which is the defect.
+    const mutated = JSON.parse(JSON.stringify(MANIFEST));
+    mutated.content_scripts.push({
+      matches: ['<all_urls>'],
+      js: [FILTER, GUARD_PHASE],
+      run_at: 'document_idle',
+    });
+    assert.equal(
+      countOfDeclarations(mutated, GUARD_PHASE),
+      2,
+      'the mutant must register the record twice, or the pin below proves nothing',
+    );
+    let failure = null;
+    try {
+      assert.equal(
+        countOfDeclarations(mutated, GUARD_PHASE),
+        1,
+        `${GUARD_PHASE} must be named by exactly one declaration, or it installs its namespace twice in a page`,
+      );
+    } catch (error) {
+      failure = error;
+    }
+    assert.ok(
+      failure,
+      'a second registration of the record must redden the pin',
+    );
+    assert.match(failure.message, /exactly one declaration/);
   });
 
   it('sets neither all_frames nor match_about_blank anywhere', () => {

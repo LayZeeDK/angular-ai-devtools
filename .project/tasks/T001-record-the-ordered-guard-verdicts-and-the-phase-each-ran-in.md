@@ -2,10 +2,10 @@
 id: T001
 title: Record the ordered guard verdicts and the phase each ran in
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: 895e4867ee3eb855840019fa177fec301404688f
 worktree: null
 task_branch: null
 files:
@@ -59,3 +59,9 @@ node --test scripts/guard-phase.test.mjs && npx prettier --check extension/guard
 ## Log
 
 - pending.
+- Landed paths: `extension/guard-phase.js`, `scripts/guard-phase.test.mjs`, `extension/manifest.json`, `extension/manifest.test.mjs`, and two `SUITE_DIFF_REASONS` rows in `scripts/gate-integrity.test.mjs`.
+- The record is `{ rows: [{ phase, guard, verdict, path }], absences }`, in arrival order, on `globalThis.angularAiGuardPhase`. A row whose guard the navigation does not name keeps `guard: null` with an absence, and a record carrying no verdict still answers the narrator's own `guard-verdict-not-recorded` rather than an empty list that would read as "a guard ran".
+- `canMatch` ordering is pinned by a mutant, and five mutants were measured both ways, including a console fallback and a second module producing a phase.
+- **The navigation the agent records cannot yield a guard name**: `agent-main.js` carries `{ type, at, id, url, urlAfterRedirects, route, reason, code, error, shouldActivate, matchedPaths }` and nothing else, so the reducer's input is the ordered guard observations the caller hands over. No page-side read was added, which is what SC3 and N3 require literally.
+- The manifest line drift is one line wide and deliberate: `guard-phase.js` was placed *after* `agent-main.js` so `agent-main.js` stays at line 35 where `research/raw/m043-settle-page.json` cites it. Three recordings still cite `run_at` and `world` one line lower (`m054`, `m052`, `m059`); waves 5 and 7 re-derive them.
+- The plan's Interface contract on this task is T002's join, the same generator defect M062 T001 recorded. The reducer was built from the Goal and acceptance criteria, and the record carries what the join needs.

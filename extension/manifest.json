@@ -32,7 +32,8 @@
       ],
       "js": [
         "outlet-state.js",
-        "agent-main.js"
+        "agent-main.js",
+        "guard-phase.js"
       ],
       "run_at": "document_idle",
       "world": "MAIN"
