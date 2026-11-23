@@ -5,9 +5,11 @@ Commit: `ded7a63a` · HEAD under review: `4d4474fff6ee25f59e7fec245cf75871d68bf0
 
 ## Intent coverage
 
-### SC4 — SC4: pass
+### SC4 — The panel renders exactly the object the join returns: one new surface, its loader key, its route-table pin and its copy record moved in the same task, and the answer carries no remedy, no cause and no identity it was not given.: pass
 
 The task states its own numbered criteria for SC4 and its suite proves them at the commit above. Read against the archived task file, whose `## Log` records which suite and which mutant established each line.
+
+- ✅ The task states its own numbered criteria for SC4 and its suite proves them at the commit above. Read against the archived task file, whose `## Log` records which suite and which mutant established each line.
 
 ### Gap E6 — E6: pass
 
@@ -25,3 +27,9 @@ The panel surface was walked in the wave-3 review against the plan's `## Surface
 
 `lars-gsd land` ran this task's `## Verify` and recorded it in `.project/build/verify-ledger.jsonl`. The Ledger row for `ded7a63a` is the receipt; the numbers quoted below come from that run.
 
+Depth: full
+Tasks reviewed: 1
+
+## T003 — Render the answer and pin every route table: pass
+
+- ✅ The task landed at the commit this review names, its `## Verify` ran under `lars-gsd land` and the ledger row reads `verify: pass`, and the project verify at `4d4474ff` reports `npm run check` green with 2,167 tests, `fail 0` and `skipped 0`.
