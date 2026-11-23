@@ -2,10 +2,10 @@
 id: T003
 title: Render the answer and pin every route table
 wave: 3
-status: pending
+status: done
 deps: [T002]
-agent: null
-base: null
+agent: build_T003
+base: 2261ecf7ed3fc5a3f359a209e37ce52f646deb47
 worktree: null
 task_branch: null
 files:
