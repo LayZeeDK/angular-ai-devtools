@@ -2,10 +2,10 @@
 id: T002
 title: Answer from the guard record, purely
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 5eca4467c9084401e5fc3bacf5dc7f19182ef622
 worktree: null
 task_branch: null
 files:
@@ -52,3 +52,9 @@ node --test scripts/guard-answer.test.mjs && npx prettier --check extension/guar
 ## Log
 
 - pending.
+- Landed paths: `extension/guard-answer.js`, `scripts/guard-answer.test.mjs` — 28 tests.
+- `guardAnswer(record)` returns `{ state, phase, guard, verdict, absences }` in all four states and reads only `record.rows` and `record.absences`: not the record's own `state` word, which would be a second opinion about the same rows. It spells no phase word at all, so T001's census of phase producers holds at the source rather than only at the test.
+- The `guard-verdict-not-recorded` token is read from `extension/navigation-narrator.js`'s namespace rather than retyped, and the suite asserts the narrator still answers it.
+- Five states the contract left open are decided and pinned: a refusal with no phase, a refusal with neither field, a phase-only row outranked by a later refusal, two refusals ordered by arrival, and the record's own state word ignored.
+- Eight mutants were measured both ways, each proving the mutated value bit before the pin reddened — including a console fallback, an unstated verdict answered as a pass, an empty record answered as a verdict, an invented phase, a nearest-route attribution and a remedy string.
+- `scripts/navigation-blocking.test.mjs` is 8 red at this head with or without these files: it reads `research/raw/m063-verdict-claims.json`, which has never been captured. That record is T004's.
