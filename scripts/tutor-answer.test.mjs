@@ -1997,3 +1997,67 @@ test('T002 mutants — each defect reddens its pin, and the failure names the de
   }
   console.log(`T002 mutants: ${lines.join(' || ')}`);
 });
+
+// M063 T005's row, appended at the end of this file rather than in the two blocks above for the reason
+// M062's T004 recorded: the gate recording pins this file's archive references by line — the two
+// regex-pattern sites it carries — so an insertion above them stales both, and the recording is not a
+// file this task may re-capture. The map M063 T005 writes,
+// `research/raw/m063-record-shapes.json`, is read here through its own capture command rather than
+// through a path added to a census list: both records this milestone earns are held by the census that
+// writes them, each through its own flag.
+test('T005 — both records M063 earns are held by their own capture command, each through its own flag', () => {
+  const earned = [
+    {
+      path: `${RECORD_DIR}/m063-verdict-claims.json`,
+      suite: 'scripts/guard-verdict-claims.test.mjs',
+    },
+    {
+      path: `${RECORD_DIR}/m063-record-shapes.json`,
+      suite: 'scripts/guard-record-shapes.test.mjs',
+    },
+  ];
+  for (const { path, suite } of earned) {
+    assert.ok(
+      existsSync(join(ROOT, path)),
+      `${path} is a record M063 earns, so this head carries it`,
+    );
+    const record = JSON.parse(readFileSync(join(ROOT, path), 'utf8'));
+    const command = String(record.capture?.command ?? '');
+    assert.ok(
+      command.includes(suite),
+      `${path} must name the suite that captures it, and its command says ${JSON.stringify(command)}`,
+    );
+    assert.match(
+      command,
+      /M063_CAPTURE/,
+      `${path} must be armed by this milestone's own flag, and its command says ${JSON.stringify(command)}`,
+    );
+    assert.equal(
+      heldByItsOwnCensus({ path, record }),
+      true,
+      `${path} must be held by its own census: ${suite} must exist, must name ${path} in its source, and must read the flag ${JSON.stringify('M063_CAPTURE')}`,
+    );
+    assert.ok(
+      measuredByMap(record).length === 0 ||
+        measuredByMap(record).every((measured) => measured !== path),
+      `${path} is a record this milestone earns and no map may measure it, or its own census would be the second reading of the same file`,
+    );
+  }
+  // Neither record is excused by an exclusion: no recording read here names the map outside itself, so
+  // the map's only excuse is the capture command above, and a name added to a list would not stand.
+  assert.equal(
+    outsideTheMap().includes(`${RECORD_DIR}/m063-record-shapes.json`),
+    false,
+    `no map may name ${RECORD_DIR}/m063-record-shapes.json outside itself, because the record is held by the suite that writes it and not by an exclusion`,
+  );
+  assert.equal(
+    outsideTheMap().includes(`${RECORD_DIR}/m063-verdict-claims.json`),
+    MAPS.some((map) =>
+      outsideTheMapOf(map).includes(`${RECORD_DIR}/m063-verdict-claims.json`),
+    ),
+    'the claim list is subtracted by a map that names it, and only when a map says so',
+  );
+  console.log(
+    `T005 self-held: ${earned.map(({ path }) => path.split('/').pop()).join(' and ')} are each held by their own capture command`,
+  );
+});

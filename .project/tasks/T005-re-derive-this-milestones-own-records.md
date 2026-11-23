@@ -2,10 +2,10 @@
 id: T005
 title: Re-derive this milestone's own records
 wave: 5
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T005
+base: 0984904aa27d8c1ea028b4b959eb88eedb7c8490
 worktree: null
 task_branch: null
 files:
@@ -61,3 +61,10 @@ M063_CAPTURE=1 node --test scripts/guard-record-shapes.test.mjs && M059_CAPTURE=
 ## Log
 
 - pending.
+- Landed paths: `scripts/guard-record-shapes.test.mjs`, `research/raw/m063-record-shapes.json` (12,228 bytes, sha256 `ce9e9ce7…`), `research/raw/m059-record-shapes.json` (re-captured), and end-of-file additions to `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-answer.test.mjs` and `scripts/gate-integrity.test.mjs`.
+- Every value in the map is derived by running both extension modules in a bare context: 3 record fields, 4 row fields, 7 absence reasons **each produced by a record**, 4 phases, 2 verdicts, a 4-observation sample, and the two empty-record cases. The join's two input fields are proved by removing each.
+- `m059` was redder than the brief predicted — it recorded 156/42/147 where this head already derived 157/44/150 — and now states 158/44/151/158 with the new record and suite counted rather than excluded.
+- The map could not be wired into `tutor-answer` through `MAPS`/`PINNED_OUTSIDE`: the gate recording pins that file's archive references by line, and inserting 24 lines above them produced a new `gate-integrity` failure at `tutor-answer.test.mjs:206`. The wiring went at the end of the file as a test that proves each of this milestone's two records is held by its own `capture.command`.
+- A record named by a map is now excused twice (by name and by its own census), so the census assertion distinguishes the two: every subtraction is either named outside a map or self-held, and the named-only set is pinned.
+- A new red this task caused and could not repair inside its paths: `scripts/guard-verdict-claims.test.mjs` is 6/8 because that census derives `evidence.records` from the `research/raw/m063-*` files. The claims record is T006's declared path, measured with the map moved aside as 8/8 green.
+- Two pre-existing reds remain unchanged in kind: the gate record `m044` (T007's) and `scripts/tutor-signals-shapes.test.mjs`, whose edge-vocabulary census reads the claims record's `edges` arrays. No task in this milestone declares that suite.
