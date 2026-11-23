@@ -2187,8 +2187,8 @@ Open questions
 Depends on: [M020]
 Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/063-guard-phase
 Integrated: null
 
 Goal: The panel answers why a guard's side effect ran even though the navigation was cancelled, naming the guard phase it ran in and the guard that produced the value.

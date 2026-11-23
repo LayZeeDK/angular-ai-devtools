@@ -306,6 +306,16 @@ import {
   STATES as OUTLET_STATES,
   outletPanel,
 } from './panel-outlet';
+import {
+  CANNOT_TELL as GUARD_PHASE_CANNOT_TELL,
+  FIELDS as GUARD_PHASE_FIELDS,
+  GUARD_ALLOWED as GUARD_PHASE_ALLOWED_STATE,
+  GUARD_CANCELLED as GUARD_PHASE_CANCELLED_STATE,
+  GUARD_PHASE_ONLY as GUARD_PHASE_ONLY_STATE,
+  LABELS as GUARD_PHASE_LABELS,
+  STATES as GUARD_PHASE_STATES,
+  guardPhasePanel,
+} from './panel-guard-phase';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -3005,7 +3015,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — forty paths, the same ordered list
+    // The whole table, in order and to the count — forty-two paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -3049,10 +3059,11 @@ describe('the panel demo', () => {
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
       'locale-correctness', // M061 SC4, SC2 surface: the provider entry's token, kind and import path or the absence that stands where no entry carries the token, each absence in its own line, and no locale value
+      'guard-phase', // M063 SC4 surface: the guard whose verdict cancelled the navigation, the phase it ran in and the verdict it stated, or no guard where the row names none, each in its own line and no remedy
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(41);
+    expect(appRoutes).toHaveLength(42);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -8240,5 +8251,349 @@ describe('the outlet surface', () => {
       outletPanel(join(outletRecord())).lines,
     );
     expect(outletPanel(smuggled).text.includes('declare')).toBe(false);
+  });
+});
+
+// ------------------------------------------------------------------------------- M063 T003 ----
+// The guard-phase surface, and the discipline that milestone is about: the sample fact is the
+// shipped join's own answer over the record the shipped reducer writes for two observations, and
+// the pane prints that answer and nothing beside it — no cause, no remedy and no guard the answer
+// did not name, and no sentence of its own, because a sentence here would be a claim the join did
+// not produce.
+
+/** One guard observation T001's reducer is written for: the phase, guard, verdict and path. */
+interface GuardObservation {
+  phase: string;
+  guard: string | null;
+  verdict: string;
+  path: string | null;
+}
+
+/** One row of the record `extension/guard-phase.js` writes. */
+interface GuardRow {
+  phase: string | null;
+  guard: string | null;
+  verdict: string | null;
+  path: string | null;
+}
+
+/** One absence the record states: the field it names, the path it sits at, the reason it gives. */
+interface GuardAbsenceRow {
+  field: string;
+  path: string | null;
+  reason: string | null;
+}
+
+/** The guard record T001's reducer writes, as this section rebuilds it. */
+interface GuardRecord {
+  state: string;
+  rows: GuardRow[];
+  absences: GuardAbsenceRow[];
+}
+
+/** The join's answer: the five fields every state carries, and no sixth. */
+interface GuardAnswer {
+  readonly state: string;
+  readonly phase: string | null;
+  readonly guard: string | null;
+  readonly verdict: string | null;
+  readonly absences: readonly GuardAbsenceRow[];
+}
+
+/** The page's own join namespace, as `extension/guard-answer.js` publishes it. */
+interface GuardAnswerJoin {
+  (record: unknown): GuardAnswer;
+}
+
+/** The page's own reducer namespace, as `extension/guard-phase.js` publishes it. */
+interface GuardPhaseApi {
+  guardPhase(observations: unknown): GuardRecord;
+}
+
+/** One module's committed text, inlined from disk the way every recording in this spec arrives. */
+function inlinedText(modules: Record<string, unknown>, what: string): string {
+  const entry: unknown = Object.values(modules)[0];
+  const text =
+    typeof entry === 'string'
+      ? entry
+      : (entry as { default?: unknown } | undefined)?.default;
+  if (typeof text !== 'string') {
+    throw new Error(what + ' was not inlined above this spec file');
+  }
+  return text;
+}
+
+/**
+ * T001's reducer, evaluated from its own committed text: the record the demo's fact is the join's
+ * answer over is the one this module writes, not a record written here by hand.
+ */
+function guardPhaseReducer(): GuardPhaseApi {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/guard-phase.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  new Function(inlinedText(modules, 'extension/guard-phase.js'))();
+  const api = (globalThis as unknown as { angularAiGuardPhase?: GuardPhaseApi })
+    .angularAiGuardPhase;
+  if (api === undefined || typeof api.guardPhase !== 'function') {
+    throw new Error(
+      'extension/guard-phase.js published no guardPhase on the global',
+    );
+  }
+  return api;
+}
+
+/**
+ * The join `extension/guard-answer.js` publishes on the page's global, evaluated from its own
+ * committed text: the demo's `guard-phase` fact is held to the join's answer, not to a copy of it.
+ * The module is an IIFE with no imports, so running it is the whole of loading it.
+ */
+function guardPhaseJoin(): GuardAnswerJoin {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/guard-answer.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  new Function(inlinedText(modules, 'extension/guard-answer.js'))();
+  const join = (
+    globalThis as unknown as { angularAiGuardAnswer?: GuardAnswerJoin }
+  ).angularAiGuardAnswer;
+  if (join === undefined || typeof join !== 'function') {
+    throw new Error(
+      'extension/guard-answer.js published no guardAnswer on the global',
+    );
+  }
+  return join;
+}
+
+/**
+ * The observations the demo's sample fact comes from, written in the shape T001 measures: one
+ * allowed `canActivate` row that names its guard, then one refusal that names its phase, its verdict
+ * and no guard — the `canMatch` state C2 names, where the phase is recorded and the guard is not.
+ * No record this tree holds carries a guard phase, so the rows are sample data, and every word in
+ * them (`canActivate`, `authGuard`, `claims`, `allowed`, `refused`) is T001's own vocabulary.
+ */
+function guardObservations(): GuardObservation[] {
+  return [
+    {
+      phase: 'canActivate',
+      guard: 'authGuard',
+      verdict: 'allowed',
+      path: 'claims',
+    },
+    {
+      phase: 'canActivate',
+      guard: null,
+      verdict: 'refused',
+      path: 'claims',
+    },
+  ];
+}
+
+/** The record T001's reducer writes for those observations. */
+function guardRecord(): GuardRecord {
+  return guardPhaseReducer().guardPhase(guardObservations());
+}
+
+describe('the guard-phase surface', () => {
+  it('renders the five fields the join answers, and the sample fact is that answer field for field (SC4)', async () => {
+    const join = guardPhaseJoin();
+    const record = guardRecord();
+    const answer = join(record);
+
+    // The four states and the five fields the pane was written for, in the contract's own order.
+    expect([...GUARD_PHASE_STATES]).toEqual([
+      GUARD_PHASE_CANCELLED_STATE,
+      GUARD_PHASE_ONLY_STATE,
+      GUARD_PHASE_ALLOWED_STATE,
+      GUARD_PHASE_CANNOT_TELL,
+    ]);
+    expect([...GUARD_PHASE_FIELDS]).toEqual([
+      'state',
+      'phase',
+      'guard',
+      'verdict',
+      'absences',
+    ]);
+
+    // The record is T001's own shape: three fields, one row per observation in arrival order, and
+    // the one absence the answered row left.
+    expect(Object.keys(record).sort()).toEqual(['absences', 'rows', 'state']);
+    expect(record.state).toBe(GUARD_PHASE_ONLY_STATE);
+    expect(record.rows).toHaveLength(2);
+    expect(record.rows[1]).toEqual({
+      phase: 'canActivate',
+      guard: null,
+      verdict: 'refused',
+      path: 'claims',
+    });
+    expect(record.absences).toEqual([
+      { field: 'guard', path: 'claims', reason: 'guard-not-recorded' },
+    ]);
+
+    // The sample fact is that answer, field for field, and carries exactly the five contract fields.
+    expect(FACTS['guard-phase']).toEqual(answer);
+    expect(Object.keys(FACTS['guard-phase'] as object).sort()).toEqual([
+      'absences',
+      'guard',
+      'phase',
+      'state',
+      'verdict',
+    ]);
+
+    // SC4: the answer names the phase the answered row ran in and the verdict it stated, and no
+    // guard — because that row named none — and it is never attributed to the route that matched.
+    expect(answer.state).toBe(GUARD_PHASE_ONLY_STATE);
+    expect(answer.phase).toBe('canActivate');
+    expect(answer.guard).toBeNull();
+    expect(answer.verdict).toBe('refused');
+    expect(answer.absences).toEqual([
+      { field: 'guard', path: 'claims', reason: 'guard-not-recorded' },
+    ]);
+    // The first row's guard is a name the answer does not carry, so it appears nowhere in the fact.
+    expect(JSON.stringify(FACTS['guard-phase']).includes('authGuard')).toBe(
+      false,
+    );
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'guard-phase',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the guard-phase surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('guard-phase');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'guard-phase'),
+    ).toHaveLength(1);
+
+    const demo = await renderDemo('guard-phase');
+    const pane = guardPhasePanel(FACTS['guard-phase']);
+    expect(demo.state()).toBe(GUARD_PHASE_ONLY_STATE);
+    expect(demo.lines()).toEqual(pane.lines);
+    expect(demo.text()).toBe(demo.lines().join('\n'));
+    expect(pane.state).toBe(GUARD_PHASE_ONLY_STATE);
+
+    // The whole pane, in the answer's order: the state, the fields the answer carries, and each
+    // absence's own lines — with no guard line, because the answer's guard is null.
+    expect(pane.lines).toEqual([
+      `state: ${GUARD_PHASE_ONLY_STATE}`,
+      `${GUARD_PHASE_LABELS.phase}: ${String(answer.phase)}`,
+      `${GUARD_PHASE_LABELS.verdict}: ${String(answer.verdict)}`,
+      `${GUARD_PHASE_LABELS.absence}: guard`,
+      `${GUARD_PHASE_LABELS.absencePath}: claims`,
+      `${GUARD_PHASE_LABELS.reason}: guard-not-recorded`,
+    ]);
+    expect(
+      pane.lines.some((line) =>
+        line.startsWith(`${GUARD_PHASE_LABELS.guard}: `),
+      ),
+    ).toBe(false);
+    // One absence line per absence the answer carries, in the answer's own order.
+    expect(
+      pane.lines.filter((line) =>
+        line.startsWith(`${GUARD_PHASE_LABELS.absence}: `),
+      ),
+    ).toHaveLength(answer.absences.length);
+  });
+
+  it('renders no cause, no remedy and no guard the answer did not carry, in every state the join answers (SC4)', () => {
+    const reduce = guardPhaseReducer().guardPhase;
+    const join = guardPhaseJoin();
+
+    // The four answers the pane must render, each the shipped reducer's record and the shipped
+    // join's answer over it.
+    const cancelled = join(
+      reduce([
+        {
+          phase: 'canActivate',
+          guard: 'authGuard',
+          verdict: 'refused',
+          path: null,
+        },
+      ]),
+    );
+    const allowed = join(
+      reduce([
+        {
+          phase: 'canActivate',
+          guard: 'authGuard',
+          verdict: 'allowed',
+          path: 'claims',
+        },
+      ]),
+    );
+    const unreadable = join(reduce([]));
+
+    // guard-cancelled: the first refusal, with the phase it ran in, the guard it named and the
+    // absence the record states about that row — and no path line, because the path is null.
+    expect(cancelled.state).toBe(GUARD_PHASE_CANCELLED_STATE);
+    expect(cancelled.guard).toBe('authGuard');
+    expect(cancelled.absences).toEqual([
+      { field: 'path', path: null, reason: 'path-not-recorded' },
+    ]);
+    expect(guardPhasePanel(cancelled).lines).toEqual([
+      `state: ${GUARD_PHASE_CANCELLED_STATE}`,
+      `${GUARD_PHASE_LABELS.phase}: canActivate`,
+      `${GUARD_PHASE_LABELS.guard}: authGuard`,
+      `${GUARD_PHASE_LABELS.verdict}: refused`,
+      `${GUARD_PHASE_LABELS.absence}: path`,
+      `${GUARD_PHASE_LABELS.reason}: path-not-recorded`,
+    ]);
+
+    // guard-allowed: every verdict is recorded and none refused, so the answer names the guard and
+    // `allowed`, and carries no absence at all.
+    expect(allowed.state).toBe(GUARD_PHASE_ALLOWED_STATE);
+    expect(guardPhasePanel(allowed).lines).toEqual([
+      `state: ${GUARD_PHASE_ALLOWED_STATE}`,
+      `${GUARD_PHASE_LABELS.phase}: canActivate`,
+      `${GUARD_PHASE_LABELS.guard}: authGuard`,
+      `${GUARD_PHASE_LABELS.verdict}: allowed`,
+    ]);
+
+    // cannot-tell: the record carries no readable row, so the three row fields are null, no line of
+    // theirs is written, and the join's own absence stands where they would be.
+    expect(unreadable.state).toBe(GUARD_PHASE_CANNOT_TELL);
+    expect(unreadable.phase).toBeNull();
+    expect(unreadable.guard).toBeNull();
+    expect(unreadable.verdict).toBeNull();
+    expect(guardPhasePanel(unreadable).lines).toEqual([
+      `state: ${GUARD_PHASE_CANNOT_TELL}`,
+      `${GUARD_PHASE_LABELS.absence}: guard`,
+      `${GUARD_PHASE_LABELS.reason}: guard-verdict-not-recorded`,
+    ]);
+
+    // No remedy, no cause and no schematic: the words a pane would have to write for itself, scanned
+    // over all four states so a word in one of them cannot hide behind the other three.
+    const everyState = [guardPhasePanel(FACTS['guard-phase'])]
+      .concat(
+        [cancelled, allowed, unreadable].map((answer) =>
+          guardPhasePanel(answer),
+        ),
+      )
+      .map((pane) => pane.text)
+      .join('\n');
+    for (const word of [
+      'fix',
+      'remedy',
+      'schematic',
+      'cause',
+      'because',
+      'should',
+    ])
+      expect(new RegExp(`\\b${word}\\b`, 'i').test(everyState)).toBe(false);
+
+    // A sixth field on the answer renders nothing: the pane reads the five fields and no other, so a
+    // value smuggled in beside them has no label to appear under. The probe's value is a remedy no
+    // record carries, which is exactly what this pin is about.
+    const smuggled = {
+      ...(join(guardRecord()) as GuardAnswer),
+      remedy: 'declare the guard in the route configuration',
+    };
+    expect(guardPhasePanel(smuggled).lines).toEqual(
+      guardPhasePanel(join(guardRecord())).lines,
+    );
+    expect(guardPhasePanel(smuggled).text.includes('declare')).toBe(false);
   });
 });

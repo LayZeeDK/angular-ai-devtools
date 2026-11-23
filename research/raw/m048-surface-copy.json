@@ -25,7 +25,7 @@
     "inlineSentences": 34,
     "inlineLabels": 195,
     "inlineWords": 7,
-    "citations": 575
+    "citations": 576
   },
   "surfaces": [
     {
@@ -4946,6 +4946,12 @@
       "line": 1,
       "lineText": "import { describe, expect, it } from 'vitest';",
       "why": "a vitest spec, not a surface: it holds the ingested answers to the lines this pane writes and carries the four mutants that prove those pins can fail. It matches `panel-*.ts` but renders nothing, so it is named here rather than counted as a surface."
+    },
+    {
+      "file": "apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts",
+      "line": 1,
+      "lineText": "import { describe, expect, it } from 'vitest';",
+      "why": "a vitest spec, not a surface: it holds the join's answers to the lines this pane writes and carries the four mutants that prove those pins can fail. It matches `panel-*.ts` but renders nothing, so it is named here rather than counted as a surface."
     }
   ],
   "measurements": [
@@ -5150,6 +5156,12 @@
         "head": "the working tree at M062 T003, whose base is the commit this record’s `head` names plus that task’s own edits",
         "why": "M062’s T003 ships `panel-outlet.spec.ts` beside the pane it measures, and the spec is a `panel-*.ts` file that renders nothing: the record must name it in `excluded` or the coverage pin reads a surface nobody measured. The pane itself declares no sentence, so its own copy row is owed by that milestone’s surface record rather than by this one — which is also what this record’s own pins require, since they state that every surface it carries but `panel-context.ts` declares copy the copy join can check",
         "what": "one `excluded` row added for `panel-outlet.spec.ts` with the vitest line it is a spec by, the citation count recomputed from the entries (574 to 575), and nothing else moved: no surface row, no sentence, no label and no count about the panel"
+      },
+      {
+        "task": "T003",
+        "head": "the working tree at M063 T003, whose base is the commit this record’s `head` names plus that task’s own edits",
+        "why": "M063’s T003 ships `panel-guard-phase.spec.ts` beside the pane it measures, and the spec is a `panel-*.ts` file that renders nothing: the record must name it in `excluded` or the coverage pin reads a surface nobody measured. The pane itself declares no sentence, and its own copy row is owed by that milestone’s surface record (`research/raw/m061-surface.json`) rather than by this one — for the reason the M062 row states",
+        "what": "one `excluded` row added for `panel-guard-phase.spec.ts` with the vitest line it is a spec by, the citation count recomputed from the entries (575 to 576), and nothing else moved: no surface row, no sentence, no label and no count about the panel"
       }
     ]
   }

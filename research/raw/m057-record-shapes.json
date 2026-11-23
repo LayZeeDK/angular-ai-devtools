@@ -562,17 +562,17 @@
       "edgeKeys": {
         "consumer": 13,
         "producer": 13,
-        "edge": 14,
+        "edge": 22,
         "consumerLabel": 1,
         "producerLabel": 1,
-        "category": 8,
-        "detail": 8,
-        "disposition": 8,
-        "suite": 8
+        "category": 16,
+        "detail": 16,
+        "disposition": 16,
+        "suite": 16
       },
       "orderishEdgeKeys": [],
       "holds": true,
-      "conclusion": "An edge carries only `consumer` and `producer` (and, in derived readings, labels and a rendered `edge` string). No field, value or moment orders a write, so the ordering is a named absence and not a capture this milestone could add. This head's union has grown one record's worth: `research/raw/m062-verdict-claims.json` carries the intent's own five-column edge table as an `edges` list — 8 rows keyed `edge`, `category`, `disposition`, `detail` and `suite` — which names the coverage category a row measures and the criterion it is disposed to. None of the four new keys orders a write, so `orderishEdgeKeys` stays empty and only the vocabulary recount moved."
+      "conclusion": "An edge carries only `consumer` and `producer` (and, in derived readings, labels and a rendered `edge` string). No field, value or moment orders a write, so the ordering is a named absence and not a capture this milestone could add. This head's union has grown two records' worth: `research/raw/m062-verdict-claims.json` and `research/raw/m063-verdict-claims.json` each carry the intent's own five-column edge table as an `edges` list — 8 rows apiece, keyed `edge`, `category`, `disposition`, `detail` and `suite` — which names the coverage category a row measures and the criterion it is disposed to. None of those five keys orders a write, so `orderishEdgeKeys` stays empty and only the vocabulary recount moved."
     },
     "effectNodeInARecord": {
       "claimAsStatedInThePlan": "no record under research/raw/ carries a node of kind `effect`, and the closest one holds no `index` on its nodes and no index ends on its edges",

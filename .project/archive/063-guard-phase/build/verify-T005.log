@@ -1,0 +1,148 @@
+head: 8a69ffe5a8a1073ab06e10a1e19537850c108406 at 2026-11-23T10:16:14.041Z
+armed run: nothing moved, nothing written
+counted-field mutant: research/raw/m063-record-shapes.json is not what this head derives: records[0].shape.counts.absenceReasons: 8 -> 7 - re-capture with M063_CAPTURE=1 node --test scripts/guard-record-shapes.test.mjs at this head
+stale-head mutant: research/raw/m063-record-shapes.json was captured at 5eca4467c9084401e5fc3bacf5dc7f19182ef622 and this head is 8a69ffe5a8a1073ab06e10a1e19537850c108406: extension/guard-answer.js changed after it was measured, so the record states a tree this checkout is not - re-capture with M063_CAPTURE=1 node --test scripts/guard-record-shapes.test.mjs at 8a69ffe5a8a1073ab06e10a1e19537850c108406
+research/raw/m063-record-shapes.json: 2 measured module(s), 2 shared state word(s), 0 forbidden token(s) found at 8a69ffe5
+the record extension/guard-phase.js answers 3 fields with 4 in a row, in 4 states, and it names 7 absences, each one a record here produced; the join extension/guard-answer.js answers 5 fields in 4 states, and the 2 state word(s) it shares with the record are guard-phase-only and cannot-tell; and neither module reaches a page, a console line, a clock or a neighbouring record (0 forbidden token(s) found in both).
+✔ a default run is a read: the record is exactly what this head derives, and a moved field is named (144.8001ms)
+✔ the record names the head it was measured at, and a record measured at another head refuses to land naming both (1407.5679ms)
+✔ commands[0] is `git rev-parse HEAD`, and the command that captured the record names this suite and its flag (0.6175ms)
+✔ the record states its own capture command, and the suite it names carries this record’s path and the flag (0.7154ms)
+✔ the inventory names the record this milestone owes outside itself, and names no other (0.4073ms)
+✔ each recorded shape is what the module publishes when it is run now, field by field (2.6392ms)
+✔ neither module reaches a page, a console line, a clock or a neighbouring record (0.9111ms)
+✔ the state words the two modules share are the words this head derives, and nothing else (0.3145ms)
+✔ the record carries no numeric bytes field, so the prose byte-consistency scan skips it (0.5931ms)
+✔ the armed run is the only writer, and a default run leaves the file it read alone (5.3099ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1981.4302
+✔ armed: re-derive, write only what moved, and a second run changes no byte (190.4596ms)
+ℹ armed run: nothing moved, nothing written (sha256 8856ccd36cbb279e7bbf7a720a8c0fded1c8e0e34b089729c16bb431e545c13b)
+ℹ armed idempotence: 59302 bytes, sha256 8856ccd36cbb279e7bbf7a720a8c0fded1c8e0e34b089729c16bb431e545c13b before and after the second run
+✔ the recording is the canonical serialisation of its own record (0.7516ms)
+✔ the recording names the commit it was measured at, and that commit is behind this HEAD (98.635ms)
+ℹ head 8a69ffe5 is a commit this checkout carries, captured at 2026-11-22T00:27:11.118Z
+✔ the digest section states the NG0205 entry verbatim, with the digest’s own hash (1.2643ms)
+ℹ digest 22.2.x: 64 entries, 64 codes, sha256 426a5be1f4e344c87e4b70817ac10da3de0f9c8a172325e704b3235953a01c35, 61577 bytes
+ℹ NG0205 — title “Injector has already been destroyed”; the build prints “NG0205: Injector has already been destroyed.”
+✔ the message section names the fields a joined message carries, and where the stack goes (1.2282ms)
+ℹ console join: text/code/title/reason/carriedCode, stack survives in text; lint join: state/construct/code/message, stack dropped by bodyOf
+ℹ the capture carries code/location/order/text/type and its location carries column/columnNumber/line/lineNumber/url; 1 of 4 messages carry a frame
+✔ the producible verdict states what was driven and, producing nothing, the observable it lacks (27.2344ms)
+ℹ producible: not-produced — 4 portal routes/38 lines, 2 fixture routes/4 lines, 0 NG0205
+ℹ research/raw: 20 occurrences in 4 record(s), 0 of them the digest enumeration, 0 on a page
+✔ the absences section states the handle record as an absence with its counts (0.5348ms)
+ℹ handle record: 0 handleRecord and 0 postDestroy occurrences over 44 extension modules, 151 suites and 158 records
+ℹ teardown sites (3, 2 the agent’s own): uninstallRouterEvents at extension/agent-main.js:1858; uninstallStability at extension/agent-main.js:2435; CURRENCY at scripts/stability-measure.test.mjs:315
+✔ every citation is the line its own number names, found by searching the file it quotes (4.1445ms)
+ℹ extension/error-digest.json: 2 citation(s) re-resolved
+ℹ spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs: 4 citation(s) re-resolved
+ℹ extension/console-join.js: 8 citation(s) re-resolved
+ℹ extension/lint-core.js: 7 citation(s) re-resolved
+ℹ research/raw/m032-console-diagnostics.json: 2 citation(s) re-resolved
+ℹ extension/agent-main.js: 7 citation(s) re-resolved
+ℹ research/raw/m045-console-shapes.json: 2 citation(s) re-resolved
+ℹ spikes/ng222-app/src/app/stale-view-fixture.ts: 3 citation(s) re-resolved
+ℹ D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/shared/ui-directives/src/lib/button-action.directive.ts: 1 citation(s) re-resolved
+ℹ D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/contract/feature-list/src/lib/list.component.ts: 1 citation(s) re-resolved
+✔ every citation a section names is one the record makes, and no line is cited for nothing (0.8054ms)
+✔ the record names no subscription, effect or timer as the owner (D6) (1.2875ms)
+✔ the recording is what this head derives, field by field (31.942ms)
+ℹ the digest is 61577 bytes and carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 44 extension modules, 151 suites and 158 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.
+ℹ 12 section(s) re-derived, 37 citation(s), 0 NG0205 produced
+✔ a mutated copy of the record reddens naming its defect, and the untouched record passes first (259.808ms)
+ℹ mutant a-digest-code-the-file-does-not-carry -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): digest.entry.code: "NG9999" -> "NG0205"
+ℹ mutant a-title-with-a-full-stop -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): digest.entry.title: "Injector has already been destroyed." -> "Injector has already been destroyed"
+ℹ mutant a-message-field-the-join-does-not-declare -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): message.joins.consoleJoin.findingFields: 6 row(s) -> 5 row(s)
+ℹ mutant a-stack-that-survives-the-lint-join -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): message.joins.lintJoin.stackSurvives: true -> false
+ℹ mutant a-route-that-is-not-a-string -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.targets.portal.routesTried[0]: 42 -> "/contract/list"; producible.targets.portal.routesTried[0] is the route it tried, as a string
+ℹ mutant a-verdict-with-nothing-missing -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.missing: "" -> "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`."; producible.missing must say what is missing when nothing was produced
+ℹ mutant a-handle-record-that-exists -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): absences.handle-record-not-held.occurrences: 1 -> 0; absences.handle-record-not-held.occurrences: 1 -> 0: the handle record does not exist
+ℹ mutant a-handle-named-as-the-cause -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.missing: "the leaked subscription wrote after teardown" -> "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`."; producible.missing names a leaked handle: "the leaked subscription wrote after teardown"
+✔ nothing was built (0.3896ms)
+✔ held-out E9: the record is read-only and no capture runs on a default run (24.444ms)
+ℹ research/raw/m059-record-shapes.json at load: 59302 bytes, sha256 8856ccd36cbb279e7bbf7a720a8c0fded1c8e0e34b089729c16bb431e545c13b
+ℹ after the run: 59302 bytes, sha256 8856ccd36cbb279e7bbf7a720a8c0fded1c8e0e34b089729c16bb431e545c13b
+ℹ E9 idempotence: sha256 8856ccd36cbb279e7bbf7a720a8c0fded1c8e0e34b089729c16bb431e545c13b unchanged after the run
+ℹ armed run: E9 holds on the bytes this run wrote — the capture is the only writer, and it wrote only what moved
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1022.4805
+counted-field mutant: research/raw/m063-record-shapes.json is not what this head derives: records[0].shape.counts.absenceReasons: 8 -> 7 - re-capture with M063_CAPTURE=1 node --test scripts/guard-record-shapes.test.mjs at this head
+stale-head mutant: research/raw/m063-record-shapes.json was captured at 5eca4467c9084401e5fc3bacf5dc7f19182ef622 and this head is 8a69ffe5a8a1073ab06e10a1e19537850c108406: extension/guard-answer.js changed after it was measured, so the record states a tree this checkout is not - re-capture with M063_CAPTURE=1 node --test scripts/guard-record-shapes.test.mjs at 8a69ffe5a8a1073ab06e10a1e19537850c108406
+research/raw/m063-record-shapes.json: 2 measured module(s), 2 shared state word(s), 0 forbidden token(s) found at 8a69ffe5
+the record extension/guard-phase.js answers 3 fields with 4 in a row, in 4 states, and it names 7 absences, each one a record here produced; the join extension/guard-answer.js answers 5 fields in 4 states, and the 2 state word(s) it shares with the record are guard-phase-only and cannot-tell; and neither module reaches a page, a console line, a clock or a neighbouring record (0 forbidden token(s) found in both).
+✔ a default run is a read: the record is exactly what this head derives, and a moved field is named (12.8542ms)
+✔ the record names the head it was measured at, and a record measured at another head refuses to land naming both (887.9393ms)
+✔ commands[0] is `git rev-parse HEAD`, and the command that captured the record names this suite and its flag (0.4577ms)
+✔ the record states its own capture command, and the suite it names carries this record’s path and the flag (0.5997ms)
+✔ the inventory names the record this milestone owes outside itself, and names no other (0.3428ms)
+✔ each recorded shape is what the module publishes when it is run now, field by field (3.0272ms)
+✔ neither module reaches a page, a console line, a clock or a neighbouring record (0.688ms)
+✔ the state words the two modules share are the words this head derives, and nothing else (0.2826ms)
+✔ the record carries no numeric bytes field, so the prose byte-consistency scan skips it (0.5064ms)
+✔ the armed run is the only writer, and a default run leaves the file it read alone (4.9833ms)
+✔ the recording is the canonical serialisation of its own record (2.1699ms)
+✔ the recording names the commit it was measured at, and that commit is behind this HEAD (105.1145ms)
+ℹ head 8a69ffe5 is a commit this checkout carries, captured at 2026-11-22T00:27:11.118Z
+✔ the digest section states the NG0205 entry verbatim, with the digest’s own hash (1.0228ms)
+ℹ digest 22.2.x: 64 entries, 64 codes, sha256 426a5be1f4e344c87e4b70817ac10da3de0f9c8a172325e704b3235953a01c35, 61577 bytes
+ℹ NG0205 — title “Injector has already been destroyed”; the build prints “NG0205: Injector has already been destroyed.”
+✔ the message section names the fields a joined message carries, and where the stack goes (1.3526ms)
+ℹ console join: text/code/title/reason/carriedCode, stack survives in text; lint join: state/construct/code/message, stack dropped by bodyOf
+ℹ the capture carries code/location/order/text/type and its location carries column/columnNumber/line/lineNumber/url; 1 of 4 messages carry a frame
+✔ the producible verdict states what was driven and, producing nothing, the observable it lacks (36.8415ms)
+ℹ producible: not-produced — 4 portal routes/38 lines, 2 fixture routes/4 lines, 0 NG0205
+ℹ research/raw: 20 occurrences in 4 record(s), 0 of them the digest enumeration, 0 on a page
+✔ the absences section states the handle record as an absence with its counts (0.7539ms)
+ℹ handle record: 0 handleRecord and 0 postDestroy occurrences over 44 extension modules, 151 suites and 158 records
+ℹ teardown sites (3, 2 the agent’s own): uninstallRouterEvents at extension/agent-main.js:1858; uninstallStability at extension/agent-main.js:2435; CURRENCY at scripts/stability-measure.test.mjs:315
+✔ every citation is the line its own number names, found by searching the file it quotes (5.0856ms)
+ℹ extension/error-digest.json: 2 citation(s) re-resolved
+ℹ spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs: 4 citation(s) re-resolved
+ℹ extension/console-join.js: 8 citation(s) re-resolved
+ℹ extension/lint-core.js: 7 citation(s) re-resolved
+ℹ research/raw/m032-console-diagnostics.json: 2 citation(s) re-resolved
+ℹ extension/agent-main.js: 7 citation(s) re-resolved
+ℹ research/raw/m045-console-shapes.json: 2 citation(s) re-resolved
+ℹ spikes/ng222-app/src/app/stale-view-fixture.ts: 3 citation(s) re-resolved
+ℹ D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/shared/ui-directives/src/lib/button-action.directive.ts: 1 citation(s) re-resolved
+ℹ D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/contract/feature-list/src/lib/list.component.ts: 1 citation(s) re-resolved
+✔ every citation a section names is one the record makes, and no line is cited for nothing (0.8377ms)
+✔ the record names no subscription, effect or timer as the owner (D6) (1.4666ms)
+✔ the recording is what this head derives, field by field (32.2097ms)
+ℹ the digest is 61577 bytes and carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 44 extension modules, 151 suites and 158 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.
+ℹ 12 section(s) re-derived, 37 citation(s), 0 NG0205 produced
+✔ a mutated copy of the record reddens naming its defect, and the untouched record passes first (273.8601ms)
+ℹ mutant a-digest-code-the-file-does-not-carry -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): digest.entry.code: "NG9999" -> "NG0205"
+ℹ mutant a-title-with-a-full-stop -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): digest.entry.title: "Injector has already been destroyed." -> "Injector has already been destroyed"
+ℹ mutant a-message-field-the-join-does-not-declare -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): message.joins.consoleJoin.findingFields: 6 row(s) -> 5 row(s)
+ℹ mutant a-stack-that-survives-the-lint-join -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): message.joins.lintJoin.stackSurvives: true -> false
+ℹ mutant a-route-that-is-not-a-string -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.targets.portal.routesTried[0]: 42 -> "/contract/list"; producible.targets.portal.routesTried[0] is the route it tried, as a string
+ℹ mutant a-verdict-with-nothing-missing -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.missing: "" -> "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`."; producible.missing must say what is missing when nothing was produced
+ℹ mutant a-handle-record-that-exists -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): absences.handle-record-not-held.occurrences: 1 -> 0; absences.handle-record-not-held.occurrences: 1 -> 0: the handle record does not exist
+ℹ mutant a-handle-named-as-the-cause -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.missing: "the leaked subscription wrote after teardown" -> "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`."; producible.missing names a leaked handle: "the leaked subscription wrote after teardown"
+✔ nothing was built (0.4811ms)
+✔ held-out E9: the record is read-only and no capture runs on a default run (24.1567ms)
+ℹ research/raw/m059-record-shapes.json at load: 59302 bytes, sha256 8856ccd36cbb279e7bbf7a720a8c0fded1c8e0e34b089729c16bb431e545c13b
+ℹ after the run: 59302 bytes, sha256 8856ccd36cbb279e7bbf7a720a8c0fded1c8e0e34b089729c16bb431e545c13b
+ℹ E9 idempotence: sha256 8856ccd36cbb279e7bbf7a720a8c0fded1c8e0e34b089729c16bb431e545c13b unchanged after the run
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1071.014

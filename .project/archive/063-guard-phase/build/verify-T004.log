@@ -1,0 +1,60 @@
+head: ac406f1cfed277d381e6f4bd82f7748d9fdfa9ef at 2026-11-23T09:50:39.687Z
+armed run: nothing moved, nothing written
+armed idempotence: 24821 characters, sha256 ce06d7880334756fe63c077a1750d962e4125d7c978f7e3be14e71081d6b4769 before and after the second run
+M063: 4 criteria, 8 edge row(s), 8 held-out row(s), 7 agreeing, 1 disagreement(s) ["E7: held by T003, coverage assigns T001/T002/T004/T005/T006/T007"]
+research/raw/m063-verdict-claims.json at load and after the run: 24821 characters, sha256 ce06d7880334756fe63c077a1750d962e4125d7c978f7e3be14e71081d6b4769
+research/raw/m063-verdict-claims.json: 4 criterion(a) ruled, 0 required; suites ["scripts/guard-answer.test.mjs","scripts/guard-answer.test.mjs","scripts/guard-answer.test.mjs","apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts"]; tests ["SC1 — a record naming a cancelling guard names its phase, its guard and the verdict","SC2 — a row whose guard is unknown keeps guard null, with the absence, and no logged name","SC3 — the record’s row fields and the join’s inputs are one list, and its holes are the record’s","renders the state and the three row fields the answer carries (SC4)"]
+quote mutant: SC1 must quote the intent character for character: claims[0].criterionText is "A cancelled navigation whose guard ran a side effect produces a finding naming the guard and the phase it ran in and the verdict that cancelled; a mutant that cancels before the guard runs reddens the pin, and the red names the phase field." and the intent states "A cancelled navigation whose guard ran a side effect produces a finding naming the guard, the phase it ran in and the verdict that cancelled; a mutant that cancels before the guard runs reddens it, and the red names the phase field."
+stale-criterion mutant: claims[0].criterionText: "A cancelled navigation whose guard ran a side effect produces a finding naming the guard, the phase it ran in and the verdict that cancelled; a mutant that cancels before the guard runs reddens it, and the red names the phase field." -> "A cancelled navigation whose guard ran a side effect produces a finding naming the guard and the phase and the verdict that cancelled; a mutant that cancels before the guard runs reddens it, and the red names the phase field."
+missing-test mutant: SC1 cites scripts/guard-answer.test.mjs for the test "a test no suite in this checkout declares", and that suite declares no such test at this head: it declares ["evaluates in a bare context and publishes the join itself, and nothing else of its own","SC3 — two node:vm contexts with throw-on-touch globals produce deep-equal answers","SC3 — the module mentions no DOM, no logged line, no second record and no phase word","SC3 — the record’s row fields and the join’s inputs are one list, and its holes are the record’s","SC3 — the answer is the same when a second record is handed in beside the first","answers the same record twice with the same value and mutates nothing it was handed","throws on no input, and answers the same five fields for every one of them","carries exactly the five contract fields in every state, and reaches all four","SC1 — a record naming a cancelling guard names its phase, its guard and the verdict","SC1 — the cancellation is the first refusal the record states, in arrival order","SC1 — the phase-only row before a refusal is not the row the answer is about","SC1 — a refusal with no phase names the phase as a hole, never as a near phase","SC2 — a row whose guard is unknown keeps guard null, with the absence, and no logged name","E2 — a phase recorded with no guard is never attributed to the route that matched","E1 — a navigation with no verdict reports the narrator’s absence, never an empty answer","E3 — a verdict the record does not carry is reported as not emitted, never as a pass","E7 — a guard that allowed the navigation answers guard-allowed","E7 — the guard that allowed the navigation is not reported as the one that cancelled it","SC3 — the answer names no identity the record did not carry, and no remedy","is the only module under extension/ that produces one, and a second reader reddens it","M1 — a record whose refusals are reordered reddens SC1, naming the phase","M2 — the join reading the rows in the other order reddens SC1, naming the phase","M3 — a guard filled from the record’s logged line reddens SC2 and the page-surface scan","M4 — a verdict the record does not carry answered as a pass reddens E3","M5 — a phase taken from the route that matched afterwards reddens E2","M6 — an empty record answered as a verdict reddens E1, naming the absence","M7 — a phase the join invents reddens SC1 and the phase-word scan","M8 — a remedy string added to the answer reddens the five-field pin and the literal scan"] | absent suite: SC2 cites scripts/absent-claims-suite.test.mjs, which this checkout does not carry
+plan disagreements: 1 at this head ([{"edge":"E7","criterion":"SC1","heldBy":"T003","assignedByCoverage":["T001","T002","T004","T005","T006","T007"]}]); the moved-row mutant derives 2
+▶ the claim list, armed
+  ✔ re-derives, writes only what moved, and a second run changes no byte (25.9696ms)
+✔ the claim list, armed (27.0389ms)
+▶ measurement
+  ✔ the intent, the plan and this checkout carry the criteria, edges, suites and tests the claims rest on (12.0125ms)
+✔ measurement (12.1691ms)
+▶ the claim list
+  ✔ is a read: a default run hashes the list the same before and after (0.8813ms)
+  ✔ is exactly the list this head derives, and a value that moved is named (6.7578ms)
+  ✔ rules every criterion the intent declares, quotes it verbatim, and names the suite and test that prove it (11.1042ms)
+  ✔ reddens by claim id when a row quotes its criterion in its own words (2.5498ms)
+  ✔ reddens naming the field that moved when the intent is edited after the capture (11.3335ms)
+  ✔ reddens naming the missing test when a claim names a test this head does not declare (22.9044ms)
+  ✔ records the plan’s cross-table disagreements rather than refusing to derive (1.3217ms)
+✔ the claim list (57.4741ms)
+ℹ tests 9
+ℹ suites 3
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 265.7079
+M063: 4 criteria, 8 edge row(s), 8 held-out row(s), 7 agreeing, 1 disagreement(s) ["E7: held by T003, coverage assigns T001/T002/T004/T005/T006/T007"]
+research/raw/m063-verdict-claims.json at load and after the run: 24821 characters, sha256 ce06d7880334756fe63c077a1750d962e4125d7c978f7e3be14e71081d6b4769
+research/raw/m063-verdict-claims.json: 4 criterion(a) ruled, 0 required; suites ["scripts/guard-answer.test.mjs","scripts/guard-answer.test.mjs","scripts/guard-answer.test.mjs","apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts"]; tests ["SC1 — a record naming a cancelling guard names its phase, its guard and the verdict","SC2 — a row whose guard is unknown keeps guard null, with the absence, and no logged name","SC3 — the record’s row fields and the join’s inputs are one list, and its holes are the record’s","renders the state and the three row fields the answer carries (SC4)"]
+quote mutant: SC1 must quote the intent character for character: claims[0].criterionText is "A cancelled navigation whose guard ran a side effect produces a finding naming the guard and the phase it ran in and the verdict that cancelled; a mutant that cancels before the guard runs reddens the pin, and the red names the phase field." and the intent states "A cancelled navigation whose guard ran a side effect produces a finding naming the guard, the phase it ran in and the verdict that cancelled; a mutant that cancels before the guard runs reddens it, and the red names the phase field."
+stale-criterion mutant: claims[0].criterionText: "A cancelled navigation whose guard ran a side effect produces a finding naming the guard, the phase it ran in and the verdict that cancelled; a mutant that cancels before the guard runs reddens it, and the red names the phase field." -> "A cancelled navigation whose guard ran a side effect produces a finding naming the guard and the phase and the verdict that cancelled; a mutant that cancels before the guard runs reddens it, and the red names the phase field."
+missing-test mutant: SC1 cites scripts/guard-answer.test.mjs for the test "a test no suite in this checkout declares", and that suite declares no such test at this head: it declares ["evaluates in a bare context and publishes the join itself, and nothing else of its own","SC3 — two node:vm contexts with throw-on-touch globals produce deep-equal answers","SC3 — the module mentions no DOM, no logged line, no second record and no phase word","SC3 — the record’s row fields and the join’s inputs are one list, and its holes are the record’s","SC3 — the answer is the same when a second record is handed in beside the first","answers the same record twice with the same value and mutates nothing it was handed","throws on no input, and answers the same five fields for every one of them","carries exactly the five contract fields in every state, and reaches all four","SC1 — a record naming a cancelling guard names its phase, its guard and the verdict","SC1 — the cancellation is the first refusal the record states, in arrival order","SC1 — the phase-only row before a refusal is not the row the answer is about","SC1 — a refusal with no phase names the phase as a hole, never as a near phase","SC2 — a row whose guard is unknown keeps guard null, with the absence, and no logged name","E2 — a phase recorded with no guard is never attributed to the route that matched","E1 — a navigation with no verdict reports the narrator’s absence, never an empty answer","E3 — a verdict the record does not carry is reported as not emitted, never as a pass","E7 — a guard that allowed the navigation answers guard-allowed","E7 — the guard that allowed the navigation is not reported as the one that cancelled it","SC3 — the answer names no identity the record did not carry, and no remedy","is the only module under extension/ that produces one, and a second reader reddens it","M1 — a record whose refusals are reordered reddens SC1, naming the phase","M2 — the join reading the rows in the other order reddens SC1, naming the phase","M3 — a guard filled from the record’s logged line reddens SC2 and the page-surface scan","M4 — a verdict the record does not carry answered as a pass reddens E3","M5 — a phase taken from the route that matched afterwards reddens E2","M6 — an empty record answered as a verdict reddens E1, naming the absence","M7 — a phase the join invents reddens SC1 and the phase-word scan","M8 — a remedy string added to the answer reddens the five-field pin and the literal scan"] | absent suite: SC2 cites scripts/absent-claims-suite.test.mjs, which this checkout does not carry
+plan disagreements: 1 at this head ([{"edge":"E7","criterion":"SC1","heldBy":"T003","assignedByCoverage":["T001","T002","T004","T005","T006","T007"]}]); the moved-row mutant derives 2
+▶ measurement
+  ✔ the intent, the plan and this checkout carry the criteria, edges, suites and tests the claims rest on (15.8799ms)
+✔ measurement (16.7618ms)
+▶ the claim list
+  ✔ is a read: a default run hashes the list the same before and after (0.5093ms)
+  ✔ is exactly the list this head derives, and a value that moved is named (7.9255ms)
+  ✔ rules every criterion the intent declares, quotes it verbatim, and names the suite and test that prove it (10.6891ms)
+  ✔ reddens by claim id when a row quotes its criterion in its own words (2.071ms)
+  ✔ reddens naming the field that moved when the intent is edited after the capture (13.2167ms)
+  ✔ reddens naming the missing test when a claim names a test this head does not declare (23.8233ms)
+  ✔ records the plan’s cross-table disagreements rather than refusing to derive (1.4659ms)
+✔ the claim list (60.4161ms)
+ℹ tests 8
+ℹ suites 2
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 386.6041

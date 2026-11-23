@@ -1,0 +1,62 @@
+head: 958d15f8fe9a4172f47180893307df9ee192bce3 at 2026-11-23T08:56:38.643Z
+▶ guard-answer.js is pure
+  ✔ evaluates in a bare context and publishes the join itself, and nothing else of its own (0.9702ms)
+  ✔ SC3 — two node:vm contexts with throw-on-touch globals produce deep-equal answers (4.769ms)
+  ✔ SC3 — the module mentions no DOM, no logged line, no second record and no phase word (0.9592ms)
+  ✔ SC3 — the record’s row fields and the join’s inputs are one list, and its holes are the record’s (0.2955ms)
+  ✔ SC3 — the answer is the same when a second record is handed in beside the first (0.1581ms)
+  ✔ answers the same record twice with the same value and mutates nothing it was handed (0.1041ms)
+  ✔ throws on no input, and answers the same five fields for every one of them (1.013ms)
+✔ guard-answer.js is pure (9.0582ms)
+▶ the shipped join answers the guard record
+  ✔ carries exactly the five contract fields in every state, and reaches all four (0.5515ms)
+  ✔ SC1 — a record naming a cancelling guard names its phase, its guard and the verdict (0.0746ms)
+  ✔ SC1 — the cancellation is the first refusal the record states, in arrival order (0.1452ms)
+  ✔ SC1 — the phase-only row before a refusal is not the row the answer is about (0.0934ms)
+  ✔ SC1 — a refusal with no phase names the phase as a hole, never as a near phase (0.093ms)
+  ✔ SC2 — a row whose guard is unknown keeps guard null, with the absence, and no logged name (0.0887ms)
+  ✔ E2 — a phase recorded with no guard is never attributed to the route that matched (0.0586ms)
+  ✔ E1 — a navigation with no verdict reports the narrator’s absence, never an empty answer (0.1239ms)
+  ✔ E3 — a verdict the record does not carry is reported as not emitted, never as a pass (0.0624ms)
+  ✔ E7 — a guard that allowed the navigation answers guard-allowed (0.0484ms)
+  ✔ E7 — the guard that allowed the navigation is not reported as the one that cancelled it (0.0529ms)
+  ✔ SC3 — the answer names no identity the record did not carry, and no remedy (0.2013ms)
+✔ the shipped join answers the guard record (1.8444ms)
+▶ the guard record is the only source of a phase (SC3, E5)
+  ✔ is the only module under extension/ that produces one, and a second reader reddens it (12.287ms)
+  ℹ E5 scan red: the planted tree: ["guard-answer-mirror.js"] under extension/ produce a guard phase; the record guard-phase.js is the only source of a phase, and a second reader is a second place one comes from (SC3, E5)
+✔ the guard record is the only source of a phase (SC3, E5) (12.3622ms)
+▶ mutants redden by name
+  ✔ M1 — a record whose refusals are reordered reddens SC1, naming the phase (0.239ms)
+  ℹ SC1 record mutant red: the reordered record: the answer names the phase of the first refusal the record states, read in arrival order — phase is "canMatch", not "canDeactivate"
+  ✔ M2 — the join reading the rows in the other order reddens SC1, naming the phase (0.6811ms)
+  ℹ SC1 order mutant red: the mutant module: the answer names the phase of the first refusal the record states, read in arrival order — phase is "canMatch", not "canDeactivate"
+  ✔ M3 — a guard filled from the record’s logged line reddens SC2 and the page-surface scan (2.2962ms)
+  ℹ SC2 mutant red: the mutant module: guard is null where the navigation names none — no name is taken from the last guard the page logged ("RequireSession")
+  ℹ SC3 scan red: the mutant module: guard-answer.js names a console read ("console"), which is a surface the answer must not read
+  ✔ M4 — a verdict the record does not carry answered as a pass reddens E3 (0.6245ms)
+  ℹ E3 mutant red: the mutant module: a row whose verdict the record does not carry is reported as not emitted, never as a pass — the state is "guard-allowed"
+  ✔ M5 — a phase taken from the route that matched afterwards reddens E2 (0.6331ms)
+  ℹ E2 mutant red: the mutant module: the phase recorded with no guard is canMatch, and is never attributed to the route that matched afterwards — phase is "canActivate"
+  ✔ M6 — an empty record answered as a verdict reddens E1, naming the absence (0.643ms)
+  ℹ E1 mutant red: the mutant module: a record carrying no guard verdict is cannot-tell, never a zero that reads as "a guard ran" (no record at all: "guard-allowed")
+  ℹ E1 absence red: a record carrying no verdict names "guard-verdict-not-recorded" and nothing beside it
+  ✔ M7 — a phase the join invents reddens SC1 and the phase-word scan (0.6061ms)
+  ℹ SC1 phase mutant red: the mutant module: the answer names no phase the record never recorded — phase is "canActivate", and no nearer phase is substituted for it
+  ℹ E5 scan red: the mutant module: the join names the phase word "canActivate", and a join that can spell a phase word can answer with one the record never recorded (SC3, E5)
+  ✔ M8 — a remedy string added to the answer reddens the five-field pin and the literal scan (1.0334ms)
+  ℹ SC3 mutant red: the mutant module: every answer carries exactly the five contract fields and no sixth (the cancelled navigation)
+  ℹ SC3 literal red: a string the module can answer with names a remedy, a cause or a schematic: "declare the guard on the other route and retry the navigation"
+✔ mutants redden by name (6.9296ms)
+ℹ tests 28
+ℹ suites 4
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 135.6688
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/guard-answer.js scripts/guard-answer.test.mjs

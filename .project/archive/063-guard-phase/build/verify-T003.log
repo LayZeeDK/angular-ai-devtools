@@ -1,0 +1,27 @@
+head: d0ae9b9a6248ea5b4a506344207eae4bd8dbc9f9 at 2026-11-23T09:17:21.940Z
+✔ every citation the record makes is the line it names, and the line says what the record says it does (2.9936ms)
+✔ the record names the route, the loader key and the sample fact the tree carries (2.9403ms)
+✔ the four states and the four absences are the words the shipped join answers with (0.7763ms)
+✔ the pane declares no sentence: every line it writes is a label and a value the answer carries (1.3129ms)
+✔ the pane renders no locale value, no remedy and no identity the answer did not carry (1.5868ms)
+✔ the copy record does not grow by this surface, and the digest holds no row for it (1.6559ms)
+✔ the record’s second surface is the outlet pane, and its row is measured rather than counted (2.0196ms)
+✔ the record’s third surface is the guard-phase pane, and its row is measured rather than counted (2.2141ms)
+✔ the counts the record states are the counts the tree carries (0.576ms)
+✔ mutants redden by name: a sentence, a page read, a citation off its line, an invented state, an unlabelled field (3.7676ms)
+✔ E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name (5.403ms)
+✔ E2: the surface functions are still exported for their suites (1.5629ms)
+✔ E3: the demo module renders the surface text it is handed (0.6725ms)
+✔ E4: every declared route surface has a panel-demo LOADERS key (17.5618ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 173.1777
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check apps/angular-ai-devtools/src/app/panel-guard-phase.ts apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts

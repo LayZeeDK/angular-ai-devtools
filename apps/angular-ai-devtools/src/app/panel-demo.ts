@@ -68,8 +68,9 @@ const LOADERS: Record<
   'error-routing': () => import('./panel-error-routing') as never,
   'locale-correctness': () => import('./panel-locale-correctness') as never,
   outlet: () => import('./panel-outlet') as never,
+  'guard-phase': () => import('./panel-guard-phase') as never,
 };
-// The sample facts each surface renders; the spec holds each one to the recording it came from. The M061 key above costs this map one line, and that line is paid for below by folding the `fields` note's last two lines into one, so every line the earlier surface records cite from 427 down — the loader resolution and the component template included — keeps its number. M062's `outlet` key costs the map one more line and is paid for the same way, by folding one more line of that note, so the region those records cite keeps its numbers again.
+// The sample facts each surface renders; the spec holds each one to the recording it came from. The M061 key above costs this map one line, and that line is paid for below by folding the `fields` note's last two lines into one, so every line the earlier surface records cite from 427 down — the loader resolution and the component template included — keeps its number. M062's `outlet` key costs the map one more line and is paid for the same way, by folding one more line of that note, so the region those records cite keeps its numbers again. M063's `guard-phase` key costs the map one more line and is paid for by folding the `onpush` note's two lines into one, so every cited line from 427 down keeps its number again.
 export const FACTS: Record<string, unknown> = {
   // The join's own field answer for the cross-field case (extension/field-state.js): every field valid, while the root carries its own error kind. The submit state is the recording's, not a label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact shape in `research/raw/m031-field-state.json` and names the element it was read off (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
   fields: {
@@ -135,8 +136,7 @@ export const FACTS: Record<string, unknown> = {
       },
     ],
   },
-  // The join's own `onPush: false` answer (extension/onpush-readiness.js): the component declared
-  // the deprecated Default strategy — Eager at runtime — with one signal-based input read.
+  // The join's own `onPush: false` answer (extension/onpush-readiness.js): the component declared the deprecated Default strategy — Eager at runtime — with one signal-based input read.
   onpush: {
     facts: [
       {
@@ -1167,4 +1167,33 @@ FACTS['outlet'] = {
     { field: 'path', path: null, reason: 'path-absent' },
     { field: 'route', path: null, reason: 'chain-truncated' },
   ],
+};
+
+// The join's own answer (`extension/guard-answer.js`, T002) for the record the shipped reducer
+// (`extension/guard-phase.js`, T001) writes for two guard observations, entered here after the
+// component for the reason the facts above are: every cited line of this file is pinned where it
+// sits, so a fact added inside the literal would move the template, the loader resolution and the
+// earlier facts those records quote. A statement after the component pays for nothing.
+//
+// The record is not written here by hand and the answer is not either: `panel-demo.spec.ts` rebuilds
+// the two observations below, runs T001's `guardPhase` reducer over them and then T002's
+// `guardAnswer` over the record that reducer writes — both evaluated from their own committed text
+// — and holds this fact to that answer field for field, so a fact that drifted from the reducer, the
+// join or the tree reddens there rather than shipping. The observations are sample data, and say so:
+// T001 measured that no record in this tree carries a guard phase, so the two rows are written in
+// the shape it writes and every word in them (`canActivate`, `authGuard`, `claims`, `refused`,
+// `guard-not-recorded`) is T001's own vocabulary.
+//
+// The answered row is the one that refused — the second — and it names its phase, its verdict and
+// no guard, so the join answers `guard-phase-only` with the phase, `guard` null, the verdict and the
+// one absence the record states about that row. The first row allowed the navigation and is not the
+// row the answer is about, which is why `authGuard` appears nowhere in the answer and why the pane
+// prints the answered row and nothing beside it: no remedy, no cause and no guard the answer did not
+// carry is written here (C2, E2, SC4).
+FACTS['guard-phase'] = {
+  state: 'guard-phase-only',
+  phase: 'canActivate',
+  guard: null,
+  verdict: 'refused',
+  absences: [{ field: 'guard', path: 'claims', reason: 'guard-not-recorded' }],
 };

@@ -447,6 +447,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('interaction-story');
     expect(lazy).toContain('error-routing');
     expect(lazy).toContain('locale-correctness');
+    expect(lazy).toContain('guard-phase');
     expect(lazy).toContain('dead-click');
     expect(lazy).toContain('what-changed');
     expect(lazy).toEqual([
@@ -484,11 +485,12 @@ describe('PagePickerComponent', () => {
       'interaction-story',
       'error-routing',
       'locale-correctness',
+      'guard-phase',
       'dead-click',
       'what-changed',
     ]);
 
-    // The whole table, in order and to the count — forty-one paths, exactly the ordered list
+    // The whole table, in order and to the count — forty-two paths, exactly the ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `panel-demo.spec.ts` pin. The lazy list above
     // is one reading of the table; without this one an eager route appended to the end would leave
     // this suite green, which is what M045 T007 repairs here.
@@ -532,10 +534,11 @@ describe('PagePickerComponent', () => {
       'interaction-story', // M049 SC1-2 surface: the steps in the order the shared `at` reading supports, the empty streams named beside them, or the cannot-tell reason
       'error-routing', // M060 SC6 surface: the message and the code an uncaught error's own text carried, the owner or its absence, the phase or `phase-not-recorded`, and each absence of the join as its own line
       'locale-correctness', // M061 SC4, SC2 surface: the provider entry's token, kind and import path or the absence that stands where no entry carries the token, each absence in its own line, and no locale value
+      'guard-phase', // M063 SC4 surface: the guard whose verdict cancelled the navigation, the phase it ran in and the verdict it stated, or no guard where the row names none, each in its own line and no remedy
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(41);
+    expect(appRoutes).toHaveLength(42);
   });
 });
 

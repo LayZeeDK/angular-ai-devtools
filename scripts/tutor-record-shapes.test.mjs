@@ -73,6 +73,14 @@
 // writes and reads it back rather than by a map that does not exist yet, and the moment the map lands
 // the rule above excuses it in the ordinary way. A record that merely names a suite earns nothing: the
 // named suite has to carry it, be present, and be the one the command's flag arms.
+//
+// M063 T005 added its map, `research/raw/m063-record-shapes.json`, to the same read by the same rule:
+// it measures no verdict-claims or surface record — its sections are read from
+// `extension/guard-phase.js` and `extension/guard-answer.js`, run in a bare context — and it names the
+// one record M063 owes, the verdict-claims record T004 publishes, outside itself, so that record is
+// subtracted by the recording that says so. Its own map is held by the census `M063_CAPTURE=1`
+// writes, which is also why the two records M063 earns are each excused by their own capture command
+// before any map is read for them.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -104,6 +112,7 @@ const LATER = Object.freeze(
     'research/raw/m059-record-shapes.json',
     'research/raw/m060-record-shapes.json',
     'research/raw/m061-record-shapes.json',
+    'research/raw/m063-record-shapes.json',
   ].map((rel) => ({
     rel,
     map: JSON.parse(readFileSync(join(ROOT, ...rel.split('/')), 'utf8')),
@@ -139,6 +148,10 @@ const PINNED_OUTSIDE = Object.freeze({
   M061: [
     'research/raw/m061-surface.json',
     'research/raw/m061-verdict-claims.json',
+  ],
+  M063: [
+    'research/raw/m063-surface.json',
+    'research/raw/m063-verdict-claims.json',
   ],
 });
 

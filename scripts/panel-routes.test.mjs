@@ -47,6 +47,7 @@ const surfaces = [
   'interaction-story',
   'error-routing',
   'locale-correctness',
+  'guard-phase',
   'dead-click',
   'what-changed',
 ];
@@ -682,6 +683,7 @@ test('E2: the surface functions are still exported for their suites', () => {
       'panel-locale-correctness',
       'localeCorrectnessPanel',
     ],
+    'guard-phase': ['panel-guard-phase', 'guardPhasePanel'],
     components: ['panel-components', 'componentsPanel'],
     'copy-check': ['panel-copy-check', 'copyCheckPanel'],
     'interaction-story': ['panel-interaction-story', 'interactionStoryPanel'],
@@ -745,6 +747,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'tutorRoutingPanel(',
     'localeCorrectnessPanel(',
     'outletPanel(',
+    'guardPhasePanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -1399,5 +1402,33 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: outlet'),
     'removing the outlet loader must fail naming the missing surface outlet',
+  );
+
+  // Mutant: remove the guard-phase key from LOADERS. The M063 route is the one this task adds, so
+  // the check must name it when its loader is gone rather than pass on the surfaces before it. It is
+  // a quoted key whose import is the only reference to `panel-guard-phase.ts`, so a route that
+  // dropped it would leave the guard-phase surface unreachable while every earlier surface still
+  // loaded. This is also the mutation the task's own red-then-green proof applies to `app.routes.ts`
+  // and `panel-demo.ts`: a route entry with no loader beside it must fail naming the key rather than
+  // rendering nothing. The assertion reads the failure's whole message: the missing-key sentence and
+  // the surface it names.
+  const withoutGuardPhase = demoSource.replace(
+    "  'guard-phase': () => import('./panel-guard-phase') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutGuardPhase,
+    demoSource,
+    'the guard-phase loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutGuardPhase),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: guard-phase'),
+    'removing the guard-phase loader must fail naming the missing surface guard-phase',
   );
 });

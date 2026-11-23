@@ -1,0 +1,335 @@
+{
+  "schema": "m063-record-shapes/v1",
+  "milestone": "M063",
+  "task": "T005",
+  "title": "Re-derive this milestone's own records",
+  "head": "8a69ffe5a8a1073ab06e10a1e19537850c108406",
+  "headCommand": "git rev-parse HEAD",
+  "commands": [
+    {
+      "command": "git rev-parse HEAD",
+      "output": "8a69ffe5a8a1073ab06e10a1e19537850c108406"
+    },
+    {
+      "command": "set \"M063_CAPTURE=1\"&& node --test scripts/guard-record-shapes.test.mjs",
+      "output": "capture run: ran both modules in a bare context at 8a69ffe5a8a1073ab06e10a1e19537850c108406 and wrote research/raw/m063-record-shapes.json byte-exactly; the suite then asserted the file it wrote"
+    }
+  ],
+  "records": [
+    {
+      "path": "extension/guard-phase.js",
+      "task": "T001",
+      "carries": "the guard record the milestone joins against: one object of three fields — `state`, `rows` and `absences` — where each row carries the phase the guard ran in, the guard its own verdict named, the verdict it stated and the route’s own configured path, in arrival order, and each absence row names the field, the path it sits at and the reason. The four phases are the four words the router’s configuration carries and the two verdicts are the two a guard’s own result states; a word outside either set places nothing, with the absence that says which case it is, and no nearer phase and no neighbouring row is substituted for it (N1, E2).",
+      "shape": {
+        "module": "extension/guard-phase.js",
+        "namespace": "angularAiGuardPhase",
+        "functions": [
+          "guardPhase"
+        ],
+        "fields": [
+          "state",
+          "rows",
+          "absences"
+        ],
+        "rowFields": [
+          "phase",
+          "guard",
+          "verdict",
+          "path"
+        ],
+        "absenceFields": [
+          "field",
+          "path",
+          "reason"
+        ],
+        "states": [
+          "guard-verdict-recorded",
+          "guard-phase-only",
+          "guard-verdict-absent",
+          "cannot-tell"
+        ],
+        "absenceReasons": [
+          "guard-not-recorded",
+          "guard-verdict-not-recorded",
+          "path-not-recorded",
+          "phase-not-a-phase-word",
+          "phase-not-recorded",
+          "verdict-not-a-verdict-word",
+          "verdict-not-recorded"
+        ],
+        "phases": [
+          "canMatch",
+          "canActivate",
+          "canDeactivate",
+          "resolve"
+        ],
+        "verdicts": [
+          "allowed",
+          "refused"
+        ],
+        "observationsField": "guardObservations",
+        "sample": {
+          "observations": [
+            {
+              "phase": "canActivate",
+              "guard": "authGuard",
+              "verdict": "refused",
+              "path": "admin"
+            },
+            {
+              "phase": "canMatch",
+              "verdict": "allowed",
+              "path": "admin"
+            },
+            {
+              "phase": "resolve",
+              "guard": "loadResolver",
+              "verdict": "allowed",
+              "path": ""
+            },
+            {
+              "phase": "canRun",
+              "guard": "",
+              "verdict": "maybe",
+              "path": ""
+            }
+          ],
+          "state": "guard-verdict-absent",
+          "rows": [
+            {
+              "phase": "canActivate",
+              "guard": "authGuard",
+              "verdict": "refused",
+              "path": "admin"
+            },
+            {
+              "phase": "canMatch",
+              "guard": null,
+              "verdict": "allowed",
+              "path": "admin"
+            },
+            {
+              "phase": "resolve",
+              "guard": "loadResolver",
+              "verdict": "allowed",
+              "path": ""
+            },
+            {
+              "phase": null,
+              "guard": null,
+              "verdict": null,
+              "path": ""
+            }
+          ],
+          "absences": [
+            {
+              "field": "guard",
+              "path": "admin",
+              "reason": "guard-not-recorded"
+            },
+            {
+              "field": "phase",
+              "path": "",
+              "reason": "phase-not-a-phase-word"
+            },
+            {
+              "field": "guard",
+              "path": "",
+              "reason": "guard-not-recorded"
+            },
+            {
+              "field": "verdict",
+              "path": "",
+              "reason": "verdict-not-a-verdict-word"
+            }
+          ]
+        },
+        "empty": {
+          "state": "cannot-tell",
+          "rows": [],
+          "absences": [
+            {
+              "field": "guard",
+              "path": null,
+              "reason": "guard-verdict-not-recorded"
+            }
+          ]
+        },
+        "oneEmptyObservation": {
+          "state": "guard-verdict-absent",
+          "rows": [
+            {
+              "phase": null,
+              "guard": null,
+              "verdict": null,
+              "path": null
+            }
+          ],
+          "absences": [
+            {
+              "field": "phase",
+              "path": null,
+              "reason": "phase-not-recorded"
+            },
+            {
+              "field": "guard",
+              "path": null,
+              "reason": "guard-not-recorded"
+            },
+            {
+              "field": "verdict",
+              "path": null,
+              "reason": "verdict-not-recorded"
+            },
+            {
+              "field": "path",
+              "path": null,
+              "reason": "path-not-recorded"
+            }
+          ]
+        },
+        "counts": {
+          "fields": 3,
+          "rowFields": 4,
+          "absenceFields": 3,
+          "states": 4,
+          "absenceReasons": 7,
+          "phases": 4,
+          "verdicts": 2,
+          "functions": 1
+        }
+      }
+    },
+    {
+      "path": "extension/guard-answer.js",
+      "task": "T002",
+      "carries": "the join the panel renders: a pure function of one guard record, answering one object of five fields — `state`, `phase`, `guard`, `verdict` and `absences` — in every state, with `phase` and `guard` filled only from fields the record carries and otherwise null, the first refusal in arrival order named as the one that cancelled the navigation, a verdict that names a phase and no guard answered `guard-phase-only` rather than attributed to the route that matched afterwards, and the record’s own absences copied as stated and filtered to the answered row. It adds no remedy, no cause and no identity it was not given (N4, E8).",
+      "shape": {
+        "module": "extension/guard-answer.js",
+        "namespace": "angularAiGuardAnswer",
+        "fields": [
+          "state",
+          "phase",
+          "guard",
+          "verdict",
+          "absences"
+        ],
+        "states": [
+          "guard-cancelled",
+          "guard-phase-only",
+          "guard-allowed",
+          "cannot-tell"
+        ],
+        "absenceFields": [
+          "field",
+          "path",
+          "reason"
+        ],
+        "inputFields": [
+          "rows",
+          "absences"
+        ],
+        "readsTheRecordsStateWord": false,
+        "copiesAFifthRowField": false,
+        "ownAbsences": [
+          "guard-verdict-not-recorded"
+        ],
+        "ownAbsenceProbes": 3,
+        "answers": [
+          {
+            "record": "guard-verdict-recorded",
+            "state": "guard-cancelled",
+            "phase": "canActivate",
+            "guard": "authGuard",
+            "verdict": "refused"
+          },
+          {
+            "record": "guard-phase-only",
+            "state": "guard-phase-only",
+            "phase": "canMatch",
+            "guard": null,
+            "verdict": "allowed"
+          },
+          {
+            "record": "guard-verdict-recorded",
+            "state": "guard-allowed",
+            "phase": "resolve",
+            "guard": "loadResolver",
+            "verdict": "allowed"
+          },
+          {
+            "record": "guard-verdict-absent",
+            "state": "cannot-tell",
+            "phase": null,
+            "guard": null,
+            "verdict": null
+          },
+          {
+            "record": "cannot-tell",
+            "state": "cannot-tell",
+            "phase": null,
+            "guard": null,
+            "verdict": null
+          }
+        ],
+        "counts": {
+          "fields": 5,
+          "states": 4,
+          "absenceFields": 3,
+          "inputFields": 2,
+          "ownAbsences": 1
+        }
+      }
+    }
+  ],
+  "purity": {
+    "scan": "both modules with their comments stripped",
+    "forbidden": [
+      "document.",
+      "window.",
+      "console.",
+      "localStorage",
+      "chrome.",
+      "XMLHttpRequest",
+      "fetch(",
+      "require(",
+      "import ",
+      "Date.now",
+      "new Date",
+      "Math.random",
+      "performance.now",
+      "setTimeout",
+      "setInterval",
+      "process."
+    ],
+    "found": []
+  },
+  "sharedStates": [
+    "guard-phase-only",
+    "cannot-tell"
+  ],
+  "inventory": {
+    "measured": "This map measures the two artefacts the milestone ships and nothing under `research/raw/`: the guard record T001 writes (`extension/guard-phase.js`) and the join T002 publishes (`extension/guard-answer.js`), each read by running the shipped module in a bare context at the head stated above. The panel surface T003 rendered is a pane and its copy records rather than a record under `research/raw/`, so it is not named here, and the claim list T004 published is the one record of this milestone that sits beside this map: it reads those artefacts rather than being an input to this one, so it is named outside the map below.",
+    "outsideTheMap": [
+      {
+        "path": "research/raw/m063-verdict-claims.json",
+        "why": "the verdict-claims record T004 publishes — one claim per criterion this milestone’s intent declares, each quoting the criterion and naming the suite and test that prove it at this head; it reads this milestone’s artefacts rather than being measured by this map, and its own census `scripts/guard-verdict-claims.test.mjs` writes and reads it back (T004)."
+      }
+    ]
+  },
+  "capture": {
+    "task": "T005",
+    "command": "M063_CAPTURE=1 node --test scripts/guard-record-shapes.test.mjs",
+    "windowsCommand": "set \"M063_CAPTURE=1\"&& node --test scripts/guard-record-shapes.test.mjs",
+    "check": "node --test scripts/guard-record-shapes.test.mjs",
+    "records": "research/raw/m063-record-shapes.json",
+    "head": "8a69ffe5a8a1073ab06e10a1e19537850c108406",
+    "measuredPaths": [
+      "extension/guard-phase.js",
+      "extension/guard-answer.js"
+    ],
+    "reads": "both modules are run in a bare `node:vm` context and their published shapes read back: the record’s field lists, the row and absence rows’ field lists, the four phases and two verdicts it exports, one record of four observations and the rows it answered in arrival order, the four states four records established, the seven absence reasons three records produced, and the join’s five fields, four states, absence fields, the two record fields it reads, the state word it does not read and the three records each answering its own absence. No page is opened, no browser is started and nothing is built.",
+    "reading": "an armed run derives the whole record again, writes only when a value moved, and states no head but the one it ran at; a default run derives the same record at the head the file names and asserts the committed bytes are exactly that serialization, so a value that moved is named by path and field and the record cannot drift from the tree without failing. A head that predates a change in a file this record measures is refused, naming both heads (SC4)."
+  },
+  "verdict": "the record extension/guard-phase.js answers 3 fields with 4 in a row, in 4 states, and it names 7 absences, each one a record here produced; the join extension/guard-answer.js answers 5 fields in 4 states, and the 2 state word(s) it shares with the record are guard-phase-only and cannot-tell; and neither module reaches a page, a console line, a clock or a neighbouring record (0 forbidden token(s) found in both)."
+}

@@ -1,0 +1,47 @@
+head: d455f85e0c105bb071a35c5a711956f1f67dde6a at 2026-11-23T08:40:25.539Z
+▶ the record the shipped module writes
+  ✔ carries exactly the three contract fields in every state, and reaches all four (1.1256ms)
+  ✔ SC1 — a cancelled navigation names its guard, the phase it ran in and the verdict (0.0935ms)
+  ✔ SC1 — the rows are the arrivals, in arrival order, with each phase named (0.1449ms)
+  ✔ SC2 — a row whose guard is unknown keeps guard null, with an absence, and no logged name (0.0952ms)
+  ✔ E1 — a navigation with no verdict reports the narrator’s absence, never an empty list (0.1124ms)
+  ✔ SC3 — the record’s row fields and the reducer’s inputs are one exported list (0.4348ms)
+✔ the record the shipped module writes (2.6989ms)
+▶ the record reads the value it is handed and nothing else (SC3)
+  ✔ evaluates in a bare context and publishes the reducer and its token lists, and no global beside them (0.5134ms)
+  ✔ SC3 — two node:vm contexts with throw-on-touch globals produce deep-equal answers (3.4497ms)
+  ✔ SC3 — the module mentions no DOM, no logged line and no second record (0.7373ms)
+  ✔ answers the same value twice and mutates nothing it was handed (0.1346ms)
+  ✔ throws on no input, and answers the same three fields for every one of them (0.7917ms)
+✔ the record reads the value it is handed and nothing else (SC3) (5.8021ms)
+▶ the record is the only source of a guard phase (SC3)
+  ✔ is the only module under extension/ that produces one, and a second reader reddens it (11.7572ms)
+  ℹ SC3 scan red: the planted tree: ["guard-mirror.js"] under extension/ produce a guard phase; the record guard-phase.js is the only source of a phase, and a second reader is a second place one comes from (SC3, E5)
+✔ the record is the only source of a guard phase (SC3) (11.8538ms)
+▶ mutants redden by name
+  ✔ M1 — a record whose cancel arrived before the guard’s phase reddens SC1, naming the phase (0.2872ms)
+  ℹ SC1 mutant red: the mutant record: the row names the phase the guard ran in — phase is null, and no nearer phase is substituted for it
+  ✔ M2 — two rows reordered redden the arrival-order pin, naming the phase (0.9512ms)
+  ℹ SC1 order mutant red: the mutant record: the rows are the arrivals in arrival order — the phases read ["canMatch","resolve","canActivate"], and canMatch is first because it runs before the route is known
+  ℹ SC1 source mutant red: the mutant module: the rows are the arrivals in arrival order — the phases read ["resolve","canActivate","canMatch"], and canMatch is first because it runs before the route is known
+  ✔ M3 — a guard filled from the record’s logged line reddens SC2 and the page-surface scan (2.4235ms)
+  ℹ SC2 mutant red: the mutant module: guard is null where the navigation names none — no name is taken from the last guard the page logged ("RequireSession")
+  ℹ SC3 scan red: the mutant module: guard-phase.js names a console read ("console"), which is a surface the record must not read
+  ✔ M4 — an empty record answered as recorded reddens E1, naming the absence (1.0143ms)
+  ℹ E1 mutant red: the mutant module: a record carrying no verdict is cannot-tell, never a zero that reads as "a guard ran" (a record carrying an empty list: "guard-verdict-recorded")
+  ℹ E1 absence red: a record carrying no verdict names "guard-verdict-not-recorded" and nothing beside it
+  ✔ M5 — a phase taken from the nearest phase reddens the order pin, naming canMatch (0.5915ms)
+  ℹ E2 mutant red: the mutant module: the rows are the arrivals in arrival order — the phases read ["canMatch","canMatch","canActivate","resolve"], and canMatch is first because it runs before the route is known
+✔ mutants redden by name (5.4045ms)
+ℹ tests 17
+ℹ suites 4
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 124.8074
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/guard-phase.js scripts/guard-phase.test.mjs extension/manifest.json

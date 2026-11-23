@@ -8,9 +8,9 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 346,
-    "suitesExamined": 179,
-    "examined": 198,
+    "filesExamined": 354,
+    "suitesExamined": 184,
+    "examined": 201,
     "movedSubtrees": [
       "build",
       "intent",
@@ -21,18 +21,18 @@
     ],
     "movedSubtreesDerivedFrom": {
       "command": "readdir .project\\archive/<NNN>-<slug>",
-      "archivesExamined": 61,
+      "archivesExamined": 62,
       "rule": "every directory name any archived milestone directory carries is a subtree the archive move relocates; a file the archive writes there (MANIFEST.md) is not"
     },
     "counts": {
       "archived-by-the-move": 17,
       "deliberate-archive-read": 29,
-      "undecided": 152
+      "undecided": 155
     },
     "sites": {
       "path": 11,
-      "comment": 74,
-      "segment": 63,
+      "comment": 76,
+      "segment": 64,
       "citation": 8,
       "message": 33,
       "pattern": 9
@@ -901,6 +901,32 @@
         "site": "comment",
         "class": "undecided",
         "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/guard-verdict-claims.test.mjs",
+        "line": 6,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/guard-verdict-claims.test.mjs",
+        "line": 233,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/guard-verdict-claims.test.mjs",
+        "line": 239,
+        "path": ".project/STATE.md",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
+        "root": "ROOT",
+        "construct": "call"
       },
       {
         "file": "scripts/held-out-corpus.test.mjs",
@@ -1934,6 +1960,7 @@
           ".project/archive/059-teardown-leak/research/SYNTHESIS.md",
           ".project/archive/060-error-routing/research/SYNTHESIS.md",
           ".project/archive/061-locale-correctness/research/SYNTHESIS.md",
+          ".project/archive/062-outlet-explainer/research/SYNTHESIS.md",
           ".project/research/SYNTHESIS.md",
           "research/SYNTHESIS.md"
         ],
@@ -2175,16 +2202,16 @@
       "named": "d94502d1",
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
-    "examined": 209,
-    "filesListed": 521,
+    "examined": 214,
+    "filesListed": 529,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 273,
+        "addedLines": 292,
         "removedLines": 1,
-        "addedAssertionLines": 75,
+        "addedAssertionLines": 80,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2195,7 +2222,7 @@
         "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 51,
+        "addedLines": 54,
         "removedLines": 0,
         "addedAssertionLines": 0,
         "removedAssertionLines": 0,
@@ -2208,9 +2235,9 @@
         "file": "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 95,
+        "addedLines": 98,
         "removedLines": 3,
-        "addedAssertionLines": 19,
+        "addedAssertionLines": 20,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2221,11 +2248,11 @@
         "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 7273,
+        "addedLines": 7628,
         "removedLines": 761,
-        "addedAssertionLines": 1107,
-        "removedAssertionLines": 171,
-        "recutAssertionLines": 171,
+        "addedAssertionLines": 1145,
+        "removedAssertionLines": 169,
+        "recutAssertionLines": 169,
         "droppedAssertionLines": 0,
         "recutAssertions": [
           "expect(demo.state()",
@@ -2307,8 +2334,6 @@
           "expect(demo.text()",
           "expect(unprinted",
           "expect(demo.text()",
-          "expect(route.component",
-          "expect(await route.loadComponent()",
           "expect(surfaceName",
           "expect(FACTS['navigation']",
           "expect(answer.state",
@@ -2403,6 +2428,19 @@
         "reason": "the demo suite gained the M045 T003 console pin: its route, its sample fact held to the shipped digest and to the join, and its rendered lines held to E7 — no cause, no element, no remedy, no count and no empty list; the earlier surfaces’ pins are unchanged and no assertion line was removed; M047 T003 adds the components pin — its route, its sample fact held to the shipped component-search join, and the four states with a stated count, a stated absence for a missing count, the filtered count and the cannot-tell reason — and the table pin gains `components`; M048 T003 adds the copy-check pin — its route, its sample fact held to the shipped copy-check join over T001’s recorded surfaces and the digest, and the three states with the clean count, each unexplained string named with its surface verbatim, and the cannot-tell reason never rendered as clean — and the table pin gains `copy-check`; M049 T003 adds the interaction-story pin — its route, its sample fact held to the shipped interaction-story join over a record rebuilt from T001’s measured field lists, the steps in `at` order with their recorded fields, the empty stream named beside the story, and the cannot-tell reasons — and the table pin gains `interaction-story`"
       },
       {
+        "file": "apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 448,
+        "removedLines": 0,
+        "addedAssertionLines": 38,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M063 T003 pins the display half of the same milestone, `guardPhasePanel(answer)` in `apps/angular-ai-devtools/src/app/panel-guard-phase.ts` — the state and the three row fields the answer carries each under its own label, one line per absence in the answer’s own order, no line at all for a field the answer carries as null, the phase and the verdict kept apart, and an answer that is no answer or names a state nobody wrote rendered as the bare word it was given; every line is held to the pane’s own label table and to a value the answer carries, so a sixth field renders nothing and no remedy, cause or schematic can appear; the file also scans the pane’s code with its comments stripped and refuses a sentence-shaped literal, a page read and a runtime import, and three mutants — a remedy sentence, a page read and a seventh label — each redden the pin that names the defect by string, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
         "file": "apps/angular-ai-devtools/src/app/panel-outlet.spec.ts",
         "status": "A",
         "atTheMeasuredHead": false,
@@ -2414,6 +2452,19 @@
         "droppedAssertionLines": 0,
         "recutAssertions": [],
         "reason": "wholly added at this head: M062 T003 pins the display half of the same milestone, `outletPanel(answer)` in `apps/angular-ai-devtools/src/app/panel-outlet.ts` — the state, the request, the matched name and the route’s own path each under its own label, one line per absence the answer carries with the absence’s own path and reason on lines of their own, no line at all for a field the answer carries as null, the empty path rendered as its own value because a componentless route’s path is a path, and an answer that is no answer or names a state nobody wrote rendered as the bare word it was given; every line is held to the pane’s own label table and to a value the answer carries, so a seventh field renders nothing and no remedy, cause or schematic can appear; the file also scans the pane’s code with its comments stripped and refuses a sentence-shaped literal, a page read and a runtime import, and four mutants — a remedy sentence, a page read, a seventh label and a label with no value behind it — each redden the pin that names the defect by string, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "extension/manifest.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 60,
+        "removedLines": 0,
+        "addedAssertionLines": 8,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "one test added, and no assertion line removed: M063 T001 registers the guard record in the manifest in the same task that writes it, so the manifest’s own suite gains the pin that holds the registration — `guard-phase.js` is declared by exactly one `content_scripts` entry, that entry is the one `agent-main.js` is declared in, at its shipped `document_idle` and in world MAIN, and the named file exists beside the extension — with the second registration applied to a copy of the parsed manifest (a second declaration listing the record, so the count the pin reads is declarations rather than duplicate entries) and asserted to be the red before the shipped pins are read again, so the mutant is never the object those pins read; a `countOfDeclarations` helper and the `GUARD_PHASE` constant are the only other additions, and every earlier assertion in the file still runs unchanged, a reading the measured commit carries no file to edit"
       },
       {
         "file": "scripts/autonomy-gaps.test.mjs",
@@ -2643,7 +2694,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5813,
+        "addedLines": 5849,
         "removedLines": 0,
         "addedAssertionLines": 347,
         "removedAssertionLines": 0,
@@ -2664,6 +2715,58 @@
         "droppedAssertionLines": 0,
         "recutAssertions": [],
         "reason": "wholly added at this head: M056 T001 spawned the three refusing commands and published what each printed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/guard-answer.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1826,
+        "removedLines": 0,
+        "addedAssertionLines": 147,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M063 T002 pins the pure join `extension/guard-answer.js`, `guardAnswer(record)`, published on `globalThis.angularAiGuardAnswer` — one object of five fields in every state, `state` one of `guard-cancelled`, `guard-phase-only`, `guard-allowed` and `cannot-tell`, with `phase` and `guard` filled only from fields a record carries and otherwise null, and a verdict that names a phase but no guard reported as `guard-phase-only` rather than attributed to a route; the answer is the first refusal the record states in arrival order, an allowed row is never the row the cancellation is about, every absence is the record’s own, and a row whose guard is unknown keeps `guard` null with no name taken from the logged line; purity is proved by running the module in a bare `node:vm` context with every host global a trap, by a token scan of its code for every reach a pure join must not have, and by an answer that does not move on a second read or a second record handed in beside the first; the record’s row fields and the join’s inputs are held to one exported list, the module throws on no input and answers the same five fields for each, and eight in-memory mutants — refusals reordered, the rows read in the other order, the guard filled from the logged line, a missing verdict answered as a pass, a phase taken from the route that matched afterwards, an empty record answered as a verdict, a phase the join invents and a remedy added to the answer — each redden the pin that names its defect by string; a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/guard-phase.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1206,
+        "removedLines": 0,
+        "addedAssertionLines": 93,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M063 T001 pins the record `extension/guard-phase.js` — the ordered guard observations a navigation carried reduced to `{ phase, guard, verdict, path }` rows in arrival order, `state` one of `guard-verdict-recorded`, `guard-phase-only`, `guard-verdict-absent` and `cannot-tell`, `phase` one of the four words the router names and otherwise null with the absence that says which case it is, `guard` and `verdict` filled only from the fields the observation carries and otherwise null with `guard-not-recorded` or `verdict-not-recorded`, the empty string kept as a componentless route’s own path and an absent path named, and a record carrying no observation answering `cannot-tell` with the narrator’s own `guard-verdict-not-recorded` token read from `extension/navigation-narrator.js` rather than retyped here; the module is loaded in a bare `node:vm` context and proved to need no page surface, its source scanned with comments stripped for every reach a record must not have, every `field(...)` call it makes held to the four row fields it exports so the record’s fields and the reducer’s inputs are one list, and no other module under `extension/` may produce a guard phase (a planted second reader reddens that scan by name); every pin carries a mutant — the cancel recorded before the guard’s phase, reddening the SC1 pin with the phase named, two arrivals swapped and the shipped push made an unshift, both reddening the arrival-order pin with `canMatch` named, the absent guard filled from the record’s logged line, reddening the absence pin and the page-surface scan, an empty record answered as recorded, reddening the narrator’s absence, and a phase word outside the four answered as `canMatch` — each mutated value asserted to move before its pin is driven, so a mutation that changes nothing cannot be credited with a red; nothing here builds, opens a page or starts a browser, the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/guard-record-shapes.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1232,
+        "removedLines": 0,
+        "addedAssertionLines": 79,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M063 T005 re-derives this milestone’s own map, `research/raw/m063-record-shapes.json`, behind its own armed flag `M063_CAPTURE=1` and reads it back unarmed. The record states the shape of the two artefacts the milestone ships, and every value it states is measured rather than typed: `extension/guard-phase.js` and `extension/guard-answer.js` are each run in a bare `node:vm` context and their publications read back, so the record carries the record’s three fields, its rows’ and absences’ three and four fields, the four phases and two verdicts it exports, one record of four observations and the rows it answered in arrival order, the four states four records established, the seven absence reasons three records produced (each one a record here produced, so the module exports no name it cannot answer), and the join’s five fields, four states, absence fields, the two record fields it reads (proved by removing each), the state word it demonstrably does not read and the three records each answering its own absence; a purity scan of both modules with their comments stripped finds none of sixteen forbidden reaches, so no page, no console line, no clock and no neighbouring record is touched. Three rules hold it to the tree: a default run derives the same record at the head the file names and asserts the committed bytes are that serialization, so a mutant that moves one counted field without re-capturing reddens naming the record and the field `records[0].shape.counts.absenceReasons`; a record whose head is a commit this history does not carry, or one that predates a change in a file it measures, refuses to land naming both heads and the file that moved, proven on the parent of the commit that last changed `extension/guard-answer.js`; and the map names the claim list T004 publishes outside itself, states its own capture command, and the suite that command names carries this record’s path and the flag — the rule `scripts/tutor-record-shapes.test.mjs` and `scripts/tutor-answer.test.mjs` apply to a record its own census holds. Nothing here builds, opens a page or starts a browser, an armed run writes only when a value moved, a second armed run is byte-identical and a default run writes nothing; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/guard-verdict-claims.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1409,
+        "removedLines": 0,
+        "addedAssertionLines": 83,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M063 T004 writes the milestone’s claim list, `research/raw/m063-verdict-claims.json`, behind its own armed flag `M063_CAPTURE=1` and reads it back unarmed, because the census `scripts/navigation-blocking.test.mjs` carries cannot derive a list for this milestone — the plan resolves SC1’s edges to two suites (E1/E2 at `guard-answer.test.mjs`, E7 at `panel-routes.test.mjs`), so its one-artefact rule refuses, and its `## Held-out checks` row for E7 names T003 while its `## Intent coverage` table assigns T003 to SC4 and never to SC1, so the cross-table rule refuses as well; the new suite derives every criterion from the resolved intent with the parser `scripts/overlay-verdict-claims.test.mjs` uses, quotes each one character for character with its length, reads each edge’s suite from the plan’s held-out rows and each claim’s suite and test from this checkout, and refuses a claim whose suite does not declare the test it names, naming both — proven on a planted missing test and on a planted absent suite; it also refuses a row that quotes a criterion in its own words, naming the claim and the field `claims[0].criterionText`, and proves the stale-capture direction by editing the intent in memory and showing the derivation names `claims[0].criterionText` as the field that moved; the plan’s own two-table disagreements are recorded under `evidence.plan.disagreements` and held to both tables in both directions rather than refused; an armed run writes only when a value moved and a second armed run is byte-identical, a default run asserts the list is exactly what this head derives and that its own bytes did not move, and the suite reads and writes nothing but that one record — the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
       },
       {
         "file": "scripts/interaction-story.test.mjs",
@@ -2788,9 +2891,9 @@
         "file": "scripts/outlet-verdict-claims.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1368,
+        "addedLines": 1519,
         "removedLines": 0,
-        "addedAssertionLines": 80,
+        "addedAssertionLines": 91,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2814,9 +2917,9 @@
         "file": "scripts/panel-copy.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1057,
+        "addedLines": 1146,
         "removedLines": 0,
-        "addedAssertionLines": 102,
+        "addedAssertionLines": 114,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2827,9 +2930,9 @@
         "file": "scripts/panel-routes.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 839,
+        "addedLines": 870,
         "removedLines": 89,
-        "addedAssertionLines": 98,
+        "addedAssertionLines": 101,
         "removedAssertionLines": 4,
         "recutAssertionLines": 4,
         "droppedAssertionLines": 0,
@@ -2923,9 +3026,9 @@
         "file": "scripts/tutor-answer.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1996,
+        "addedLines": 2063,
         "removedLines": 0,
-        "addedAssertionLines": 129,
+        "addedAssertionLines": 136,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2936,7 +3039,7 @@
         "file": "scripts/tutor-record-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 2032,
+        "addedLines": 2045,
         "removedLines": 0,
         "addedAssertionLines": 181,
         "removedAssertionLines": 0,
@@ -3116,32 +3219,32 @@
       }
     ],
     "counts": {
-      "differing": 56,
-      "edited": 16,
-      "added": 40,
-      "removedAssertionLines": 203,
-      "recutAssertionLines": 203,
+      "differing": 62,
+      "edited": 17,
+      "added": 45,
+      "removedAssertionLines": 201,
+      "recutAssertionLines": 201,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 6350
+      "addedAssertionLines": 6875
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
-    "examined": 209,
-    "filesListed": 521,
+    "examined": 214,
+    "filesListed": 529,
     "suites": {
-      "scripts": 133,
+      "scripts": 137,
       "extension": 11,
-      "apps": 35,
+      "apps": 36,
       "src": 2,
       "skills": 28,
-      "total": 209
+      "total": 214
     },
     "declarations": {
-      "tests": 2683,
-      "describes": 353,
-      "total": 3036
+      "tests": 2765,
+      "describes": 367,
+      "total": 3132
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -3215,6 +3318,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-23T04:55:16.885Z"
+    "at": "2026-11-23T10:42:39.663Z"
   }
 }
