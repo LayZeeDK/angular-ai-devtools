@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: lazy-chunk-failure
-phase: define
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: done
+status: active
 branch: gsd-path/M064
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1296,3 +1296,8 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-23 — inspect — inspection complete
 - 2026-11-23 — define — milestone define started
 - 2026-11-23 — define — milestone intent approved
+- 2026-11-23 — research — research started
+- 2026-11-23 — research — research complete
+- 2026-11-23 — decide — decisions started
+- 2026-11-23 — decide — decisions recorded
+- 2026-11-23 — plan — planning started
