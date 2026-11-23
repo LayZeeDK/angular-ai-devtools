@@ -20,6 +20,7 @@ files:
   - scripts/gate-integrity-default-tasks.test.mjs
   - scripts/teardown-leak-shapes.test.mjs
   - research/raw/m059-record-shapes.json
+  - scripts/outlet-verdict-claims.test.mjs
 ---
 
 # T005 — Re-derive this milestone's own records
@@ -53,10 +54,11 @@ Capture each with its own armed flag, then re-run unarmed and require no differi
 ## Verify
 
 ```bash
-M062_CAPTURE=1 node --test scripts/outlet-record-shapes.test.mjs && M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs && node --test scripts/outlet-record-shapes.test.mjs scripts/teardown-leak-shapes.test.mjs scripts/recording-consistency.test.mjs
+M062_CAPTURE=1 node --test scripts/outlet-record-shapes.test.mjs && M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs && M062_CAPTURE=1 node --test scripts/outlet-verdict-claims.test.mjs && node --test scripts/outlet-record-shapes.test.mjs scripts/teardown-leak-shapes.test.mjs scripts/outlet-verdict-claims.test.mjs
 ```
 
 ## Log
 
 - pending.
+- Contract amended a second time before this task ran: `scripts/outlet-verdict-claims.test.mjs` is declared. The record it writes was already declared, but the census that writes it was not, so the measured cascade — writing the map moves that record's `evidence.records` from 0 rows to 1 — could be seen and not repaired.
 - Contract amended before this task ran: `research/raw/m059-record-shapes.json` is declared and `scripts/teardown-leak.test.mjs` dropped, because T004 measured that adding a record to `research/raw/` moves that record's census (`recordsSearched` 154 -> 155) and the suite alone cannot repair it.
