@@ -1,11 +1,11 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: null
+milestone: guard-phase
 phase: define
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M063
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1281,3 +1281,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-23 — inspect — router bound next milestone
 - 2026-11-23 — inspect — inspection complete
 - 2026-11-23 — define — milestone define started
+- 2026-11-23 — define — milestone intent approved
