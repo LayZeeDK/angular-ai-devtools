@@ -103,7 +103,9 @@
         "groups": 0
       }
     ],
-    "records": []
+    "records": [
+      "research/raw/m062-record-shapes.json"
+    ]
   },
   "capture": {
     "command": "set \"M062_CAPTURE=1\"&& node --test \"scripts/outlet-verdict-claims.test.mjs\"",

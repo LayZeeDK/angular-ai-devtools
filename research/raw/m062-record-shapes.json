@@ -1,0 +1,166 @@
+{
+  "schema": "m062-record-shapes/v1",
+  "milestone": "M062",
+  "task": "T005",
+  "title": "Re-derive this milestone's own records",
+  "head": "ae8846814a3f32490eafe87687f48649a8c74216",
+  "commands": [
+    {
+      "command": "git rev-parse HEAD",
+      "output": "ae8846814a3f32490eafe87687f48649a8c74216"
+    },
+    {
+      "command": "set \"M062_CAPTURE=1\"&& node --test scripts/outlet-record-shapes.test.mjs",
+      "output": "capture run: ran both modules in a bare context at ae8846814a3f32490eafe87687f48649a8c74216 and wrote research/raw/m062-record-shapes.json byte-exactly; the suite then asserted the file it wrote"
+    }
+  ],
+  "records": [
+    {
+      "path": "extension/outlet-state.js",
+      "task": "T001",
+      "carries": "the outlet record the milestone joins against: one object of three fields — `state`, `routes` and `absences` — where each route row carries the outlet the route configuration requested, the outlet name the router state matched and that route’s own configured path, and each absence row names the field, the path it sits at and the reason. The names are recorded as the state stated them and no field is completed: an unnamed request is the absence `outlet-not-requested` here, never `primary`, and that equivalence is the join’s own stated decision (C2).",
+      "shape": {
+        "module": "extension/outlet-state.js",
+        "namespace": "angularAiOutletState",
+        "fields": [
+          "state",
+          "routes",
+          "absences"
+        ],
+        "routeFields": [
+          "requested",
+          "matched",
+          "path"
+        ],
+        "absenceFields": [
+          "field",
+          "path",
+          "reason"
+        ],
+        "states": [
+          "outlet-recorded",
+          "outlet-absent",
+          "cannot-tell"
+        ],
+        "absenceReasons": [
+          "outlet-not-requested",
+          "outlet-name-absent",
+          "outlet-name-empty",
+          "route-config-absent",
+          "path-absent",
+          "no-route-chain",
+          "chain-truncated"
+        ],
+        "routeLimit": 64,
+        "sample": {
+          "route": "a root route the state matched as 'primary' whose configuration named no outlet, carrying two named-outlet children: one both sides call 'sidebar', and one the configuration requested as 'panel' while the state matched 'sidebar'",
+          "state": "outlet-recorded",
+          "routes": [
+            {
+              "requested": null,
+              "matched": "primary",
+              "path": ""
+            },
+            {
+              "requested": "sidebar",
+              "matched": "sidebar",
+              "path": "admin"
+            },
+            {
+              "requested": "panel",
+              "matched": "sidebar",
+              "path": "panel"
+            }
+          ],
+          "absences": [
+            {
+              "field": "requested",
+              "path": "",
+              "reason": "outlet-not-requested"
+            }
+          ]
+        },
+        "truncated": {
+          "routes": 64,
+          "chainReasons": [
+            "chain-truncated"
+          ],
+          "namesTheCap": true
+        },
+        "counts": {
+          "fields": 3,
+          "routeFields": 3,
+          "absenceFields": 3,
+          "states": 3,
+          "absenceReasons": 7,
+          "routeLimit": 64
+        }
+      }
+    },
+    {
+      "path": "extension/outlet-answer.js",
+      "task": "T002",
+      "carries": "the join the panel renders: a pure function of one outlet record, answering one object of five fields — `state`, `requested`, `matched`, `path` and `absences` — in every state, with `requested` and `matched` filled only from fields the record carries, an absent request reported as `primary`, and the record’s own absences copied as stated and filtered to the answered route. It adds no remedy, no cause and no identity it was not given (N4, E8).",
+      "shape": {
+        "module": "extension/outlet-answer.js",
+        "namespace": "angularAiOutletAnswer",
+        "fields": [
+          "state",
+          "requested",
+          "matched",
+          "path",
+          "absences"
+        ],
+        "states": [
+          "outlet-matched",
+          "outlet-unnamed-primary",
+          "outlet-absent",
+          "cannot-tell"
+        ],
+        "absenceFields": [
+          "field",
+          "path",
+          "reason"
+        ],
+        "primary": "primary",
+        "ownAbsences": [
+          "no-outlet-record",
+          "no-route-row"
+        ],
+        "cannotTellKeepsTheRecordsAbsence": [
+          "matched:outlet-name-absent"
+        ],
+        "counts": {
+          "fields": 5,
+          "states": 4,
+          "absenceFields": 3,
+          "ownAbsences": 2
+        }
+      }
+    }
+  ],
+  "inventory": {
+    "measured": "This map measures the two artefacts the milestone ships and nothing under `research/raw/`: the outlet record T001 writes (`extension/outlet-state.js`) and the join T002 publishes (`extension/outlet-answer.js`), each read by running the shipped module in a bare context at the head stated above. The panel surface T003 rendered is a pane and its copy record rather than a file under `research/raw/`, so it is not named here, and the claim list T004 published is the one record of this milestone that sits beside this map: it reads those artefacts rather than being an input to this one, so it is named outside the map below.",
+    "outsideTheMap": [
+      {
+        "path": "research/raw/m062-verdict-claims.json",
+        "why": "the verdict-claims record T004 publishes — one claim per criterion this milestone’s intent declares, each quoting the criterion and naming the suite and test that prove it at this head; it reads this milestone’s artefacts rather than being measured by this map, and its own census `scripts/outlet-verdict-claims.test.mjs` writes and reads it back (T004)."
+      }
+    ]
+  },
+  "capture": {
+    "task": "T005",
+    "command": "M062_CAPTURE=1 node --test scripts/outlet-record-shapes.test.mjs",
+    "windowsCommand": "set \"M062_CAPTURE=1\"&& node --test scripts/outlet-record-shapes.test.mjs",
+    "check": "node --test scripts/outlet-record-shapes.test.mjs",
+    "records": "research/raw/m062-record-shapes.json",
+    "head": "ae8846814a3f32490eafe87687f48649a8c74216",
+    "measuredPaths": [
+      "extension/outlet-state.js",
+      "extension/outlet-answer.js"
+    ],
+    "reads": "both modules are run in a bare `node:vm` context and their published shapes read back: the record’s field lists, the route and absence rows’ field lists, the three states and seven absence reasons the reader exports, the route cap a chain deeper than it admits answers, and the join’s five fields, four states and two own absences. No page is opened and no browser is started.",
+    "reading": "an armed run derives the whole record again, writes only when a value moved, and states no head but the one it ran at; a default run derives the same record at the head the file names and asserts the committed bytes are exactly that serialization, so a value that moved is named by path and field and the record cannot drift from the tree without failing. A head that predates a change in a file this record measures is refused, naming both heads (SC4)."
+  },
+  "verdict": "This record is 7612 bytes, the UTF-8 length of the file the armed capture wrote, stated so the file's own size is a recorded number rather than a reader's guess. It carries no numeric `bytes` field, so the prose byte-consistency scan skips it; the sentence is held to this file's length by the suite that writes it."
+}

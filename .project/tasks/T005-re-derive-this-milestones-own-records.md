@@ -2,10 +2,10 @@
 id: T005
 title: Re-derive this milestone's own records
 wave: 5
-status: pending
+status: done
 deps: [T004]
-agent: null
-base: null
+agent: build_T005
+base: d1141e48d0398f21d45e8bb8e5ed4957c2d758f1
 worktree: null
 task_branch: null
 files:
@@ -62,3 +62,10 @@ M062_CAPTURE=1 node --test scripts/outlet-record-shapes.test.mjs && M059_CAPTURE
 - pending.
 - Contract amended a second time before this task ran: `scripts/outlet-verdict-claims.test.mjs` is declared. The record it writes was already declared, but the census that writes it was not, so the measured cascade — writing the map moves that record's `evidence.records` from 0 rows to 1 — could be seen and not repaired.
 - Contract amended before this task ran: `research/raw/m059-record-shapes.json` is declared and `scripts/teardown-leak.test.mjs` dropped, because T004 measured that adding a record to `research/raw/` moves that record's census (`recordsSearched` 154 -> 155) and the suite alone cannot repair it.
+- Landed paths: `scripts/outlet-record-shapes.test.mjs`, `research/raw/m062-record-shapes.json`, `research/raw/m059-record-shapes.json`, `research/raw/m062-verdict-claims.json`, and one `SUITE_DIFF_REASONS` row in `scripts/gate-integrity.test.mjs`.
+- The map this milestone owed did not exist and no earlier task wrote it: it is derived by running both extension modules in a bare context, never typed. The claims record then moved `evidence.records` from 0 rows to 1, which is why the census that writes it had to be declared before this task could finish.
+- `m059` was stale by four values rather than two (`recordsSearched` 154 to 156, `extension` 40 to 42, `scripts` 142 to 147), and its own failure text names the repair command.
+- Each record was read back unarmed and an external mutant was run on disk and then restored byte-identically, so the red is a measurement rather than an assertion about one.
+- AC2's stale-head rule is proven twice: a head derived at run time from `git log -1 -- extension/outlet-answer.js` and an sha no object carries, both refused naming both heads.
+- Recorded, not repaired: `m062-verdict-claims.json` carries no head, so AC2's rule is vacuous for it (T004's schema, and `overlay-verdict-claims.test.mjs` is not declared); no `m062-surface.json` exists, so the map says the inventory is unmeasured rather than naming a record the tree lacks.
+- The prettier leg is vacuous for the three records — `.prettierignore` skips `research/raw/` and `*.json` — and is cited only for the two `.mjs` files.
