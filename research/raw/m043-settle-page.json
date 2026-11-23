@@ -1134,7 +1134,7 @@
     },
     {
       "fact": "the page agent that produced the section runs in the page's MAIN world",
-      "source": "extension/manifest.json:34",
+      "source": "extension/manifest.json:35",
       "holds": "agent-main.js"
     }
   ],
