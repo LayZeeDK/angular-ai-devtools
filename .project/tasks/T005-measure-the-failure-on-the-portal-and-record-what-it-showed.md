@@ -2,10 +2,10 @@
 id: T005
 title: Measure the failure on the portal, and record what it showed
 wave: 5
-status: pending
+status: done
 deps: [T003]
-agent: null
-base: null
+agent: build_T005
+base: 3106fad1fcf6e8bd9a98b51032f48abc8654c500
 worktree: null
 task_branch: null
 files:
@@ -59,3 +59,12 @@ node --test scripts/chunk-failure-capture.test.mjs
 ## Log
 
 - pending.
+- Verdict taken on the Insurance Portal: route contract, its lazy chunk discovered from the navigation rather than typed, intercepted with the browser's own page.route and no page-side edit.
+- Both arms measured: an aborted request with no status, and a fulfilled 404. The import rejected, the router stayed on /home, the page text was byte-identical and no page error was raised.
+- The surface answer is cannot-tell, derived by running the join in a bare 
+ode:vm: the page carries no import record, so the record names 
+ecord-unreadable for what it found and 
+o-import-recorded for an empty one.
+- The portal lacks two artefacts and both are named: the import specifier, because the served bundle calls import on a chunk URL the module refuses as a specifier, and the attempt record itself, because import-failure.js is not in the manifest. No fixture verdict was taken, and the record says a fixture would not supply the specifier either.
+
+- Landed paths: `research/raw/m064-portal-capture.json`, `scripts/chunk-failure-capture.test.mjs` — each is read from this tree, ready.
