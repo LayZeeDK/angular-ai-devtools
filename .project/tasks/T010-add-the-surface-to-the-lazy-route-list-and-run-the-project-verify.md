@@ -14,6 +14,10 @@ files:
   - scripts/gate-stability-record.test.mjs
   - scripts/gate-integrity.test.mjs
   - scripts/gate-integrity-default-tasks.test.mjs
+  - research/raw/m044-gate-shapes.json
+  - research/raw/m062-verdict-claims.json
+  - scripts/outlet-verdict-claims.test.mjs
+  - scripts/navigation-blocking.test.mjs
 ---
 
 # T010 — Add the surface to the lazy-route list and run the project verify
@@ -58,9 +62,10 @@ name it and stop rather than widening anything.
 ## Verify
 
 ```bash
-M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs && node --test scripts/gate-stability-record.test.mjs
+M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M062_CAPTURE=1 node --test scripts/outlet-verdict-claims.test.mjs && node --test scripts/gate-integrity.test.mjs scripts/outlet-verdict-claims.test.mjs
 ```
 
 ## Log
 
 - pending.
+- Contract amended after the first dispatch, with the measurement it produced: the one-line fix moves `research/raw/m044-gate-shapes.json` (`suiteDiff.differing[1].addedLines` 50 to 51) and the wave-10 plan commit had already staled `research/raw/m062-verdict-claims.json` (its SC4 assignment list lacks T010). Both records and the two censuses that derive them are declared now.
