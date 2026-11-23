@@ -759,6 +759,7 @@ describe('the chat route', () => {
       'stability', // M043 SC5 surface
       'console', // M045 SC3-5 surface
       'console-read', // M046 SC1-3 surface
+      'outlet', // M062 SC4 surface: the outlet the route config requested, the name the router state matched, that route's path and each absence, or the cannot-tell state
       'visual-qa', // M054 SC1-3 surface
       'tutor-foundations', // M055 SC1-3 surface
       'tutor-signals', // M057 SC1, SC3 surface

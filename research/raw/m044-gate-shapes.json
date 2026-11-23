@@ -2195,7 +2195,7 @@
         "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 50,
+        "addedLines": 51,
         "removedLines": 0,
         "addedAssertionLines": 0,
         "removedAssertionLines": 0,
@@ -3215,6 +3215,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-23T02:43:39.952Z"
+    "at": "2026-11-23T04:55:16.885Z"
   }
 }
