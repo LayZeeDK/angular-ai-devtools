@@ -16,7 +16,6 @@ files:
   - scripts/panel-routes.test.mjs
   - scripts/chunk-failure-copy.test.mjs
   - scripts/after-render-fixture.test.mjs
-  - scripts/page-picker.component.spec.mjs
   - apps/angular-ai-devtools/src/app/page-picker.component.spec.ts
   - apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
   - apps/angular-ai-devtools/src/app/panel-demo.spec.ts

@@ -25,6 +25,7 @@ files:
   - scripts/tutor-answer.test.mjs
   - scripts/chunk-failure-claims.test.mjs
   - research/raw/m064-verdict-claims.json
+  - research/raw/m059-record-shapes.json
 ---
 
 # T008 — Re-derive the gate record, then run the project verify
