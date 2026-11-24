@@ -2,11 +2,11 @@
 id: T004
 title: Re-derive the recordings, then run the project verify
 wave: 4
-status: pending
+status: in-progress
 deps: [T003]
-agent: null
-base: null
-worktree: null
+agent: build_T004
+base: 007c30ec66ad3091897e816bd858936b017604df
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
 - research/raw/m044-gate-shapes.json
@@ -26,6 +26,7 @@ files:
 - scripts/chunk-failure-claims.test.mjs
 - scripts/guard-record-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
+- research/raw/m056-gate-stability.json
 ---
 
 # T004 — Re-derive the recordings, then run the project verify
@@ -69,6 +70,7 @@ Every path this task may touch, and nothing else:
 - `scripts/chunk-failure-claims.test.mjs`
 - `scripts/guard-record-shapes.test.mjs`
 - `scripts/outlet-record-shapes.test.mjs`
+- `research/raw/m056-gate-stability.json`
 
 ## Acceptance criteria
 
