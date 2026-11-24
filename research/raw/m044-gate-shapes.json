@@ -8,9 +8,9 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 362,
-    "suitesExamined": 189,
-    "examined": 203,
+    "filesExamined": 367,
+    "suitesExamined": 191,
+    "examined": 219,
     "movedSubtrees": [
       "build",
       "intent",
@@ -21,21 +21,21 @@
     ],
     "movedSubtreesDerivedFrom": {
       "command": "readdir .project\\archive/<NNN>-<slug>",
-      "archivesExamined": 63,
+      "archivesExamined": 64,
       "rule": "every directory name any archived milestone directory carries is a subtree the archive move relocates; a file the archive writes there (MANIFEST.md) is not"
     },
     "counts": {
-      "archived-by-the-move": 17,
+      "archived-by-the-move": 19,
       "deliberate-archive-read": 29,
-      "undecided": 157
+      "undecided": 171
     },
     "sites": {
-      "path": 12,
-      "comment": 77,
-      "segment": 64,
-      "citation": 8,
-      "message": 33,
-      "pattern": 9
+      "path": 13,
+      "comment": 86,
+      "segment": 66,
+      "pattern": 11,
+      "message": 35,
+      "citation": 8
     },
     "references": [
       {
@@ -90,7 +90,7 @@
       },
       {
         "file": "scripts/chunk-failure-claims.test.mjs",
-        "line": 423,
+        "line": 42,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -98,11 +98,123 @@
       },
       {
         "file": "scripts/chunk-failure-claims.test.mjs",
-        "line": 426,
+        "line": 47,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 50,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 51,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 439,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 442,
         "path": ".project/STATE.md",
         "site": "path",
         "class": "undecided",
         "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 458,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 459,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 470,
+        "path": null,
+        "site": "pattern",
+        "class": "undecided",
+        "reason": "named in a regular expression, which resolves no path, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 476,
+        "path": ".project/intent/INTENT.md",
+        "site": "path",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/intent/INTENT.md, whose .project subtree intent is one the archive move relocates to .project/archive/<NNN>-<slug>/intent, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 477,
+        "path": ".project/intent/INTENT.md",
+        "site": "message",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/intent/INTENT.md, whose .project subtree intent is one the archive move relocates to .project/archive/<NNN>-<slug>/intent, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 486,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 487,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 487,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 496,
+        "path": null,
+        "site": "pattern",
+        "class": "undecided",
+        "reason": "named in a regular expression, which resolves no path, so neither class applies"
+      },
+      {
+        "file": "scripts/chunk-failure-claims.test.mjs",
+        "line": 499,
+        "path": ".project",
+        "site": "message",
+        "class": "undecided",
+        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
       },
       {
         "file": "scripts/docs-audit-disposition.test.mjs",
@@ -1720,11 +1832,31 @@
       },
       {
         "file": "scripts/tutor-answer.test.mjs",
-        "line": 640,
+        "line": 377,
+        "path": ".project/STATE.md",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
+        "root": "ROOT",
+        "construct": "call"
+      },
+      {
+        "file": "scripts/tutor-answer.test.mjs",
+        "line": 669,
         "path": null,
         "site": "pattern",
         "class": "undecided",
         "reason": "named in a regular expression, which resolves no path, so neither class applies"
+      },
+      {
+        "file": "scripts/tutor-record-shapes.test.mjs",
+        "line": 632,
+        "path": ".project/STATE.md",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
+        "root": "ROOT",
+        "construct": "call"
       },
       {
         "file": "scripts/tutor-routing.test.mjs",
@@ -1978,7 +2110,7 @@
           ".project/archive/061-locale-correctness/research/SYNTHESIS.md",
           ".project/archive/062-outlet-explainer/research/SYNTHESIS.md",
           ".project/archive/063-guard-phase/research/SYNTHESIS.md",
-          ".project/research/SYNTHESIS.md",
+          ".project/archive/064-lazy-chunk-failure/research/SYNTHESIS.md",
           "research/SYNTHESIS.md"
         ],
         "presentInTheTree": true
@@ -2219,16 +2351,16 @@
       "named": "d94502d1",
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
-    "examined": 219,
-    "filesListed": 537,
+    "examined": 221,
+    "filesListed": 542,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 313,
+        "addedLines": 327,
         "removedLines": 1,
-        "addedAssertionLines": 85,
+        "addedAssertionLines": 90,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2239,8 +2371,8 @@
         "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 57,
-        "removedLines": 0,
+        "addedLines": 61,
+        "removedLines": 2,
         "addedAssertionLines": 0,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
@@ -2252,9 +2384,9 @@
         "file": "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 101,
+        "addedLines": 104,
         "removedLines": 3,
-        "addedAssertionLines": 21,
+        "addedAssertionLines": 22,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2265,11 +2397,11 @@
         "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 7969,
-        "removedLines": 755,
-        "addedAssertionLines": 1187,
-        "removedAssertionLines": 171,
-        "recutAssertionLines": 171,
+        "addedLines": 8315,
+        "removedLines": 751,
+        "addedAssertionLines": 1220,
+        "removedAssertionLines": 170,
+        "recutAssertionLines": 170,
         "droppedAssertionLines": 0,
         "recutAssertions": [
           "expect(demo.state()",
@@ -2399,7 +2531,6 @@
           "expect(settle.sinceAttachMs",
           "expect(recording.record.frame.attachAt",
           "expect(settle.at - (recording.record.frame.attachAt ?? 0)",
-          "expect(",
           "expect(settle.sinceAttachMs",
           "expect(recordingText.includes('\"at\": 1008')",
           "expect(recordingText.includes('\"value\": true')",
@@ -2515,9 +2646,9 @@
         "file": "scripts/chunk-failure-claims.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1912,
+        "addedLines": 1999,
         "removedLines": 0,
-        "addedAssertionLines": 128,
+        "addedAssertionLines": 129,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2765,7 +2896,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5869,
+        "addedLines": 5882,
         "removedLines": 0,
         "addedAssertionLines": 347,
         "removedAssertionLines": 0,
@@ -2830,9 +2961,9 @@
         "file": "scripts/guard-verdict-claims.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1609,
+        "addedLines": 1838,
         "removedLines": 0,
-        "addedAssertionLines": 95,
+        "addedAssertionLines": 111,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2895,7 +3026,7 @@
         "file": "scripts/navigation-blocking.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 2146,
+        "addedLines": 2176,
         "removedLines": 4,
         "addedAssertionLines": 125,
         "removedAssertionLines": 0,
@@ -2975,9 +3106,9 @@
         "file": "scripts/outlet-verdict-claims.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1519,
+        "addedLines": 1746,
         "removedLines": 0,
-        "addedAssertionLines": 91,
+        "addedAssertionLines": 107,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -3014,9 +3145,9 @@
         "file": "scripts/panel-routes.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 918,
-        "removedLines": 89,
-        "addedAssertionLines": 107,
+        "addedLines": 1008,
+        "removedLines": 91,
+        "addedAssertionLines": 118,
         "removedAssertionLines": 4,
         "recutAssertionLines": 4,
         "droppedAssertionLines": 0,
@@ -3107,10 +3238,36 @@
         "reason": "wholly added at this head: M059 T002 pins the pure join extension/teardown-leak.js - the code and the body read from the message own text with the stack dropped, the owner only from a field the message carries, the two absences owner-not-in-the-message and handle-record-not-held kept as two states in every answer, and the sequence rendered as release-then-diagnostic with no handle named as a cause; eighteen tests with seven in-memory mutants, each pinning the shipped answer first and then naming the defect by string, and no shipped assertion was loosened"
       },
       {
+        "file": "scripts/title-capture.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 503,
+        "removedLines": 0,
+        "addedAssertionLines": 56,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M065 T001 pins the title record `research/raw/m065-title-record.json`, which the capture `M065_CAPTURE=1 node scripts/title-capture.mjs` writes and this suite only reads — the committed recording is validated against its own fields and re-derived from the `input` section it carries, `buildRecord` run over that input reproducing the record byte for byte so no field was edited after the capture; AC1 holds every navigation to the strategy class the injector resolved and the title the document carried, compared with the raw page read rather than with each other; AC2 holds the title that predates the observer as `observed: false` with no author, no instant and no navigation, so the record never attributes a write it did not see; AC1/AC2 hold an observed write to the navigation it followed and to none when none had started; two mutants run as scratch copies of `scripts/title-capture.mjs` under the run’s own temporary directory, one writing the strategy from a constant and one attributing the unobserved write to the strategy, and each must make the pin throw naming the field that moved, a mutant that does not apply being a failure rather than a skip; AC3 proves a default run writes nothing by hashing the whole of `research/raw` before and after, proves an unarmed run with no recording refuses and creates no file, and holds the one write behind the flag; the suite this task verifies with is the command the recording names; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/title-input.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1523,
+        "removedLines": 0,
+        "addedAssertionLines": 93,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M065 T002 pins the pure join `extension/title-input.js`, which reads T001’s title recording as one of four states — the module publishes one join, four states, four reasons and the two input lists, and is run in a bare `node:vm` context with no `document`, no `window`, no `performance` and no console to prove it touches none of them where they do exist; AC1 holds a document title that differs from the route’s implied title as a `finding` naming both values and the strategy, with a mutant that copies the route’s title over the document’s required to redden the pin by naming `documentTitle`; AC2 holds an observation that began after the write as `cannot-tell` with `observation-started-after-the-write` and no observed write, with a mutant that takes the pre-observation title as observed required to redden it by naming the reason; AC3 holds every navigation of the committed recording as `cannot-tell`/`route-binds-nothing` rather than an empty object, with a mutant that answers `{}` required to redden it by naming `state`; SC3 holds the record’s fields and the join’s inputs to one exported list, the fields the module actually reads recorded through a proxy that also refuses a write, and every name in that list to a field the committed recording carries, with a mutant that reads a field and does not publish it required to redden by naming the field; the suite also pins the decided order of the absences, that the last navigation answers and no navigation is folded into another, that nothing captured answers `no-record` rather than an empty object, that the join is pure and writes nothing into the records it is handed, and that the mutants ran from scratch copies while the committed module is the one the suite read; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
         "file": "scripts/tutor-answer.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 2064,
+        "addedLines": 2101,
         "removedLines": 0,
         "addedAssertionLines": 136,
         "removedAssertionLines": 0,
@@ -3123,7 +3280,7 @@
         "file": "scripts/tutor-record-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 2045,
+        "addedLines": 2074,
         "removedLines": 0,
         "addedAssertionLines": 181,
         "removedAssertionLines": 0,
@@ -3303,32 +3460,32 @@
       }
     ],
     "counts": {
-      "differing": 67,
+      "differing": 69,
       "edited": 17,
-      "added": 50,
-      "removedAssertionLines": 203,
-      "recutAssertionLines": 203,
+      "added": 52,
+      "removedAssertionLines": 202,
+      "recutAssertionLines": 202,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 7491
+      "addedAssertionLines": 7723
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
-    "examined": 219,
-    "filesListed": 537,
+    "examined": 221,
+    "filesListed": 542,
     "suites": {
-      "scripts": 142,
+      "scripts": 144,
       "extension": 11,
       "apps": 36,
       "src": 2,
       "skills": 28,
-      "total": 219
+      "total": 221
     },
     "declarations": {
-      "tests": 2833,
-      "describes": 372,
-      "total": 3205
+      "tests": 2864,
+      "describes": 373,
+      "total": 3237
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -3402,6 +3559,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-23T19:48:14.012Z"
+    "at": "2026-11-24T02:38:27.656Z"
   }
 }

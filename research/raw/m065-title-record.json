@@ -1,0 +1,618 @@
+{
+  "schema": "m065-title-record/v1",
+  "milestone": "M065",
+  "task": "T001",
+  "question": "Does the portal expose a route that binds data the title reads?",
+  "capturedAt": "2026-11-24T01:04:13.791Z",
+  "driver": {
+    "playwrightVersion": "1.64.1",
+    "browserName": "chromium",
+    "browserBuild": "156.0.8078.4",
+    "instance": "headless",
+    "node": "v26.13.0",
+    "platform": "win32",
+    "clocks": "one machine clock: the driver reads its own clock around each trigger, the observer reads the page clock"
+  },
+  "target": {
+    "name": "Insurance Portal",
+    "url": "http://localhost:4507/",
+    "port": 4507,
+    "slot": 7,
+    "dir": "D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools",
+    "dirPresent": true,
+    "commit": "92d46ec",
+    "angularVersion": "22.2.2",
+    "session": "control-ngdev-portal-4507",
+    "evidenceDir": "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\portal-2026-11-24T00-55-20-283Z",
+    "servedBy": {
+      "skill": "control-angular-dev-app",
+      "command": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+      "infoCommand": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs info --target portal --json",
+      "session": "control-ngdev-portal-4507",
+      "evidenceDir": "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\portal-2026-11-24T00-55-20-283Z"
+    }
+  },
+  "observation": {
+    "beganAt": "2026-11-24T01:04:13.599Z",
+    "beganAfterIndex": 0,
+    "beganAfterUrl": "/home",
+    "titleAtStart": "Insurance Portal",
+    "titleElementTextAtStart": "Insurance Portal",
+    "observedTitleElement": true,
+    "mechanism": "a MutationObserver on the <title> element and document.head, created by the capture driver in a CDP isolated world; the portal carries no title instrumentation of its own and the observer names no writer",
+    "world": "isolated",
+    "worldFallbackReason": null,
+    "installedBy": "the capture driver, in an isolated world the page scripts do not share",
+    "pageSideEdit": false,
+    "reads": [
+      {
+        "at": "2026-11-24T01:04:13.671Z",
+        "navigationIndex": 0,
+        "writesSeen": 0
+      },
+      {
+        "at": "2026-11-24T01:04:13.737Z",
+        "navigationIndex": 1,
+        "writesSeen": 0
+      },
+      {
+        "at": "2026-11-24T01:04:13.789Z",
+        "navigationIndex": 2,
+        "writesSeen": 0
+      }
+    ],
+    "writesSeen": 0
+  },
+  "navigations": [
+    {
+      "index": 0,
+      "trigger": "document load (page.goto)",
+      "requestedUrl": "/home",
+      "startedAt": "2026-11-24T01:04:12.829Z",
+      "settledAt": "2026-11-24T01:04:13.554Z",
+      "url": "/home",
+      "locationPath": "/home",
+      "observedByObserver": false,
+      "strategy": {
+        "resolved": true,
+        "tokenName": "TitleStrategy",
+        "className": "DefaultTitleStrategy",
+        "fromInjector": "router.navigationTransitions.environmentInjector.get(TitleStrategy)",
+        "routerFieldClassName": "DefaultTitleStrategy",
+        "sameInstanceAsRouterField": true,
+        "error": null
+      },
+      "route": {
+        "activatedPath": "home",
+        "error": null,
+        "pathChain": [
+          null,
+          "home"
+        ],
+        "titleDeclared": null,
+        "titlesDeclared": [],
+        "frames": [
+          {
+            "path": null,
+            "title": null,
+            "declaredDataKeys": null,
+            "data": {
+              "kind": "empty-object",
+              "serialised": "{}",
+              "keys": []
+            }
+          },
+          {
+            "path": "home",
+            "title": null,
+            "declaredDataKeys": null,
+            "data": {
+              "kind": "empty-object",
+              "serialised": "{}",
+              "keys": []
+            }
+          }
+        ],
+        "data": {
+          "state": "absent",
+          "serialised": "{}",
+          "keys": [],
+          "note": "no frame declares a data key and no snapshot carries one; the serialised empty object is the framework default, not a bound value"
+        }
+      },
+      "titles": [
+        {
+          "at": "2026-11-24T01:04:13.599Z",
+          "phase": "at-attach",
+          "value": "Insurance Portal",
+          "writesSeen": 0
+        },
+        {
+          "at": "2026-11-24T01:04:13.671Z",
+          "phase": "after-navigation",
+          "value": "Insurance Portal",
+          "writesSeen": 0
+        }
+      ],
+      "writesFollowing": []
+    },
+    {
+      "index": 1,
+      "trigger": "ng.ɵnavigateByUrl",
+      "requestedUrl": "/contract",
+      "startedAt": "2026-11-24T01:04:13.672Z",
+      "settledAt": "2026-11-24T01:04:13.734Z",
+      "url": "/contract",
+      "locationPath": "/contract",
+      "observedByObserver": true,
+      "strategy": {
+        "resolved": true,
+        "tokenName": "TitleStrategy",
+        "className": "DefaultTitleStrategy",
+        "fromInjector": "router.navigationTransitions.environmentInjector.get(TitleStrategy)",
+        "routerFieldClassName": "DefaultTitleStrategy",
+        "sameInstanceAsRouterField": true,
+        "error": null
+      },
+      "route": {
+        "activatedPath": "",
+        "error": null,
+        "pathChain": [
+          null,
+          "contract",
+          ""
+        ],
+        "titleDeclared": null,
+        "titlesDeclared": [],
+        "frames": [
+          {
+            "path": null,
+            "title": null,
+            "declaredDataKeys": null,
+            "data": {
+              "kind": "empty-object",
+              "serialised": "{}",
+              "keys": []
+            }
+          },
+          {
+            "path": "contract",
+            "title": null,
+            "declaredDataKeys": null,
+            "data": {
+              "kind": "empty-object",
+              "serialised": "{}",
+              "keys": []
+            }
+          },
+          {
+            "path": "",
+            "title": null,
+            "declaredDataKeys": null,
+            "data": {
+              "kind": "empty-object",
+              "serialised": "{}",
+              "keys": []
+            }
+          }
+        ],
+        "data": {
+          "state": "absent",
+          "serialised": "{}",
+          "keys": [],
+          "note": "no frame declares a data key and no snapshot carries one; the serialised empty object is the framework default, not a bound value"
+        }
+      },
+      "titles": [
+        {
+          "at": "2026-11-24T01:04:13.672Z",
+          "phase": "before-navigation",
+          "value": "Insurance Portal",
+          "writesSeen": 0
+        },
+        {
+          "at": "2026-11-24T01:04:13.734Z",
+          "phase": "after-navigation",
+          "value": "Insurance Portal",
+          "writesSeen": 0
+        }
+      ],
+      "writesFollowing": []
+    },
+    {
+      "index": 2,
+      "trigger": "ng.ɵnavigateByUrl",
+      "requestedUrl": "/claim",
+      "startedAt": "2026-11-24T01:04:13.738Z",
+      "settledAt": "2026-11-24T01:04:13.785Z",
+      "url": "/claim",
+      "locationPath": "/claim",
+      "observedByObserver": true,
+      "strategy": {
+        "resolved": true,
+        "tokenName": "TitleStrategy",
+        "className": "DefaultTitleStrategy",
+        "fromInjector": "router.navigationTransitions.environmentInjector.get(TitleStrategy)",
+        "routerFieldClassName": "DefaultTitleStrategy",
+        "sameInstanceAsRouterField": true,
+        "error": null
+      },
+      "route": {
+        "activatedPath": "",
+        "error": null,
+        "pathChain": [
+          null,
+          "claim",
+          ""
+        ],
+        "titleDeclared": null,
+        "titlesDeclared": [],
+        "frames": [
+          {
+            "path": null,
+            "title": null,
+            "declaredDataKeys": null,
+            "data": {
+              "kind": "empty-object",
+              "serialised": "{}",
+              "keys": []
+            }
+          },
+          {
+            "path": "claim",
+            "title": null,
+            "declaredDataKeys": null,
+            "data": {
+              "kind": "empty-object",
+              "serialised": "{}",
+              "keys": []
+            }
+          },
+          {
+            "path": "",
+            "title": null,
+            "declaredDataKeys": null,
+            "data": {
+              "kind": "empty-object",
+              "serialised": "{}",
+              "keys": []
+            }
+          }
+        ],
+        "data": {
+          "state": "absent",
+          "serialised": "{}",
+          "keys": [],
+          "note": "no frame declares a data key and no snapshot carries one; the serialised empty object is the framework default, not a bound value"
+        }
+      },
+      "titles": [
+        {
+          "at": "2026-11-24T01:04:13.738Z",
+          "phase": "before-navigation",
+          "value": "Insurance Portal",
+          "writesSeen": 0
+        },
+        {
+          "at": "2026-11-24T01:04:13.785Z",
+          "phase": "after-navigation",
+          "value": "Insurance Portal",
+          "writesSeen": 0
+        }
+      ],
+      "writesFollowing": []
+    }
+  ],
+  "writes": [
+    {
+      "index": 0,
+      "at": null,
+      "title": "Insurance Portal",
+      "observed": false,
+      "author": null,
+      "navigationIndex": null,
+      "basis": "the title the document carried when the observation began at 2026-11-24T01:04:13.599Z; the observer saw no write for it, so the record carries no author and no navigation for it"
+    }
+  ],
+  "titleInput": {
+    "question": "Does the portal expose a route that binds data the title reads?",
+    "routesTried": [
+      "/home",
+      "/contract",
+      "/claim"
+    ],
+    "routesBindingData": [],
+    "routesDeclaringTitle": [],
+    "strategyClassNames": [
+      "DefaultTitleStrategy"
+    ],
+    "titleValues": [
+      "Insurance Portal"
+    ],
+    "dataSerialised": [
+      "{}"
+    ],
+    "writesObserved": 0,
+    "writesUnobserved": 1,
+    "boundRouteData": false,
+    "absent": [
+      "route-bound data: every activated route's data serialised as {} and no route config declared a data key",
+      "a route that declares a title for the strategy to read",
+      "a title write after the observation began at 2026-11-24T01:04:13.599Z"
+    ],
+    "statement": "3 navigations on Insurance Portal (/home, /contract, /claim) activated routes that bind nothing a title reads: the activated routes' data serialised as {}, no route declared a title, and the injector resolved DefaultTitleStrategy. The document carried \"Insurance Portal\" at every observation; 0 title writes were observed after the observation began at 2026-11-24T01:04:13.599Z, and 1 title is recorded as unobserved: the document carried it before the observer attached."
+  },
+  "fixture": {
+    "used": false,
+    "path": "spikes/ng222-app",
+    "routeTried": null,
+    "why": "the portal carried every artefact this record takes: its routes activated and rendered, its activated route data was readable through the router, and its environment injector answered the TitleStrategy token, so the fixture fallback the intent allows for a portal with no such route did not apply"
+  },
+  "commands": {
+    "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+    "info": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs info --target portal --json",
+    "capture": "M065_CAPTURE=1 node scripts/title-capture.mjs",
+    "windowsCapture": "set \"M065_CAPTURE=1\"&& node scripts/title-capture.mjs",
+    "check": "node --test scripts/title-capture.test.mjs",
+    "read": "node scripts/title-capture.mjs"
+  },
+  "input": {
+    "capturedAt": "2026-11-24T01:04:13.791Z",
+    "driver": {
+      "playwrightVersion": "1.64.1",
+      "browserName": "chromium",
+      "browserBuild": "156.0.8078.4",
+      "instance": "headless",
+      "node": "v26.13.0",
+      "platform": "win32",
+      "clocks": "one machine clock: the driver reads its own clock around each trigger, the observer reads the page clock"
+    },
+    "target": {
+      "name": "Insurance Portal",
+      "url": "http://localhost:4507/",
+      "port": 4507,
+      "slot": 7,
+      "dir": "D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools",
+      "dirPresent": true,
+      "commit": "92d46ec",
+      "angularVersion": "22.2.2",
+      "session": "control-ngdev-portal-4507",
+      "evidenceDir": "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\portal-2026-11-24T00-55-20-283Z",
+      "servedBy": {
+        "skill": "control-angular-dev-app",
+        "command": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+        "infoCommand": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs info --target portal --json",
+        "session": "control-ngdev-portal-4507",
+        "evidenceDir": "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\portal-2026-11-24T00-55-20-283Z"
+      }
+    },
+    "observation": {
+      "beganAt": "2026-11-24T01:04:13.599Z",
+      "beganAfterIndex": 0,
+      "beganAfterUrl": "/home",
+      "titleAtStart": "Insurance Portal",
+      "titleElementTextAtStart": "Insurance Portal",
+      "observedTitleElement": true,
+      "mechanism": "a MutationObserver on the <title> element and document.head, created by the capture driver in a CDP isolated world; the portal carries no title instrumentation of its own and the observer names no writer",
+      "world": "isolated",
+      "worldFallbackReason": null,
+      "installedBy": "the capture driver, in an isolated world the page scripts do not share",
+      "pageSideEdit": false,
+      "reads": [
+        {
+          "at": "2026-11-24T01:04:13.671Z",
+          "navigationIndex": 0,
+          "writesSeen": 0
+        },
+        {
+          "at": "2026-11-24T01:04:13.737Z",
+          "navigationIndex": 1,
+          "writesSeen": 0
+        },
+        {
+          "at": "2026-11-24T01:04:13.789Z",
+          "navigationIndex": 2,
+          "writesSeen": 0
+        }
+      ]
+    },
+    "navigations": [
+      {
+        "index": 0,
+        "trigger": "document load (page.goto)",
+        "requestedUrl": "/home",
+        "startedAt": "2026-11-24T01:04:12.829Z",
+        "settledAt": "2026-11-24T01:04:13.554Z",
+        "url": "/home",
+        "locationPath": "/home",
+        "strategy": {
+          "resolved": true,
+          "tokenName": "TitleStrategy",
+          "className": "DefaultTitleStrategy",
+          "fromInjector": "router.navigationTransitions.environmentInjector.get(TitleStrategy)",
+          "routerFieldClassName": "DefaultTitleStrategy",
+          "sameInstanceAsRouterField": true,
+          "error": null
+        },
+        "route": {
+          "activatedPath": "home",
+          "pathChain": [
+            null,
+            "home"
+          ],
+          "frames": [
+            {
+              "path": null,
+              "title": null,
+              "declaredDataKeys": null,
+              "snapshotDataKeys": [],
+              "snapshotData": {}
+            },
+            {
+              "path": "home",
+              "title": null,
+              "declaredDataKeys": null,
+              "snapshotDataKeys": [],
+              "snapshotData": {}
+            }
+          ]
+        },
+        "titles": [
+          {
+            "at": "2026-11-24T01:04:13.599Z",
+            "phase": "at-attach",
+            "value": "Insurance Portal",
+            "writesSeen": 0
+          },
+          {
+            "at": "2026-11-24T01:04:13.671Z",
+            "phase": "after-navigation",
+            "value": "Insurance Portal",
+            "writesSeen": 0
+          }
+        ]
+      },
+      {
+        "index": 1,
+        "trigger": "ng.ɵnavigateByUrl",
+        "requestedUrl": "/contract",
+        "startedAt": "2026-11-24T01:04:13.672Z",
+        "settledAt": "2026-11-24T01:04:13.734Z",
+        "url": "/contract",
+        "locationPath": "/contract",
+        "strategy": {
+          "resolved": true,
+          "tokenName": "TitleStrategy",
+          "className": "DefaultTitleStrategy",
+          "fromInjector": "router.navigationTransitions.environmentInjector.get(TitleStrategy)",
+          "routerFieldClassName": "DefaultTitleStrategy",
+          "sameInstanceAsRouterField": true,
+          "error": null
+        },
+        "route": {
+          "activatedPath": "",
+          "pathChain": [
+            null,
+            "contract",
+            ""
+          ],
+          "frames": [
+            {
+              "path": null,
+              "title": null,
+              "declaredDataKeys": null,
+              "snapshotDataKeys": [],
+              "snapshotData": {}
+            },
+            {
+              "path": "contract",
+              "title": null,
+              "declaredDataKeys": null,
+              "snapshotDataKeys": [],
+              "snapshotData": {}
+            },
+            {
+              "path": "",
+              "title": null,
+              "declaredDataKeys": null,
+              "snapshotDataKeys": [],
+              "snapshotData": {}
+            }
+          ]
+        },
+        "titles": [
+          {
+            "at": "2026-11-24T01:04:13.672Z",
+            "phase": "before-navigation",
+            "value": "Insurance Portal",
+            "writesSeen": 0
+          },
+          {
+            "at": "2026-11-24T01:04:13.734Z",
+            "phase": "after-navigation",
+            "value": "Insurance Portal",
+            "writesSeen": 0
+          }
+        ]
+      },
+      {
+        "index": 2,
+        "trigger": "ng.ɵnavigateByUrl",
+        "requestedUrl": "/claim",
+        "startedAt": "2026-11-24T01:04:13.738Z",
+        "settledAt": "2026-11-24T01:04:13.785Z",
+        "url": "/claim",
+        "locationPath": "/claim",
+        "strategy": {
+          "resolved": true,
+          "tokenName": "TitleStrategy",
+          "className": "DefaultTitleStrategy",
+          "fromInjector": "router.navigationTransitions.environmentInjector.get(TitleStrategy)",
+          "routerFieldClassName": "DefaultTitleStrategy",
+          "sameInstanceAsRouterField": true,
+          "error": null
+        },
+        "route": {
+          "activatedPath": "",
+          "pathChain": [
+            null,
+            "claim",
+            ""
+          ],
+          "frames": [
+            {
+              "path": null,
+              "title": null,
+              "declaredDataKeys": null,
+              "snapshotDataKeys": [],
+              "snapshotData": {}
+            },
+            {
+              "path": "claim",
+              "title": null,
+              "declaredDataKeys": null,
+              "snapshotDataKeys": [],
+              "snapshotData": {}
+            },
+            {
+              "path": "",
+              "title": null,
+              "declaredDataKeys": null,
+              "snapshotDataKeys": [],
+              "snapshotData": {}
+            }
+          ]
+        },
+        "titles": [
+          {
+            "at": "2026-11-24T01:04:13.738Z",
+            "phase": "before-navigation",
+            "value": "Insurance Portal",
+            "writesSeen": 0
+          },
+          {
+            "at": "2026-11-24T01:04:13.785Z",
+            "phase": "after-navigation",
+            "value": "Insurance Portal",
+            "writesSeen": 0
+          }
+        ]
+      }
+    ],
+    "writesObserved": [],
+    "fixture": {
+      "used": false,
+      "path": "spikes/ng222-app",
+      "routeTried": null,
+      "why": "the portal carried every artefact this record takes: its routes activated and rendered, its activated route data was readable through the router, and its environment injector answered the TitleStrategy token, so the fixture fallback the intent allows for a portal with no such route did not apply"
+    },
+    "commands": {
+      "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+      "info": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs info --target portal --json",
+      "capture": "M065_CAPTURE=1 node scripts/title-capture.mjs",
+      "windowsCapture": "set \"M065_CAPTURE=1\"&& node scripts/title-capture.mjs",
+      "check": "node --test scripts/title-capture.test.mjs",
+      "read": "node scripts/title-capture.mjs"
+    }
+  }
+}

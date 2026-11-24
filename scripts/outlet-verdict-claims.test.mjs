@@ -378,9 +378,38 @@ const HELD_OUT_BULLET =
   /^\s*[-*]\s*(E\d+)\s*(?:→|->|—)\s*(T\d+)\s*(?:→|->|—)\s*`([^`]+)`\s*$/;
 
 /**
+ * How many rows the plan's `## Held-out checks` section writes, counted by shape rather than by the
+ * reader's own pattern: a table data row naming an edge, or a bullet whose first token is an edge id.
+ * The count is deliberately wider than {@link planHeldOut}, so a reader that silently skips a form is
+ * caught by a count rather than by the section reading as empty.
+ *
+ * @param {string} source
+ * @returns {number}
+ */
+function heldOutRowsWritten(source) {
+  const section = sectionOf(source, '## Held-out checks');
+  let count = 0;
+  for (const line of section.split(/\r?\n/)) {
+    if (/^\s*\|\s*E\d+\s*\|/.test(line) || /^\s*[-*]\s*E\d+\b/.test(line)) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+/**
  * The plan's held-out mapping: one row per edge, naming the task that holds it and the suite that
- * carries it. The mapping is the one place the test-to-edge rule lives, so a claim's suite is read
- * from here rather than chosen by this file.
+ * carries it. For a plan that holds an edge out, the mapping is the one place the test-to-edge rule
+ * lives, so a claim's suite is read from here rather than chosen by this file.
+ *
+ * A plan may hold nothing out, and M065's does: it states that every edge is proved by the suite of
+ * the task that owns it and that the task's own Verify runs, which the owning census resolves through
+ * the plan's `## Intent coverage` table. Requiring a row per edge would refuse that plan for being
+ * honest, so the rule here is the one the section's own shape supports in both cases: the reader must
+ * return every row the section writes (a row it drops is named by the two counts), and the section
+ * must either write a row or sit beside an `## Intent coverage` table that answers instead. What must
+ * not happen is an empty mapping over an empty coverage table, which would leave every edge with no
+ * citation at all.
  *
  * @param {string} source
  * @returns {Map<string, { task: string, test: string }>}
@@ -403,9 +432,15 @@ function planHeldOut(source) {
     if (row === null) continue;
     held.set(String(row[1]), { task: String(row[2]), test: String(row[3]) });
   }
+  const written = heldOutRowsWritten(source);
+  assert.equal(
+    held.size,
+    written,
+    `the plan's ## Held-out checks writes ${String(written)} row(s) and the reader returned ${String(held.size)}: a row it does not read is an edge that falls back to the suite a task happened to add, not to the suite the plan assigned`,
+  );
   assert.ok(
-    held.size > 0,
-    'the plan must write its held-out mapping as rows, or no claim can read the suite that proves its criterion',
+    written > 0 || planCoverage(source).length > 0,
+    'the plan must write its held-out mapping as rows, or assign its criteria in ## Intent coverage, or no claim can read the suite that proves its criterion',
   );
   return held;
 }
@@ -894,6 +929,103 @@ function assertProofsResolve(recording) {
 }
 
 /**
+ * Whether the bound record's rows carry this census's citation shape — `suite`, `test` and a
+ * `citations` list — which is what {@link assertProofsResolve} reads.
+ *
+ * There are two row shapes among the records this file can be bound to. M062's, M063's and M064's
+ * censuses each make the judgement this file makes, and their rows name one suite, one test title and
+ * the citation list that title sits in. The census M044 introduced,
+ * `scripts/navigation-blocking.test.mjs` — which recorded every milestone from M044 to M061, and which
+ * M065 names again — makes a different judgement: its row names the suites it is held by (`suites`),
+ * the artefact it cites (`artefactPath`), the edge rows of the intent's own table and no test title at
+ * all, because it reads the test-to-edge mapping from the plan rather than from a title. A row of that
+ * shape cannot be held to a rule about a `test` field it does not carry, so the shape is read here
+ * rather than assumed.
+ *
+ * @param {any} recording
+ * @returns {boolean}
+ */
+function carriesCitations(recording) {
+  const rows = Array.isArray(recording?.claims) ? recording.claims : [];
+  return rows.length > 0 && rows.every((row) => Array.isArray(row?.citations));
+}
+
+/**
+ * The proof rules this file can hold a bound record to without owning its derivation. A record in this
+ * census's citation shape is held to {@link assertProofsResolve}. A record in the M044 census's shape is
+ * held to the rules its own fields carry — the same rules that census states for its own rows: a
+ * carried artefact path that the artefact string names, a reading of at least forty characters, the
+ * commands that prove the row, a ruling from the enum, and the charter's portal clause answered by name
+ * — and the test-title rule is the owning census's, which is where the test title is read from.
+ *
+ * @param {any} recording
+ * @returns {void}
+ */
+function assertBoundProofs(recording) {
+  if (carriesCitations(recording)) {
+    assertProofsResolve(recording);
+    return;
+  }
+  assert.ok(
+    Array.isArray(recording?.claims) && recording.claims.length > 0,
+    'the claim list must carry its rows',
+  );
+  for (const row of recording.claims) {
+    const where = row?.criterion ?? 'a row';
+    assert.ok(
+      typeof row.artefactPath === 'string' && row.artefactPath !== '',
+      `${where} cites no artefact path`,
+    );
+    assert.ok(
+      existsSync(join(ROOT, row.artefactPath)),
+      `${where} cites ${row.artefactPath}, which this checkout does not carry`,
+    );
+    assert.ok(
+      typeof row.artefact === 'string' &&
+        row.artefact.includes(row.artefactPath),
+      `${where} names its artefact path but does not say what that artefact carries`,
+    );
+    assert.ok(
+      Array.isArray(row.suites) && row.suites.length > 0,
+      `${where} names no suite, so nothing in this checkout is held to hold it`,
+    );
+    for (const suite of row.suites) {
+      assert.ok(
+        typeof suite === 'string' && suite !== '',
+        `${where} names an empty suite`,
+      );
+      assert.ok(
+        existsSync(join(ROOT, suite)),
+        `${where} names ${suite} as a suite that holds it, which this checkout does not carry`,
+      );
+    }
+    assert.ok(
+      typeof row.reading === 'string' && row.reading.trim().length >= 40,
+      `${where} does not state the reading its artefact carries: ${JSON.stringify(row.reading)}`,
+    );
+    assert.ok(
+      Array.isArray(row.proves) &&
+        row.proves.length > 0 &&
+        row.proves.every(
+          (/** @type {any} */ command) =>
+            typeof command === 'string' && command.trim() !== '',
+        ),
+      `${where} names no command that proves it`,
+    );
+    assert.ok(
+      ['required', 'not-required'].includes(row.ruling),
+      `${where} rules ${JSON.stringify(row.ruling)}`,
+    );
+    assert.ok(
+      typeof row.reason === 'string' &&
+        row.reason.length >= 60 &&
+        /portal/i.test(row.reason),
+      `${where} must answer the charter's portal clause by name`,
+    );
+  }
+}
+
+/**
  * Every suite the plan resolves one of a criterion's edges to is a suite that criterion's claim
  * cites. A claim that cites a suite the milestone never assigned an edge of that criterion is refused
  * too, in the other direction: a citation is a claim of proof, and neither direction may be invented.
@@ -1029,16 +1161,21 @@ describe('measurement', () => {
       `the intent declares eight edge rows, and it declares ${String(edges.length)}`,
     );
     const heldOut = planHeldOut(planSource);
-    assert.equal(
-      heldOut.size,
-      8,
-      `the plan holds out one row per edge, and it holds out ${String(heldOut.size)}`,
-    );
+    if (!CLAIMS_OWNED_ELSEWHERE) {
+      assert.equal(
+        heldOut.size,
+        8,
+        `the plan holds out one row per edge, and it holds out ${String(heldOut.size)}`,
+      );
+    }
 
     // Every edge a criterion is held by resolves to a suite this checkout carries, so the derivation
-    // below cannot cite a file the tree lacks.
+    // below cannot cite a file the tree lacks. An edge the plan holds out names its suite in that row;
+    // an edge it does not is resolved by the census that owns the bound record, so the row is held to
+    // the suites it does name rather than to a row this head's plan does not write.
     for (const edge of edges) {
       const suite = heldOut.get(edge.edge)?.test ?? '';
+      if (suite === '' && CLAIMS_OWNED_ELSEWHERE) continue;
       assert.ok(
         suite !== '',
         `${edge.edge} is held out by no row, so ${edge.criterion} would cite no suite for it`,
@@ -1129,8 +1266,8 @@ describe('the claim list', () => {
       );
       const ownerSource = readFileSync(ownerPath, 'utf8');
       assert.ok(
-        ownerSource.includes(CLAIMS_REL),
-        `${CLAIMS_OWNER} owns ${CLAIMS_REL} and must name that path rather than derive it, and a census that derives its record's path names the kind of file and not the file; it does not`,
+        namesThisRecord(ownerSource, CLAIMS_REL),
+        `${CLAIMS_OWNER} owns ${CLAIMS_REL} and must name that record — literally, or as the research/raw/<milestone>-verdict-claims.json template keyed on the bound milestone — and it names neither`,
       );
       assert.ok(
         ownerSource.includes(flag),
@@ -1170,14 +1307,16 @@ describe('the claim list', () => {
     assert.doesNotThrow(() =>
       assertQuotedCriteria(recording, intentCriteria(intentSource)),
     );
-    assert.doesNotThrow(() => assertProofsResolve(recording));
+    assert.doesNotThrow(() => assertBoundProofs(recording));
     const edges = intentEdges(intentSource);
     const heldOut = planHeldOut(planSource);
     if (CLAIMS_OWNED_ELSEWHERE) {
       // The direction this file can hold without a proof table of its own: every suite the plan
       // resolves one of the criterion's edges to is cited. The reverse direction — that no citation
       // is a suite the plan never assigned — is read through `PROOFS`, which is M062's table, so the
-      // census the record names asserts it there with its own table.
+      // census the record names asserts it there with its own table. A record in the M044 census's
+      // shape cites the suites it names under `suites` rather than under a `citations` list, so the
+      // reading follows the record's own field here too.
       for (const row of recording.claims) {
         const assigned = [
           ...new Set(
@@ -1186,9 +1325,9 @@ describe('the claim list', () => {
               .map((edge) => heldOut.get(edge.edge)?.test ?? ''),
           ),
         ].filter((suite) => suite !== '');
-        const cited = row.citations.map(
-          (/** @type {any} */ citation) => citation.suite,
-        );
+        const cited = Array.isArray(row.citations)
+          ? row.citations.map((/** @type {any} */ citation) => citation.suite)
+          : (row.suites ?? []);
         for (const suite of assigned) {
           assert.ok(
             cited.includes(suite),
@@ -1373,47 +1512,76 @@ describe('the claim list', () => {
       CLAIMS_PATH,
       'the list is part of this repository',
     );
-    assert.doesNotThrow(() => assertProofsResolve(recording));
+    assert.doesNotThrow(() => assertBoundProofs(recording));
 
-    const planted = structuredClone(recording);
-    const absent = 'a test no suite in this checkout declares';
-    planted.claims[0].test = absent;
-    planted.claims[0].citations[0].test = absent;
-    const failure = reddens(
-      () => assertProofsResolve(planted),
-      'a claim whose test this checkout does not declare',
-    );
-    assert.ok(
-      failure.message.includes(absent),
-      `a claim whose test does not exist must redden naming the missing test; it produced ${JSON.stringify(failure.message.slice(0, 320))}`,
-    );
-    assert.ok(
-      failure.message.includes(recording.claims[0].suite),
-      `the refusal must name the suite that should carry the missing test; it produced ${JSON.stringify(failure.message.slice(0, 320))}`,
-    );
-    assert.match(
-      failure.message,
-      /declares no such test at this head/,
-      `the refusal must say what is missing rather than that something differs; it produced ${JSON.stringify(failure.message.slice(0, 320))}`,
-    );
+    // The proof a row states must resolve at this head. Which field carries it depends on the census
+    // that wrote the record: a citation-shaped row names a test title, and the M044 census's row names
+    // the suites it is held by. The mutant is planted on the field the record carries, so the rule is
+    // exercised against whichever record is bound rather than skipped for the one it does not fit.
+    let failure;
+    let suiteFailure;
+    if (carriesCitations(recording)) {
+      const absent = 'a test no suite in this checkout declares';
+      const planted = structuredClone(recording);
+      planted.claims[0].test = absent;
+      planted.claims[0].citations[0].test = absent;
+      failure = reddens(
+        () => assertBoundProofs(planted),
+        'a claim whose test this checkout does not declare',
+      );
+      assert.ok(
+        failure.message.includes(absent),
+        `a claim whose test does not exist must redden naming the missing test; it produced ${JSON.stringify(failure.message.slice(0, 320))}`,
+      );
+      assert.ok(
+        failure.message.includes(recording.claims[0].suite),
+        `the refusal must name the suite that should carry the missing test; it produced ${JSON.stringify(failure.message.slice(0, 320))}`,
+      );
+      assert.match(
+        failure.message,
+        /declares no such test at this head/,
+        `the refusal must say what is missing rather than that something differs; it produced ${JSON.stringify(failure.message.slice(0, 320))}`,
+      );
 
-    // The other direction: a claim naming a suite this checkout does not carry.
-    const elsewhere = structuredClone(recording);
-    elsewhere.claims[1].suite = 'scripts/absent-claims-suite.test.mjs';
-    elsewhere.claims[1].citations[0].suite =
-      'scripts/absent-claims-suite.test.mjs';
-    const suiteFailure = reddens(
-      () => assertProofsResolve(elsewhere),
-      'a claim citing a suite this checkout does not carry',
-    );
+      // The other direction: a claim naming a suite this checkout does not carry.
+      const elsewhere = structuredClone(recording);
+      elsewhere.claims[1].suite = 'scripts/absent-claims-suite.test.mjs';
+      elsewhere.claims[1].citations[0].suite =
+        'scripts/absent-claims-suite.test.mjs';
+      suiteFailure = reddens(
+        () => assertBoundProofs(elsewhere),
+        'a claim citing a suite this checkout does not carry',
+      );
+    } else {
+      // The same two directions read from the fields this record carries: the artefact the row cites,
+      // and the suite it names as one that holds it.
+      const absentSuite = 'scripts/absent-claims-suite.test.mjs';
+      const planted = structuredClone(recording);
+      planted.claims[0].artefactPath = absentSuite;
+      planted.claims[0].suites = [absentSuite];
+      failure = reddens(
+        () => assertBoundProofs(planted),
+        'a claim whose artefact this checkout does not carry',
+      );
+      assert.ok(
+        failure.message.includes(absentSuite),
+        `a claim whose artefact does not exist must redden naming the missing path; it produced ${JSON.stringify(failure.message.slice(0, 320))}`,
+      );
+      const elsewhere = structuredClone(recording);
+      elsewhere.claims[1].suites = [absentSuite];
+      suiteFailure = reddens(
+        () => assertBoundProofs(elsewhere),
+        'a claim naming a suite this checkout does not carry',
+      );
+    }
     assert.match(
       suiteFailure.message,
       /which this checkout does not carry/,
       `a claim citing an absent suite must redden naming the path; it produced ${JSON.stringify(suiteFailure.message.slice(0, 320))}`,
     );
 
-    // The same record with the tests it names: the check that bit above passes here.
-    assert.doesNotThrow(() => assertProofsResolve(recording));
+    // The same record with the proofs it names: the check that bit above passes here.
+    assert.doesNotThrow(() => assertBoundProofs(recording));
     console.log(
       `missing-test mutant: ${failure.message.split('\n')[0]} | absent suite: ${suiteFailure.message.split('\n')[0]}`,
     );
@@ -1436,41 +1604,78 @@ describe('the claim list', () => {
     const coverage = planCoverage(planSource);
     const derived = coverageDisagreements(edges, heldOut, coverage);
 
-    assert.deepEqual(
-      recording.evidence?.plan?.disagreements,
-      derived,
-      `the record states the plan's cross-table disagreements as this head measures them: it states ${JSON.stringify(recording.evidence?.plan?.disagreements)} and this head derives ${JSON.stringify(derived)}`,
-    );
-    assert.ok(
-      String(recording.quotes?.edges ?? '').includes(
-        `disagree at ${String(derived.length)} row(s)`,
-      ),
-      'the record states the disagreement count in the sentence that reads the tables',
-    );
+    // Which field states the disagreements depends on the census that wrote the record. A
+    // citation-shaped census states them under `evidence.plan.disagreements` and says so in
+    // `quotes.edges`. The M044 census states the held-out keys it read under `evidence.plan.heldOut`
+    // and nothing else, because it refuses to derive across the two tables at all, so a record of that
+    // shape is held to the mapping it does state — and, this head's plan writing no held-out row, that
+    // mapping is the empty list, which the derivation must agree with.
+    if (Array.isArray(recording.evidence?.plan?.disagreements)) {
+      assert.deepEqual(
+        recording.evidence.plan.disagreements,
+        derived,
+        `the record states the plan's cross-table disagreements as this head measures them: it states ${JSON.stringify(recording.evidence.plan.disagreements)} and this head derives ${JSON.stringify(derived)}`,
+      );
+      assert.ok(
+        String(recording.quotes?.edges ?? '').includes(
+          `disagree at ${String(derived.length)} row(s)`,
+        ),
+        'the record states the disagreement count in the sentence that reads the tables',
+      );
+    } else {
+      assert.deepEqual(
+        recording.evidence?.plan?.heldOut,
+        [...heldOut.keys()].sort(),
+        `the record states the held-out keys it read as this head reads them: it states ${JSON.stringify(recording.evidence?.plan?.heldOut)} and this head reads ${JSON.stringify([...heldOut.keys()].sort())}`,
+      );
+      assert.deepEqual(
+        derived,
+        [],
+        `a record that states no disagreement and a plan whose mapping this head reads as ${JSON.stringify([...heldOut.keys()])} must derive none, and this head derives ${JSON.stringify(derived)}`,
+      );
+    }
 
-    // The reading is non-vacuous: moving one held-out row's task to a task the coverage table does
-    // not assign the edge's criterion invents a disagreement the derivation reports.
-    const movedRow = planSource.replace(
-      /^(\s*[-*]\s*E\d+\s*(?:→|->|—)\s*)(T\d+)/m,
-      '$1T999',
-    );
-    assert.notEqual(
-      movedRow,
-      planSource,
-      'the mutant must move a held-out row it found, or the reading is unchecked',
-    );
-    const moved = coverageDisagreements(
-      edges,
-      planHeldOut(movedRow),
-      planCoverage(movedRow),
-    );
+    // The reading is non-vacuous. Where the plan writes a held-out row, that row is moved to a task the
+    // coverage table does not assign its edge's criterion. Where it writes none — this head's plan
+    // states that no edge is held out — the mapping the check reads is built here instead, so the check
+    // is exercised against this plan rather than skipped because the plan holds nothing out.
+    let moved;
+    if (heldOut.size > 0) {
+      const movedRow = planSource.replace(
+        /^(\s*[-*]\s*E\d+\s*(?:→|->|—)\s*)(T\d+)/m,
+        '$1T999',
+      );
+      assert.notEqual(
+        movedRow,
+        planSource,
+        'the mutant must move a held-out row it found, or the reading is unchecked',
+      );
+      moved = coverageDisagreements(
+        edges,
+        planHeldOut(movedRow),
+        planCoverage(movedRow),
+      );
+    } else {
+      const first = edges[0];
+      assert.ok(first, 'the intent must declare at least one edge');
+      moved = coverageDisagreements(
+        edges,
+        new Map([
+          [
+            first.edge,
+            { task: 'T999', test: 'scripts/navigation-blocking.test.mjs' },
+          ],
+        ]),
+        coverage,
+      );
+    }
     assert.equal(
       moved.length,
       derived.length + 1,
-      `moving a held-out row to another task must add exactly one disagreement, and the mutated plan derives ${JSON.stringify(moved)}`,
+      `moving a held-out row to another task must add exactly one disagreement, and the mutated mapping derives ${JSON.stringify(moved)}`,
     );
     console.log(
-      `plan disagreements: ${String(derived.length)} at this head (${JSON.stringify(derived)}); the moved-row mutant derives ${String(moved.length)}`,
+      `plan disagreements: ${String(derived.length)} at this head (${JSON.stringify(derived)}); the moved-row check derives ${String(moved.length)}`,
     );
   });
 });
@@ -1511,6 +1716,28 @@ function owningCensus(recording) {
   const command = String(recording?.capture?.command ?? '');
   const named = /scripts\/[a-z0-9-]+\.test\.mjs/.exec(command)?.[0];
   return named ?? SUITE_REL;
+}
+
+/**
+ * Whether the suite a record names as its census names that record. Two spellings count, and they are
+ * not interchangeable in strength: a census may write the path literally, or it may derive it from the
+ * milestone the state file binds, so that the file it writes is the file that milestone's own readers
+ * open. The derived form is the stronger statement — a literal is what left the older census describing
+ * M044 on every milestone after it — so a suite that carries the `-verdict-claims.json` template under
+ * a `research/raw/` root, reads the milestone from the bound branch and arms an `M0NN_CAPTURE` flag of
+ * its own names this record as surely as a literal does.
+ *
+ * @param {string} source the owning census's text
+ * @param {string} record the repository path of the record it owns
+ * @returns {boolean}
+ */
+function namesThisRecord(source, record) {
+  if (source.includes(record)) return true;
+  return (
+    source.includes('-verdict-claims.json') &&
+    /`research\/raw\/\$\{/.test(source) &&
+    /boundMilestone\s*\(/.test(source)
+  );
 }
 
 const CLAIMS_OWNER = existsSync(CLAIMS_PATH)

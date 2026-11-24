@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: lazy-chunk-failure
+milestone: title-input-binding
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M064
-archive: .project/archive/064-lazy-chunk-failure
+branch: gsd-path/M065
+archive: .project/archive/065-title-input-binding
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1307,6 +1307,22 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-23 — ship — build done; final review pending
 - 2026-11-23 — ship — review findings require a plan patch
 - 2026-11-23 — plan — patch plan reopened
+- 2026-11-24 — plan — plan approved
+- 2026-11-24 — build — build started
+- 2026-11-24 — build — build complete
+- 2026-11-24 — ship — build done; final review pending
+- 2026-11-24 — shipped — archive preflight passed; shipment recorded
+- 2026-11-24 — inspect — router bound next milestone
+- 2026-11-24 — inspect — pre-approval: {"kinds": ["intent", "plan"]}
+- 2026-11-24 — inspect — docs audit stands; inspection complete
+- 2026-11-24 — define — define started
+- 2026-11-24 — define — milestone intent approved
+- 2026-11-24 — plan — planning started
+- 2026-11-24 — plan — plan approved
+- 2026-11-24 — build — build started
+- 2026-11-24 — build — build blocked
+- 2026-11-24 — plan — build plan repair requested
+- 2026-11-24 — plan — build recovery: {"base": "5068e6fec9df7b66bbb5256b3bd034f072678b38", "branch": "gsd-path/M065", "kind": "plan", "source": "build"}
 - 2026-11-24 — plan — plan approved
 - 2026-11-24 — build — build started
 - 2026-11-24 — build — build complete

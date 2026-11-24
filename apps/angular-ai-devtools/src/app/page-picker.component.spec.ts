@@ -434,6 +434,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('stability');
     expect(lazy).toContain('console');
     expect(lazy).toContain('console-read');
+    expect(lazy).toContain('title-input');
     expect(lazy).toContain('outlet');
     expect(lazy).toContain('visual-qa');
     expect(lazy).toContain('tutor-foundations');
@@ -473,6 +474,7 @@ describe('PagePickerComponent', () => {
       'stability',
       'console',
       'console-read',
+      'title-input',
       'outlet',
       'visual-qa',
       'tutor-foundations',
@@ -492,7 +494,7 @@ describe('PagePickerComponent', () => {
       'what-changed',
     ]);
 
-    // The whole table, in order and to the count — forty-three paths, exactly the ordered list
+    // The whole table, in order and to the count — forty-four paths, exactly the ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `panel-demo.spec.ts` pin. The lazy list above
     // is one reading of the table; without this one an eager route appended to the end would leave
     // this suite green, which is what M045 T007 repairs here.
@@ -523,6 +525,7 @@ describe('PagePickerComponent', () => {
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
+      'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -541,7 +544,7 @@ describe('PagePickerComponent', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(43);
+    expect(appRoutes).toHaveLength(44);
   });
 });
 

@@ -38,6 +38,22 @@
 // under `absence`, never softened into prose: two edges carry one this head measures (E4's truncated
 // hash and E6's three chat-entry lists).
 //
+// Which milestone's words these claims are held to. `intentPathForMilestone` resolves M064 to its own
+// archive, `.project/archive/064-lazy-chunk-failure/intent/INTENT.md`, and the plan beside it, so the
+// criterion text, the edge table and the held-out mapping are read from M064's documents and never
+// from M065's live ones. Two things follow, and both are pinned below rather than assumed:
+//
+//   - The milestone the record names is the one those documents are filed under, read off the
+//     resolved path (`documentMilestone`). It is not the milestone `.project/STATE.md` binds, which is
+//     whoever is being built now: a record judged against the branch line would be held to a moving
+//     target, which is the defect this indirection exists to prevent.
+//   - The record was captured while M064's documents were the live `.project/intent/INTENT.md` and
+//     `.project/plan/PLAN.md`, so it spells their paths that way. The ship moved both into the
+//     archive, and the two spellings name one document, so the record is compared in its own words at
+//     the locations it states (`atRecordedDocumentLocations`) — and that comparison refuses a stated
+//     location that does not name the file this head resolved. Every other field of the record is
+//     still compared byte for byte against the derivation.
+//
 // `M064_CAPTURE=1` arms the one write. It re-derives, compares, and writes only when a value moved, so
 // two armed runs leave the file byte-identical; a default run reads the file, asserts it is exactly
 // what this head derives, and asserts its own bytes did not move:
@@ -433,6 +449,76 @@ function boundMilestone() {
     `STATE.md must name the milestone under work by branch, and it names ${JSON.stringify(branch)}`,
   );
   return `M${number}`;
+}
+
+/**
+ * The milestone whose own documents this suite holds the record to: the number the intent it reads
+ * is filed under.
+ *
+ * M065's ship moved M064's intent and plan into `.project/archive/064-lazy-chunk-failure/`, so
+ * `.project/STATE.md` — which binds the milestone under work, M065 — is not the answer to "whose
+ * words are these claims compared to". The defect this indirection exists to prevent is a milestone's
+ * claims judged against a later milestone's documents, and reading the number off the branch line
+ * would reintroduce it the moment the bound milestone moves on. So the number is read off the
+ * document the suite actually opens: an archived intent names its milestone in its own directory, and
+ * the live intent answers only for the milestone the state file binds.
+ * @returns {string}
+ */
+function documentMilestone() {
+  const resolved = shown(sources().intentPath);
+  const archived =
+    /(?:^|\/)\.project\/archive\/(\d{3})-[^/]+\/intent\/INTENT\.md$/.exec(
+      resolved,
+    );
+  if (archived?.[1] !== undefined) return `M${archived[1]}`;
+  assert.equal(
+    resolved,
+    '.project/intent/INTENT.md',
+    `the intent this suite reads is ${resolved}: an archived milestone names its number in its own directory and the live intent is .project/intent/INTENT.md, so no milestone is read from that path`,
+  );
+  return boundMilestone();
+}
+
+/**
+ * The location a document was spelled at when the record was captured, derived from where this
+ * head reads it, never from the record.
+ *
+ * An archived milestone moved its intent and plan under `.project/archive/<NNN>-<slug>/`; the record
+ * was captured while they still sat at `.project/intent/INTENT.md` and `.project/plan/PLAN.md`. The
+ * capture-time spelling therefore follows from the resolved path, which means the expectation owes
+ * nothing to the record it judges: a record edited to point at a directory this checkout does not
+ * have still reddens, because the expectation never reads that directory.
+ * @param {string} resolved
+ * @returns {string}
+ */
+function recordedSpelling(resolved) {
+  const archived =
+    /^\.project\/archive\/\d{3}-[^/]+\/((?:intent|plan)\/(?:INTENT|PLAN)\.md)$/.exec(
+      resolved,
+    );
+  return archived ? `.project/${archived[1]}` : resolved;
+}
+
+/**
+ * The derivation, with its two document locations spelled where they sat when the record was
+ * captured and every other field the derivation's own, byte for byte.
+ * @param {any} derivedRecord
+ * @returns {any}
+ */
+function atRecordedDocumentLocations(derivedRecord) {
+  const resolvedIntent = shown(sources().intentPath);
+  const resolvedPlan = shown(sources().planPath);
+  const capturedIntent = recordedSpelling(resolvedIntent);
+  const capturedPlan = recordedSpelling(resolvedPlan);
+  const rebased = clone(derivedRecord);
+  rebased.evidence.intent.path = capturedIntent;
+  rebased.evidence.plan.path = capturedPlan;
+  rebased.quotes.edges = rebased.quotes.edges
+    .split(resolvedIntent)
+    .join(capturedIntent)
+    .split(resolvedPlan)
+    .join(capturedPlan);
+  return rebased;
 }
 
 /** The intent and plan of this milestone, read once per run. */
@@ -1576,10 +1662,11 @@ describe('the claim record', () => {
 
   it('is exactly what this head derives, and a value that moved is named', () => {
     const recorded = JSON.parse(readFileSync(CLAIMS_PATH, 'utf8'));
+    const expected = atRecordedDocumentLocations(derived(), recorded);
     assert.deepEqual(
       recorded,
-      derived(),
-      `${CLAIMS_REL} is not what this head derives: ${firstDifference(recorded, derived(), '')} - re-capture with ${CAPTURE_COMMAND}`,
+      expected,
+      `${CLAIMS_REL} is not what this head derives: ${firstDifference(recorded, expected, '')} - re-capture with ${CAPTURE_COMMAND}`,
     );
     assert.equal(
       readFileSync(CLAIMS_PATH, 'utf8'),
@@ -1648,8 +1735,8 @@ describe('the claim record', () => {
     );
     assert.equal(
       recorded.milestone,
-      boundMilestone(),
-      'the record names the milestone the state file binds',
+      documentMilestone(),
+      `${CLAIMS_REL} must name the milestone whose own intent and plan it is held to, which is the one the documents this suite opens are filed under; the record names ${JSON.stringify(recorded.milestone)} and ${JSON.stringify(shown(sources().intentPath))} is that milestone's intent`,
     );
     assert.doesNotThrow(() => assertCriterionRows(recorded));
     assert.doesNotThrow(() => assertNamesNoRepair(recorded));

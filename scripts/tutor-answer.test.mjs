@@ -366,13 +366,37 @@ function pinNamedOutside(present = presentRecords, maps = MAPS) {
 }
 
 /**
+ * The milestone the state file binds, as `m065`, or `''` where the file binds none. This is the same
+ * reading `scripts/verdict-claims-intent.mjs` makes, and it is the only way to hold a census that
+ * derives its record's path rather than spelling it: the path it writes is a function of the bound
+ * milestone, so the milestone is what says which record that census holds.
+ *
+ * @returns {string}
+ */
+function boundMilestone() {
+  const state = join(ROOT, '.project', 'STATE.md');
+  if (!existsSync(state)) return '';
+  const branch = /^branch:\s*(\S+)\s*$/m.exec(readFileSync(state, 'utf8'))?.[1];
+  const number = /^gsd-path\/M(\d{3})$/.exec(String(branch))?.[1];
+  return number === undefined ? '' : `m${number}`;
+}
+
+/**
  * A record its own census writes and reads back, so the map census is not the only thing that measures
  * it: the record's own `capture.command` names a suite this checkout carries, that suite names this
  * record's path and reads the armed flag the command states. M062's plan lands its claim list at T004 and
  * the map that would excuse it at T005, so the record arrives before the map and is held by the suite
- * that captures it; a record that merely names a suite, or whose census derives its path instead of
- * naming it, earns nothing. The rule is the same one `scripts/tutor-record-shapes.test.mjs` applies, made
- * here so the two suites hold the tree to one rule.
+ * that captures it; a record that merely names a suite earns nothing.
+ *
+ * A census may also derive its record's path from the bound branch instead of spelling it, and the
+ * census M044 introduced — `scripts/navigation-blocking.test.mjs`, which recorded every milestone from
+ * M044 to M061 and which M065 names again — does exactly that: it writes
+ * `research/raw/<the bound milestone>-verdict-claims.json`. Such a census holds one record at a head,
+ * this milestone's, and it reads that record back; so the record it derives at this head is excused and
+ * no other is. That is what keeps this reading narrow: the same template is the census of every earlier
+ * milestone, and at this head it derives M065's path, not theirs, so their records stay measured by the
+ * maps and the count this map states does not move when one of them is subtracted. It is the rule
+ * `scripts/tutor-record-shapes.test.mjs` applies, made here so the two suites hold the tree to one rule.
  * @param {{path: string, record: any}} entry
  * @returns {boolean}
  */
@@ -384,7 +408,12 @@ function heldByItsOwnCensus(entry) {
   const ownerPath = join(ROOT, owner);
   if (!existsSync(ownerPath)) return false;
   const source = readFileSync(ownerPath, 'utf8');
-  return source.includes(entry.path) && source.includes(flag);
+  if (source.includes(entry.path) && source.includes(flag)) return true;
+  const template =
+    /`research\/raw\/\$\{[^}]*\}-(verdict-claims|surface)\.json`/.exec(source);
+  const bound = boundMilestone();
+  if (template === null || bound === '') return false;
+  return entry.path === `research/raw/${bound}-${template[1]}.json`;
 }
 
 /**
@@ -1346,14 +1375,22 @@ test('T002 — a record present and not named outside the map still reddens the 
     'a record present, named outside no map and held by no census of its own is measured rather than subtracted',
   );
   const selfHeld = presentRecords.filter((entry) => heldByItsOwnCensus(entry));
+  // The three claim lists M062, M063 and M064 each gave a census of its own are excused by that census
+  // naming their path literally. M065's is excused by the census M044 introduced, which derives
+  // `research/raw/<the bound milestone>-verdict-claims.json` from the bound branch — the record it
+  // derives at this head is M065's and no other milestone's, so the same template excuses exactly one
+  // record here and leaves every earlier record measured by the maps. The list is stated rather than
+  // derived because it is the reading that must not grow unnoticed: a record excused by anything else
+  // reddens here.
   assert.deepEqual(
     selfHeld.map((entry) => entry.path),
     [
       `${RECORD_DIR}/m062-verdict-claims.json`,
       `${RECORD_DIR}/m063-verdict-claims.json`,
       `${RECORD_DIR}/m064-verdict-claims.json`,
+      `${RECORD_DIR}/m065-verdict-claims.json`,
     ],
-    `exactly the claim lists M062 T004, M063 T004 and M064 T004 write are held by their own censuses at this head, and no other record is excused this way: ${JSON.stringify(selfHeld.map((entry) => entry.path))}`,
+    `exactly the claim lists M062 T004, M063 T004, M064 T004 and M065's own census write are held by their own censuses at this head, and no other record is excused this way: ${JSON.stringify(selfHeld.map((entry) => entry.path))}`,
   );
   assert.ok(
     selfHeld.every(

@@ -1,0 +1,26 @@
+head: 4f40c3a800dba24f3785b2a368a1b0c9a925db1e at 2026-11-24T01:06:27.930Z
+title-capture: target Insurance Portal http://localhost:4507/; routes tried /home, /contract, /claim; strategy DefaultTitleStrategy; fixture fallback none
+✔ the recording validates against its own fields and its own input (2.0219ms)
+✔ the record re-derives from the input it carries, so no field was edited after the capture (1.2366ms)
+✔ the record states the target it measured, and the fixture route only if one was used (0.6302ms)
+✔ AC1: every navigation names the strategy class the injector resolved and the title the document carried (0.3059ms)
+✔ AC2: the title the observer never saw written is recorded as unobserved and carries no author (0.2454ms)
+✔ AC1/AC2: an observed write is attributed to the navigation it followed, and to none when none had started (2.0144ms)
+✔ AC1 MUTANT: a strategy written from a constant reddens the pin, naming navigations[0].strategy.className (5.4947ms)
+✔ AC2 MUTANT: a write the observer never saw attributed to the strategy reddens the pin (3.5138ms)
+✔ AC3: a default run reads the recording, prints it and writes nothing (379.1895ms)
+✔ AC3: an unarmed run with no recording refuses and creates no file (104.4248ms)
+✔ AC3: the record is written from one place, and only after M065_CAPTURE=1 armed the run (0.6032ms)
+✔ the suite this task verifies with is the command the recording names (0.2773ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 647.4668
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check scripts/title-capture.mjs scripts/title-capture.test.mjs

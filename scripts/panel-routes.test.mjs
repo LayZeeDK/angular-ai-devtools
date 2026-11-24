@@ -34,6 +34,7 @@ const surfaces = [
   'stability',
   'console',
   'console-read',
+  'title-input',
   'outlet',
   'visual-qa',
   'tutor-foundations',
@@ -56,8 +57,7 @@ const surfaces = [
 /** The identifier every panel-demo route installs. */
 const SHARED_LOADER = 'loadPanelDemo';
 
-/** The definition that identifier must have: the demo module imported dynamically, resolving its
- * component out of the module it just loaded. */
+/** The definition that identifier must have: the demo module imported dynamically, resolving its component out of the module it just loaded. */
 const SHARED_LOADER_DEFINITION =
   /const\s+loadPanelDemo\s*=\s*\(\)\s*=>\s*import\('\.\/panel-demo'\)\.then\(\s*\(\w+\)\s*=>\s*\w+\.PanelDemoComponent,?\s*\)/;
 
@@ -1478,5 +1478,93 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: chunk-failure'),
     'removing the chunk-failure loader must fail naming the missing surface chunk-failure',
+  );
+
+  // The M065 surface, and the two enumerating lists this milestone moves — pinned at the end of E4's
+  // body rather than in a test of its own for the reason this file's citation discipline states:
+  // `research/raw/m064-verdict-claims.json` records how many tests this suite declares
+  // (`evidence.suites[].tests`) and cites the `E1:` and `E4:` lines by line
+  // (`edgeClaims[5].citations`), so a fifth test — or a test inserted between them — would redraw
+  // values no task of this milestone may re-cite. The route entry and the loader key are proved here
+  // instead, each by the mutant that drops it, and the one entry the route list gained above them is
+  // paid for by folding the `SHARED_LOADER_DEFINITION` note's two lines into one.
+  const titleSurfaceSource = readFileSync(
+    join(
+      ROOT,
+      'apps',
+      'angular-ai-devtools',
+      'src',
+      'app',
+      'panel-title-input.ts',
+    ),
+    'utf8',
+  );
+
+  // Green first, on the real files: the route is one entry of the list the factory is handed, the
+  // key is one entry of the map, and the pane is a module the key can reach.
+  assert.ok(
+    declaredSurfaces(routesSource).includes('title-input'),
+    'PANEL_SURFACES must carry the title-input entry this surface answers at, and it does not',
+  );
+  assert.equal(
+    routesSource.split("  'title-input',\n").length - 1,
+    1,
+    'the title-input route is one entry of PANEL_SURFACES, and one only',
+  );
+  assert.equal(
+    demoSource.split(
+      "  'title-input': () => import('./panel-title-input') as never,\n",
+    ).length - 1,
+    1,
+    'the demo carries exactly one title-input LOADERS key, importing this module',
+  );
+  assert.ok(
+    titleSurfaceSource.includes('export function titleInputPanel'),
+    'panel-title-input.ts must export titleInputPanel, the function its loader key resolves',
+  );
+  // The property E3 holds for every pane it lists, held for this one where no cited line can move: the
+  // demo reaches the surface through its loader key and never calls the function itself, which is what
+  // keeps the pane out of the eager graph.
+  assert.ok(
+    !demoSource.includes('titleInputPanel('),
+    'the demo calls no surface directly — titleInputPanel( must arrive through its own loader',
+  );
+
+  // Mutant: the route dropped from the list the factory is handed. The route that named it goes with
+  // it, so the pin must fail naming the surface it left behind.
+  const withoutTitleRoute = routesSource.replace("  'title-input',\n", '');
+  assert.notEqual(
+    withoutTitleRoute,
+    routesSource,
+    'the removed-title-input-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutTitleRoute),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route title-input must exist'),
+    'a table without the title-input route must fail naming the missing surface title-input',
+  );
+
+  // Mutant: the loader key dropped from LOADERS. A route entry with no loader beside it renders
+  // nothing, so the check must fail naming the key rather than passing on the surfaces before it.
+  const withoutTitleLoader = demoSource.replace(
+    "  'title-input': () => import('./panel-title-input') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutTitleLoader,
+    demoSource,
+    'the title-input loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutTitleLoader),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: title-input'),
+    'removing the title-input loader must fail naming the missing surface title-input',
   );
 });
