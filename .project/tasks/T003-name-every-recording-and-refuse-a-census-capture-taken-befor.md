@@ -21,6 +21,7 @@ files:
 - scripts/guard-record-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
 - scripts/teardown-leak-shapes.test.mjs
+- research/raw/m044-gate-shapes.json
 ---
 
 # T003 — Name every recording and refuse a census capture taken before the Log
@@ -59,6 +60,7 @@ Every path this task may touch, and nothing else:
 - `scripts/guard-record-shapes.test.mjs`
 - `scripts/outlet-record-shapes.test.mjs`
 - `scripts/teardown-leak-shapes.test.mjs`
+- `research/raw/m044-gate-shapes.json`
 
 ## Interface contract
 
@@ -83,3 +85,6 @@ node --test scripts/gate-integrity.test.mjs && node -e "const r=require('./scrip
 ## Log
 
 - pending
+- 2026-11-23: scripts/recordings.json now names the four recordings this programme's captures write — the gate-shapes census, the stability record, the verdict-claims record and the record-shapes census — with the suite and the arm for each, so the knowledge has one owner instead of living in four heads.
+- 2026-11-23: the armed census capture refuses when every task it owns carries no Log, because that capture reads the Log it counts and a record written before the Log is born stale. Armed run 41 pass / 0 fail, default run 40 pass / 0 fail.
+- Landed paths: `scripts/recordings.json`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs` — each is read from this tree, ready.
