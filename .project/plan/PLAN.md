@@ -52,15 +52,15 @@ Goal: Re-derive both tree-counting recordings at the final head and prove the mi
 measures.
 Review depth: full
 
+## Wave 8 — T008: capture the milestone verdict claims
+
+Goal: Capture the claim list the gate reads, through an armed run that is idempotent, so the seven reds this milestone inherited have their cause removed rather than asserted away.
+Review depth: full
+
 ## Wave 9 — T009: measure the records the maps never counted
 
 Goal: Re-capture the two record-shapes maps that count the tree, so the records this milestone added are measured
 rather than absent.
-Review depth: full
-
-## Wave 8 — T008: capture the milestone verdict claims
-
-Goal: Capture the claim list the gate reads, through an armed run that is idempotent, so the seven reds this milestone inherited have their cause removed rather than asserted away.
 Review depth: full
 
 ## Intent coverage
