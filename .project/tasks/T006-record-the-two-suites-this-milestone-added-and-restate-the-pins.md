@@ -2,10 +2,10 @@
 id: T006
 title: Record the two suites this milestone added and restate the pins they moved
 wave: 6
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T006
+base: b146a5ee9d6a58a5d19e4a21b466daacc9f6cd4a
 worktree: null
 task_branch: null
 files:
@@ -95,3 +95,17 @@ node --test scripts/gate-integrity.test.mjs && node --test scripts/chunk-failure
 ## Log
 
 - pending
+
+- `scripts/gate-integrity.test.mjs` reports 38 pass and 2 fail with the two reason rows in place and no recording yet
+  re-derived; the armed run `M044_CAPTURE=1 node --experimental-strip-types --test scripts/gate-integrity.test.mjs` then
+  reports 41 pass and 0 fail and writes `research/raw/m044-gate-shapes.json`, and the unarmed run after it reports 40 pass
+  and 0 fail.
+- `scripts/chunk-failure-claims.test.mjs` reports 13 pass and 1 fail before the recording moves, 15 pass and 0 fail armed
+  with `M064_CAPTURE=1 node --test scripts/chunk-failure-claims.test.mjs`, and 14 pass and 0 fail unarmed afterwards.
+- The writer line is `const record = atRecordedDocumentLocations(derived());` — the reader holds the capture-time spelling,
+  so a writer that emitted the resolved one produced bytes its own default pin refused. That asymmetry is why every armed
+  re-capture after M065's rebind wrote nothing, and it is a product defect this task repairs rather than a tolerance it
+  retunes.
+- The two reason rows are appended at end of file, the file's own convention, so no pinned reference row shifts. They name
+  `scripts/m066-schema-record.test.mjs` and `scripts/schema-attribution.test.mjs` and say what each suite pins.
+- Landed paths: `scripts/gate-integrity.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `research/raw/m044-gate-shapes.json`, `research/raw/m064-verdict-claims.json`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/panel-routes.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/tutor-record-shapes.test.mjs` — each is read from this tree, ready.
