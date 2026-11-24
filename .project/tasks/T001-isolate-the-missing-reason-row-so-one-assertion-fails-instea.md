@@ -2,11 +2,11 @@
 id: T001
 title: Isolate the missing reason row so one assertion fails instead of nine
 wave: 1
-status: in-progress
+status: done
 deps: []
 agent: build_T001
-base: b21e6706e3026a88599e466396bec8b32f48d55a
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 7f635b3f0d2369a8c36147c2d53468f8c2cc2dfa
+worktree: null
 task_branch: null
 files:
 - scripts/gate-integrity.test.mjs

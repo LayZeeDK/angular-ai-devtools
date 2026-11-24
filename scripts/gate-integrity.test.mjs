@@ -3976,6 +3976,11 @@ function lineCount(file) {
  *
  * @returns {Record<string, any>}
  */
+// The suites a derivation found with no reason row. Held beside the section rather than inside it: the
+// record is a reading of the tree, and adding a key to it would make every capture stale for a reason
+// that has nothing to do with the tree changing.
+let suiteDiffUnexplained = [];
+
 function deriveSuiteDiff() {
   const baseline = git(['rev-parse', MEASURED_HEAD]).trim();
   const atBaseline = new Set(
@@ -4018,15 +4023,19 @@ function deriveSuiteDiff() {
   }
 
   const differing = [];
+  // A missing reason row is collected rather than thrown. Throwing here used to kill every derived section
+  // for every consumer, so one unexplained suite reddened nine assertions and none of them said what to
+  // paste; the assertion that owns this section reports the rows instead, and everything else still reads
+  // the tree it can see.
+  const unexplained = (suiteDiffUnexplained = []);
   for (const file of suites) {
     const present = atBaseline.has(file);
     const counts = moved.get(file);
     if (present && counts === undefined) continue;
     const reason = SUITE_DIFF_REASONS[file];
     if (typeof reason !== 'string' || reason === '') {
-      fail(
-        `${file} differs from ${MEASURED_HEAD} and no reason was read for it, so recording it would be a guess rather than a reading of the diff`,
-      );
+      unexplained.push(file);
+      continue;
     }
     const assertions = assertionCounts(baseline, file, present);
     // A suite the measured head lacks and the index does not carry either - the tree a capture runs on
@@ -4382,7 +4391,24 @@ test('T004 AC1: each check is driven on its measured instance and a clean contro
 
 test('T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails', (t) => {
   const section = derivedSections().suiteDiff;
-  assert.doesNotThrow(() => assertSuiteDiffShape(section));
+  assertSuiteDiffShape(section);
+
+  // One assertion owns the missing rows, and it prints the row to paste. The rest of the run reads the
+  // tree it can see, because a suite with no reason row no longer throws out of the derivation.
+  if (suiteDiffUnexplained.length > 0) {
+    const rows = suiteDiffUnexplained
+      .map(
+        (file) =>
+          `  '${file}': '<what the suite is, what it reads, what it refuses>',`,
+      )
+      .join('\n');
+    assert.fail(
+      `${section.unexplained.join(', ')} differs from ${MEASURED_HEAD} and SUITE_DIFF_REASONS has no row for it.\n` +
+        'Add, appended after the last Object.assign in this file:\n\n' +
+        `Object.assign(SUITE_DIFF_REASONS, {\n${rows}\n});\n\n` +
+        'No other assertion in this run is affected.',
+    );
+  }
 
   const edited = section.differing.filter((row) => row.atTheMeasuredHead);
   assert.ok(
