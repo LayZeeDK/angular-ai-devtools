@@ -63,6 +63,12 @@ Goal: Re-capture the two record-shapes maps that count the tree, so the records 
 rather than absent.
 Review depth: full
 
+## Wave 10 — T010: give the shape map an armed capture
+
+Goal: The map that has now drifted twice gains a writer that derives it and refuses a candidate that is not the
+fixed point of its own pin, so the drift stops recurring at every rebind.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
