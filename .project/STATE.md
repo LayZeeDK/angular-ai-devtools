@@ -5,7 +5,7 @@ milestone: formfield-binder
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M067
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1370,3 +1370,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-24 — build — build blocked
 - 2026-11-24 — plan — build plan repair requested
 - 2026-11-24 — plan — build recovery: {"base": "5e077158aa19c113d9a5d7afaaa2ecfecde782b4", "branch": "gsd-path/M067", "kind": "plan", "source": "build"}
+- 2026-11-24 — plan — plan approved
