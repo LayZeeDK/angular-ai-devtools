@@ -1,0 +1,1 @@
+{"command": "node --experimental-strip-types --test scripts/gate-integrity.test.mjs", "commit": "e412271900c0f35415b06ab9cf12cbc6d6423717", "recorded_at": "2026-11-24T17:24:49+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
