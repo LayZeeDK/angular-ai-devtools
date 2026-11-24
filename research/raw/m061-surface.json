@@ -15,13 +15,13 @@
     ]
   },
   "counts": {
-    "what": "the numbers this record states about the panel, the route table and the copy, each measured at this head rather than typed Every one of these values is re-read from the tree by `scripts/panel-copy.test.mjs` on every run, so a later task that moves one of them moves this record with it rather than leaving it saying yesterday’s number: M062’s T003 adds the one `outlet` entry to `PANEL_SURFACES`, the one `outlet` key to `LOADERS` and the one route that key answers, so the three counts that measure those lists move by one each from the numbers this task measured; M063’s T003 adds the one `guard-phase` entry, the one `guard-phase` key and the one route that key answers, so the same three counts move by one each again, to 33 surfaces, 33 loader keys and 42 ordered paths; M064’s T003 adds the one `chunk-failure` entry, the one `chunk-failure` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 34 surfaces, 34 loader keys and 43 ordered paths. M065’s T003 adds the one `title-input` entry, the one `title-input` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 35 surfaces, 35 loader keys and 44 ordered paths. The four copy counts do not move for any pane any of the four tasks shipped: none of them declares a sentence, so `research/raw/m048-surface-copy.json` gains no surface row and no sentence — only one `excluded` row per spec that measures a new pane — and the row that records each pane itself is an entry of this record’s own `surfaces` list, which is the list `scripts/copy-check.test.mjs` reads beside that record. M066's T003 adds the one `schema` entry, the one `schema` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 36 surfaces, 36 loader keys and 45 ordered paths.",
-    "panelSurfaces": 36,
-    "panelSurfacesBefore": 35,
-    "loaderKeys": 36,
-    "loaderKeysBefore": 35,
-    "orderedPaths": 45,
-    "orderedPathsBefore": 44,
+    "what": "the numbers this record states about the panel, the route table and the copy, each measured at this head rather than typed Every one of these values is re-read from the tree by `scripts/panel-copy.test.mjs` on every run, so a later task that moves one of them moves this record with it rather than leaving it saying yesterday’s number: M062’s T003 adds the one `outlet` entry to `PANEL_SURFACES`, the one `outlet` key to `LOADERS` and the one route that key answers, so the three counts that measure those lists move by one each from the numbers this task measured; M063’s T003 adds the one `guard-phase` entry, the one `guard-phase` key and the one route that key answers, so the same three counts move by one each again, to 33 surfaces, 33 loader keys and 42 ordered paths; M064’s T003 adds the one `chunk-failure` entry, the one `chunk-failure` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 34 surfaces, 34 loader keys and 43 ordered paths. M065’s T003 adds the one `title-input` entry, the one `title-input` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 35 surfaces, 35 loader keys and 44 ordered paths. The four copy counts do not move for any pane any of the four tasks shipped: none of them declares a sentence, so `research/raw/m048-surface-copy.json` gains no surface row and no sentence — only one `excluded` row per spec that measures a new pane — and the row that records each pane itself is an entry of this record’s own `surfaces` list, which is the list `scripts/copy-check.test.mjs` reads beside that record. M066's T003 adds the one `schema` entry, the one `schema` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 36 surfaces, 36 loader keys and 45 ordered paths. M067’s T006 adds the one `field-binder` entry, the one `field-binder` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 37 surfaces, 37 loader keys and 46 ordered paths.",
+    "panelSurfaces": 37,
+    "panelSurfacesBefore": 36,
+    "loaderKeys": 37,
+    "loaderKeysBefore": 36,
+    "orderedPaths": 46,
+    "orderedPathsBefore": 45,
     "digestRows": 204,
     "digestRowsBefore": 204,
     "digestRowsForThisSurface": 0,
@@ -317,6 +317,11 @@
     {
       "id": "schema",
       "file": "apps/angular-ai-devtools/src/app/panel-schema.ts",
+      "declares": "inline-only"
+    },
+    {
+      "id": "field-binder",
+      "file": "apps/angular-ai-devtools/src/app/panel-field-binder.ts",
       "declares": "inline-only"
     }
   ],

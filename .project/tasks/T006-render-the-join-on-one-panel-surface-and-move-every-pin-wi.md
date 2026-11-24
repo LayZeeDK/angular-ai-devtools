@@ -2,10 +2,10 @@
 id: T006
 title: Render the join on one panel surface and move every pin with it
 wave: 6
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T006
+base: 1296c303dc664df758bfcfcb42b179c2b2a74ad1
 worktree: null
 task_branch: null
 files:
@@ -111,3 +111,10 @@ npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-rout
 ## Log
 
 - pending
+- 2026-11-23: the surface renders the join's five keys and nothing else; PANEL_SURFACES 36 to 37, ppRoutes 45 to 46, LOADERS 36 to 37, FACTS 36 to 37, ordered pins 45 to 46, lazy pins 41 to 42, and the copy record re-derived to 37/37/46.
+- 2026-11-23: the Verify line was repaired before this landing — as authored it passed a non-test .ts path to 
+ode --test, which loads it as a suite and fails with ERR_MODULE_NOT_FOUND at the base as well, so it measured nothing. It is now ode --test scripts/panel-routes.test.mjs\, the suite it names.
+- 2026-11-23: two files the landing forced were added to this contract before re-activation, since the land proof reads the contract at the base: \scripts/panel-routes.test.mjs\ and esearch/raw/m061-surface.json\.
+- 2026-11-23: measured green after the change — panel-routes 4/4, copy-check 31/31, panel-copy 10/10, app suite 406 to 409 passing, pm run check\ exit 0, prettier clean.
+- 2026-11-23: seven suites are red at this base with an identical delta of zero; they belong to T007's census and recording re-derivation, which is why T007 runs the project verify.
+- Landed paths: `apps/angular-ai-devtools/src/app/panel-field-binder.ts`, `apps/angular-ai-devtools/src/app/app.routes.ts`, `apps/angular-ai-devtools/src/app/panel-demo.ts`, `apps/angular-ai-devtools/src/app/app.spec.ts`, `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`, `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/chunk-failure-claims.test.mjs`, `scripts/chunk-failure-copy.test.mjs`, `scripts/component-search.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/panel-copy.test.mjs`, `tests/held-out/fixture-explainers-unchanged.test.mjs`, `apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts`, `apps/angular-ai-devtools/src/app/panel-outlet.spec.ts`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/panel-routes.test.mjs`, `research/raw/m061-surface.json` — each is read from this tree, ready.

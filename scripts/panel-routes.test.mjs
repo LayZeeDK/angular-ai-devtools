@@ -13,9 +13,8 @@ const ROUTES = join(
   'app.routes.ts',
 );
 
-/** Every surface the panel's route table declares, in table order. Each one is a route a user
- * clicks, so a surface that loses its name, its position or its own route data fails E1 by that name
- * rather than as a smaller count. */
+/** Every surface the panel's route table declares, in table order. Each one is a route a user clicks,
+ * so a surface that loses its name, its position or its own route data fails E1 by that name rather than as a smaller count. */
 const surfaces = [
   'after-render',
   'sanitizer',
@@ -36,6 +35,7 @@ const surfaces = [
   'console-read',
   'title-input',
   'schema',
+  'field-binder',
   'outlet',
   'visual-qa',
   'tutor-foundations',
@@ -261,8 +261,7 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
     'a route carrying its own closure must fail the duplication check naming the repeated dynamic import',
   );
 
-  // Mutant: a surface dropped from the list the factory is handed — the route that named it goes
-  // with it. The pin must fail naming the surface it left behind, not merely report a smaller count.
+  // Mutant: a surface dropped from the list the factory is handed — the route that named it goes with it. The pin must fail naming the surface it left behind, not merely report a smaller count.
   const withoutShared = source.replace("  'linked-state',\n", '');
   assert.notEqual(
     withoutShared,
@@ -298,8 +297,7 @@ test('E1: the panel routes are one list mapped over one literal, and every surfa
     'a route pointed at a surface function must fail naming the property it lost',
   );
 
-  // Mutant: a surface renamed in the list the factory is handed — the route the old name answered is
-  // gone from the table entirely. The pin must name the surface whose route went with it.
+  // Mutant: a surface renamed in the list the factory is handed — the route the old name answered is gone from the table entirely. The pin must name the surface whose route went with it.
   const renamedPath = source.replace(
     "  'navigation',\n",
     "  'navigation-renamed',\n",
@@ -707,6 +705,7 @@ test('E2: the surface functions are still exported for their suites', () => {
     ],
     'guard-phase': ['panel-guard-phase', 'guardPhasePanel'],
     schema: ['panel-schema', 'schemaPanel'],
+    'field-binder': ['panel-field-binder', 'fieldBinderPanel'],
     components: ['panel-components', 'componentsPanel'],
     'copy-check': ['panel-copy-check', 'copyCheckPanel'],
     'interaction-story': ['panel-interaction-story', 'interactionStoryPanel'],
@@ -774,6 +773,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'guardPhasePanel(',
     'chunkFailurePanel(',
     'schemaPanel(',
+    'fieldBinderPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -1648,5 +1648,95 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: schema'),
     'removing the schema loader must fail naming the missing surface schema',
+  );
+
+  // The M067 surface, pinned here at the end of E4's body for the reason the M065 and M066 blocks above
+  // state: the claims record `research/raw/m064-verdict-claims.json` counts this suite's tests
+  // (`evidence.suites[].tests`) and cites the `E1:` and `E4:` lines by line, so a fifth test — or a test
+  // inserted between them — would redraw values no task of this milestone may re-cite. The route entry and
+  // the loader key are proved here instead, each by the mutant that drops it, and the three entries the
+  // lists above gained are paid for above them — by folding the `surfaces` note's three lines into two and
+  // the two-line mutants below into one line each — so `E1:` stays on 224 and `E4:` on 817.
+  const fieldBinderSurfaceSource = readFileSync(
+    join(
+      ROOT,
+      'apps',
+      'angular-ai-devtools',
+      'src',
+      'app',
+      'panel-field-binder.ts',
+    ),
+    'utf8',
+  );
+
+  // Green first, on the real files: the route is one entry of the list the factory is handed, the key is
+  // one entry of the map, and the pane is a module the key can reach.
+  assert.ok(
+    declaredSurfaces(routesSource).includes('field-binder'),
+    'PANEL_SURFACES must carry the field-binder entry this surface answers at, and it does not',
+  );
+  assert.equal(
+    routesSource.split("  'field-binder',\n").length - 1,
+    1,
+    'the field-binder route is one entry of PANEL_SURFACES, and one only',
+  );
+  assert.equal(
+    demoSource.split(
+      "  'field-binder': () => import('./panel-field-binder') as never,\n",
+    ).length - 1,
+    1,
+    'the demo carries exactly one field-binder LOADERS key, importing this module',
+  );
+  assert.ok(
+    fieldBinderSurfaceSource.includes('export function fieldBinderPanel'),
+    'panel-field-binder.ts must export fieldBinderPanel, the function its loader key resolves',
+  );
+  // The property E3 holds for every pane it lists, held for this one where no cited line can move: the
+  // demo reaches the surface through its loader key and never calls the function itself, which is what
+  // keeps the pane out of the eager graph.
+  assert.ok(
+    !demoSource.includes('fieldBinderPanel('),
+    'the demo calls no surface directly — fieldBinderPanel( must arrive through its own loader',
+  );
+
+  // Mutant: the route dropped from the list the factory is handed. The route that named it goes with it,
+  // so the pin must fail naming the surface it left behind.
+  const withoutFieldBinderRoute = routesSource.replace(
+    "  'field-binder',\n",
+    '',
+  );
+  assert.notEqual(
+    withoutFieldBinderRoute,
+    routesSource,
+    'the removed-field-binder-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutFieldBinderRoute),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route field-binder must exist'),
+    'a table without the field-binder route must fail naming the missing surface field-binder',
+  );
+
+  // Mutant: the loader key dropped from LOADERS. A route entry with no loader beside it renders nothing,
+  // so the check must fail naming the key rather than passing on the surfaces before it.
+  const withoutFieldBinderLoader = demoSource.replace(
+    "  'field-binder': () => import('./panel-field-binder') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutFieldBinderLoader,
+    demoSource,
+    'the field-binder loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutFieldBinderLoader),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: field-binder'),
+    'removing the field-binder loader must fail naming the missing surface field-binder',
   );
 });

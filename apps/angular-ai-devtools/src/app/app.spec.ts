@@ -41,12 +41,11 @@ describe('App', () => {
  * count moves from thirty-two to thirty-three without moving one. M054's `visual-qa` sits between
  * `console-read` and `webmcp-rehearsal` for the same reason — the route records cite the routes below
  * the list — which is why the count moves from thirty-three to thirty-four without moving a citation.
- * M055's `tutor-foundations` follows `visual-qa` for the same reason, which is why the count moves
- * from thirty-four to thirty-five without moving one. M057's `tutor-signals` follows
- * `tutor-foundations` for the same reason and is paid for out of that paragraph's own note, which is
- * why the count moves from thirty-five to thirty-six without moving a citation. M058's
- * `tutor-routing` follows `tutor-signals` for the same reason and is paid for by folding the M053
- * note into that paragraph and deleting its line, which is why the count moves from thirty-six to
+ * M055's `tutor-foundations` follows `visual-qa`, which is why the count moves from thirty-four to
+ * thirty-five without moving one. M057's `tutor-signals` follows it and is paid for out of that
+ * paragraph's own note, which is why the count moves from thirty-five to thirty-six without moving a
+ * citation. M058's `tutor-routing` follows `tutor-signals` and is paid for by folding the M053 note
+ * into that paragraph and deleting its line, which is why the count moves from thirty-six to
  * thirty-seven without moving one. M059's `teardown-leak` follows `webmcp` for the same reason and is
  * paid for by folding the M047 note's three lines into one, which is why the count moves from
  * thirty-seven to thirty-eight without moving a cited line. M060's `error-routing` sits between
@@ -70,8 +69,8 @@ describe('App', () => {
  * the line the M050 note stood on, and M065's `title-input` follows `console-read` and is paid for by
  * folding the M046 note's two lines into one, so neither costs the table a line: every cited path
  * line, the declaration and mapped-literal lines and this count keep their numbers. M066's `schema`
- * follows `title-input` for the same reason and is paid for by folding the M054 note's two lines into
- * one, so it costs the table one line and no cited line moves: the count is forty-five now.
+ * follows `title-input` and costs the table one line; M067's `field-binder` follows `schema`, is paid
+ * for above the list, and costs it none: the count is forty-six now.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -104,6 +103,7 @@ describe('the route table', () => {
       'console-read', // M046 SC1-3 surface: the control that names what will be sent, the body the pane drew, and the absence or the cannot-tell reason
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
       'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the schema node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
+      'field-binder', // M067 SC4 surface: the join's answer for one form field — the state, the identity the row is keyed by, the hosted control the record read, the control the record expects and the reason when the comparison could not be made, each absence in the place the fact would stand, with no cause, no remedy, no inferred control and no advice
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -517,5 +517,21 @@ describe('the route table', () => {
     expect(appRoutes.filter((route) => route.path === 'schema')).toHaveLength(
       1,
     );
+
+    const fieldBinder = appRoutes.find(
+      (route) => route.path === 'field-binder',
+    );
+    expect(fieldBinder?.component).toBeUndefined();
+    if (fieldBinder?.loadComponent === undefined) {
+      throw new Error('the field-binder surface must load lazily');
+    }
+    expect(await fieldBinder.loadComponent()).toBe(PanelDemoComponent);
+    expect(fieldBinder.data?.['surface']).toBe('field-binder');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(fieldBinder.data?.['surface']).not.toBe('schema');
+    // One entry, so the route this task adds is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'field-binder'),
+    ).toHaveLength(1);
   });
 });

@@ -130,6 +130,18 @@ import {
   STATES as SCHEMA_STATES,
   schemaPanel,
 } from './panel-schema';
+import {
+  BOUND as FIELD_BOUND,
+  CANNOT_TELL as FIELD_CANNOT_TELL,
+  EXPECTED_ABSENCES as FIELD_EXPECTED_ABSENCES,
+  FIELDS as FIELD_FIELDS,
+  HOSTED_ABSENCES as FIELD_HOSTED_ABSENCES,
+  LABELS as FIELD_LABELS,
+  MISMATCH as FIELD_MISMATCH,
+  NO_HOST as FIELD_NO_HOST,
+  STATES as FIELD_STATES,
+  fieldBinderPanel,
+} from './panel-field-binder';
 import { fieldsPanel } from './panel-fields';
 import { errorBoundaryPanel } from './panel-error-boundary';
 import { stabilityPanel } from './panel-stability';
@@ -3046,7 +3058,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — forty-five paths, the same ordered list
+    // The whole table, in order and to the count — forty-six paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -3079,6 +3091,7 @@ describe('the panel demo', () => {
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
       'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
+      'field-binder', // M067 SC4 surface: the join's answer for one form field — the state, the identity the row is keyed by, the hosted control the record read, the control the record expects and the reason when the comparison could not be made, each absence in the place the fact would stand, with no cause, no remedy, no inferred control and no advice
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -3097,7 +3110,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(45);
+    expect(appRoutes).toHaveLength(46);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -9731,5 +9744,562 @@ describe('the schema surface', () => {
     const before = JSON.stringify(noNode);
     expect(schemaPanel(noNode).text).toBe(schemaPanel(noNode).text);
     expect(JSON.stringify(noNode)).toBe(before);
+  });
+});
+
+// The field-binder surface, and the rule this milestone is about: one form field's hosted control,
+// rendered beside the control its record expects, and neither of them inferred. The sample fact is the
+// shipped join's own answer over the record T004 measured (`research/raw/m067-field-binder.json`), and
+// the pane renders the five keys it is written for — `state`, `field`, `hosted`, `expected`, `reason` —
+// and no sixth. `research/raw/m067-field-binder.json` is re-read here, `extension/field-binder.js` is
+// evaluated from its own committed text, and the fact the demo is handed must equal that answer field
+// for field — so a fact that drifted from the record, the join or the tree reddens here rather than
+// shipping. The record read one hosted element for three of its four fields and an expected control for
+// none, so the pane's own states are proven on answers the join gives over rows built here as well as on
+// the record's: a `bound` and a `mismatch` the sampling page never produced are still the join's answers,
+// and the pane renders them by the same three rules.
+
+/** One row of T004's field-binder record, in the shape the join reads. */
+interface FieldBinderRowFile {
+  field: string;
+  identity: { read: boolean; value?: string };
+  hosted: {
+    read: boolean;
+    value?: { tag: string; attribute: { name: string; value: string } };
+    reason?: string;
+  };
+  expected: { read: boolean; value?: string; reason?: string };
+}
+
+/** T004's field-binder record: the rows it measured and the counts it states about them. */
+interface FieldBinderRecordFile {
+  fields: FieldBinderRowFile[];
+  counts: {
+    fields: number;
+    identityRead: number;
+    hostedRead: number;
+    hostedUnread: number;
+    expectedRead: number;
+    expectedUnread: number;
+  };
+}
+
+/** The namespace `extension/field-binder.js` exports, evaluated from its own committed text. */
+interface FieldBinderNamespace {
+  fieldBinder(record: unknown, facts?: unknown): Record<string, unknown>;
+  BOUND: string;
+  MISMATCH: string;
+  NO_HOST: string;
+  CANNOT_TELL: string;
+  HOSTS_NO_ELEMENT: string;
+  HOSTED_NOT_RECORDED: string;
+  HOSTED_NOT_A_CONTROL: string;
+  EXPECTED_NOT_RECORDED: string;
+  EXPECTED_NOT_A_CONTROL: string;
+}
+
+/** T004's field-binder record, inlined from disk the way every recording in this spec arrives. */
+function readFieldBinderRecord(): FieldBinderRecordFile {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m067-field-binder.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  return JSON.parse(
+    inlinedText(modules, 'research/raw/m067-field-binder.json'),
+  ) as FieldBinderRecordFile;
+}
+
+/**
+ * The join `extension/field-binder.js` exports, evaluated from its own committed text: the demo's
+ * `field-binder` fact is held to the join's answer, not to a copy of it. The module is a pure ES module
+ * with no imports, one `export` keyword and the closed sets of state words and reason words it answers
+ * with, so that keyword is dropped, the rest runs as one function body, and the join and those words are
+ * handed back — which is what lets this spec pin the pane's tables to the join's own vocabulary rather
+ * than to a second copy of it.
+ */
+function fieldBinderJoin(): FieldBinderNamespace {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/field-binder.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const source = inlinedText(modules, 'extension/field-binder.js').replace(
+    /^export /gm,
+    '',
+  );
+  const load = new Function(
+    `${source}\nreturn { fieldBinder, BOUND, MISMATCH, NO_HOST, CANNOT_TELL, HOSTS_NO_ELEMENT, HOSTED_NOT_RECORDED, HOSTED_NOT_A_CONTROL, EXPECTED_NOT_RECORDED, EXPECTED_NOT_A_CONTROL };`,
+  ) as () => FieldBinderNamespace;
+  const api = load();
+  if (typeof api.fieldBinder !== 'function') {
+    throw new Error(
+      'extension/field-binder.js declared no fieldBinder function',
+    );
+  }
+  return api;
+}
+
+/**
+ * The pin the field-binder pane's field table is held to: it renders the keys of an answer the join
+ * returns, minus `observed`, in the join's own order, and writes a line under exactly one label per key
+ * rendered. Kept callable with doctored tables, so a pane that grew a key the answer does not carry — a
+ * `remedy`, a `cause` or an inferred `control` — reddens naming the surface and the key it invented
+ * rather than passing on a table nobody re-read.
+ *
+ * `observed` is the one key of the answer this pane does not render: it is the record's own row quoted
+ * back, and the five keys above it are the whole of what the surface answers for. The pin states that
+ * exclusion rather than assuming it, so a pane that started rendering the quote is a pane whose table
+ * has six entries and reddens here.
+ */
+function assertFieldBinderFields(
+  answerKeys: readonly string[],
+  fields: readonly string[],
+  labels: Record<string, string>,
+): void {
+  const rendered = answerKeys.filter((key) => key !== 'observed');
+  if (JSON.stringify([...fields]) !== JSON.stringify(rendered)) {
+    throw new Error(
+      `the field-binder pane must render the join's ${rendered.length} keys it answers for (${rendered.join(', ')}) in that order, and not the record quote; it renders ${JSON.stringify([...fields])}, and a key the answer does not carry — a remedy, a cause or an inferred control — is a line the join never produced`,
+    );
+  }
+  const written = Object.values(labels);
+  if (JSON.stringify(written) !== JSON.stringify([...fields])) {
+    throw new Error(
+      `the field-binder pane must write every line under one of the join's own key names, one label per key; its labels are ${JSON.stringify(written)}, and a label the answer has no key for is a remedy this pane invented`,
+    );
+  }
+}
+
+/**
+ * The pin the field-binder pane's state table is held to: the four state words the join answers, in the
+ * join's own order and no fifth. Callable with a doctored list, so a state list that lost a word reddens
+ * naming the surface.
+ */
+function assertFieldBinderStates(
+  joinStates: readonly string[],
+  states: readonly string[],
+): void {
+  if (JSON.stringify([...states]) !== JSON.stringify([...joinStates])) {
+    throw new Error(
+      `the field-binder pane must enumerate the join's ${joinStates.length} states (${joinStates.join(', ')}) in that order; it enumerates ${JSON.stringify([...states])}`,
+    );
+  }
+}
+
+/** The four state words the join answers with, read off the join's own constants. */
+function fieldBinderStates(join: FieldBinderNamespace): readonly string[] {
+  return [join.BOUND, join.MISMATCH, join.NO_HOST, join.CANNOT_TELL];
+}
+
+/**
+ * One row of T004's record, rebuilt for the states the sampling page never produced: the hosted reading
+ * the record measured for a field, with the expected control a row would have to state before the join
+ * can compare anything at all.
+ */
+function comparisonRow(
+  hosted: unknown,
+  expected: unknown,
+): { fields: unknown[] } {
+  return {
+    fields: [
+      {
+        field: 'policyNumber',
+        identity: { read: true, value: 'policyNumber' },
+        hosted,
+        expected,
+      },
+    ],
+  };
+}
+
+describe('the field-binder surface', () => {
+  it('is the join’s own answer over T004’s record, reached by the route and loader key the table carries', async () => {
+    const recording = readFieldBinderRecord();
+    const join = fieldBinderJoin();
+    const first = recording.fields[0];
+    if (first === undefined) {
+      throw new Error("T004's field-binder record carries no field row");
+    }
+    const answer = join.fieldBinder(recording, { field: first.field });
+
+    // The sample fact is not written here and not written by hand in the demo either: it is the shipped
+    // join's answer over the committed record, field for field, key for key.
+    expect(FACTS['field-binder']).toEqual(answer);
+    expect(Object.keys(FACTS['field-binder'] as object)).toEqual(
+      Object.keys(answer),
+    );
+
+    // The record states what T004 measured: one hosted element for three of its four fields, an
+    // expected control for none of them — which is why the sampled answer is the comparison the join
+    // cannot make rather than an invented `bound`.
+    expect(recording.counts.fields).toBe(recording.fields.length);
+    expect(recording.counts.hostedRead).toBe(3);
+    expect(recording.counts.hostedUnread).toBe(1);
+    expect(recording.counts.expectedRead).toBe(0);
+    expect(recording.counts.expectedUnread).toBe(4);
+    expect(answer['state']).toBe(join.CANNOT_TELL);
+    expect(answer['field']).toBe(first.field);
+    expect(answer['hosted']).toEqual(first.hosted.value);
+    expect(answer['expected']).toBeNull();
+    expect(answer['reason']).toBe(join.EXPECTED_NOT_RECORDED);
+
+    // Every row answers from the record: the three fields that host an element carry the one the record
+    // read and name the expected control it does not, and the field that hosts nothing answers `no-host`
+    // with the absence's own word — never a control borrowed from the neighbouring row.
+    for (const row of recording.fields) {
+      const each = join.fieldBinder(recording, { field: row.field });
+      expect(each['field']).toBe(row.field);
+      if (row.hosted.read) {
+        expect(each['state']).toBe(join.CANNOT_TELL);
+        expect(each['hosted']).toEqual(row.hosted.value);
+        expect(each['reason']).toBe(join.EXPECTED_NOT_RECORDED);
+      } else {
+        expect(each['state']).toBe(join.NO_HOST);
+        expect(each['hosted']).toBeNull();
+        expect(each['reason']).toBe(join.HOSTS_NO_ELEMENT);
+      }
+      expect(each['expected']).toBeNull();
+    }
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'field-binder',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the field-binder surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('field-binder');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(route.data?.['surface']).not.toBe('schema');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'field-binder'),
+    ).toHaveLength(1);
+
+    // The demo renders the pane the module answers, and the pane is the loader key's own module.
+    const demo = await renderDemo('field-binder');
+    const pane = fieldBinderPanel(FACTS['field-binder']);
+    expect(demo.state()).toBe(join.CANNOT_TELL);
+    expect(demo.lines()).toEqual(pane.lines);
+  });
+
+  it('enumerates the five keys it renders and the join’s four states, and reddens naming the surface and the remedy a pane invents', () => {
+    const join = fieldBinderJoin();
+    const recording = readFieldBinderRecord();
+    const first = recording.fields[0];
+    if (first === undefined) {
+      throw new Error("T004's field-binder record carries no field row");
+    }
+    // The join's own key list is the key list of an answer it returns: nothing else enumerates the six
+    // keys, so the pane's table is held to an answer rather than to a copy of one.
+    const answerKeys = Object.keys(
+      join.fieldBinder(recording, { field: first.field }),
+    );
+    const joinStates = fieldBinderStates(join);
+
+    // Green first, on the tables as they sit on disk. The pins run before the literal expectations below,
+    // so a table a pane grew reddens by the pin's own name — the surface, the key it invented and the
+    // rule it broke — rather than as a diff of two lists.
+    assertFieldBinderFields(answerKeys, [...FIELD_FIELDS], { ...FIELD_LABELS });
+    assertFieldBinderStates(joinStates, [...FIELD_STATES]);
+    expect([...FIELD_FIELDS]).toEqual([
+      'state',
+      'field',
+      'hosted',
+      'expected',
+      'reason',
+    ]);
+    expect([...FIELD_STATES]).toEqual(joinStates);
+    expect(Object.keys(FIELD_LABELS)).toEqual([...FIELD_FIELDS]);
+    expect(Object.values(FIELD_LABELS)).toEqual([...FIELD_FIELDS]);
+
+    // The two absence tables are the join's own words, not a second spelling of them: the pane prints a
+    // `hosted` line or an `expected` line only from these lists, so a word the join does not answer with
+    // would be a word this pane could never print.
+    expect([...FIELD_HOSTED_ABSENCES]).toEqual([
+      join.HOSTS_NO_ELEMENT,
+      join.HOSTED_NOT_RECORDED,
+      join.HOSTED_NOT_A_CONTROL,
+    ]);
+    expect([...FIELD_EXPECTED_ABSENCES]).toEqual([
+      join.EXPECTED_NOT_RECORDED,
+      join.EXPECTED_NOT_A_CONTROL,
+    ]);
+
+    // Mutant: a sixth key the answer does not carry, added to both halves of the pane's table. This is
+    // the defect the milestone exists against — a surface that renders a remedy the join never produced —
+    // so the pin must redden naming the surface and the key it invented.
+    const invented = reddens(
+      () =>
+        assertFieldBinderFields(answerKeys, [...FIELD_FIELDS, 'remedy'], {
+          ...FIELD_LABELS,
+          remedy: 'remedy',
+        }),
+      'a key the answer does not carry',
+    );
+    expect(invented.message).toContain('field-binder');
+    expect(invented.message).toContain('remedy');
+
+    // Mutant: the record quote added to the render list alone, which is the shape a pane that started
+    // printing `observed` would have — the sixth key the answer does carry and this surface does not.
+    const quoteRendered = reddens(
+      () =>
+        assertFieldBinderFields(answerKeys, [...FIELD_FIELDS, 'observed'], {
+          ...FIELD_LABELS,
+          observed: 'observed',
+        }),
+      'the record quote rendered as a sixth line',
+    );
+    expect(quoteRendered.message).toContain('field-binder');
+    expect(quoteRendered.message).toContain('observed');
+
+    // Mutant: the same sixth key added to the label table alone, which is the shape a pane that prints a
+    // remedy line for one state would have.
+    const inventedLabel = reddens(
+      () =>
+        assertFieldBinderFields(answerKeys, [...FIELD_FIELDS], {
+          ...FIELD_LABELS,
+          remedy: 'remedy',
+        }),
+      'a label the answer has no key for',
+    );
+    expect(inventedLabel.message).toContain('field-binder');
+    expect(inventedLabel.message).toContain('remedy');
+
+    // Mutant: one key dropped from the enumeration — the defect a pane that stopped rendering the
+    // expected control would have.
+    const dropped = reddens(
+      () =>
+        assertFieldBinderFields(
+          answerKeys,
+          FIELD_FIELDS.filter((field) => field !== 'expected'),
+          Object.fromEntries(
+            Object.entries(FIELD_LABELS).filter(([key]) => key !== 'expected'),
+          ),
+        ),
+      'a key dropped from the enumeration',
+    );
+    expect(dropped.message).toContain('field-binder');
+    expect(dropped.message).toContain('expected');
+
+    // Mutant: one state dropped from the enumeration. The pin must redden naming the surface.
+    const droppedState = reddens(
+      () =>
+        assertFieldBinderStates(
+          joinStates,
+          FIELD_STATES.filter((state) => state !== FIELD_MISMATCH),
+        ),
+      'a state dropped from the enumeration',
+    );
+    expect(droppedState.message).toContain('field-binder');
+    expect(droppedState.message).toContain(FIELD_MISMATCH);
+  });
+
+  it('renders each state from the answer it was given, and shows a named absence where the fact would stand', () => {
+    const join = fieldBinderJoin();
+    const recording = readFieldBinderRecord();
+    const hosted = recording.fields[0]?.hosted.value;
+
+    // `bound`: both facts present and the same control, printed as they were recorded — the hosted
+    // reading as the record's own object, the expected control as the record's own name, and no reason
+    // line, because nothing is absent.
+    const bound = join.fieldBinder(
+      comparisonRow(
+        { read: true, value: hosted },
+        { read: true, value: 'input' },
+      ),
+      { field: 'policyNumber' },
+    );
+    expect(bound['state']).toBe(FIELD_BOUND);
+    expect(fieldBinderPanel(bound).lines).toEqual([
+      `state: ${FIELD_BOUND}`,
+      'field: policyNumber',
+      `hosted: ${JSON.stringify(hosted)}`,
+      'expected: input',
+    ]);
+
+    // `mismatch`: both present and different, and both printed — a reader is told what the field hosts
+    // and what its record expects, and never one of the two.
+    const mismatch = join.fieldBinder(
+      comparisonRow(
+        { read: true, value: hosted },
+        { read: true, value: 'p-select' },
+      ),
+      { field: 'policyNumber' },
+    );
+    expect(mismatch['state']).toBe(FIELD_MISMATCH);
+    const mismatchLines = fieldBinderPanel(mismatch).lines;
+    expect(mismatchLines).toEqual([
+      `state: ${FIELD_MISMATCH}`,
+      'field: policyNumber',
+      `hosted: ${JSON.stringify(hosted)}`,
+      'expected: p-select',
+    ]);
+    expect(mismatchLines.some((line) => line.startsWith('reason: '))).toBe(
+      false,
+    );
+
+    // `no-host` where the record states the absence: the hosted line carries the absence's own word
+    // rather than an empty cell, and the expected control the record did read is still printed beside it.
+    const noHost = join.fieldBinder(
+      comparisonRow(
+        { read: false, reason: 'no element carries it' },
+        { read: true, value: 'input' },
+      ),
+      { field: 'policyNumber' },
+    );
+    expect(noHost['state']).toBe(FIELD_NO_HOST);
+    expect(fieldBinderPanel(noHost).lines).toEqual([
+      `state: ${FIELD_NO_HOST}`,
+      'field: policyNumber',
+      `hosted: ${join.HOSTS_NO_ELEMENT}`,
+      'expected: input',
+      `reason: ${join.HOSTS_NO_ELEMENT}`,
+    ]);
+
+    // The demo's own answer: the hosted reading the record measured, the expected absence under the
+    // label it belongs to, and the join's reason word — never a control in the absence's place.
+    const sampled = fieldBinderPanel(FACTS['field-binder']);
+    expect(sampled.lines).toEqual([
+      `state: ${FIELD_CANNOT_TELL}`,
+      'field: policyNumber',
+      `hosted: ${JSON.stringify(hosted)}`,
+      `expected: ${join.EXPECTED_NOT_RECORDED}`,
+      `reason: ${join.EXPECTED_NOT_RECORDED}`,
+    ]);
+
+    // The absence on the other side: a row that states no hosted fact at all answers `cannot-tell` naming
+    // it, and the pane prints that word where the host would stand.
+    const hostedNotRecorded = join.fieldBinder(
+      comparisonRow(undefined, { read: true, value: 'input' }),
+      { field: 'policyNumber' },
+    );
+    expect(hostedNotRecorded['state']).toBe(FIELD_CANNOT_TELL);
+    expect(hostedNotRecorded['reason']).toBe(join.HOSTED_NOT_RECORDED);
+    expect(fieldBinderPanel(hostedNotRecorded).lines).toContain(
+      `hosted: ${join.HOSTED_NOT_RECORDED}`,
+    );
+
+    // A reading that names no element tag is a host the join refuses to call a control: the reading it
+    // was given is printed as it arrived, and the reason says why it is not one.
+    const hostedNotAControl = join.fieldBinder(
+      comparisonRow(
+        {
+          read: true,
+          value: { attribute: { name: 'id', value: 'policyNumber' } },
+        },
+        { read: true, value: 'input' },
+      ),
+      { field: 'policyNumber' },
+    );
+    expect(hostedNotAControl['reason']).toBe(join.HOSTED_NOT_A_CONTROL);
+    expect(fieldBinderPanel(hostedNotAControl).lines).toContain(
+      'hosted: {"attribute":{"name":"id","value":"policyNumber"}}',
+    );
+
+    // A field the caller states is no components field: `no-host` with the caller's own reason, and the
+    // host the record read still printed beside it rather than dropped as though it were not there.
+    const notComponents = join.fieldBinder(
+      comparisonRow({ read: true, value: hosted }, undefined),
+      {
+        field: 'policyNumber',
+        componentsField: false,
+      },
+    );
+    expect(notComponents['state']).toBe(FIELD_NO_HOST);
+    expect(notComponents['reason']).toBe('not-a-components-field');
+    expect(fieldBinderPanel(notComponents).lines).toContain(
+      `hosted: ${JSON.stringify(hosted)}`,
+    );
+
+    // `cannot-tell` for a record carrying several rows and no field named: no field line, no hosted line
+    // and no expected line — the answer is not about a side, so the pane invents neither, and no empty
+    // cell stands where a value would.
+    const notChosen = join.fieldBinder(recording, {});
+    expect(notChosen['reason']).toBe('field-not-chosen');
+    expect(fieldBinderPanel(notChosen).lines).toEqual([
+      `state: ${FIELD_CANNOT_TELL}`,
+      'reason: field-not-chosen',
+    ]);
+
+    // A record the join cannot read, and a value that is no answer at all: the reason word the join
+    // published, and the one word the pane can state for a value nobody answered with.
+    const unreadable = join.fieldBinder(null, { field: 'policyNumber' });
+    expect(fieldBinderPanel(unreadable).lines).toEqual([
+      `state: ${FIELD_CANNOT_TELL}`,
+      'reason: record-unreadable',
+    ]);
+    expect(fieldBinderPanel(undefined).lines).toEqual([
+      `state: ${FIELD_CANNOT_TELL}`,
+    ]);
+
+    // A state word this pane was not written for renders as the word alone: the pane has no reading to
+    // print for a state nobody wrote.
+    expect(fieldBinderPanel({ state: 'derived' }).lines).toEqual([
+      'state: derived',
+    ]);
+
+    // No line is ever an empty cell: every `label: ` the pane writes is followed by something, which is
+    // what "a named absence is shown, not a blank" means at the renderer.
+    const answers = [
+      bound,
+      mismatch,
+      noHost,
+      hostedNotRecorded,
+      hostedNotAControl,
+      notComponents,
+      notChosen,
+      unreadable,
+      FACTS['field-binder'],
+    ];
+    for (const answer of answers)
+      for (const line of fieldBinderPanel(answer).lines)
+        expect(line.slice(line.indexOf(': ') + 2).length).toBeGreaterThan(0);
+
+    // Every line is a label the table names and a value the answer carries — nothing composed, nothing
+    // paraphrased, and no sentence of the pane's own.
+    const labels: readonly string[] = Object.values(FIELD_LABELS);
+    for (const answer of answers)
+      for (const line of fieldBinderPanel(answer).lines) {
+        const label = line.slice(0, line.indexOf(': '));
+        expect(labels.includes(label)).toBe(true);
+      }
+
+    // A sixth key on the answer renders nothing: the pane reads the five keys it is written for and no
+    // other, so a cause, a remedy, an inferred control or a suggestion smuggled in beside them has no
+    // label to appear under (SC4).
+    const smuggled: Record<string, unknown> = {
+      ...noHost,
+      remedy: 'declare the expected control',
+      cause: 'the field binds no form control',
+      control: 'p-select',
+      suggestion: 'add expected to the row',
+    };
+    expect(fieldBinderPanel(smuggled).lines).toEqual(
+      fieldBinderPanel(noHost).lines,
+    );
+
+    // No cause, no remedy, no advice and no inferred control: the words a pane would have to write for
+    // itself, scanned over every state it renders — including the demo's own fact.
+    const rendered = [
+      ...answers.map((answer) => fieldBinderPanel(answer).text),
+      fieldBinderPanel(smuggled).text,
+    ].join('\n');
+    for (const word of [
+      'fix',
+      'remedy',
+      'schematic',
+      'suggestion',
+      'cause',
+      'because',
+      'should',
+      'declare',
+    ])
+      expect(new RegExp(`\\b${word}\\b`, 'i').test(rendered)).toBe(false);
+
+    // The same answer twice renders the same bytes, and the pane writes nothing into the answer.
+    const before = JSON.stringify(noHost);
+    expect(fieldBinderPanel(noHost).text).toBe(fieldBinderPanel(noHost).text);
+    expect(JSON.stringify(noHost)).toBe(before);
   });
 });

@@ -324,8 +324,7 @@ describe('ChatEntryComponent', () => {
     expect(has(fixture, 'cannot-tell')).toBe(false);
     expect(has(fixture, 'no-angular-root')).toBe(false);
 
-    // The entry point built the context before it called the registry, and passed that context's
-    // facts — so a live page never reaches `EMPTY_FACTS` and `host-unavailable` (SC1, AC1).
+    // The entry point built the context before it called the registry, and passed that context's facts — so a live page never reaches `EMPTY_FACTS` and `host-unavailable` (SC1, AC1).
     expect(calls).toHaveLength(1);
     expect(calls[0]?.toolId).toBe(APP_FACTS_TOOL_ID);
     expect(calls[0]?.input).toBeUndefined();
@@ -717,6 +716,7 @@ describe('the chat route', () => {
       'console-read', // M046 SC1-3 surface: the control naming what will be sent, the body the pane drew, the absence or the cannot-tell reason
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
       'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
+      'field-binder', // M067 SC4 surface: the join's answer for one form field — the state, the identity the row is keyed by, the hosted control the record read, the expected control it does not, and the reason when the comparison could not be made, each absence in the place the fact would stand
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -764,6 +764,7 @@ describe('the chat route', () => {
       'console-read', // M046 SC1-3 surface
       'title-input', // M065 SC4 surface: the four states the title join answers, the strategy, both titles and the observed-write count it carries
       'schema', // M066 SC2-4 surface: the attribution for one field, the node and input a declaration carries, the reason and the keys the record's own field row carries
+      'field-binder', // M067 SC4 surface: one form field's state, identity, hosted control, expected control and reason, each absence where the fact would stand
       'outlet', // M062 SC4 surface: the outlet the route config requested, the name the router state matched, that route's path and each absence, or the cannot-tell state
       'visual-qa', // M054 SC1-3 surface
       'tutor-foundations', // M055 SC1-3 surface
@@ -831,6 +832,7 @@ describe('the chat route', () => {
       'console-read',
       'title-input',
       'schema',
+      'field-binder',
       'outlet',
       'webmcp-rehearsal',
       'webmcp',
