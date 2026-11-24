@@ -2,11 +2,11 @@
 id: T003
 title: Render the attribution and pin every enumerating list
 wave: 3
-status: pending
+status: done
 deps: 
 - T002
-agent: null
-base: null
+agent: build_T003
+base: 126d6a91e38e242189077e1c2952b58be1c76e63
 worktree: null
 task_branch: null
 files:

@@ -415,10 +415,10 @@ describe('PagePickerComponent', () => {
     // adds `console` last, M046 adds `console-read` after that, M047 adds `components` after that,
     // M048 adds `copy-check` after that and M049 adds `interaction-story` after that, M050 adds
     // `dead-click` after that and M051 adds `what-changed` after that, M054 appends `visual-qa` after
-    // that, while M053 adds
-    // `webmcp-rehearsal` between `console-read` and `webmcp` — and M059 adds `teardown-leak` between
+    // that, while M053 adds `webmcp-rehearsal` between `console-read` and `webmcp` — and M059 adds `teardown-leak` between
     // `webmcp` and `components` — and M060 adds `error-routing` between `interaction-story` and
-    // `dead-click` — and M064 adds `chunk-failure` after `what-changed` — so a route that quietly
+    // `dead-click` — and M064 adds `chunk-failure` after `what-changed` — and M066 adds `schema` after
+    // `title-input` — so a route that quietly
     // stopped being lazy reddens
     // here as well as in the app suite rather than going unread. The list of lazy paths is one
     // reading of the table and it is not the count: the whole table is pinned below, so an eager
@@ -435,6 +435,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('console');
     expect(lazy).toContain('console-read');
     expect(lazy).toContain('title-input');
+    expect(lazy).toContain('schema');
     expect(lazy).toContain('outlet');
     expect(lazy).toContain('visual-qa');
     expect(lazy).toContain('tutor-foundations');
@@ -475,6 +476,7 @@ describe('PagePickerComponent', () => {
       'console',
       'console-read',
       'title-input',
+      'schema',
       'outlet',
       'visual-qa',
       'tutor-foundations',
@@ -494,7 +496,7 @@ describe('PagePickerComponent', () => {
       'what-changed',
     ]);
 
-    // The whole table, in order and to the count — forty-four paths, exactly the ordered list
+    // The whole table, in order and to the count — forty-five paths, exactly the ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `panel-demo.spec.ts` pin. The lazy list above
     // is one reading of the table; without this one an eager route appended to the end would leave
     // this suite green, which is what M045 T007 repairs here.
@@ -526,6 +528,7 @@ describe('PagePickerComponent', () => {
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
+      'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -544,7 +547,7 @@ describe('PagePickerComponent', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(44);
+    expect(appRoutes).toHaveLength(45);
   });
 });
 

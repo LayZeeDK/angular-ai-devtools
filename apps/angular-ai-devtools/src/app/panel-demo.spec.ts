@@ -119,6 +119,17 @@ import { ActivatedRoute } from '@angular/router';
 import { describe, expect, it, vi } from 'vitest';
 import { appRoutes } from './app.routes';
 import { FACTS, PanelDemoComponent } from './panel-demo';
+import {
+  CANNOT_TELL as SCHEMA_CANNOT_TELL,
+  DECLARED as SCHEMA_DECLARED,
+  FIELDS as SCHEMA_FIELDS,
+  LABELS as SCHEMA_LABELS,
+  NO_NODE as SCHEMA_NO_NODE,
+  NO_RECORD as SCHEMA_NO_RECORD,
+  OBSERVED_KEY_PREFIX as SCHEMA_OBSERVED_KEY_PREFIX,
+  STATES as SCHEMA_STATES,
+  schemaPanel,
+} from './panel-schema';
 import { fieldsPanel } from './panel-fields';
 import { errorBoundaryPanel } from './panel-error-boundary';
 import { stabilityPanel } from './panel-stability';
@@ -3035,7 +3046,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — forty-four paths, the same ordered list
+    // The whole table, in order and to the count — forty-five paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -3067,6 +3078,7 @@ describe('the panel demo', () => {
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
+      'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -3085,7 +3097,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(44);
+    expect(appRoutes).toHaveLength(45);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -9292,5 +9304,432 @@ describe('the title-input surface', () => {
     const before = JSON.stringify(finding);
     expect(titleInputPanel(finding).text).toBe(titleInputPanel(finding).text);
     expect(JSON.stringify(finding)).toBe(before);
+  });
+});
+
+// The schema surface, and the discipline this milestone is about: the sample fact is the shipped join's
+// own answer over the record T001 measured, and the pane renders that answer's six keys and no other.
+// `research/raw/m066-schema-record.json` is re-read here, `extension/schema-attribution.js` is evaluated
+// from its own committed text, and the fact the demo is handed must equal that answer field for field —
+// so a fact that drifted from the record, the join or the tree reddens here rather than shipping.
+
+/** One field row of T001's schema record, in the shape the join copies into `observed`. */
+interface SchemaRecordRow {
+  field: string;
+  element: string | null;
+  id: string | null;
+  disabled: boolean | null;
+  hidden: boolean | null;
+  stateRead: boolean;
+  reason: string | null;
+}
+
+/** T001's schema record: the field rows, the schema section and the inputs the schema nodes read. */
+interface SchemaRecordFile {
+  fields: SchemaRecordRow[];
+  schema: {
+    absent: boolean;
+    reason?: string;
+    nodes?: { node: string; input: string }[];
+  };
+  inputs: { node: string; input: unknown }[];
+}
+
+/** The namespace `extension/schema-attribution.js` exports, evaluated from its own committed text. */
+interface SchemaAttributionNamespace {
+  schemaAttribution(record: unknown, facts?: unknown): Record<string, unknown>;
+  REASONS: readonly string[];
+  FIELD_NAMES: readonly string[];
+}
+
+/** T001's schema record, inlined from disk the way every recording in this spec arrives. */
+function readSchemaRecord(): SchemaRecordFile {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m066-schema-record.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  return JSON.parse(
+    inlinedText(modules, 'research/raw/m066-schema-record.json'),
+  ) as SchemaRecordFile;
+}
+
+/**
+ * The join `extension/schema-attribution.js` exports, evaluated from its own committed text: the demo's
+ * `schema` fact is held to the join's answer, not to a copy of it. The module is a pure ES module with
+ * no imports and three `export` keywords, so those keywords are dropped, the rest runs as one function
+ * body, and the three bindings it declares are handed back.
+ */
+function schemaAttributionJoin(): SchemaAttributionNamespace {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/schema-attribution.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const source = inlinedText(
+    modules,
+    'extension/schema-attribution.js',
+  ).replace(/^export /gm, '');
+  const load = new Function(
+    `${source}\nreturn { schemaAttribution, REASONS, FIELD_NAMES };`,
+  ) as () => SchemaAttributionNamespace;
+  const api = load();
+  if (typeof api.schemaAttribution !== 'function') {
+    throw new Error(
+      'extension/schema-attribution.js declared no schemaAttribution function',
+    );
+  }
+  return api;
+}
+
+/**
+ * The pin the schema pane's field table is held to: it enumerates the join's six keys, in the join's
+ * order, and writes a line under exactly one label per key. Kept callable with doctored tables, so a
+ * pane that grew a field the answer does not carry — a `remedy`, a `cause` or a `suggestion` — reddens
+ * naming the surface and the field it invented rather than passing on a table nobody re-read.
+ */
+function assertSchemaFields(
+  joinFields: readonly string[],
+  fields: readonly string[],
+  labels: Record<string, string>,
+): void {
+  const enumerated = [...fields];
+  if (JSON.stringify(enumerated) !== JSON.stringify([...joinFields])) {
+    throw new Error(
+      `the schema pane must enumerate the join's ${joinFields.length} fields (${joinFields.join(', ')}) in that order; it enumerates ${JSON.stringify(enumerated)}, and a key the answer does not carry — a remedy, a cause or a suggestion — is a line the join never produced`,
+    );
+  }
+  const written = Object.values(labels);
+  if (JSON.stringify(written) !== JSON.stringify([...joinFields])) {
+    throw new Error(
+      `the schema pane must write every line under one of the join's own field names, one label per field; its labels are ${JSON.stringify(written)}, and a label the answer has no key for is a remedy this pane invented`,
+    );
+  }
+}
+
+/**
+ * The pin the pane's state table is held to: the four state words the join answers, in the join's own
+ * order and no fifth. Callable with a doctored list, so a state list that lost a word reddens naming
+ * the surface.
+ */
+function assertSchemaStates(
+  joinStates: readonly string[],
+  states: readonly string[],
+): void {
+  if (JSON.stringify([...states]) !== JSON.stringify([...joinStates])) {
+    throw new Error(
+      `the schema pane must enumerate the join's ${joinStates.length} states (${joinStates.join(', ')}) in that order; it enumerates ${JSON.stringify([...states])}`,
+    );
+  }
+}
+
+describe('the schema surface', () => {
+  it('is the join’s own answer over T001’s record, reached by the route and loader key the table carries', async () => {
+    const recording = readSchemaRecord();
+    const join = schemaAttributionJoin();
+    const answer = join.schemaAttribution(recording, {
+      field: join.FIELD_NAMES[0],
+    });
+
+    // The sample fact is not written here and not written by hand in the demo either: it is the shipped
+    // join's answer over the committed record, field for field, key for key.
+    expect(FACTS['schema']).toEqual(answer);
+    expect(Object.keys(FACTS['schema'] as object)).toEqual(Object.keys(answer));
+
+    // The record states what T001 measured: no injector holds a schema, so every field name the join
+    // reads answers `no-node`, carries no node and no input, and keeps the record's own row unchanged.
+    expect(recording.schema.absent).toBe(true);
+    expect([...join.FIELD_NAMES]).toEqual([
+      'policyNumber',
+      'insuranceStartOn',
+      'customer',
+      'status',
+    ]);
+    expect([...join.REASONS]).toEqual([
+      SCHEMA_NO_RECORD,
+      SCHEMA_DECLARED,
+      SCHEMA_NO_NODE,
+      SCHEMA_CANNOT_TELL,
+    ]);
+    for (const field of join.FIELD_NAMES) {
+      const each = join.schemaAttribution(recording, { field });
+      expect(each['state']).toBe(SCHEMA_NO_NODE);
+      expect(each['field']).toBe(field);
+      expect(each['node']).toBeNull();
+      expect(each['input']).toBeNull();
+      expect(typeof each['reason']).toBe('string');
+      const row = recording.fields.find((entry) => entry.field === field);
+      if (row === undefined) {
+        throw new Error('the record carries no row for ' + field);
+      }
+      expect(each['observed']).toEqual({
+        element: row.element,
+        id: row.id,
+        disabled: row.disabled,
+        hidden: row.hidden,
+        stateRead: row.stateRead,
+        reason: row.reason,
+      });
+    }
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find((candidate) => candidate.path === 'schema');
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the schema surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('schema');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(route.data?.['surface']).not.toBe('title-input');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'schema'),
+    ).toHaveLength(1);
+
+    // The demo renders the pane the module answers, and the pane is the loader key's own module.
+    const demo = await renderDemo('schema');
+    const pane = schemaPanel(FACTS['schema']);
+    expect(demo.state()).toBe(SCHEMA_NO_NODE);
+    expect(demo.lines()).toEqual(pane.lines);
+  });
+
+  it('enumerates the join’s six fields and four states, and reddens naming the surface and the remedy a pane invents', () => {
+    const join = schemaAttributionJoin();
+    // The join's own field list is the key list of an answer it returns: nothing else enumerates the six
+    // keys, so the pane's table is held to an answer rather than to a copy of one.
+    const answerKeys = Object.keys(
+      join.schemaAttribution(readSchemaRecord(), {
+        field: join.FIELD_NAMES[0],
+      }),
+    );
+
+    // Green first, on the tables as they sit on disk. The pins run before the literal expectations below,
+    // so a table a pane grew reddens by the pin's own name — the surface, the field it invented and the
+    // rule it broke — rather than as a diff of two lists.
+    assertSchemaFields(answerKeys, [...SCHEMA_FIELDS], { ...SCHEMA_LABELS });
+    assertSchemaStates(join.REASONS, [...SCHEMA_STATES]);
+    expect([...SCHEMA_FIELDS]).toEqual([
+      'state',
+      'field',
+      'node',
+      'input',
+      'reason',
+      'observed',
+    ]);
+    expect([...SCHEMA_STATES]).toEqual([
+      SCHEMA_NO_RECORD,
+      SCHEMA_DECLARED,
+      SCHEMA_NO_NODE,
+      SCHEMA_CANNOT_TELL,
+    ]);
+    expect(Object.keys(SCHEMA_LABELS)).toEqual([...SCHEMA_FIELDS]);
+    expect(Object.values(SCHEMA_LABELS)).toEqual([...SCHEMA_FIELDS]);
+
+    // Mutant: a seventh key the answer does not carry, added to both halves of the pane's table. This is
+    // the defect the milestone exists against — a surface that renders a remedy the join never produced —
+    // so the pin must redden naming the surface and the field it invented.
+    const invented = reddens(
+      () =>
+        assertSchemaFields(answerKeys, [...SCHEMA_FIELDS, 'remedy'], {
+          ...SCHEMA_LABELS,
+          remedy: 'remedy',
+        }),
+      'a field the answer does not carry',
+    );
+    expect(invented.message).toContain('schema');
+    expect(invented.message).toContain('remedy');
+
+    // Mutant: the same seventh key added to the label table alone, which is the shape a pane that prints
+    // a remedy line for one state would have.
+    const inventedLabel = reddens(
+      () =>
+        assertSchemaFields(answerKeys, [...SCHEMA_FIELDS], {
+          ...SCHEMA_LABELS,
+          remedy: 'remedy',
+        }),
+      'a label the answer has no key for',
+    );
+    expect(inventedLabel.message).toContain('schema');
+    expect(inventedLabel.message).toContain('remedy');
+
+    // Mutant: one key dropped from the enumeration — the defect a pane that stopped rendering the
+    // record's own row would have.
+    const dropped = reddens(
+      () =>
+        assertSchemaFields(
+          answerKeys,
+          SCHEMA_FIELDS.filter((field) => field !== 'observed'),
+          Object.fromEntries(
+            Object.entries(SCHEMA_LABELS).filter(([key]) => key !== 'observed'),
+          ),
+        ),
+      'a field dropped from the enumeration',
+    );
+    expect(dropped.message).toContain('schema');
+    expect(dropped.message).toContain('observed');
+
+    // Mutant: one state dropped from the enumeration. The pin must redden naming the surface.
+    const droppedState = reddens(
+      () =>
+        assertSchemaStates(
+          join.REASONS,
+          SCHEMA_STATES.filter((state) => state !== SCHEMA_DECLARED),
+        ),
+      'a state dropped from the enumeration',
+    );
+    expect(droppedState.message).toContain('schema');
+    expect(droppedState.message).toContain(SCHEMA_DECLARED);
+  });
+
+  it('renders the four states with the keys the answer carries and no line for a key it does not', () => {
+    const recording = readSchemaRecord();
+    const join = schemaAttributionJoin();
+    const row = recording.fields[0];
+    if (row === undefined) {
+      throw new Error("T001's schema record carries no field row to render");
+    }
+
+    // `declared`: the one state that carries the node and the input that node read, each under its own
+    // label, and no reason line — nothing is absent.
+    const declared = join.schemaAttribution(
+      {
+        fields: [row],
+        schema: { absent: false, nodes: [{ node: row.field, input: 'ABC-1' }] },
+        inputs: [{ node: row.field, input: 'ABC-1' }],
+      },
+      { field: row.field },
+    );
+    expect(declared['state']).toBe(SCHEMA_DECLARED);
+    expect(schemaPanel(declared).lines).toEqual([
+      'state: declared',
+      `field: ${row.field}`,
+      `node: ${row.field}`,
+      'input: ABC-1',
+      `observed.element: ${row.element}`,
+      `observed.id: ${row.id}`,
+      'observed.disabled: false',
+      'observed.hidden: false',
+      'observed.stateRead: true',
+      'observed.reason: null',
+    ]);
+    expect(
+      schemaPanel(declared).lines.some((line) => line.startsWith('reason: ')),
+    ).toBe(false);
+
+    // `no-node`: the state the record's own absence answers. The pane prints the field the answer
+    // carries and the reason the join published, and no node line and no input line at all — the answer
+    // carries neither, so neither is invented from the field name.
+    const noNode = join.schemaAttribution(recording, { field: row.field });
+    expect(noNode['state']).toBe(SCHEMA_NO_NODE);
+    const noNodeLines = schemaPanel(noNode).lines;
+    expect(noNodeLines[0]).toBe('state: no-node');
+    expect(noNodeLines[1]).toBe(`field: ${row.field}`);
+    expect(noNodeLines[2]).toBe(`reason: ${String(noNode['reason'])}`);
+    expect(
+      noNodeLines.some((line) => line.startsWith(SCHEMA_LABELS.node + ': ')),
+    ).toBe(false);
+    expect(
+      noNodeLines.some((line) => line.startsWith(SCHEMA_LABELS.input + ': ')),
+    ).toBe(false);
+    // `observed`'s own keys, one line each, in the row's own order, and no key the row does not carry.
+    expect(noNodeLines.slice(3)).toEqual([
+      'observed.element: input',
+      'observed.id: policyNumber',
+      'observed.disabled: false',
+      'observed.hidden: false',
+      'observed.stateRead: true',
+      'observed.reason: null',
+    ]);
+    expect(
+      noNodeLines.filter((line) => line.startsWith(SCHEMA_OBSERVED_KEY_PREFIX)),
+    ).toHaveLength(Object.keys(row).length - 1);
+
+    // `cannot-tell` with no field named: the field is absent, so no field line, and the reason is the
+    // whole of what stands where a node and an input would.
+    const noField = join.schemaAttribution(recording, {});
+    expect(noField['state']).toBe(SCHEMA_CANNOT_TELL);
+    const noFieldLines = schemaPanel(noField).lines;
+    expect(noFieldLines).toEqual([
+      'state: cannot-tell',
+      `reason: ${String(noField['reason'])}`,
+    ]);
+
+    // `cannot-tell` for a node whose input was not recorded: the join nulls the node, so the pane prints
+    // no node line even though the record names one — a node without its reading is not a declaration.
+    const unread = join.schemaAttribution(
+      {
+        fields: [row],
+        schema: { absent: false, nodes: [{ node: row.field, input: null }] },
+        inputs: [],
+      },
+      { field: row.field },
+    );
+    expect(unread['state']).toBe(SCHEMA_CANNOT_TELL);
+    expect(unread['node']).toBeNull();
+    expect(
+      schemaPanel(unread).lines.some((line) => line.startsWith('node: ')),
+    ).toBe(false);
+
+    // `no-record`: the field the facts named and the join's own sentence, and nothing beside them — no
+    // node, no input and no observed row, because there is no record to read them out of.
+    const noRecord = join.schemaAttribution(null, { field: row.field });
+    expect(noRecord['state']).toBe(SCHEMA_NO_RECORD);
+    expect(schemaPanel(noRecord).lines).toEqual([
+      'state: no-record',
+      `field: ${row.field}`,
+      `reason: ${String(noRecord['reason'])}`,
+    ]);
+
+    // A value that is no answer at all, and a state word this pane was not written for, each render the
+    // word and no field: the pane has no reading to print for either.
+    expect(schemaPanel(undefined).lines).toEqual([
+      `state: ${SCHEMA_NO_RECORD}`,
+    ]);
+    expect(schemaPanel({ state: 'derived' }).lines).toEqual(['state: derived']);
+
+    // Every line is a label the table names and a value the answer carries — nothing composed, nothing
+    // paraphrased, and no sentence of the pane's own.
+    const answers = [declared, noNode, noField, noRecord];
+    const labels: readonly string[] = Object.values(SCHEMA_LABELS);
+    for (const answer of answers)
+      for (const line of schemaPanel(answer).lines) {
+        const label = line.slice(0, line.indexOf(': '));
+        expect(
+          labels.includes(label) ||
+            label.startsWith(SCHEMA_OBSERVED_KEY_PREFIX),
+        ).toBe(true);
+      }
+
+    // A seventh key on the answer renders nothing: the pane reads the contract's six keys and no other,
+    // so a cause, a remedy or a suggestion smuggled in beside them has no label to appear under (SC4).
+    const smuggled: Record<string, unknown> = {
+      ...noNode,
+      remedy: 'declare the schema in the route config',
+      cause: 'the schema was never provided',
+      suggestion: 'set absent to false',
+    };
+    expect(schemaPanel(smuggled).lines).toEqual(schemaPanel(noNode).lines);
+
+    // No cause, no remedy, no schematic and no suggestion: the words a pane would have to write for
+    // itself, scanned over every state it renders — including the demo's own fact.
+    const rendered = [
+      ...answers.map((answer) => schemaPanel(answer).text),
+      schemaPanel(FACTS['schema']).text,
+      schemaPanel(smuggled).text,
+    ].join('\n');
+    for (const word of [
+      'fix',
+      'remedy',
+      'schematic',
+      'suggestion',
+      'cause',
+      'because',
+      'should',
+      'declare',
+    ])
+      expect(new RegExp(`\\b${word}\\b`, 'i').test(rendered)).toBe(false);
+
+    // The same answer twice renders the same bytes, and the pane writes nothing into the answer.
+    const before = JSON.stringify(noNode);
+    expect(schemaPanel(noNode).text).toBe(schemaPanel(noNode).text);
+    expect(JSON.stringify(noNode)).toBe(before);
   });
 });
