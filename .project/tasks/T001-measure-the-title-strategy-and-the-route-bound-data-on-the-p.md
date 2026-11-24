@@ -2,10 +2,10 @@
 id: T001
 title: Measure the title strategy and the route-bound data on the portal
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: 71e87185f578ffbf52e1accf5a46e4b14eadf9c3
 worktree: null
 task_branch: null
 files:
@@ -80,3 +80,21 @@ node --test scripts/title-capture.test.mjs && npx prettier --check scripts/title
 ## Log
 
 - scaffolded
+
+- Measured on the Insurance Portal (`http://localhost:4507/`, Angular 22.2.2, dev build): `document.title` was
+  `Insurance Portal` at every observation on `/home`, `/contract` and `/claim`; the strategy resolved from
+  `router.navigationTransitions.environmentInjector.get(TitleStrategy)` is `DefaultTitleStrategy` — the same instance the
+  transition holder carries, and `router.titleStrategy` does not exist at this version; no `routeConfig` frame in any of
+  the three navigations declares `data` or `title`, so the route-bound value is `absent` rather than an empty object; and
+  zero title writes were observed after the observer attached, so the one write the record carries is the title the
+  document already held, `observed: false`, `author: null`.
+- The question this task had to answer is therefore answered **no**: the portal exposes no route that binds a value the
+  title reads, and its default strategy writes nothing. The plan's own Risks section named this outcome and its narrowing
+  — T002's `route-binds-nothing` and `no-observed-write` states are the answer the portal produces, while SC1's positive
+  path is proved against a constructed record in T002's suite, as a pure join must be. No plan patch is needed for that;
+  the milestone is narrowed by measurement rather than by weakening a criterion.
+- The observer is a `MutationObserver` created in a CDP isolated world (`world: "isolated"`, `installedBy` the capture
+  driver, `pageSideEdit: false`), not the extension's `agent-main.js` world, because this driving path has no extension
+  world. The substantive constraint — no page-side instrumentation — holds and the record states the mechanism rather
+  than implying it.
+- Landed paths: `scripts/title-capture.mjs`, `scripts/title-capture.test.mjs`, `research/raw/m065-title-record.json` — each is read from this tree, ready.
