@@ -2,11 +2,11 @@
 id: T009
 title: Measure the records the maps never counted
 wave: 9
-status: pending
+status: in-progress
 deps: []
-agent: null
-base: null
-worktree: null
+agent: build_T009
+base: 2ff59a15865cd3d3c7753f6833d8c64ee389831d
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
 - research/raw/m059-record-shapes.json
