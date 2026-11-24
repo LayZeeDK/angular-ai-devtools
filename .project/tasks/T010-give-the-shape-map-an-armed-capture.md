@@ -2,10 +2,10 @@
 id: T010
 title: Give the shape map an armed capture
 wave: 10
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T010
+base: a53e7707845a3f485bdfb2c4533bf0df7bd07c20
 worktree: null
 task_branch: null
 files:
@@ -91,3 +91,9 @@ node --test scripts/tutor-record-shapes.test.mjs scripts/tutor-answer.test.mjs
 ## Log
 
 - pending
+- 2026-11-23: the map now has an armed writer that reuses the suite's own measurements rather than re-implementing the shape. Default run derives and refuses; armed run writes only what moved; a candidate that is not the fixed point of the pin is refused and nothing is written.
+- 2026-11-23: written by its armed run and idempotent on the third pass ("nothing moved, nothing written", 300864 bytes). Verify 34 tests / 34 pass, both suites green, and pm run check\ exit 0.
+- 2026-11-23: two pins re-derived from the branch movement, not retuned: \['verdict-claims', 35]\ to 36 and the \selfHeld\ entry from m066 to m067, each stating why the census derives a different record after the rebind.
+- 2026-11-23: the writer corrected four readings that were stale before this head — claims 156 to 164, milestones 34 to 36, readingField 44 to 52, distinct artefact paths 18 to 21 — each because the previous hand-capture had missed them, which is the drift the writer exists to end.
+- 2026-11-23: residual reported, not hidden: the map's author-written sentences still quote old counts, because a writer owns readings and not prose. esearch/raw/m044-gate-shapes.json\ is stale from this change and is owned by T007.
+- Landed paths: `research/raw/m055-record-shapes.json`, `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/navigation-blocking.test.mjs` — each is read from this tree, ready.
