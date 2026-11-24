@@ -28,6 +28,7 @@ files:
 - scripts/outlet-record-shapes.test.mjs
 - research/raw/m056-gate-stability.json
 - extension/title-input.js
+- extension/panel/index.html
 ---
 
 # T004 — Re-derive the recordings, then run the project verify
@@ -73,6 +74,7 @@ Every path this task may touch, and nothing else:
 - scripts/outlet-record-shapes.test.mjs
 - research/raw/m056-gate-stability.json
 - extension/title-input.js
+- extension/panel/index.html
 
 ## Acceptance criteria
 
