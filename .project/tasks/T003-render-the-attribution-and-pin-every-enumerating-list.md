@@ -1,7 +1,7 @@
 ---
 id: T003
 title: Render the attribution and pin every enumerating list
-wave: 4
+wave: 3
 status: done
 deps: 
 - T002

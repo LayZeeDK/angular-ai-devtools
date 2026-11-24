@@ -1,7 +1,7 @@
 ---
 id: T001
 title: Measure a schema-disabled field on the portal and record what the page states
-wave: 2
+wave: 1
 status: done
 deps: []
 agent: build_T001

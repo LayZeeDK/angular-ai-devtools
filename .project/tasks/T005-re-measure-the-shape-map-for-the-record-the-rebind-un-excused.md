@@ -1,7 +1,7 @@
 ---
 id: T005
 title: Re-measure the shape map for the record the rebind un-excused
-wave: 1
+wave: 5
 status: pending
 deps: []
 agent: null

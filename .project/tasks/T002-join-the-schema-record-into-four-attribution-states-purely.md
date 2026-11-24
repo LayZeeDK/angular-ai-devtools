@@ -1,7 +1,7 @@
 ---
 id: T002
 title: Join the schema record into four attribution states, purely
-wave: 3
+wave: 2
 status: done
 deps: 
 - T001
