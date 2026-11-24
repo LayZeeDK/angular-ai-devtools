@@ -24,9 +24,12 @@
 //               owner ruling (plan R2), and a probe that calls `injector.get` itself is the page-side
 //               instrumentation D7 forbids.
 //   absences    the handle record the roadmap's sentence names, measured as an absence:
-//               `handleRecord`, `postDestroy` and `leakedHandle` occur 0 times across 38 extension
-//               modules, 136 suites and 146 `research/raw/` records, and the three `.unsubscribe(`
-//               sites this head carries are named with their owners (two are the agent's own).
+//               `handleRecord`, `postDestroy` and `leakedHandle` occur 0 times across the extension
+//               modules, the suites and the `research/raw/` records this head counts — the three
+//               counts the record's own `absences.handle-record-not-held.scan` states, and the ones
+//               the finding beside them interpolates rather than typing — and the three
+//               `.unsubscribe(` sites this head carries are named with their owners (two are the
+//               agent's own).
 //
 // No page-side instrumentation is involved anywhere: the browser drives read the console stream the
 // extension already subscribes to, with listeners attached in the driver and never in the page, and
@@ -1574,6 +1577,13 @@ function deriveAbsences() {
       ),
     0,
   );
+  // The three globs' own counts, read once so the sentence below and the `scan` beside it are the
+  // same measurement: a typed count here would keep claiming the head it was written at.
+  const scan = {
+    extension: scanOf('extension'),
+    scripts: scanOf('scripts'),
+    researchRaw: scanOf('researchRaw'),
+  };
   const fields = fieldNamesOfTheCapture();
   const ownerFields = fields.source.filter((field) =>
     ['component', 'directive', 'element'].includes(field),
@@ -1599,15 +1609,10 @@ function deriveAbsences() {
     },
     [ABSENCE_HANDLE]: {
       state: ABSENCE_HANDLE,
-      scan: {
-        extension: scanOf('extension'),
-        scripts: scanOf('scripts'),
-        researchRaw: scanOf('researchRaw'),
-      },
+      scan,
       needles: [...NEEDLES],
       occurrences,
-      finding:
-        'No record this agent holds carries a per-injector handle: the three names a handle record would need occur 0 times in 38 extension modules, 136 suites and 146 `research/raw/` records, and the console stream the panel reads could not carry one — it carries a code and a body. Building one would be the page-side instrumentation D7 and SC2 forbid, so the answer states `handle-record-not-held` (C1, SC4).',
+      finding: `No record this agent holds carries a per-injector handle: the three names a handle record would need occur ${occurrences} times in ${scan.extension.filesSearched} extension modules, ${scan.scripts.filesSearched} suites and ${scan.researchRaw.filesSearched} \`research/raw/\` records, and the console stream the panel reads could not carry one — it carries a code and a body. Building one would be the page-side instrumentation D7 and SC2 forbid, so the answer states \`handle-record-not-held\` (C1, SC4).`,
       citationIds: ['m045DigestEnumeration', 'm045CodedList'],
     },
     sites,

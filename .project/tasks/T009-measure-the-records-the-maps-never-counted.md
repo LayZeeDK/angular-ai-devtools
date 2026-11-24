@@ -2,10 +2,10 @@
 id: T009
 title: Measure the records the maps never counted
 wave: 9
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T009
+base: 076dc77a907aa66e1421ac1aa83e64dc3d5992be
 worktree: null
 task_branch: null
 files:
@@ -95,3 +95,7 @@ node --test scripts/teardown-leak-shapes.test.mjs scripts/tutor-record-shapes.te
 ## Log
 
 - pending
+- 2026-11-23: esearch/raw/m059-record-shapes.json\ re-derived by its armed run and idempotent: ecordsSearched\ 165 to 167, the quoted line 3250 to 3433 inside m044-gate-shapes, and the handle-absence finding now interpolated from the scan instead of typed.
+- 2026-11-23: the two tutor suites went green when T010 gave the m055 map its writer, so this task landed on the far side of that repair rather than retuning anything into the map it cannot write.
+- 2026-11-23: Verify 32 tests / 32 pass across teardown-leak-shapes and tutor-record-shapes; pm run check\ exit 0 and prettier clean.
+- Landed paths: `research/raw/m059-record-shapes.json`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-answer.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/chunk-failure-claims.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/teardown-leak.test.mjs`, `scripts/navigation-blocking.test.mjs`, `research/raw/m055-record-shapes.json` — each is read from this tree, ready.

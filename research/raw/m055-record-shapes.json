@@ -4,7 +4,7 @@
   "task": "T001",
   "title": "Measure what the records carry and what only a mapping can answer",
   "question": "which field of a record names the milestone, which names a criterion, which names the artefact file, and which side of an answer does no record name at all?",
-  "head": "d6d468838427a4fc33735028dffeaedc7be9abf2",
+  "head": "fcbd932bd47479d70f19cf7ce90f30f43853fa20",
   "headCommand": "git rev-parse HEAD",
   "measuredAt": "static: every citation below was read out of the file it names at the head above, and every one is re-resolved by searching its file for the exact line it quotes rather than by trusting a typed number. No browser was opened for this record, no page was read, and no build or test of the app was run: the measurement is a read of research/raw and of the files those records name.",
   "capture": {
@@ -13,7 +13,7 @@
     "windowsCommand": "set \"M055_CAPTURE=1\"&& node --test scripts/tutor-record-shapes.test.mjs",
     "check": "node --test scripts/tutor-record-shapes.test.mjs",
     "records": "research/raw/m055-record-shapes.json",
-    "head": "d6d468838427a4fc33735028dffeaedc7be9abf2",
+    "head": "fcbd932bd47479d70f19cf7ce90f30f43853fa20",
     "reading": "an armed run re-derives the whole map from the records on disk at the head it runs at — every measured record, its key lists, the line each of the seven fields is carried on, the artefact paths and what they resolve to, the milestone spelling, the negative measurement and the C3 trap — writes it only when a value moved, and writes nothing on a default run. The prose it cannot measure carries over from the file, so a re-derivation moves the readings and keeps the sentences."
   },
   "instrument": {
@@ -7191,6 +7191,6 @@
     "whether the template prose was ever meant to be one sentence per milestone: only that it is word for word the same sentence across 38 rows is measured, and the derivation is not repaired here",
     "what the two records this milestone captures at T004 will carry: `research/raw/m055-verdict-claims.json` and `research/raw/m055-surface.json` do not exist at this head, which is why they are named outside this map",
     "which field an answer should read a milestone from when a surface record is the record named: the surface records carry `milestone` too, but they carry no criterion and no artefact path, so the map holds for verdict-claims records only and the surface column is recorded rather than relied on",
-    "re-derived at d6d468838427a4fc33735028dffeaedc7be9abf2: 36 verdict-claims and 9 surface records are measured at this head, and the record a map names outside itself or a census of its own holds is not one of them. Every number in this map was read from the tree here; the sentences around them are the author's, carried over, so a count that moved and the sentence that quotes it can disagree until a reader re-authors the sentence."
+    "re-derived at fcbd932bd47479d70f19cf7ce90f30f43853fa20: 36 verdict-claims and 9 surface records are measured at this head, and the record a map names outside itself or a census of its own holds is not one of them. Every number in this map was read from the tree here; the sentences around them are the author's, carried over, so a count that moved and the sentence that quotes it can disagree until a reader re-authors the sentence."
   ]
 }
