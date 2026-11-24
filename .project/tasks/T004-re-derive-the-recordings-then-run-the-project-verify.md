@@ -1,7 +1,7 @@
 ---
 id: T004
 title: Re-derive the recordings, then run the project verify
-wave: 4
+wave: 5
 status: pending
 deps: 
 - T001
