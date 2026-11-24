@@ -2,10 +2,10 @@
 id: T005
 title: Re-measure the shape map for the record the rebind un-excused
 wave: 5
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T005
+base: 7acdfbfc06808530d187f88f8b7ac72265eeb6bd
 worktree: null
 task_branch: null
 files:
@@ -91,3 +91,16 @@ node --test scripts/tutor-record-shapes.test.mjs && node --test scripts/tutor-an
 ## Log
 
 - pending
+
+- Re-measured `research/raw/m055-record-shapes.json` from the tree rather than typing numbers: the derivation read every
+  citation it records and re-derived every count, and it refuses to write when the tree disagrees with what it would
+  record. It wrote `inventory.vc=35 surface=9 records=44 rows=48`, `sharedProse 38->42 rows over 12 records`, and the
+  artefact-path and ruling counts that follow from the new record.
+- `scripts/tutor-record-shapes.test.mjs` reports 16 pass, 0 fail, up from 8 pass and 8 fail; `scripts/tutor-answer.test.mjs`
+  reports 15 pass, 0 fail, up from 13 pass and 2 fail. No assertion was weakened, skipped or retuned: the two pins that
+  encode the measurement now state the value the tree yields — `['verdict-claims', 35]` and a `selfHeld` list whose fourth
+  entry is the bound branch's record.
+- The reason is recorded in the map itself: `m065-verdict-claims.json` is measured because binding M066 moved the M044
+  census's single excuse onto `m066-verdict-claims.json`, which left m065 present and named by no map. The same drift will
+  recur at the next rebind.
+- Landed paths: `research/raw/m055-record-shapes.json`, `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/navigation-blocking.test.mjs` — each is read from this tree, ready.
