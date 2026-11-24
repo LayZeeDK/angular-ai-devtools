@@ -49,6 +49,8 @@ Review depth: full
 | Criterion | Task | Acceptance |
 |---|---|---|
 | SC1 | T001 | AC1 |
+| SC2 | T001 | AC2 |
+| SC2 | T001 | AC3 |
 | SC2 | T005 | AC1 |
 | SC3 | T005 | AC2 |
 | SC1 | T002 | AC1 |
@@ -59,6 +61,18 @@ Review depth: full
 | SC4 | T003 | AC3 |
 | SC4 | T004 | AC1 |
 | SC2 | T004 | AC2 |
+
+## Surface contract
+
+Entry: the panel's `schema` route, reached from the pane picker like every other surface.
+
+States: `declared`, `no-node`, `no-record` and `cannot-tell`, rendered as the join returns them — the state, the field,
+the node and input when the record carries them, the reason when it does not, and the observed row's own keys. An absent
+schema prints as `no-node` with its reason; it never prints as a failure.
+
+Walkthrough: open the pane on a page whose form binds a field; the pane names the state the field tree reports and states
+that the record carries no schema node for it, because the target's schema is a closure the injector does not expose. On
+a record that does carry a node, the pane names the node and the input that node read, and nothing else.
 
 ## Held-out checks
 
