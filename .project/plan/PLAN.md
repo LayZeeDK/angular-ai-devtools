@@ -56,6 +56,10 @@ Review depth: full
   rather than a default.
 - The route-table lists are five, not one; the fourth omission in this programme would be a defect of this plan, so T003
   declares all of them.
+- Measured in T002: scripts/chunk-failure-claims.test.mjs fails 2 of 14 at this head because it reads the live
+  .project/intent/INTENT.md and .project/plan/PLAN.md, which M064 archived before M065 wrote its own. The suite is
+  declared in T003, and T003 carries the repair: reader and document must be re-pointed at the archived milestone, or the
+  project verify in T004 cannot be green.
 
 ## Rollback
 
