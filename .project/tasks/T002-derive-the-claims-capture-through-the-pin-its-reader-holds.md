@@ -2,10 +2,10 @@
 id: T002
 title: Derive the claims capture through the pin its reader holds
 wave: 2
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T002
+base: de96a2b768b777fd8033772c56d49b47c429796e
 worktree: null
 task_branch: null
 files:
@@ -85,3 +85,6 @@ M064_CAPTURE=1 node --test scripts/chunk-failure-claims.test.mjs && node --test 
 ## Log
 
 - pending
+- 2026-11-23: measured at this base: captureClaims wrote tRecordedDocumentLocations(derived()) while the default pin holds tRecordedDocumentLocations(derived(), recorded), so after a rebind an armed re-capture emitted bytes its own pin refused, silently.
+- 2026-11-23: the writer now reads through the same anchor and refuses to write unless the candidate is the fixed point of the pin; the refusal names the pin and writes nothing. Default run 14 pass / 0 fail, armed run 15 pass / 0 fail.
+- Landed paths: `scripts/chunk-failure-claims.test.mjs`, `research/raw/m064-verdict-claims.json`, `scripts/gate-integrity.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/panel-routes.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/tutor-record-shapes.test.mjs` — each is read from this tree, ready.
