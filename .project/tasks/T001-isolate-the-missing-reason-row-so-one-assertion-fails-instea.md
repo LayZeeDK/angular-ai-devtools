@@ -20,6 +20,7 @@ files:
 - scripts/guard-record-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
 - scripts/teardown-leak-shapes.test.mjs
+- research/raw/m044-gate-shapes.json
 ---
 
 # T001 — Isolate the missing reason row so one assertion fails instead of nine
@@ -57,6 +58,7 @@ Every path this task may touch, and nothing else:
 - `scripts/guard-record-shapes.test.mjs`
 - `scripts/outlet-record-shapes.test.mjs`
 - `scripts/teardown-leak-shapes.test.mjs`
+- `research/raw/m044-gate-shapes.json`
 
 ## Interface contract
 
@@ -80,4 +82,7 @@ node --experimental-strip-types --test scripts/gate-integrity.test.mjs
 
 ## Log
 
-- pending
+- 2026-11-23: measured before the change at this base: one throw in deriveSuiteDiff reddened nine assertions, and four sections that share the derivation never ran.
+- 2026-11-23: a missing row is now collected beside the record (let suiteDiffUnexplained) rather than thrown, and the one assertion that owns the diff prints the Object.assign block to paste. The state is held beside the section, not inside it, because a new key in the returned object makes the committed record stale for a reason unrelated to the tree.
+- 2026-11-23: M044_CAPTURE=1 node --experimental-strip-types --test scripts/gate-integrity.test.mjs reports pass 40 fail 1; the default run reports pass 39 fail 1. The remaining failure is T003 E5, E7 — the ix-record stage refusing for milestone M068 on this tree, which no line this task changed produces.
+- Landed paths: `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs` — each is read from this tree, ready.
