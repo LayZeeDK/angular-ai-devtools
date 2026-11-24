@@ -2,11 +2,11 @@
 id: T009
 title: Measure the records the maps never counted
 wave: 9
-status: in-progress
+status: pending
 deps: []
-agent: build_T009
-base: 2ff59a15865cd3d3c7753f6833d8c64ee389831d
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
 - research/raw/m059-record-shapes.json
@@ -24,6 +24,7 @@ files:
 - scripts/outlet-verdict-claims.test.mjs
 - scripts/teardown-leak.test.mjs
 - scripts/navigation-blocking.test.mjs
+- research/raw/m055-record-shapes.json
 ---
 
 # T009 — Measure the records the maps never counted
@@ -69,6 +70,7 @@ Every path this task may touch, and nothing else:
 - `scripts/outlet-verdict-claims.test.mjs`
 - `scripts/teardown-leak.test.mjs`
 - `scripts/navigation-blocking.test.mjs`
+- `research/raw/m055-record-shapes.json`
 
 ## Interface contract
 
