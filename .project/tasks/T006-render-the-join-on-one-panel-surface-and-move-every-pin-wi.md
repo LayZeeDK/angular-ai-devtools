@@ -33,6 +33,8 @@ files:
 - scripts/outlet-record-shapes.test.mjs
 - scripts/teardown-leak-shapes.test.mjs
 - scripts/tutor-record-shapes.test.mjs
+- scripts/panel-routes.test.mjs
+- research/raw/m061-surface.json
 ---
 
 # T006 — Render the join on one panel surface and move every pin with it
@@ -83,6 +85,8 @@ Every path this task may touch, and nothing else:
 - `scripts/outlet-record-shapes.test.mjs`
 - `scripts/teardown-leak-shapes.test.mjs`
 - `scripts/tutor-record-shapes.test.mjs`
+- `scripts/panel-routes.test.mjs`
+- `research/raw/m061-surface.json`
 
 ## Interface contract
 
@@ -101,7 +105,7 @@ carries them; `reason` names why the comparison could not be made.
 ## Verify
 
 ```bash
-npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-routes.test.mjs apps/angular-ai-devtools/src/app/app.routes.ts apps/angular-ai-devtools/src/app/app.routes.ts
+npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-routes.test.mjs
 ```
 
 ## Log
