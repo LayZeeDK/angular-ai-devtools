@@ -1,0 +1,1 @@
+{"command": "node --test scripts/title-capture.test.mjs && npx prettier --check scripts/title-capture.mjs scripts/title-capture.test.mjs", "commit": "4f40c3a800dba24f3785b2a368a1b0c9a925db1e", "recorded_at": "2026-11-24T01:06:27+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
