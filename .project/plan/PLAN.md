@@ -52,6 +52,12 @@ Goal: Re-derive both tree-counting recordings at the final head and prove the mi
 measures.
 Review depth: full
 
+## Wave 9 — T009: measure the records the maps never counted
+
+Goal: Re-capture the two record-shapes maps that count the tree, so the records this milestone added are measured
+rather than absent.
+Review depth: full
+
 ## Wave 8 — T008: capture the milestone verdict claims
 
 Goal: Capture the claim list the gate reads, through an armed run that is idempotent, so the seven reds this milestone inherited have their cause removed rather than asserted away.
@@ -61,16 +67,14 @@ Review depth: full
 
 | Criterion | Task | Acceptance |
 |---|---|---|
-| SC1 | T001 | AC1 |
-| SC2 | T001 | AC2 |
-| SC3 | T003 | AC3 |
-| SC3 | T004 | AC1 |
-| SC3 | T004 | AC3 |
 | SC1 | T005 | AC1 |
 | SC2 | T005 | AC2 |
+| SC3 | T004 | AC1 |
+| SC3 | T004 | AC3 |
 | SC4 | T006 | AC1 |
 | SC4 | T006 | AC2 |
 | SC4 | T007 | AC2 |
+| SC4 | T009 | AC3 |
 
 ## Surface contract
 

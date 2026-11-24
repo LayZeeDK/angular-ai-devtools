@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: formfield-binder
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M067
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1373,3 +1373,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-24 — plan — plan approved
 - 2026-11-24 — build — build started
 - 2026-11-24 — build — build blocked
+- 2026-11-24 — plan — build plan repair requested
+- 2026-11-24 — plan — build recovery: {"base": "4f2554e975a8a959a59d23516135c4c9a4dc309a", "branch": "gsd-path/M067", "kind": "plan", "source": "build"}
