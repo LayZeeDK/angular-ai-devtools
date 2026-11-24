@@ -1,0 +1,141 @@
+head: aa5488f497962079c0d51f137d67c25cf3091dcf at 2026-11-24T08:01:12.015Z
+✔ E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name (6.89ms)
+✔ E2: the surface functions are still exported for their suites (2.3168ms)
+✔ E3: the demo module renders the surface text it is handed (0.8831ms)
+✔ E4: every declared route surface has a panel-demo LOADERS key (33.2052ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 184.9561
+✔ readTargetWidth returns 0 and does not throw when the element has no box yet (41.7388ms)
+✔ readTargetWidth returns the element value 640, not a constant (5.6283ms)
+✔ the afterNextRender callback reads offsetWidth from the element without throwing (4.8696ms)
+✔ PRECONDITION: the after-render route is registered with AfterRenderPage (0.24ms)
+✔ PRECONDITION: the route table declares all nineteen routes in order (0.3599ms)
+✔ PRECONDITION: the fixture adds no profiler instrumentation (0.2035ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 369.9015
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M066; stages archive-paths
+gate-integrity: archive-paths clean - examined 19 live path reference(s) of 219 reference(s) in 193 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M066; stages fix-record
+gate-integrity: fix-record clean - examined 11 claim(s) in 4 task log(s) of .project/tasks (logs of M066) against 14 changed path(s) of 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf (rule ship: M065's ship commit, 206c1ec2 (ship: M065 — title-input-binding); the head is this tree's HEAD, aa5488f4 (plan: T003 declares the surface record); claims: declared)
+gate-integrity: fix-record pins - 44 declared path(s) byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as changes
+gate-integrity: pin research/raw/m061-surface.json at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:158 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/panel-copy.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:159 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-schema.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-demo.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/app.routes.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/app.spec.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/page-picker.component.spec.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-demo.spec.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/panel-routes.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/after-render-fixture.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin research/raw/m030-router-config.json at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin spikes/ng222-app/src/app/app.routes.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/chunk-failure-claims.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/chunk-failure-copy.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/component-search.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/docs-correction.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/field-state-capture.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/guard-verdict-claims.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/legacy-diagnostic-capture.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/linked-state-capture.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/lint-observability.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/onpush-metadata-capture.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-verdict-claims.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/panel-copy.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-outlet.spec.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/navigation-blocking.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/redirect-chain.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/resource-graph-capture.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/router-config-capture.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/router-diagnostic-capture.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/sanitizer-bypass.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/guard-record-shapes.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-record-shapes.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak-shapes.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-routing-shapes.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-routing.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin tests/held-out/fixture-explainers-unchanged.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: pin research/raw/m061-surface.json at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:161 (T003) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..aa5488f497962079c0d51f137d67c25cf3091dcf, recorded and not judged as a change
+gate-integrity: mention panel-demo.spec.ts at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:150 (T003) - recorded and not judged
+gate-integrity: mention scripts/copy-check.test.mjs at .project/tasks/T003-render-the-attribution-and-pin-every-enumerating-list.md:159 (T003) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 2 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .

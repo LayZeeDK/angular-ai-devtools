@@ -1,0 +1,124 @@
+head: 0ed33d0a51f2aeec0e47028e1097632fc2ec9391 at 2026-11-24T07:33:20.098Z
+▶ the committed record, joined
+  ✔ is the M066 T001 record on the Insurance Portal (0.9416ms)
+  ✔ reads the field names the record carries, in the record order (0.1889ms)
+  ✔ states no-node for every field, because the schema is absent (0.538ms)
+  ✔ copies each row unchanged into observed, nulls and all (0.2321ms)
+  ✔ states status from the field tree, not from an element (0.1483ms)
+  ✔ leaves the record it was handed untouched (0.2355ms)
+✔ the committed record, joined (3.3275ms)
+▶ the four states
+  ✔ exports the precedence order the contract states (0.1876ms)
+  ✔ carries exactly the six keys the contract names, in order (0.4415ms)
+  ✔ never carries a node without the input that node read (0.3526ms)
+  ✔ states no-record when there is no record (0.6034ms)
+  ✔ states declared when the record carries the node and its input (1.5669ms)
+  ✔ states no-node when the record carries no node for the field (0.5882ms)
+  ✔ states cannot-tell when the input a node read was not recorded (0.3043ms)
+  ✔ ignores what the facts cannot know (0.1411ms)
+✔ the four states (4.5525ms)
+▶ the single list of field names
+  ✔ declares the four names once, and nothing else (0.0989ms)
+  ✔ throws on a write through the proxy, naming the write (0.3512ms)
+  ✔ is the only source of the field names the join reads (0.1092ms)
+✔ the single list of field names (0.6682ms)
+▶ the join is pure
+  ✔ imports nothing and names no DOM, clock or network (0.5486ms)
+  ✔ exports the two lists and the one join, and nothing else (0.225ms)
+  ✔ is the module the harness evaluates, not a copy of it (0.283ms)
+✔ the join is pure (1.1364ms)
+▶ one mutant per state, each proven non-vacuous
+  ✔ holds no-record: a mutant that joins a string as a record reddens (1.6962ms)
+  ℹ the no-record guard skips parsing and joins the string -> NO-RECORD PARSE: a record that does not parse must state no-record, never a state read off a string
+  ✔ holds declared: a mutant that never declares reddens (1.0983ms)
+  ℹ the declared state is removed and a declaration answers no-node -> DECLARED: a record carrying the node and the input it read must state declared, never no-node
+  ✔ holds no-node: a mutant that cannot tell an absent schema from a gap reddens (0.88ms)
+  ℹ the no-node branch is removed and an absent schema answers cannot-tell -> NO-NODE: the committed record states the schema is absent, so a field it carries no node for must state no-node, never cannot-tell — an absent schema is a measurement, not a failure of the field
+  ✔ holds cannot-tell: a mutant that upgrades a node without its input reddens (0.8896ms)
+  ℹ the input that node read is no longer required to declare -> CANNOT-TELL: a record that names a node and records no input for it must state cannot-tell, never declared
+  ✔ holds the single list: a mutant that reads a fifth field reddens (0.5834ms)
+  ℹ the no-node branch stops asking the one list whether it reads the field -> SINGLE LIST: a field outside the declared list must state cannot-tell, never no-node — the join reads four field names and no fifth
+  ✔ holds the row: a mutant that copies the facts into observed reddens (1.5353ms)
+  ℹ observed is taken from the facts instead of the record row -> INVENTED STATE: observed must be the record row copied unchanged, never what the facts carry
+  ✔ holds the input: a mutant that reads presence as truth reddens (0.8499ms)
+  ℹ a recorded input of false is treated as no input -> INPUT PRESENCE: a node whose input was recorded as false read something, so it must state declared, never cannot-tell
+✔ one mutant per state, each proven non-vacuous (7.7881ms)
+ℹ tests 27
+ℹ suites 5
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 461.3983
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M066; stages archive-paths
+gate-integrity: archive-paths clean - examined 19 live path reference(s) of 219 reference(s) in 193 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M066; stages fix-record
+gate-integrity: fix-record clean - examined 7 claim(s) in 4 task log(s) of .project/tasks (logs of M066) against 12 changed path(s) of 206c1ec2a968f9e91eb829e560566502a8a5e994..0ed33d0a51f2aeec0e47028e1097632fc2ec9391 (rule ship: M065's ship commit, 206c1ec2 (ship: M065 — title-input-binding); the head is this tree's HEAD, 0ed33d0a (T001: Measure a schema-disabled field on the portal and record what the page states); claims: declared)
+gate-integrity: fix-record pins - 3 declared path(s) byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..0ed33d0a51f2aeec0e47028e1097632fc2ec9391, recorded and not judged as changes
+gate-integrity: pin scripts/schema-attribution.test.mjs at .project/tasks/T002-join-the-schema-record-into-four-attribution-states-purely.md:70 (T002) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..0ed33d0a51f2aeec0e47028e1097632fc2ec9391, recorded and not judged as a change
+gate-integrity: pin extension/schema-attribution.js at .project/tasks/T002-join-the-schema-record-into-four-attribution-states-purely.md:85 (T002) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..0ed33d0a51f2aeec0e47028e1097632fc2ec9391, recorded and not judged as a change
+gate-integrity: pin scripts/schema-attribution.test.mjs at .project/tasks/T002-join-the-schema-record-into-four-attribution-states-purely.md:85 (T002) - declared and byte-identical across 206c1ec2a968f9e91eb829e560566502a8a5e994..0ed33d0a51f2aeec0e47028e1097632fc2ec9391, recorded and not judged as a change
+gate-integrity: pass - 0 finding(s), 0 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .

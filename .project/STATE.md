@@ -2,12 +2,12 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: schema-disabled-hidden
-phase: ship
+phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M066
-archive: null
+archive: .project/archive/066-schema-disabled-hidden
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1353,3 +1353,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-24 — build — build started
 - 2026-11-24 — build — build complete
 - 2026-11-24 — ship — build done; final review pending
+- 2026-11-24 — shipped — archive preflight passed; shipment recorded
