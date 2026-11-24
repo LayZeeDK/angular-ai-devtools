@@ -86,9 +86,20 @@ Walkthrough:
 
 ## Held-out checks
 
-Every edge this milestone carries is proved by the suite of the task that owns it, and that task's Verify runs that
-suite. Nothing is held out: an edge whose proof sits outside the owning task's Verify would need a row here naming the
-edge, the task and the test, and there is none.
+One row per edge the intent declares, naming the task whose Verify runs the test that proves it.
+
+| Edge | Task | Test |
+|---|---|---|
+| E1 | T005 | `scripts/field-binder.test.mjs` — bound names no finding |
+| E2 | T005 | `scripts/field-binder.test.mjs` — two candidates, one named |
+| E3 | T005 | `scripts/field-binder.test.mjs` — a foreign identity is cannot-tell |
+| E4 | T005 | `scripts/field-binder.test.mjs` — hidden is not unbound |
+| E5 | T006 | `scripts/panel-routes.test.mjs` — the pins move together |
+| E6 | T005 | `scripts/field-binder.test.mjs` — one reader of a hosted control |
+| E7 | T005 | `scripts/field-binder.test.mjs` — an unread host is an absence |
+| E8 | T006 | `scripts/panel-routes.test.mjs` — no answer names a remedy |
+
+A test named here is also named by the task's own suite, so an edge cannot be claimed without a run.
 
 ## Project verify
 
