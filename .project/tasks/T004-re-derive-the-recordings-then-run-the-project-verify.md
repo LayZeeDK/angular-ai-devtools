@@ -17,7 +17,6 @@ files:
 - scripts/m066-schema-record.test.mjs
 - scripts/title-input.test.mjs
 - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
-- scripts/gate-integrity.test.mjs
 - scripts/teardown-leak.test.mjs
 - scripts/tutor-answer.test.mjs
 - scripts/gate-integrity-default-tasks.test.mjs
@@ -27,11 +26,12 @@ files:
 - scripts/outlet-verdict-claims.test.mjs
 - scripts/navigation-blocking.test.mjs
 - scripts/tutor-record-shapes.test.mjs
-- scripts/chunk-failure-claims.test.mjs
 - research/raw/m066-verdict-claims.json
 - scripts/teardown-leak-shapes.test.mjs
 - scripts/schema-attribution.test.mjs
 - research/raw/m059-record-shapes.json
+- scripts/chunk-failure-claims.test.mjs
+- scripts/gate-integrity.test.mjs
 ---
 
 # T004 — Re-derive the recordings, then run the project verify
@@ -62,7 +62,6 @@ Every path this task may touch, and nothing else:
 - `scripts/m066-schema-record.test.mjs`
 - `scripts/title-input.test.mjs`
 - `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`
-- `scripts/gate-integrity.test.mjs`
 - `scripts/teardown-leak.test.mjs`
 - `scripts/tutor-answer.test.mjs`
 - `scripts/gate-integrity-default-tasks.test.mjs`
@@ -72,13 +71,13 @@ Every path this task may touch, and nothing else:
 - `scripts/outlet-verdict-claims.test.mjs`
 - `scripts/navigation-blocking.test.mjs`
 - `scripts/tutor-record-shapes.test.mjs`
-- `scripts/chunk-failure-claims.test.mjs`
 - \research/raw/m066-verdict-claims.json\n
 - \scripts/teardown-leak-shapes.test.mjs\n
 - \scripts/schema-attribution.test.mjs\n
 - `research/raw/m059-record-shapes.json`
 - `scripts/teardown-leak-shapes.test.mjs`
-
+- \scripts/chunk-failure-claims.test.mjs\n
+- \scripts/gate-integrity.test.mjs\n
 ## Interface contract
 
 Byte-identical across the tasks that share it:
@@ -112,4 +111,3 @@ M066_CAPTURE=1 node --test scripts/m066-schema-record.test.mjs && M066_CLAIMS_CA
   scripts/m066-schema-record.test.mjs`, 14 pass, 0 fail; the record is written only by that capture and read by every
   default run.
 - The project verify runs last in this task, so a red build cannot reach ship.
-- Landed paths: `research/raw/m066-schema-record.json`, `scripts/m066-schema-record.mjs`, `scripts/m066-schema-record.test.mjs`, `scripts/title-input.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/gate-integrity.test.mjs`, `scripts/teardown-leak.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `research/raw/m066-verdict-claims.json`, `scripts/teardown-leak-shapes.test.mjs` — each is read from this tree, ready.

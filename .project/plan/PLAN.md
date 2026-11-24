@@ -44,11 +44,19 @@ restate the two pins that encode the same measurement, so the project verify has
 Review depth: full
 
 
+## Wave 6 — T006: record the suites this milestone added
+
+Goal: Give the two suites M066 added their reason rows in `SUITE_DIFF_REASONS`, fix the writer/reader asymmetry in
+`captureClaims`, and re-derive both recordings with their own capture commands, so the project verify has a true reading.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
 |---|---|---|
 | SC1 | T001 | AC1 |
+| SC3 | T006 | AC1 |
+| SC4 | T006 | AC2 |
 | SC2 | T001 | AC2 |
 | SC2 | T001 | AC3 |
 | SC2 | T005 | AC1 |
