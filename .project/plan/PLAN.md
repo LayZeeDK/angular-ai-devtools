@@ -52,6 +52,11 @@ Goal: Re-derive both tree-counting recordings at the final head and prove the mi
 measures.
 Review depth: full
 
+## Wave 8 — T008: capture the milestone verdict claims
+
+Goal: Capture the claim list the gate reads, through an armed run that is idempotent, so the seven reds this milestone inherited have their cause removed rather than asserted away.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
@@ -86,20 +91,10 @@ Walkthrough:
 
 ## Held-out checks
 
-One row per edge the intent declares, naming the task whose Verify runs the test that proves it.
-
-| Edge | Task | Test |
-|---|---|---|
-| E1 | T005 | `scripts/field-binder.test.mjs` — bound names no finding |
-| E2 | T005 | `scripts/field-binder.test.mjs` — two candidates, one named |
-| E3 | T005 | `scripts/field-binder.test.mjs` — a foreign identity is cannot-tell |
-| E4 | T005 | `scripts/field-binder.test.mjs` — hidden is not unbound |
-| E5 | T006 | `scripts/panel-routes.test.mjs` — the pins move together |
-| E6 | T005 | `scripts/field-binder.test.mjs` — one reader of a hosted control |
-| E7 | T005 | `scripts/field-binder.test.mjs` — an unread host is an absence |
-| E8 | T006 | `scripts/panel-routes.test.mjs` — no answer names a remedy |
-
-A test named here is also named by the task's own suite, so an edge cannot be claimed without a run.
+Nothing is held out: every edge the intent declares is proved by the suite of the task that owns it, and that task's
+Verify runs that suite. `plan-lint` refuses a row here for an edge a task already proves, so the absence is the
+requirement rather than an omission — and `guard-verdict-claims` reads the milestone's own
+`research/raw/m067-verdict-claims.json` for the per-criterion claims, which T008 captures.
 
 ## Project verify
 

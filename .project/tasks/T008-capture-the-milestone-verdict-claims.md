@@ -13,6 +13,16 @@ files:
 - scripts/m067-verdict-claims.test.mjs
 - scripts/gate-integrity.test.mjs
 - research/raw/m044-gate-shapes.json
+- scripts/gate-integrity-default-tasks.test.mjs
+- scripts/outlet-verdict-claims.test.mjs
+- scripts/guard-verdict-claims.test.mjs
+- scripts/navigation-blocking.test.mjs
+- scripts/chunk-failure-claims.test.mjs
+- scripts/tutor-answer.test.mjs
+- scripts/tutor-record-shapes.test.mjs
+- scripts/guard-record-shapes.test.mjs
+- scripts/outlet-record-shapes.test.mjs
+- scripts/teardown-leak-shapes.test.mjs
 ---
 
 # T008 — Capture the milestone verdict claims the gate reads
@@ -47,6 +57,16 @@ Every path this task may touch, and nothing else:
 - `scripts/m067-verdict-claims.test.mjs`
 - `scripts/gate-integrity.test.mjs`
 - `research/raw/m044-gate-shapes.json`
+- `scripts/gate-integrity-default-tasks.test.mjs`
+- `scripts/outlet-verdict-claims.test.mjs`
+- `scripts/guard-verdict-claims.test.mjs`
+- `scripts/navigation-blocking.test.mjs`
+- `scripts/chunk-failure-claims.test.mjs`
+- `scripts/tutor-answer.test.mjs`
+- `scripts/tutor-record-shapes.test.mjs`
+- `scripts/guard-record-shapes.test.mjs`
+- `scripts/outlet-record-shapes.test.mjs`
+- `scripts/teardown-leak-shapes.test.mjs`
 
 ## Interface contract
 
