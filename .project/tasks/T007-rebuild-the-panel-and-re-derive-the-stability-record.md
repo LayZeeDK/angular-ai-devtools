@@ -2,10 +2,10 @@
 id: T007
 title: Rebuild the panel and re-derive the stability record
 wave: 7
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T007
+base: a90f15748f0135a10b359197f79ffcd3a871461a
 worktree: null
 task_branch: null
 files:
@@ -89,3 +89,10 @@ npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-bund
 ## Log
 
 - pending
+
+- `npx nx run angular-ai-devtools:build-extension` rebuilt `extension/panel/index.html`, so the output the budget suite
+  measures is one this milestone produced rather than a file older than `panel-schema.ts`. `node --test
+  scripts/panel-bundle-budget.test.mjs` reports 5 pass, 0 fail.
+- `M056_CAPTURE=1 node --test scripts/gate-stability-record.test.mjs` wrote the stability record at this head and the run
+  reports 9 pass, 0 fail; the record is read by every default run and written only by that capture.
+- Landed paths: `extension/panel/index.html`, `research/raw/m056-gate-stability.json`, `scripts/gate-stability-record.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs` — each is read from this tree, ready.
