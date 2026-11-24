@@ -26,6 +26,7 @@ files:
 - research/raw/m064-verdict-claims.json
 - scripts/panel-routes.test.mjs
 - scripts/m067-verdict-claims.test.mjs
+- research/raw/m067-verdict-claims.json
 ---
 
 # T007 — Re-derive the recordings and run the project verify
@@ -67,6 +68,7 @@ Every path this task may touch, and nothing else:
 - `scripts/outlet-record-shapes.test.mjs`
 - `scripts/teardown-leak-shapes.test.mjs`
 - `scripts/m067-verdict-claims.test.mjs`
+- `research/raw/m067-verdict-claims.json`
 
 ## Interface contract
 

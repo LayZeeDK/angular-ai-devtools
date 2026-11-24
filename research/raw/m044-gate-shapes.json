@@ -30,152 +30,14 @@
       "undecided": 184
     },
     "sites": {
-      "comment": 94,
       "path": 16,
+      "comment": 94,
+      "segment": 67,
       "pattern": 12,
       "message": 40,
-      "segment": 67,
       "citation": 8
     },
     "references": [
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 12,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 36,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 37,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 52,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 260,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 263,
-        "path": ".project/STATE.md",
-        "site": "path",
-        "class": "undecided",
-        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 695,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 695,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 696,
-        "path": null,
-        "site": "comment",
-        "class": "undecided",
-        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 702,
-        "path": null,
-        "site": "pattern",
-        "class": "undecided",
-        "reason": "named in a regular expression, which resolves no path, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 705,
-        "path": ".project",
-        "site": "message",
-        "class": "undecided",
-        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1426,
-        "path": ".project/intent/INTENT.md",
-        "site": "path",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/intent/INTENT.md, whose .project subtree intent is one the archive move relocates to .project/archive/<NNN>-<slug>/intent, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1427,
-        "path": ".project/intent/INTENT.md",
-        "site": "message",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/intent/INTENT.md, whose .project subtree intent is one the archive move relocates to .project/archive/<NNN>-<slug>/intent, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1431,
-        "path": ".project/plan/PLAN.md",
-        "site": "path",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/plan/PLAN.md, whose .project subtree plan is one the archive move relocates to .project/archive/<NNN>-<slug>/plan, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1432,
-        "path": ".project/plan/PLAN.md",
-        "site": "message",
-        "class": "archived-by-the-move",
-        "reason": "resolves to .project/plan/PLAN.md, whose .project subtree plan is one the archive move relocates to .project/archive/<NNN>-<slug>/plan, so that path is deleted when the milestone archives"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1434,
-        "path": ".project/the intent must sit under .project, and it resolves to ${shown(intentPath)}",
-        "site": "segment",
-        "class": "undecided",
-        "reason": "resolves to .project/the intent must sit under .project, and it resolves to ${shown(intentPath)}, and .project/the intent must sit under .project, and it resolves to ${shown(intentPath)} is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
-        "root": null,
-        "construct": "call"
-      },
-      {
-        "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1437,
-        "path": ".project",
-        "site": "message",
-        "class": "undecided",
-        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
-      },
       {
         "file": "scripts/autonomy-gaps.test.mjs",
         "line": 48,
@@ -1515,6 +1377,144 @@
         "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
       },
       {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 12,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 36,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 37,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 52,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 260,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 263,
+        "path": ".project/STATE.md",
+        "site": "path",
+        "class": "undecided",
+        "reason": "resolves to .project/STATE.md, and .project/STATE.md is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 695,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 695,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 696,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 702,
+        "path": null,
+        "site": "pattern",
+        "class": "undecided",
+        "reason": "named in a regular expression, which resolves no path, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 705,
+        "path": ".project",
+        "site": "message",
+        "class": "undecided",
+        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 1426,
+        "path": ".project/intent/INTENT.md",
+        "site": "path",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/intent/INTENT.md, whose .project subtree intent is one the archive move relocates to .project/archive/<NNN>-<slug>/intent, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 1427,
+        "path": ".project/intent/INTENT.md",
+        "site": "message",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/intent/INTENT.md, whose .project subtree intent is one the archive move relocates to .project/archive/<NNN>-<slug>/intent, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 1431,
+        "path": ".project/plan/PLAN.md",
+        "site": "path",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/plan/PLAN.md, whose .project subtree plan is one the archive move relocates to .project/archive/<NNN>-<slug>/plan, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 1432,
+        "path": ".project/plan/PLAN.md",
+        "site": "message",
+        "class": "archived-by-the-move",
+        "reason": "resolves to .project/plan/PLAN.md, whose .project subtree plan is one the archive move relocates to .project/archive/<NNN>-<slug>/plan, so that path is deleted when the milestone archives"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 1434,
+        "path": ".project/the intent must sit under .project, and it resolves to ${shown(intentPath)}",
+        "site": "segment",
+        "class": "undecided",
+        "reason": "resolves to .project/the intent must sit under .project, and it resolves to ${shown(intentPath)}, and .project/the intent must sit under .project, and it resolves to ${shown(intentPath)} is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies",
+        "root": null,
+        "construct": "call"
+      },
+      {
+        "file": "scripts/m067-verdict-claims.test.mjs",
+        "line": 1437,
+        "path": ".project",
+        "site": "message",
+        "class": "undecided",
+        "reason": "resolves to .project, and .project/ is neither a subtree the archive move relocates (build, intent, plan, research, review, tasks) nor a path inside .project/archive, so neither class applies"
+      },
+      {
         "file": "scripts/navigation-blocking.test.mjs",
         "line": 2450,
         "path": ".project/STATE.md",
@@ -1962,7 +1962,7 @@
       },
       {
         "file": "scripts/teardown-leak-shapes.test.mjs",
-        "line": 133,
+        "line": 136,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -3423,7 +3423,7 @@
         "file": "scripts/teardown-leak-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 2810,
+        "addedLines": 2815,
         "removedLines": 0,
         "addedAssertionLines": 109,
         "removedAssertionLines": 0,
@@ -3475,7 +3475,7 @@
         "file": "scripts/tutor-answer.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 2101,
+        "addedLines": 2104,
         "removedLines": 0,
         "addedAssertionLines": 136,
         "removedAssertionLines": 0,
@@ -3488,9 +3488,9 @@
         "file": "scripts/tutor-record-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 2074,
+        "addedLines": 3011,
         "removedLines": 0,
-        "addedAssertionLines": 181,
+        "addedAssertionLines": 212,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -3674,7 +3674,7 @@
       "removedAssertionLines": 197,
       "recutAssertionLines": 197,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 8349
+      "addedAssertionLines": 8380
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
@@ -3691,9 +3691,9 @@
       "total": 226
     },
     "declarations": {
-      "tests": 2964,
+      "tests": 2967,
       "describes": 393,
-      "total": 3357
+      "total": 3360
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -3767,6 +3767,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-24T20:05:06.848Z"
+    "at": "2026-11-24T21:54:37.225Z"
   }
 }
