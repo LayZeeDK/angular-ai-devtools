@@ -50,6 +50,12 @@ Review depth: full
 | SC4 | T004 | AC1 |
 | SC2 | T004 | AC2 |
 
+## Held-out checks
+
+Every edge this milestone carries is proved by the suite of the task that owns it, and that task's Verify runs that
+suite. Nothing is held out: an edge whose proof sits outside the owning task's Verify would need a row here naming the
+edge, the task and the test, and there is none.
+
 ## Project verify
 
 `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test` —

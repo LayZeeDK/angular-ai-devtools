@@ -2,14 +2,14 @@
 id: T004
 title: Re-derive the recordings, then run the project verify
 wave: 4
-status: pending
+status: in-progress
 deps: 
 - T001
 - T002
 - T003
-agent: null
-base: null
-worktree: null
+agent: build_T004
+base: 18542b93dac5d0472630400dd2f143be4c67e36a
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
 - research/raw/m066-schema-record.json
@@ -95,3 +95,14 @@ M066_CAPTURE=1 node --test scripts/m066-schema-record.test.mjs && M066_CLAIMS_CA
 ## Log
 
 - pending
+
+- `research/raw/m066-verdict-claims.json` was captured at this head by the census M044 introduced:
+  `M044_CAPTURE=1 node --test scripts/navigation-blocking.test.mjs`, which then reports 28 pass, 0 fail. The record rules
+  SC1 to SC4 against this milestone's own intent, resolved by `scripts/verdict-claims-intent.mjs`.
+- The four suites that enumerate that record are green with it present: `guard-verdict-claims` 0 fail,
+  `outlet-verdict-claims` 0 fail, `copy-check` 0 fail, `panel-copy` 0 fail.
+- `research/raw/m066-schema-record.json` was re-derived at this head with `M066_CAPTURE=1 node --test
+  scripts/m066-schema-record.test.mjs`, 14 pass, 0 fail; the record is written only by that capture and read by every
+  default run.
+- The project verify runs last in this task, so a red build cannot reach ship.
+- Landed paths: `research/raw/m066-schema-record.json`, `scripts/m066-schema-record.mjs`, `scripts/m066-schema-record.test.mjs`, `scripts/title-input.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/gate-integrity.test.mjs`, `scripts/teardown-leak.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `research/raw/m066-verdict-claims.json`, `scripts/teardown-leak-shapes.test.mjs` — each is read from this tree, ready.
