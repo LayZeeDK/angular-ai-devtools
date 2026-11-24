@@ -48,7 +48,7 @@ Re-derive each recording at this head with its own capture variable, in the orde
 
 ## Acceptance criteria
 
-- AC1: the task's `## Log` names the command that proved it and the string the mutant produced.
+1. the task's `## Log` names the command that proved it and the string the mutant produced.
 
 ## Files
 

@@ -31,9 +31,9 @@ One pure function over the record and the field facts. `declared` carries the no
 
 ## Acceptance criteria
 
-- AC1: the task's `## Log` names the command that proved it and the string the mutant produced.
-- AC2: the task's `## Log` names the command that proved it and the string the mutant produced.
-- AC3: the task's `## Log` names the command that proved it and the string the mutant produced.
+1. the task's `## Log` names the command that proved it and the string the mutant produced.
+2. the task's `## Log` names the command that proved it and the string the mutant produced.
+3. the task's `## Log` names the command that proved it and the string the mutant produced.
 
 ## Files
 

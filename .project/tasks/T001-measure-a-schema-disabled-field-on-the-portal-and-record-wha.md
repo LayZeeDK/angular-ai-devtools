@@ -35,9 +35,9 @@ and writes nothing.
 
 ## Acceptance criteria
 
-- AC1: the `## Log` names the capture, the route it drove, and the value it recorded.
-- AC2: the `## Log` names the mutant and the field that reddened.
-- AC3: the record it writes is committed and read by every default run.
+1. the `## Log` names the capture, the route it drove, and the value it recorded.
+2. the `## Log` names the mutant and the field that reddened.
+3. the record it writes is committed and read by every default run.
 
 ## Files
 
