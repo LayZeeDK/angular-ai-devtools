@@ -11,13 +11,6 @@ Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-d
 
 ## Waves
 
-## Wave 5 — T005: re-measure the shape map
-
-Goal: Re-measure 
-esearch/raw/m055-record-shapes.json for the verdict-claims record the M066 rebind un-excused, and
-restate the two pins that encode the same measurement, so the project verify has a true reading to compare against.
-Review depth: full
-
 ## Wave 1 — T001: measure a schema-disabled field on the portal and record what the page states
 
 Goal: Write the observable — one record carrying the disabled and hidden field states the page reports, the schema holder
@@ -42,6 +35,14 @@ Review depth: full
 Goal: Re-derive the three recordings whose range this milestone moves, then run the project verify until its last stage
 is green, so a red build cannot reach ship.
 Review depth: full
+
+## Wave 5 — T005: re-measure the shape map
+
+Goal: Re-measure 
+esearch/raw/m055-record-shapes.json for the verdict-claims record the M066 rebind un-excused, and
+restate the two pins that encode the same measurement, so the project verify has a true reading to compare against.
+Review depth: full
+
 
 ## Intent coverage
 
