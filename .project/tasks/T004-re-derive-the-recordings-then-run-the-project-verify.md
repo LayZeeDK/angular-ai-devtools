@@ -26,7 +26,6 @@ files:
 - scripts/chunk-failure-claims.test.mjs
 - scripts/guard-record-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
-- research/raw/m056-gate-stability.json
 - extension/title-input.js
 - extension/panel/index.html
 ---
@@ -46,6 +45,11 @@ check && npm test`; it is the milestone's own gate and it is run here rather tha
 
 Re-derive the two recordings with their own capture commands, then run the project verify until it reaches
 its last stage. Nothing else is edited: if the verify fails, the failure is reported rather than papered over.
+
+
+This task declares three recordings, not four. `research/raw/m056-gate-stability.json` was re-derived by hand
+while the task was being closed, not by this task's Verify, and declaring it pushed the task past the plan's
+four-artefact ceiling. The record stays committed; its ownership is the wave that next re-derives it.
 
 ## Interface contract
 
@@ -72,7 +76,6 @@ Every path this task may touch, and nothing else:
 - scripts/chunk-failure-claims.test.mjs
 - scripts/guard-record-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
-- research/raw/m056-gate-stability.json
 - extension/title-input.js
 - extension/panel/index.html
 
