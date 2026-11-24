@@ -1,0 +1,97 @@
+---
+id: T004
+title: Re-derive the recordings, then run the project verify
+wave: 4
+status: pending
+deps: 
+- T001
+- T002
+- T003
+agent: null
+base: null
+worktree: null
+task_branch: null
+files:
+- research/raw/m066-schema-record.json
+- scripts/m066-schema-record.mjs
+- scripts/m066-schema-record.test.mjs
+- scripts/title-input.test.mjs
+- apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+- scripts/gate-integrity.test.mjs
+- scripts/teardown-leak.test.mjs
+- scripts/tutor-answer.test.mjs
+- scripts/gate-integrity-default-tasks.test.mjs
+- scripts/guard-record-shapes.test.mjs
+- scripts/guard-verdict-claims.test.mjs
+- scripts/outlet-record-shapes.test.mjs
+- scripts/outlet-verdict-claims.test.mjs
+- scripts/navigation-blocking.test.mjs
+- scripts/tutor-record-shapes.test.mjs
+- scripts/chunk-failure-claims.test.mjs
+- research/raw/m066-verdict-claims.json
+- scripts/teardown-leak-shapes.test.mjs
+---
+
+# T004 — Re-derive the recordings, then run the project verify
+
+## Context
+
+Recordings that pin a head go stale on the next commit, and a landing that moves one without re-deriving it reddens the verify rather than the claim.
+
+## Approach
+
+Re-derive each recording at this head with its own capture variable, in the order the deps require, then run the project verify. The task declares three recordings and no more; the plan's ceiling is four artefacts counting its Log.
+
+## Intent coverage
+
+- SC2, SC4
+
+## Acceptance criteria
+
+- AC1: the task's `## Log` names the command that proved it and the string the mutant produced.
+
+## Files
+
+Every path this task may touch, and nothing else:
+
+- `research/raw/m066-schema-record.json`
+- `scripts/m066-schema-record.mjs`
+- `scripts/m066-schema-record.test.mjs`
+- `scripts/title-input.test.mjs`
+- `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`
+- `scripts/gate-integrity.test.mjs`
+- `scripts/teardown-leak.test.mjs`
+- `scripts/tutor-answer.test.mjs`
+- `scripts/gate-integrity-default-tasks.test.mjs`
+- `scripts/guard-record-shapes.test.mjs`
+- `scripts/guard-verdict-claims.test.mjs`
+- `scripts/outlet-record-shapes.test.mjs`
+- `scripts/outlet-verdict-claims.test.mjs`
+- `scripts/navigation-blocking.test.mjs`
+- `scripts/tutor-record-shapes.test.mjs`
+- `scripts/chunk-failure-claims.test.mjs`
+- \research/raw/m066-verdict-claims.json\n
+- \scripts/teardown-leak-shapes.test.mjs\n
+## Interface contract
+
+Byte-identical across the tasks that share it:
+
+```ts
+// extension/schema-attribution.js — the only reader of a schema attribution
+export function schemaAttribution(record, facts) {
+  return { state, field, node, input, reason, observed }
+}
+```
+
+`state` is one of `declared`, `no-node`, `no-record`, `cannot-tell`. `node` and `input` are present only when the record
+carries them; `reason` names why the attribution is absent.
+
+## Verify
+
+```bash
+M066_CAPTURE=1 node --test scripts/m066-schema-record.test.mjs && M066_CLAIMS_CAPTURE=1 node --test scripts/title-input.test.mjs && npm run check && npm test
+```
+
+## Log
+
+- pending
