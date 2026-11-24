@@ -71,13 +71,13 @@ Every path this task may touch, and nothing else:
 - `scripts/outlet-verdict-claims.test.mjs`
 - `scripts/navigation-blocking.test.mjs`
 - `scripts/tutor-record-shapes.test.mjs`
-- \research/raw/m066-verdict-claims.json\n
-- \scripts/teardown-leak-shapes.test.mjs\n
-- \scripts/schema-attribution.test.mjs\n
-- `research/raw/m059-record-shapes.json`
+- `research/raw/m066-verdict-claims.json`
 - `scripts/teardown-leak-shapes.test.mjs`
-- \scripts/chunk-failure-claims.test.mjs\n
-- \scripts/gate-integrity.test.mjs\n
+- `scripts/schema-attribution.test.mjs`
+- `research/raw/m059-record-shapes.json`
+- `scripts/chunk-failure-claims.test.mjs`
+- `scripts/gate-integrity.test.mjs`
+
 ## Interface contract
 
 Byte-identical across the tasks that share it:
