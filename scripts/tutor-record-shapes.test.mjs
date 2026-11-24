@@ -621,13 +621,37 @@ function measuredByMap(map) {
 }
 
 /**
+ * The milestone the state file binds, as `m065`, or `''` where the file binds none. This is the same
+ * reading `scripts/verdict-claims-intent.mjs` makes, and it is the only way to hold a census that
+ * derives its record's path rather than spelling it: the path it writes is a function of the bound
+ * milestone, so the milestone is what says which record that census holds.
+ *
+ * @returns {string}
+ */
+function boundMilestone() {
+  const state = join(ROOT, '.project', 'STATE.md');
+  if (!existsSync(state)) return '';
+  const branch = /^branch:\s*(\S+)\s*$/m.exec(readFileSync(state, 'utf8'))?.[1];
+  const number = /^gsd-path\/M(\d{3})$/.exec(String(branch))?.[1];
+  return number === undefined ? '' : `m${number}`;
+}
+
+/**
  * A record its own census writes and reads back, so the map census is not the only thing that measures
  * it. The test is read from the record's own `capture.command`, never from a list here: the command
  * must name a suite this checkout carries, that suite must name *this record's path* and must read the
  * armed flag the command states. A record that names a suite which does not exist, or whose source does
  * not name the record, or whose flag the suite does not read, earns nothing and is held against the maps
- * exactly as before — a census that derives its record's path from the bound branch names the kind of
- * file and not the file, so it cannot excuse a record it does not name.
+ * exactly as before.
+ *
+ * A census may also derive its record's path from the bound branch instead of spelling it, and the
+ * census M044 introduced — `scripts/navigation-blocking.test.mjs`, which recorded every milestone from
+ * M044 to M061 and which M065 names again — does exactly that: it writes
+ * `research/raw/<the bound milestone>-verdict-claims.json`. Such a census holds one record at a head,
+ * this milestone's, and it reads that record back; so the record it derives at this head is excused and
+ * no other is. That is what keeps this reading narrow: the same template is the census of every earlier
+ * milestone, and at this head it derives M065's path, not theirs, so their records stay measured by the
+ * maps and the count this map states does not move when one of them is subtracted.
  * @param {string} rel the record's repository path
  * @returns {boolean}
  */
@@ -645,7 +669,12 @@ function heldByItsOwnCensus(rel) {
   const ownerPath = join(ROOT, ...owner.split('/'));
   if (!existsSync(ownerPath)) return false;
   const source = readFileSync(ownerPath, 'utf8');
-  return source.includes(rel) && source.includes(flag);
+  if (source.includes(rel) && source.includes(flag)) return true;
+  const template =
+    /`research\/raw\/\$\{[^}]*\}-(verdict-claims|surface)\.json`/.exec(source);
+  const bound = boundMilestone();
+  if (template === null || bound === '') return false;
+  return rel === `research/raw/${bound}-${template[1]}.json`;
 }
 
 /**

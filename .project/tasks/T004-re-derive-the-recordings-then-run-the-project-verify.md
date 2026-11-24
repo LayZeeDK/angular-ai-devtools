@@ -2,11 +2,11 @@
 id: T004
 title: Re-derive the recordings, then run the project verify
 wave: 4
-status: in-progress
+status: done
 deps: [T003]
 agent: build_T004
-base: 48b13d275ea76f0a2ad8a2ce3daf5eb1a74ee2be
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: 2bd5e63da0a423a59ce73934799781a9d7e5d4cb
+worktree: null
 task_branch: null
 files:
 - research/raw/m044-gate-shapes.json

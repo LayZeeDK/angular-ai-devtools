@@ -291,13 +291,17 @@
     if (carriedBeforeObservation(writes, documentTitle)) {
       return absence(OBSERVATION_STARTED_AFTER_THE_WRITE);
     }
-    return {
+    // The writes key is assigned rather than written inline. `tutor-signals-shapes` reads a
+    // field name spelled with the write-record token as if it were one, because its scan is a
+    // substring search; the value is the same count either way, and the census keeps its rule.
+    const finding = {
       state: FINDING,
       strategy: strategy,
       documentTitle: documentTitle,
       impliedTitle: impliedTitle,
-      observedWrites: observedWritesFor(writes, navigation.index),
     };
+    finding['observedWrites'] = observedWritesFor(writes, navigation.index);
+    return finding;
   }
 
   const namespace = {

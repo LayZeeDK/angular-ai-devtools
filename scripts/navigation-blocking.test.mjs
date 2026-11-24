@@ -3348,8 +3348,8 @@ function assertHeldOutRead(source, edges) {
     )}: a row it does not read is an edge that falls back to the suite a task happened to add, not to the suite the plan assigned`,
   );
   assert.ok(
-    written > 0,
-    'the plan must write its held-out mapping as rows, or no citation is derived from it',
+    written > 0 || intentCoverage(source).length > 0,
+    'the plan must write its held-out mapping as rows, or assign its criteria in ## Intent coverage, or no citation is derived from it',
   );
   const declared = edges.map((edge) => edge.edge);
   for (const [edge, row] of heldOut) {
@@ -3914,48 +3914,77 @@ describe('the claim list', () => {
     const coverage = intentCoverage(planSource);
     const tasksDir = join(dirname(planPath), '..', 'tasks');
 
+    // The plan this test drives. It is the live plan when that plan writes its mapping as rows. When
+    // the live plan holds nothing out — which is what this head's plan states: every edge is proved by
+    // the suite of the task that owns it, and that task's own Verify runs it — the subject is a copy of
+    // the same plan with the mapping written into its own `## Held-out checks` section, one bullet per
+    // edge of the intent, naming the task the coverage table assigns that edge's criterion and the suite
+    // that task added. Nothing about the live plan is asserted through it: the subject exists so the
+    // reader, the wider count and the four mutants below are exercised on this plan rather than skipped
+    // because the plan honestly holds nothing out. This is the repair M046's plan recorded for the same
+    // case — "it should exercise a fixture plan rather than the live one".
+    const documentEol = planSource.includes('\r\n') ? '\r\n' : '\n';
+    const seededPlan = () => {
+      const bullets = edges
+        .map((edge) => {
+          const task =
+            coverage.filter((one) => one.criterion === edge.criterion)[0]
+              ?.task ?? '';
+          const suite = suiteForEdge(edge, new Map(), coverage, tasksDir);
+          return `- ${edge.edge} → ${task} → \`${suite}\``;
+        })
+        .join(documentEol);
+      return planSource.replace(
+        sectionOf(planSource, '## Held-out checks'),
+        `${documentEol}${bullets}${documentEol}`,
+      );
+    };
+    const subject =
+      heldOutRowsWritten(planSource) > 0 ? planSource : seededPlan();
+    assert.equal(
+      heldOutRowsWritten(subject) > 0,
+      true,
+      'the plan this test drives must write at least one held-out row, or nothing below is read',
+    );
+
     // The control: every row the section writes is read, and every row's task is the task the
     // coverage table assigns that edge's criterion. Both halves are re-run below against copies, so
     // the checks that bite are the checks that pass here.
-    const live = heldOutChecks(planSource);
+    const live = heldOutChecks(subject);
     assert.equal(
       live.size,
-      heldOutRowsWritten(planSource),
-      'the live plan writes the rows the reader returns',
+      heldOutRowsWritten(subject),
+      'the plan this test drives writes the rows the reader returns',
     );
-    assert.ok(live.size > 0, 'the live plan writes at least one held-out row');
 
     /** One plan copy with its first held-out bullet rewritten by `edit`. */
     const rewritten = (edit) => {
-      const section = sectionOf(planSource, '## Held-out checks');
+      const section = sectionOf(subject, '## Held-out checks');
       const line = section
         .split(/\r?\n/)
         .filter((entry) => HELD_OUT_BULLET.test(entry))[0];
       assert.ok(
         line !== undefined,
-        `the plan writes its mapping as the bullet ${String(
+        `the plan this test drives writes its mapping as the bullet ${String(
           HELD_OUT_BULLET,
         )}, so a copy can rewrite a row`,
       );
       const row = /** @type {RegExpExecArray} */ (HELD_OUT_BULLET.exec(line));
-      return planSource.replace(
-        line,
-        edit(String(row[3]), String(row[2]), line),
-      );
+      return subject.replace(line, edit(String(row[3]), String(row[2]), line));
     };
 
     // 1. A row the section writes and the reader does not parse: the first arrow of the first bullet
-    // is rewritten to a colon. The row still names E1, so the section still writes eight rows, and the
-    // reader returns seven - the count in the reading above is what reddens, naming both numbers.
+    // is rewritten to a colon. The row still names E1, so the section still writes every row, and the
+    // reader returns one fewer - the count in the reading above is what reddens, naming both numbers.
     const unreadRow = rewritten((test, task, line) => line.replace('→', ':'));
     assert.notEqual(
       unreadRow,
-      planSource,
+      subject,
       'the unread-row mutant changes the plan it was planted on',
     );
     assert.equal(
       heldOutRowsWritten(unreadRow),
-      heldOutRowsWritten(planSource),
+      heldOutRowsWritten(subject),
       'the row is still written, so the wider count still sees it',
     );
     assert.equal(
@@ -3971,7 +4000,9 @@ describe('the claim list', () => {
     }
     assert.match(
       unreadMessage,
-      /## Held-out checks writes 8 row\(s\) and the reader returned 7/,
+      new RegExp(
+        `## Held-out checks writes ${String(live.size)} row\\(s\\) and the reader returned ${String(live.size - 1)}`,
+      ),
       `a row the reader loses must redden naming the section and both counts; it produced ${JSON.stringify(unreadMessage.slice(0, 320))}`,
     );
 
@@ -3979,14 +4010,13 @@ describe('the claim list', () => {
     // can see it, and the derivation does not refuse: `## Intent coverage` answers instead and SC3
     // cites whatever suite the first task covering SC3 happens to have added. Recorded as the drift
     // it is - the plan is the only statement of what it holds out.
-    const e5 = sectionOf(planSource, '## Held-out checks')
+    const e5 = sectionOf(subject, '## Held-out checks')
       .split(/\r?\n/)
       .filter((entry) => /^\s*[-*]\s*E5\b/.test(entry))[0];
     // The plan is a CRLF document on this checkout and the section read above strips the `\r`, so the
     // row is cut with the line ending the document itself writes; a hard-coded `\n` matches no row and
     // the mutant would be a no-op that still named a defect.
-    const documentEol = planSource.includes('\r\n') ? '\r\n' : '\n';
-    const withoutRow = planSource.replace(`${e5}${documentEol}`, '');
+    const withoutRow = subject.replace(`${e5}${documentEol}`, '');
     assert.equal(
       withoutRow.includes(e5),
       false,
@@ -3994,7 +4024,7 @@ describe('the claim list', () => {
     );
     assert.notEqual(
       withoutRow,
-      planSource,
+      subject,
       'the dropped-row mutant changes the plan it was planted on',
     );
     assert.equal(
@@ -4151,8 +4181,8 @@ describe('the claim list', () => {
     }
     console.log(
       `held-out read: ${String(live.size)} row(s) of ${String(
-        heldOutRowsWritten(planSource),
-      )} written; unread row -> ${unreadMessage.split('\n')[0]}; deleted E5 row -> SC3 cites ${
+        heldOutRowsWritten(subject),
+      )} written on the plan this test drives; unread row -> ${unreadMessage.split('\n')[0]}; deleted E5 row -> SC3 cites ${
         sc3.artefactPath
       } through ## Intent coverage against ${String(
         assignedE5,
