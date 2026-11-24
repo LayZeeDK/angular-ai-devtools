@@ -5,7 +5,7 @@
     "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(ROOT, \"M064\"))",
     "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 4 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
     "proofs": "every citation in this record is a line read from this checkout at capture: 27 citation(s) over [\"apps/angular-ai-devtools/src/app/app.spec.ts\",\"apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts\",\"apps/angular-ai-devtools/src/app/panel-chunk-failure.ts\",\"apps/angular-ai-devtools/src/app/panel-demo.ts\",\"extension/chunk-failure.js\",\"research/raw/m064-import-failure.json\",\"scripts/chunk-failure-copy.test.mjs\",\"scripts/chunk-failure.test.mjs\",\"scripts/import-failure.test.mjs\",\"scripts/panel-routes.test.mjs\"], each resolved by searching its file for the exact text it states rather than by trusting a typed number, and each claim names the suite and the test title the suite declares at this head",
-    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/plan/PLAN.md's ## Held-out checks section, which this path reads as 8 row(s) of edge -> task -> test in either form a plan writes it - the three-column Edge | Task | Test table, or the bullet '- E.. -> T.. -> test' - so a claim cites the suite the milestone's own plan assigns its edges rather than one this file chose: 8 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and the suites [\"scripts/chunk-failure.test.mjs\",\"scripts/import-failure.test.mjs\",\"scripts/panel-routes.test.mjs\",\"scripts/chunk-failure-copy.test.mjs\"]. The plan's ## Held-out checks and its ## Intent coverage table disagree at 0 row(s) [], recorded under evidence.plan.disagreements rather than refused, because a reader needs the citation and the disagreement in one place. 2 edge claim(s) state an absence for a part of the edge no line in this checkout carries"
+    "edges": "read from .project/archive/064-lazy-chunk-failure/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-edge mapping from .project/archive/064-lazy-chunk-failure/plan/PLAN.md's ## Held-out checks section, which this path reads as 8 row(s) of edge -> task -> test in either form a plan writes it - the three-column Edge | Task | Test table, or the bullet '- E.. -> T.. -> test' - so a claim cites the suite the milestone's own plan assigns its edges rather than one this file chose: 8 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and the suites [\"scripts/chunk-failure.test.mjs\",\"scripts/import-failure.test.mjs\",\"scripts/panel-routes.test.mjs\",\"scripts/chunk-failure-copy.test.mjs\"]. The plan's ## Held-out checks and its ## Intent coverage table disagree at 0 row(s) [], recorded under evidence.plan.disagreements rather than refused, because a reader needs the citation and the disagreement in one place. 2 edge claim(s) state an absence for a part of the edge no line in this checkout carries"
   },
   "ruling": {
     "required": 0,
@@ -18,7 +18,7 @@
   },
   "evidence": {
     "intent": {
-      "path": ".project/intent/INTENT.md",
+      "path": ".project/archive/064-lazy-chunk-failure/intent/INTENT.md",
       "criteria": [
         "SC1",
         "SC2",
@@ -27,7 +27,7 @@
       ]
     },
     "plan": {
-      "path": ".project/plan/PLAN.md",
+      "path": ".project/archive/064-lazy-chunk-failure/plan/PLAN.md",
       "heldOut": [
         "E1",
         "E2",
@@ -543,13 +543,13 @@
       "citations": [
         {
           "file": "scripts/panel-routes.test.mjs",
-          "line": 814,
+          "line": 817,
           "lineText": "test('E4: every declared route surface has a panel-demo LOADERS key', () => {",
           "holds": "every declared surface has a loader key, and a dropped key reddens naming the surface"
         },
         {
           "file": "scripts/panel-routes.test.mjs",
-          "line": 223,
+          "line": 224,
           "lineText": "test('E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name', () => {",
           "holds": "the route table is one list mapped over one literal, and every surface keeps its own path"
         },
@@ -561,13 +561,13 @@
         },
         {
           "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
-          "line": 118,
+          "line": 121,
           "lineText": "'chunk-failure', // M064 SC4 surface: the specifier the router could not load, the route path that owns it, the status and the hash the attempt carried, one row per attempt in router order, or the named absence",
           "holds": "the app spec enumerates the surface in the route order the table installs it in"
         },
         {
           "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
-          "line": 733,
+          "line": 734,
           "lineText": "'chunk-failure', // M064 SC4 surface: the specifier the router could not load, the route path that owns it, the status and the hash the attempt carried, one row per attempt in router order, or the named absence",
           "holds": "the chat-entry spec enumerates the surface in the first of the three lists it carries"
         }
