@@ -35,6 +35,7 @@ const surfaces = [
   'console',
   'console-read',
   'title-input',
+  'schema',
   'outlet',
   'visual-qa',
   'tutor-foundations',
@@ -705,6 +706,7 @@ test('E2: the surface functions are still exported for their suites', () => {
       'localeCorrectnessPanel',
     ],
     'guard-phase': ['panel-guard-phase', 'guardPhasePanel'],
+    schema: ['panel-schema', 'schemaPanel'],
     components: ['panel-components', 'componentsPanel'],
     'copy-check': ['panel-copy-check', 'copyCheckPanel'],
     'interaction-story': ['panel-interaction-story', 'interactionStoryPanel'],
@@ -771,6 +773,7 @@ test('E3: the demo module renders the surface text it is handed', () => {
     'outletPanel(',
     'guardPhasePanel(',
     'chunkFailurePanel(',
+    'schemaPanel(',
   ]) {
     assert.ok(
       !source.includes(call),
@@ -1566,5 +1569,84 @@ test('E4: every declared route surface has a panel-demo LOADERS key', () => {
       ) &&
       String(err.message).includes('missing: title-input'),
     'removing the title-input loader must fail naming the missing surface title-input',
+  );
+
+  // The M066 surface, pinned here at the end of E4's body for the reason the M065 block above states:
+  // the claims record `research/raw/m064-verdict-claims.json` counts this suite's tests
+  // (`evidence.suites[].tests`) and cites the `E1:` and `E4:` lines by line, so a fifth test — or a
+  // test inserted between them — would redraw values no task of this milestone may re-cite. The route
+  // entry and the loader key are proved here instead, each by the mutant that drops it, and the one
+  // entry the route list gained above them is paid for by folding the `SHARED_LOADER_DEFINITION` note
+  // and this file's own ordering prose rather than by adding a test.
+  const schemaSurfaceSource = readFileSync(
+    join(ROOT, 'apps', 'angular-ai-devtools', 'src', 'app', 'panel-schema.ts'),
+    'utf8',
+  );
+
+  // Green first, on the real files: the route is one entry of the list the factory is handed, the key
+  // is one entry of the map, and the pane is a module the key can reach.
+  assert.ok(
+    declaredSurfaces(routesSource).includes('schema'),
+    'PANEL_SURFACES must carry the schema entry this surface answers at, and it does not',
+  );
+  assert.equal(
+    routesSource.split("  'schema',\n").length - 1,
+    1,
+    'the schema route is one entry of PANEL_SURFACES, and one only',
+  );
+  assert.equal(
+    demoSource.split("  schema: () => import('./panel-schema') as never,\n")
+      .length - 1,
+    1,
+    'the demo carries exactly one schema LOADERS key, importing this module',
+  );
+  assert.ok(
+    schemaSurfaceSource.includes('export function schemaPanel'),
+    'panel-schema.ts must export schemaPanel, the function its loader key resolves',
+  );
+  // The property E3 holds for every pane it lists, held for this one where no cited line can move: the
+  // demo reaches the surface through its loader key and never calls the function itself, which is what
+  // keeps the pane out of the eager graph.
+  assert.ok(
+    !demoSource.includes('schemaPanel('),
+    'the demo calls no surface directly — schemaPanel( must arrive through its own loader',
+  );
+
+  // Mutant: the route dropped from the list the factory is handed. The route that named it goes with
+  // it, so the pin must fail naming the surface it left behind.
+  const withoutSchemaRoute = routesSource.replace("  'schema',\n", '');
+  assert.notEqual(
+    withoutSchemaRoute,
+    routesSource,
+    'the removed-schema-route mutant must change app.routes.ts',
+  );
+  assert.throws(
+    () => assertSurfaceRoutes(withoutSchemaRoute),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes('route schema must exist'),
+    'a table without the schema route must fail naming the missing surface schema',
+  );
+
+  // Mutant: the loader key dropped from LOADERS. A route entry with no loader beside it renders
+  // nothing, so the check must fail naming the key rather than passing on the surfaces before it.
+  const withoutSchemaLoader = demoSource.replace(
+    "  schema: () => import('./panel-schema') as never,\n",
+    '',
+  );
+  assert.notEqual(
+    withoutSchemaLoader,
+    demoSource,
+    'the schema loader mutant must change panel-demo.ts',
+  );
+  assert.throws(
+    () => assertAllSurfacesHaveLoaders(routesSource, withoutSchemaLoader),
+    (err) =>
+      err instanceof assert.AssertionError &&
+      String(err.message).includes(
+        'every app.routes.ts surface must have a panel-demo LOADERS key',
+      ) &&
+      String(err.message).includes('missing: schema'),
+    'removing the schema loader must fail naming the missing surface schema',
   );
 });

@@ -15,13 +15,13 @@
     ]
   },
   "counts": {
-    "what": "the numbers this record states about the panel, the route table and the copy, each measured at this head rather than typed Every one of these values is re-read from the tree by `scripts/panel-copy.test.mjs` on every run, so a later task that moves one of them moves this record with it rather than leaving it saying yesterday’s number: M062’s T003 adds the one `outlet` entry to `PANEL_SURFACES`, the one `outlet` key to `LOADERS` and the one route that key answers, so the three counts that measure those lists move by one each from the numbers this task measured; M063’s T003 adds the one `guard-phase` entry, the one `guard-phase` key and the one route that key answers, so the same three counts move by one each again, to 33 surfaces, 33 loader keys and 42 ordered paths; M064’s T003 adds the one `chunk-failure` entry, the one `chunk-failure` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 34 surfaces, 34 loader keys and 43 ordered paths. M065’s T003 adds the one `title-input` entry, the one `title-input` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 35 surfaces, 35 loader keys and 44 ordered paths. The four copy counts do not move for any pane any of the four tasks shipped: none of them declares a sentence, so `research/raw/m048-surface-copy.json` gains no surface row and no sentence — only one `excluded` row per spec that measures a new pane — and the row that records each pane itself is an entry of this record’s own `surfaces` list, which is the list `scripts/copy-check.test.mjs` reads beside that record.",
-    "panelSurfaces": 35,
-    "panelSurfacesBefore": 34,
-    "loaderKeys": 35,
-    "loaderKeysBefore": 34,
-    "orderedPaths": 44,
-    "orderedPathsBefore": 43,
+    "what": "the numbers this record states about the panel, the route table and the copy, each measured at this head rather than typed Every one of these values is re-read from the tree by `scripts/panel-copy.test.mjs` on every run, so a later task that moves one of them moves this record with it rather than leaving it saying yesterday’s number: M062’s T003 adds the one `outlet` entry to `PANEL_SURFACES`, the one `outlet` key to `LOADERS` and the one route that key answers, so the three counts that measure those lists move by one each from the numbers this task measured; M063’s T003 adds the one `guard-phase` entry, the one `guard-phase` key and the one route that key answers, so the same three counts move by one each again, to 33 surfaces, 33 loader keys and 42 ordered paths; M064’s T003 adds the one `chunk-failure` entry, the one `chunk-failure` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 34 surfaces, 34 loader keys and 43 ordered paths. M065’s T003 adds the one `title-input` entry, the one `title-input` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 35 surfaces, 35 loader keys and 44 ordered paths. The four copy counts do not move for any pane any of the four tasks shipped: none of them declares a sentence, so `research/raw/m048-surface-copy.json` gains no surface row and no sentence — only one `excluded` row per spec that measures a new pane — and the row that records each pane itself is an entry of this record’s own `surfaces` list, which is the list `scripts/copy-check.test.mjs` reads beside that record. M066's T003 adds the one `schema` entry, the one `schema` key and the one route that key answers to the same three lists, so those three counts move by one each once more, to 36 surfaces, 36 loader keys and 45 ordered paths.",
+    "panelSurfaces": 36,
+    "panelSurfacesBefore": 35,
+    "loaderKeys": 36,
+    "loaderKeysBefore": 35,
+    "orderedPaths": 45,
+    "orderedPathsBefore": 44,
     "digestRows": 204,
     "digestRowsBefore": 204,
     "digestRowsForThisSurface": 0,
@@ -313,6 +313,11 @@
       "declares": "inline-only",
       "sentences": 0,
       "statement": "the fifth surface recorded by this file, and M065 T003’s own pane: it declares no sentence, and every literal it writes is a single token — one of its four state words, one of its six labels, the `no-record` word it stands on when it is handed no answer, or the `\"\"` spelling a blank value prints as — beside the one template that joins a label to a value, so there is no prose for the copy digest to explain. It is recorded here rather than in the M048 copy record for the reason the four entries above are: that record’s own pins state that every surface it carries but `panel-context.ts` declares copy the copy join can check, and a pane whose whole copy is a label table has nothing for the digest to explain. `scripts/copy-check.test.mjs` reads this list beside that record so every `panel-*.ts` surface on disk is named by one copy record, and `panel-demo.spec.ts` holds the pane to its own six-field and four-state pins: a seventh field the answer does not carry, or a state dropped from the enumeration, reddens there naming the surface."
+    },
+    {
+      "id": "schema",
+      "file": "apps/angular-ai-devtools/src/app/panel-schema.ts",
+      "declares": "inline-only"
     }
   ],
   "fieldsAt": {

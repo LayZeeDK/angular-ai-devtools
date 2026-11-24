@@ -543,13 +543,13 @@
       "citations": [
         {
           "file": "scripts/panel-routes.test.mjs",
-          "line": 814,
+          "line": 817,
           "lineText": "test('E4: every declared route surface has a panel-demo LOADERS key', () => {",
           "holds": "every declared surface has a loader key, and a dropped key reddens naming the surface"
         },
         {
           "file": "scripts/panel-routes.test.mjs",
-          "line": 223,
+          "line": 224,
           "lineText": "test('E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name', () => {",
           "holds": "the route table is one list mapped over one literal, and every surface keeps its own path"
         },
@@ -561,13 +561,13 @@
         },
         {
           "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
-          "line": 118,
+          "line": 121,
           "lineText": "'chunk-failure', // M064 SC4 surface: the specifier the router could not load, the route path that owns it, the status and the hash the attempt carried, one row per attempt in router order, or the named absence",
           "holds": "the app spec enumerates the surface in the route order the table installs it in"
         },
         {
           "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
-          "line": 733,
+          "line": 734,
           "lineText": "'chunk-failure', // M064 SC4 surface: the specifier the router could not load, the route path that owns it, the status and the hash the attempt carried, one row per attempt in router order, or the named absence",
           "holds": "the chat-entry spec enumerates the surface in the first of the three lists it carries"
         }

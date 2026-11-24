@@ -1684,7 +1684,7 @@ test('every record present is measured and every record measured is present', (t
     `${mapped.verdictClaims.length} verdict-claims and ${mapped.surface.length} surface record(s) measured; ${present.verdictClaims.length + present.surface.length} present, ${outsideTheMapOf(RECORDING).length} named outside M055's map at T004 and ${LATER.map((entry) => `${outsideTheMapOf(entry.map).length} outside ${String(entry.map.milestone)}'s map`).join(' and ')}`,
   );
   for (const expected of [
-    ['verdict-claims', 34],
+    ['verdict-claims', 35],
     ['surface', 9],
   ]) {
     const [kind, count] = expected;

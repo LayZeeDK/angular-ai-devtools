@@ -71,8 +71,9 @@ const LOADERS: Record<
   'guard-phase': () => import('./panel-guard-phase') as never,
   'chunk-failure': () => import('./panel-chunk-failure') as never,
   'title-input': () => import('./panel-title-input') as never,
+  schema: () => import('./panel-schema') as never,
 };
-// The sample facts each surface renders; the spec holds each one to the recording it came from. The M061 key above costs this map one line, and that line is paid for below by folding the `fields` note's last two lines into one, so every line the earlier surface records cite from 427 down — the loader resolution and the component template included — keeps its number. M062's `outlet` key costs the map one more line and is paid for the same way, by folding one more line of that note, so the region those records cite keeps its numbers again. M063's `guard-phase` key costs the map one more line and is paid for by folding the `onpush` note's two lines into one, so every cited line from 427 down keeps its number again. M064's `chunk-failure` key costs the map one more line and is paid for by folding the `resource` note's two last lines into one, so the region those records cite keeps its numbers once more. M065's `title-input` key costs the map one more line and is paid for by a second fold of that same `resource` note, so every cited line from 427 down keeps its number again.
+// The sample facts each surface renders; the spec holds each one to the recording it came from. The M061 key above costs this map one line, and that line is paid for below by folding the `fields` note's last two lines into one, so every line the earlier surface records cite from 427 down — the loader resolution and the component template included — keeps its number. M062's `outlet` key costs the map one more line and is paid for the same way, by folding one more line of that note, so the region those records cite keeps its numbers again. M063's `guard-phase` key costs the map one more line and is paid for by folding the `onpush` note's two lines into one, so every cited line from 427 down keeps its number again. M064's `chunk-failure` key costs the map one more line and is paid for by folding the `resource` note's two last lines into one, so the region those records cite keeps its numbers once more. M065's `title-input` key costs the map one more line and is paid for by a second fold of that same `resource` note, so every cited line from 427 down keeps its number again. M066's `schema` key costs the map one more line and is paid for by a third fold of that same `resource` note, so every cited line from the loader resolution down keeps its number once more.
 export const FACTS: Record<string, unknown> = {
   // The join's own field answer for the cross-field case (extension/field-state.js): every field valid, while the root carries its own error kind. The submit state is the recording's, not a label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact shape in `research/raw/m031-field-state.json` and names the element it was read off (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
   fields: {
@@ -151,8 +152,7 @@ export const FACTS: Record<string, unknown> = {
   },
   // The join's own idle-by-design answer (extension/resource-lifecycle.js): the graph reports
   // `Resource#IdleResource.status` as `idle` because its params expression produces nothing, and the
-  // join names that as `idle (by design)` rather than as a request still running. The identity and
-  // the status are the recording's (`research/raw/m036-resource-graph.json`, `resources`); only the idle case is sampled here, because the other three report the same status the sample would have to invent against a recording that does not carry a params status at all. M064's `chunk-failure` key above costs this map one line and is paid for by this fold, so every cited line from the loader resolution down keeps its number. M065's `title-input` key above costs this map one more line and is paid for by this second fold, so the region those records cite keeps its numbers once more.
+  // join names that as `idle (by design)` rather than as a request still running. The identity and the status are the recording's (`research/raw/m036-resource-graph.json`, `resources`); only the idle case is sampled here, because the other three report the same status the sample would have to invent against a recording that does not carry a params status at all. M064's `chunk-failure` key above costs this map one line and is paid for by this fold, so every cited line from the loader resolution down keeps its number. M065's `title-input` key above costs this map one more line and is paid for by this second fold, so the region those records cite keeps its numbers once more. M066's `schema` key above costs the map one more line and is paid for by this third fold of the same note, so every cited line from the loader resolution down — the component template, the loader resolution and every fact the surface records quote — keeps its number once again.
   resource: {
     facts: [
       {
@@ -1248,4 +1248,37 @@ FACTS['chunk-failure'] = [
 FACTS['title-input'] = {
   state: 'cannot-tell',
   reason: 'route-binds-nothing',
+};
+
+// The join's own answer (`extension/schema-attribution.js`, T002) for T001's schema record
+// (`research/raw/m066-schema-record.json`), entered here after the component for the reason the facts
+// above are: every cited line of this file is pinned where it sits, so a fact added inside the literal
+// would move the template, the loader resolution and the earlier facts those records quote. A
+// statement after the component pays for nothing.
+//
+// The answer is not written here by hand: `panel-demo.spec.ts` re-reads that record, evaluates the
+// shipped join from its own committed text, hands it the first of the record's four field names and
+// holds this fact to that answer field for field — so a fact that drifted from the record or the join
+// reddens there rather than shipping. The record states `schema.absent: true`: no injector on the
+// measured page holds a Signal Forms schema, so the join answers `no-node` for every field name it
+// reads, and the pane prints the absence the join published rather than a declaration the page never
+// made. No `node`, no `input` and no `declared` state is written here — the answer carries none of
+// them — and `observed` is the record's own row for that field, copied unchanged: the element and the
+// id the page read, the two booleans it read off them, and the `null` where the reading was not
+// available. No cause, no remedy and no suggestion is written beside them (N1, SC4).
+FACTS['schema'] = {
+  state: 'no-node',
+  field: 'policyNumber',
+  node: null,
+  input: null,
+  reason:
+    'no-node: the record carries no schema node naming "policyNumber"; the record states the schema is absent (schema.absent is true); the field\'s own state is stated without attribution',
+  observed: {
+    element: 'input',
+    id: 'policyNumber',
+    disabled: false,
+    hidden: false,
+    stateRead: true,
+    reason: null,
+  },
 };

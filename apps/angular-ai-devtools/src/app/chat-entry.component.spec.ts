@@ -716,6 +716,7 @@ describe('the chat route', () => {
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic, the unmatched code named
       'console-read', // M046 SC1-3 surface: the control naming what will be sent, the body the pane drew, the absence or the cannot-tell reason
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
+      'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -762,6 +763,7 @@ describe('the chat route', () => {
       'console', // M045 SC3-5 surface
       'console-read', // M046 SC1-3 surface
       'title-input', // M065 SC4 surface: the four states the title join answers, the strategy, both titles and the observed-write count it carries
+      'schema', // M066 SC2-4 surface: the attribution for one field, the node and input a declaration carries, the reason and the keys the record's own field row carries
       'outlet', // M062 SC4 surface: the outlet the route config requested, the name the router state matched, that route's path and each absence, or the cannot-tell state
       'visual-qa', // M054 SC1-3 surface
       'tutor-foundations', // M055 SC1-3 surface
@@ -828,6 +830,7 @@ describe('the chat route', () => {
       'console',
       'console-read',
       'title-input',
+      'schema',
       'outlet',
       'webmcp-rehearsal',
       'webmcp',

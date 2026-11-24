@@ -1487,7 +1487,7 @@ function captureClaims(path) {
   const present = existsSync(path);
   const text = present ? readFileSync(path, 'utf8') : '';
   const before = present ? digest(text) : null;
-  const record = derived();
+  const record = atRecordedDocumentLocations(derived());
   const candidate = canonical(record);
   let moved = 'the record had not been written';
   if (present && text === candidate) {

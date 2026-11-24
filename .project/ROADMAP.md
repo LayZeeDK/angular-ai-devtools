@@ -2283,8 +2283,8 @@ Open questions
 Depends on: [M037]
 Programme: Generation 3 · Batch: 5 · Group: @angular/forms
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/066-schema-disabled-hidden
 Integrated: null
 
 Goal: The panel answers why a Signal Forms field is disabled or hidden, naming the schema node that declared it and the state that node derived from.

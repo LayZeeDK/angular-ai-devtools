@@ -1,0 +1,271 @@
+{
+  "recordSchema": "m066-schema-record/v1",
+  "milestone": "M066",
+  "task": "T001",
+  "question": "What does the Insurance Portal state about a field its Signal Forms schema declares disabled, and does any injector hold that schema?",
+  "capturedAt": "2026-11-24T06:46:14.065Z",
+  "driver": {
+    "playwrightVersion": "1.64.1",
+    "browserName": "chromium",
+    "browserBuild": "156.0.8078.4",
+    "instance": "headless",
+    "node": "v26.13.0",
+    "platform": "win32",
+    "clocks": "one machine clock: the driver reads the page after the form is on the page and the page reads its own readings"
+  },
+  "target": {
+    "name": "Insurance Portal",
+    "url": "http://localhost:4507/",
+    "port": 4507,
+    "slot": 7,
+    "dir": "D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools",
+    "dirPresent": true,
+    "commit": "92d46ec",
+    "angularVersion": "22.2.2",
+    "session": "control-ngdev-portal-4507",
+    "evidenceDir": "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\portal-2026-11-24T06-38-39-275Z",
+    "servedBy": {
+      "skill": "control-angular-dev-app",
+      "command": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+      "infoCommand": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs info --target portal --json",
+      "session": "control-ngdev-portal-4507",
+      "evidenceDir": "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\portal-2026-11-24T06-38-39-275Z"
+    }
+  },
+  "page": {
+    "route": "/contract/create",
+    "url": "http://localhost:4507/contract/create",
+    "heading": "Contract Create",
+    "formText": "Status Pending Customer Select customer Policynumber Insurance Start On",
+    "formCount": 1,
+    "formRootCount": 1,
+    "fieldTreeNames": [
+      "policyNumber",
+      "insuranceStartOn",
+      "customer",
+      "status"
+    ],
+    "boundFields": [
+      "customer",
+      "policyNumber",
+      "insuranceStartOn"
+    ],
+    "joinedBy": "FormField.state().pathNode.keys"
+  },
+  "fields": [
+    {
+      "field": "policyNumber",
+      "element": "input",
+      "id": "policyNumber",
+      "disabled": false,
+      "hidden": false,
+      "stateRead": true,
+      "reason": null
+    },
+    {
+      "field": "insuranceStartOn",
+      "element": "p-datepicker",
+      "id": "insuranceStartOn",
+      "disabled": null,
+      "hidden": false,
+      "stateRead": false,
+      "reason": "the insuranceStartOn field is carried by <p-datepicker>, which exposes no boolean disabled property (typeof \"undefined\"), so the disabled reading was not available from it; its hidden attribute was read as false."
+    },
+    {
+      "field": "customer",
+      "element": "p-select",
+      "id": "pn_id_2",
+      "disabled": null,
+      "hidden": false,
+      "stateRead": false,
+      "reason": "the customer field is carried by <p-select>, which exposes no boolean disabled property (typeof \"undefined\"), so the disabled reading was not available from it; its hidden attribute was read as false."
+    },
+    {
+      "field": "status",
+      "element": null,
+      "id": null,
+      "disabled": null,
+      "hidden": null,
+      "stateRead": false,
+      "reason": "no element in the form carries the status field: the 3 elements that carry a FormField directive bind customer, policyNumber, insuranceStartOn; the form renders \"Status Pending Customer Select customer Policynumber Insurance Start On\" in its place; and the field node's own state reports disabled() as true, read from the form's field tree rather than from an element; so there is no element reading of disabled or hidden."
+    }
+  ],
+  "schema": {
+    "absent": true,
+    "reason": "100 provider records on router.navigationTransitions.environmentInjector and 0 of their tokens names a schema; 6 provider records on ng.getInjector([ng-version]) and 0 of their tokens names a schema; the only Signal Forms token on router.navigationTransitions.environmentInjector is SIGNAL_FORMS_CONFIG, and router.navigationTransitions.environmentInjector.get(SIGNAL_FORMS_CONFIG) answered \"{\\\"classes\\\":{}}\"; ng.ɵgetInjectorResolutionPath(document.querySelector('form')) threw Error: ASSERTION ERROR: getInjectorParent only support injectors of type R3Injector, NodeInjector, NullInjector; the form's FormRoot directive holds __ngContext__, fieldTree only; a field node's state carries _context, controlValue, fieldAdapter, fieldProxy, metadataState, nodeState, pathNode, pendingSync, structure, submitState, validationState and no schema."
+  },
+  "inputs": [],
+  "commands": {
+    "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+    "info": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs info --target portal --json",
+    "capture": "M066_CAPTURE=1 node scripts/m066-schema-record.mjs",
+    "windowsCapture": "set \"M066_CAPTURE=1\"&& node scripts/m066-schema-record.mjs",
+    "check": "node --test scripts/m066-schema-record.test.mjs",
+    "read": "node scripts/m066-schema-record.mjs"
+  },
+  "input": {
+    "capturedAt": "2026-11-24T06:46:14.065Z",
+    "driver": {
+      "playwrightVersion": "1.64.1",
+      "browserName": "chromium",
+      "browserBuild": "156.0.8078.4",
+      "instance": "headless",
+      "node": "v26.13.0",
+      "platform": "win32",
+      "clocks": "one machine clock: the driver reads the page after the form is on the page and the page reads its own readings"
+    },
+    "target": {
+      "name": "Insurance Portal",
+      "url": "http://localhost:4507/",
+      "port": 4507,
+      "slot": 7,
+      "dir": "D:\\projects\\github\\LayZeeDK\\HaasStefan__ng-journal-insurance-portal-ai-devtools",
+      "dirPresent": true,
+      "commit": "92d46ec",
+      "angularVersion": "22.2.2",
+      "session": "control-ngdev-portal-4507",
+      "evidenceDir": "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\portal-2026-11-24T06-38-39-275Z",
+      "servedBy": {
+        "skill": "control-angular-dev-app",
+        "command": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+        "infoCommand": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs info --target portal --json",
+        "session": "control-ngdev-portal-4507",
+        "evidenceDir": "D:\\projects\\sandbox\\angular-ai-devtools\\tmp\\control-angular-dev-app\\portal-2026-11-24T06-38-39-275Z"
+      }
+    },
+    "page": {
+      "route": "/contract/create",
+      "url": "http://localhost:4507/contract/create",
+      "heading": "Contract Create",
+      "formText": "Status Pending Customer Select customer Policynumber Insurance Start On",
+      "formCount": 1,
+      "formRootCount": 1,
+      "fieldTreeNames": [
+        "policyNumber",
+        "insuranceStartOn",
+        "customer",
+        "status"
+      ],
+      "boundFields": [
+        "customer",
+        "policyNumber",
+        "insuranceStartOn"
+      ],
+      "joinedBy": "FormField.state().pathNode.keys"
+    },
+    "fields": [
+      {
+        "field": "policyNumber",
+        "element": "input",
+        "id": "policyNumber",
+        "nameAttr": "ng.form0.policyNumber",
+        "disabledType": "boolean",
+        "disabled": false,
+        "hidden": false,
+        "fieldDisabled": false,
+        "boundFields": [
+          "customer",
+          "policyNumber",
+          "insuranceStartOn"
+        ],
+        "formText": "Status Pending Customer Select customer Policynumber Insurance Start On"
+      },
+      {
+        "field": "insuranceStartOn",
+        "element": "p-datepicker",
+        "id": "insuranceStartOn",
+        "nameAttr": null,
+        "disabledType": "undefined",
+        "disabled": null,
+        "hidden": false,
+        "fieldDisabled": false,
+        "boundFields": [
+          "customer",
+          "policyNumber",
+          "insuranceStartOn"
+        ],
+        "formText": "Status Pending Customer Select customer Policynumber Insurance Start On"
+      },
+      {
+        "field": "customer",
+        "element": "p-select",
+        "id": "pn_id_2",
+        "nameAttr": "customer",
+        "disabledType": "undefined",
+        "disabled": null,
+        "hidden": false,
+        "fieldDisabled": false,
+        "boundFields": [
+          "customer",
+          "policyNumber",
+          "insuranceStartOn"
+        ],
+        "formText": "Status Pending Customer Select customer Policynumber Insurance Start On"
+      },
+      {
+        "field": "status",
+        "element": null,
+        "id": null,
+        "nameAttr": null,
+        "disabledType": null,
+        "disabled": null,
+        "hidden": null,
+        "fieldDisabled": true,
+        "boundFields": [
+          "customer",
+          "policyNumber",
+          "insuranceStartOn"
+        ],
+        "formText": "Status Pending Customer Select customer Policynumber Insurance Start On"
+      }
+    ],
+    "schemaAttempts": {
+      "holderExpression": "router.navigationTransitions.environmentInjector",
+      "sweeps": [
+        {
+          "injector": "router.navigationTransitions.environmentInjector",
+          "providerCount": 100,
+          "schemaLikeTokens": []
+        },
+        {
+          "injector": "ng.getInjector([ng-version])",
+          "providerCount": 6,
+          "schemaLikeTokens": []
+        }
+      ],
+      "signalFormsToken": {
+        "name": null,
+        "description": "SIGNAL_FORMS_CONFIG"
+      },
+      "getExpression": "router.navigationTransitions.environmentInjector.get(SIGNAL_FORMS_CONFIG)",
+      "signalFormsValue": "{\"classes\":{}}",
+      "resolutionPathExpression": "ng.ɵgetInjectorResolutionPath(document.querySelector('form'))",
+      "resolutionPathError": "Error: ASSERTION ERROR: getInjectorParent only support injectors of type R3Injector, NodeInjector, NullInjector",
+      "formRootKeys": [
+        "__ngContext__",
+        "fieldTree"
+      ],
+      "fieldStateKeys": [
+        "_context",
+        "controlValue",
+        "fieldAdapter",
+        "fieldProxy",
+        "metadataState",
+        "nodeState",
+        "pathNode",
+        "pendingSync",
+        "structure",
+        "submitState",
+        "validationState"
+      ]
+    },
+    "commands": {
+      "serve": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs up --target portal",
+      "info": "node .commandcode/skills/control-angular-dev-app/scripts/control.mjs info --target portal --json",
+      "capture": "M066_CAPTURE=1 node scripts/m066-schema-record.mjs",
+      "windowsCapture": "set \"M066_CAPTURE=1\"&& node scripts/m066-schema-record.mjs",
+      "check": "node --test scripts/m066-schema-record.test.mjs",
+      "read": "node scripts/m066-schema-record.mjs"
+    }
+  }
+}
