@@ -54,6 +54,24 @@ Every edge this milestone carries is proved by the suite of the task that owns i
 suite. Nothing is held out: an edge whose proof sits outside the owning task's Verify would need a row here naming the
 edge, the task and the test, and there is none.
 
+## Surface contract
+
+### panel — T003
+
+Criteria: SC4
+
+Entry: the panel route 	itle-input, rendered through the 	itle-input key in panel-demo.ts LOADERS, its sample in
+FACTS (the join's own answer over 
+esearch/raw/m065-title-record.json, re-derived node-side by
+panel-demo.spec.ts), and the PANEL_SURFACES entry in pp.routes.ts.
+
+States: inding — the answer names the strategy the injector resolved, the title the document carried and the title the
+route implies, and nothing else; grees — the two titles match, rendered as agreement rather than an empty finding (E1);
+cannot-tell — the record does not state what the answer asked, naming the reason it states and no cause (E3, E7);
+
+o-record — nothing was captured. No answer names a remedy, a cause, a writer or a strategy the record did not carry
+(E4, E8).
+
 ## Risks
 
 - The portal may expose no route that binds data, in which case C3's claim narrows and T002's `route-binds-nothing` state
