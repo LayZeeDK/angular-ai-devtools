@@ -48,6 +48,12 @@ Review depth: full
 | SC3 | T004 | AC2 |
 | SC4 | T004 | AC3 |
 
+## Held-out checks
+
+Every edge this milestone carries is proved by the suite of the task that owns it, and that task's Verify runs that
+suite. Nothing is held out: an edge whose proof sits outside the owning task's Verify would need a row here naming the
+edge, the task and the test, and there is none.
+
 ## Risks
 
 - The portal may expose no route that binds data, in which case C3's claim narrows and T002's `route-binds-nothing` state
