@@ -64,15 +64,18 @@ Review depth: full
 
 ## Surface contract
 
-Entry: the panel's `schema` route, reached from the pane picker like every other surface.
+### panel — T003
 
-States: `declared`, `no-node`, `no-record` and `cannot-tell`, rendered as the join returns them — the state, the field,
-the node and input when the record carries them, the reason when it does not, and the observed row's own keys. An absent
-schema prints as `no-node` with its reason; it never prints as a failure.
+Entry: the panel's `schema` route, reached from the pane picker like every other surface, under
+`apps/angular-ai-devtools/src/app/app.routes.ts` with `data.surface: 'schema'`.
 
-Walkthrough: open the pane on a page whose form binds a field; the pane names the state the field tree reports and states
-that the record carries no schema node for it, because the target's schema is a closure the injector does not expose. On
-a record that does carry a node, the pane names the node and the input that node read, and nothing else.
+States: `declared`, `no-node`, `no-record` and `cannot-tell`, rendered exactly as the join returns them — the state, the
+field, the node and input when the record carries them, the reason when it does not, and the observed row's own keys. An
+absent schema prints as `no-node` with its reason and never as a failure.
+
+Walkthrough: on a page whose form binds a field, the pane names the state the field tree reports and states that the
+record carries no schema node for it, because the target builds its schema as a closure the injector does not expose. On a
+record that carries a node, the pane names the node and the input that node read, and nothing else.
 
 ## Held-out checks
 
