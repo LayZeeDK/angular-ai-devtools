@@ -7,3 +7,4 @@
 {"command": "node --test scripts/field-binder.test.mjs", "commit": "fdbfd022b041a8efc94e5148b891713b67e4b8c2", "recorded_at": "2026-11-24T18:54:54+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "npx nx run angular-ai-devtools:build-extension && node --test scripts/panel-routes.test.mjs", "commit": "5491eb8b195eb85541bdf73cd9b56fd6628482d5", "recorded_at": "2026-11-24T19:24:20+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "node --test scripts/m067-verdict-claims.test.mjs", "commit": "1be8dad118825162e9d7338da6125fc533a1df7b", "recorded_at": "2026-11-24T20:10:48+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "node --test scripts/tutor-record-shapes.test.mjs scripts/tutor-answer.test.mjs", "commit": "d6d468838427a4fc33735028dffeaedc7be9abf2", "recorded_at": "2026-11-24T21:37:12+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
