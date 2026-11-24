@@ -73,7 +73,7 @@ States: `declared`, `no-node`, `no-record` and `cannot-tell`, rendered exactly a
 field, the node and input when the record carries them, the reason when it does not, and the observed row's own keys. An
 absent schema prints as `no-node` with its reason and never as a failure.
 
-Criteria: SC1, SC4
+Criteria: SC2, SC4
 
 Walkthrough:
 
