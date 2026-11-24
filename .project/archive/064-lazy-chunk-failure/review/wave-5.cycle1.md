@@ -1,7 +1,10 @@
-# Wave 5 — T005: Measure the failure on the portal, and record what it showed
+# Review — wave 5, cycle 1
 
-Task: `.project/tasks/T005-measure-the-failure-on-the-portal-and-record-what-it-showed.md`
-Commit: `07a9375b` · HEAD under review: `4d4474fff6ee25f59e7fec245cf75871d68bf097`
+Cycle: 1
+Depth: full
+Wave verdict: pass
+Tasks reviewed: 1
+Reviewed HEAD: fdd75ba4b2e70e5626d32ff429a523d291743e12
 
 ## Intent coverage
 
@@ -24,9 +27,6 @@ No surface is declared for this wave.
 ## Verification observed
 
 `lars-gsd land` ran this task's `## Verify` and recorded it in `.project/build/verify-ledger.jsonl`. The Ledger row for `07a9375b` is the receipt; the numbers quoted below come from that run.
-
-Depth: full
-Tasks reviewed: 1
 
 ## T005 — Measure the failure on the portal, and record what it showed: pass
 

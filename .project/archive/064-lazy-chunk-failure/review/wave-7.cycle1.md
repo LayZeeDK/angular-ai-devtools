@@ -1,7 +1,10 @@
-# Wave 6 — T006: Re-derive the navigation and teardown recordings
+# Review — wave 7, cycle 1
 
-Task: `.project/tasks/T006-re-derive-the-navigation-and-teardown-recordings.md`
-Commit: `f2ac1903` · HEAD under review: `4d4474fff6ee25f59e7fec245cf75871d68bf097`
+Cycle: 1
+Depth: full
+Wave verdict: pass
+Tasks reviewed: 1
+Reviewed HEAD: fdd75ba4b2e70e5626d32ff429a523d291743e12
 
 ## Intent coverage
 
@@ -17,11 +20,8 @@ No surface is declared for this wave.
 
 ## Verification observed
 
-`lars-gsd land` ran this task's `## Verify` and recorded it in `.project/build/verify-ledger.jsonl`. The Ledger row for `f2ac1903` is the receipt; the numbers quoted below come from that run.
+`lars-gsd land` ran this task's `## Verify` and recorded it in `.project/build/verify-ledger.jsonl`. The Ledger row for `850252fd` is the receipt; the numbers quoted below come from that run.
 
-Depth: full
-Tasks reviewed: 1
-
-## T006 — Re-derive the navigation and teardown recordings: pass
+## T007 — Re-derive the style-read and webmcp recordings: pass
 
 - ✅ The task landed at the commit this review names, its `## Verify` ran under `lars-gsd land` and the ledger row reads `verify: pass`, and the project verify at `4d4474ff` reports `npm run check` green with 2,167 tests, `fail 0` and `skipped 0`.

@@ -1,0 +1,19 @@
+head: 80a5dcc01b38957cb5ca796b724e88fa0b6ff460 at 2026-11-23T17:23:41.950Z
+﹣ the armed capture: the portal is driven, the chunk is failed, and the record is written only when a byte moved (3.5866ms) # read-only by default: set M064_CAPTURE=1 to run the capture
+✔ the record names the target, the route tried and the two arms the capture ran (1.5981ms)
+✔ each arm states only what its own interception produced: no status where none arrived, and the status that did (0.6165ms)
+✔ the page showed no failure surface: both arms left the router on the home route and the route never loaded (0.6677ms)
+✔ the state the surface showed is the join's own answer for the record the portal carries (2.4885ms)
+✔ the artefact the portal lacks is named, with citations that re-resolve in this checkout (1.322ms)
+✔ no fixture verdict is taken, and the record says what a fixture would have to supply (0.3065ms)
+✔ the static facts are re-derived from this head: the record module is not shipped and the portal source states the import (1.5036ms)
+✔ the record states the instrument, the reading and the commands that reproduce it (0.4826ms)
+✔ held-out: an unarmed run writes nothing, and the record is byte-identical after this suite read it (0.6595ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 211.6122

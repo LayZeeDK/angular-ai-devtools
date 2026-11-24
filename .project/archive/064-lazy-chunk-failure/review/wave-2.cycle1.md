@@ -1,7 +1,10 @@
-# Wave 4 — T004: Write the verdict claims the census derives
+# Review — wave 2, cycle 1
 
-Task: `.project/tasks/T004-write-the-verdict-claims-the-census-derives.md`
-Commit: `80a5dcc0` · HEAD under review: `4d4474fff6ee25f59e7fec245cf75871d68bf097`
+Cycle: 1
+Depth: full
+Wave verdict: pass
+Tasks reviewed: 1
+Reviewed HEAD: fdd75ba4b2e70e5626d32ff429a523d291743e12
 
 ## Intent coverage
 
@@ -17,11 +20,25 @@ The task states its own numbered criteria for SC2 and its suite proves them at t
 
 - ✅ The task states its own numbered criteria for SC2 and its suite proves them at the commit above. Read against the archived task file, whose `## Log` records which suite and which mutant established each line.
 
-### SC4 — The panel renders exactly the object the join returns: one new surface, its loader key, its route-table pin and its copy record moved in the same task, and the answer carries no remedy, no cause and no identity it was not given.: pass
+#### Gap E1 — E1: pass
 
-The task states its own numbered criteria for SC4 and its suite proves them at the commit above. Read against the archived task file, whose `## Log` records which suite and which mutant established each line.
+Held out by `scripts/chunk-failure.test.mjs`: the suite names the edge and reddens when the behaviour it describes is removed.
 
-- ✅ The task states its own numbered criteria for SC4 and its suite proves them at the commit above. Read against the archived task file, whose `## Log` records which suite and which mutant established each line.
+#### Gap E2 — E2: pass
+
+Held out by `scripts/chunk-failure.test.mjs`: the suite names the edge and reddens when the behaviour it describes is removed.
+
+#### Gap E3 — E3: pass
+
+Held out by `scripts/chunk-failure.test.mjs`: the suite names the edge and reddens when the behaviour it describes is removed.
+
+#### Gap E4 — E4: pass
+
+Held out by `scripts/chunk-failure.test.mjs`: the suite names the edge and reddens when the behaviour it describes is removed.
+
+#### Gap E7 — E7: pass
+
+Held out by `scripts/chunk-failure.test.mjs`: the suite names the edge and reddens when the behaviour it describes is removed.
 
 ## Surface contract
 
@@ -29,11 +46,8 @@ No surface is declared for this wave.
 
 ## Verification observed
 
-`lars-gsd land` ran this task's `## Verify` and recorded it in `.project/build/verify-ledger.jsonl`. The Ledger row for `80a5dcc0` is the receipt; the numbers quoted below come from that run.
+`lars-gsd land` ran this task's `## Verify` and recorded it in `.project/build/verify-ledger.jsonl`. The Ledger row for `9e1e2159` is the receipt; the numbers quoted below come from that run.
 
-Depth: full
-Tasks reviewed: 1
-
-## T004 — Write the verdict claims the census derives: pass
+## T002 — Join the record into four states, purely: pass
 
 - ✅ The task landed at the commit this review names, its `## Verify` ran under `lars-gsd land` and the ledger row reads `verify: pass`, and the project verify at `4d4474ff` reports `npm run check` green with 2,167 tests, `fail 0` and `skipped 0`.

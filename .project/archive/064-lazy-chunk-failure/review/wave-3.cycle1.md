@@ -1,7 +1,10 @@
-# Wave 3 — T003: Render the answer and pin every route table
+# Review — wave 3, cycle 1
 
-Task: `.project/tasks/T003-render-the-answer-and-pin-every-route-table.md`
-Commit: `ded7a63a` · HEAD under review: `4d4474fff6ee25f59e7fec245cf75871d68bf097`
+Cycle: 1
+Depth: full
+Wave verdict: pass
+Tasks reviewed: 1
+Reviewed HEAD: fdd75ba4b2e70e5626d32ff429a523d291743e12
 
 ## Intent coverage
 
@@ -11,11 +14,11 @@ The task states its own numbered criteria for SC4 and its suite proves them at t
 
 - ✅ The task states its own numbered criteria for SC4 and its suite proves them at the commit above. Read against the archived task file, whose `## Log` records which suite and which mutant established each line.
 
-### Gap E6 — E6: pass
+#### Gap E6 — E6: pass
 
 Held out by `scripts/panel-routes.test.mjs`: the suite names the edge and reddens when the behaviour it describes is removed.
 
-### Gap E8 — E8: pass
+#### Gap E8 — E8: pass
 
 Held out by `scripts/chunk-failure-copy.test.mjs`: the suite names the edge and reddens when the behaviour it describes is removed.
 
@@ -26,9 +29,6 @@ The panel surface was walked in the wave-3 review against the plan's `## Surface
 ## Verification observed
 
 `lars-gsd land` ran this task's `## Verify` and recorded it in `.project/build/verify-ledger.jsonl`. The Ledger row for `ded7a63a` is the receipt; the numbers quoted below come from that run.
-
-Depth: full
-Tasks reviewed: 1
 
 ## T003 — Render the answer and pin every route table: pass
 

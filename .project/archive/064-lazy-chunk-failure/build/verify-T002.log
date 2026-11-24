@@ -1,0 +1,27 @@
+head: 085567cefd727f91e68a1a19c9e8db488b2ad491 at 2026-11-23T16:13:14.879Z
+M064 chunk-failure mutants: status-worsened-into-missing-import: mutation status-worsened-into-missing-import (a stub that reads a status as a verdict) states `state` "missing-import", and the record warrants "cannot-tell": a loaded import is `resolved`, a failed one is `missing-import` only where a response arrived, and a record that does not say what the import returned is `cannot-tell` || version-drift-from-status: mutation version-drift-from-status (a stub that names a drift from a status) carries `versionDrift`, and `versionDrift` is not one of the interface's fields ["state","specifier","routePath","status","hash","consideredCount","reason"] || remedy-added: mutation remedy-added (a stub that offers a remedy) carries `remedy`, and `remedy` is not one of the interface's fields ["state","specifier","routePath","status","hash","consideredCount","reason"] || cause-added: mutation cause-added (a stub that names a cause) carries `cause`, and `cause` is not one of the interface's fields ["state","specifier","routePath","status","hash","consideredCount","reason"] || hash-from-chunk-name: mutation hash-from-chunk-name (a stub that completes a truncated hash from the filename) states `hash` "chunk-list-91bd.js", and the record produced "sha256-2c9f57a1d0e64b18" || last-failure-collapsed: mutation last-failure-collapsed (a stub that collapses one navigation to its last failure) row 0 states `specifier` "./chunk-contract-7b31.js", and the record produced "./chunk-claim-4f2a.js" || unattempted-route-named: mutation unattempted-route-named (a stub that attributes a failure to a route the router never attempted) carries `routePath` "invoices", and the record produced no `routePath`: a field the record does not carry is absent, not null and never filled from anything else || resolved-reported-as-failure: mutation resolved-reported-as-failure (a stub that reports a loaded import as a failure) states `state` "missing-import", and the record warrants "resolved": a loaded import is `resolved`, a failed one is `missing-import` only where a response arrived, and a record that does not say what the import returned is `cannot-tell`
+scripts/chunk-failure.test.mjs: extension/chunk-failure.js is 353 lines, 4 states, 5 reasons, 8 attempt samples, 8 mutants, 919 assertions
+✔ the module runs in a bare context and publishes one join and the closed sets it writes (2.022ms)
+✔ the module reads no page, no clock, no network and no extension API (1.316ms)
+✔ the join and the record read one list of fields, and the record module publishes it (0.5556ms)
+✔ the route paths this join reads are the ones the router’s own stream names (1.4943ms)
+✔ SC1 - each of the four states is produced by its own input (0.6186ms)
+✔ SC1 - a failed import answers the status it produced, and a truncated hash stays truncated (0.1056ms)
+✔ SC2 - a request that produced no status is never-completed, and is never written as a 404 (0.0866ms)
+✔ SC1 - a resolved import reports no failure, and the absence of a hash as absent (0.0925ms)
+✔ SC2 - a record that does not say what the import returned is cannot-tell, never a failure (0.1541ms)
+✔ SC1 - both failures of one navigation are named, in the order the router attempted them (0.3044ms)
+✔ SC1 - a failure attributed to a route the router never attempted is refused (0.1341ms)
+✔ a record that holds no attempt answers no-import-recorded rather than a clean stream (0.1294ms)
+✔ the join writes nothing into the records it is handed and answers the same bytes twice (0.1801ms)
+✔ the eight mutant anchors are each one place in the shipped source, and each really changes it (0.1917ms)
+✔ each of the eight mutants reddens the same pin the shipped source passes, naming what moved (7.0657ms)
+✔ the assertions this file made are counted, so a test that measured nothing would show (0.1297ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 155.3172

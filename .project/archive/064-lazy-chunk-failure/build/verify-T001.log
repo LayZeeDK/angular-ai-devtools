@@ -1,0 +1,30 @@
+head: af12a8dcebf240cd083f9a868191406bad16c1c7 at 2026-11-23T15:53:05.157Z
+M064 mutants: version-drift-from-status: mutation version-drift-from-status (a stub that infers a version drift from a status) carries `versionDrift`, and `versionDrift` is not one of the interface's fields ["state","specifier","routePath","status","hash","consideredCount","reason"] || hash-from-chunk-name: mutation hash-from-chunk-name (a stub that fills a hash from the chunk filename) states `hash` "chunk-claim-4f2a.js", and the record carried none: undefined || route-path-dropped: mutation route-path-dropped (a stub that drops the route path) must carry the owning `routePath` the record states ("claim"); it carried undefined || resolved-as-failure: mutation resolved-as-failure (a stub that records a resolved import as a failure) must record a loaded import as `resolved`; it recorded `state` "missing-import" || missing-status-as-404: mutation missing-status-as-404 (a stub that reports a missing status as a 404) states `status` 404, and the record carried no status of that value: undefined
+counted-field mutant: research/raw/m064-import-failure.json is not what this head derives: counts.states: 5 -> 4 - re-capture with M064_CAPTURE=1 node --test scripts/import-failure.test.mjs
+research/raw/m064-import-failure.json: 6835 characters, 4 states, 5 reasons, 6 attempt samples, 5 mutants, 798 assertions
+✔ the module runs in a bare context and publishes one writer and one observer (2.381ms)
+✔ the module reads no page, no clock, no network and no extension API (1.4635ms)
+✔ the two facts this record is built on still hold in this tree (0.7968ms)
+✔ SC1 - a failed import records the specifier, the route path and the status, and nothing else (0.3497ms)
+✔ a resolved import is recorded as resolved, with the hash the record carried (1.5908ms)
+✔ an attempt with no response is never-completed, names no-response and carries no status (0.2153ms)
+✔ no field is synthesised: every fixture answers with the fields its own record carried (0.3858ms)
+✔ a record that names no specifier answers cannot-tell, and names nothing it was not given (0.2766ms)
+✔ the join answers a whole record: a failure outranks a resolution, and the count it walked is stated (0.2102ms)
+✔ the observer records each attempt in arrival order and answers the run it saw (0.3789ms)
+✔ SC3 - the record is the only source of an import specifier under extension/ (7.3576ms)
+✔ the five mutant anchors are each one place in the shipped source, and each really changes it (0.2789ms)
+✔ each of the five mutants reddens the same pin the shipped source passes, naming the field that moved (8.4644ms)
+✔ the record is exactly what this head derives, and a moved field is named (5.0612ms)
+✔ the record states what it carries, what it never carries, and the facts it is measured on (0.6204ms)
+✔ the record states the command that writes it, and that command names this suite and its flag (0.1635ms)
+✔ the only write in this file sits behind the M064_CAPTURE gate, so an unarmed run writes nothing (0.4082ms)
+✔ the assertions this file made are counted, so a test that measured nothing would show (0.1345ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 210.3663

@@ -2219,8 +2219,8 @@ Open questions
 Depends on: [M020]
 Programme: Generation 3 · Batch: 5 · Group: @angular/router
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/064-lazy-chunk-failure
 Integrated: null
 
 Goal: The panel answers why a lazily loaded route failed to render, naming the import it could not load, the route that owns it and the chunk state the failure left behind.

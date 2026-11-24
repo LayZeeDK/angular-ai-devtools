@@ -1,6 +1,6 @@
 # FINAL — M064 lazy-chunk-failure
 
-Reviewed HEAD: c7641b88b1431d227794c80415c3c119b325fa0c
+Reviewed HEAD: fdd75ba4b2e70e5626d32ff429a523d291743e12
 
 Status: complete · eight waves · the project verify green to its last leg
 

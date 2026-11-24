@@ -1,7 +1,10 @@
-# Wave 8 — T008: Re-derive the gate record, then run the project verify
+# Review — wave 8, cycle 1
 
-Task: `.project/tasks/T008-re-derive-the-gate-record-then-run-the-project-verify.md`
-Commit: `4d4474ff` · HEAD under review: `4d4474fff6ee25f59e7fec245cf75871d68bf097`
+Cycle: 1
+Depth: full
+Wave verdict: pass
+Tasks reviewed: 1
+Reviewed HEAD: fdd75ba4b2e70e5626d32ff429a523d291743e12
 
 ## Intent coverage
 
@@ -15,12 +18,7 @@ The task states its own numbered criteria for SC1 and its suite proves them at t
 
 The task states its own numbered criteria for SC4 and its suite proves them at the commit above. Read against the archived task file, whose Log records which suite and which mutant established each line.
 
-
 - ✅ The task states its own numbered criteria for SC4 and its suite proves them at the commit above. Read against the archived task file, whose Log records which suite and which mutant established each line.
-
-
-Depth: full
-Tasks reviewed: 1
 
 ## T008 — Re-derive the gate record, then run the project verify: pass
 
