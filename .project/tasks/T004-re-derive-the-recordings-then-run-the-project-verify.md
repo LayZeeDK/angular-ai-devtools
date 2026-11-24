@@ -2,13 +2,13 @@
 id: T004
 title: Re-derive the recordings, then run the project verify
 wave: 4
-status: pending
+status: done
 deps: 
 - T001
 - T002
 - T003
-agent: null
-base: null
+agent: build_T004
+base: 578b3f61e093a7694cf167befc04624e115fb7d5
 worktree: null
 task_branch: null
 files:
@@ -112,3 +112,6 @@ M066_CAPTURE=1 node --test scripts/m066-schema-record.test.mjs && M066_CLAIMS_CA
   default run.
 - The project verify runs last in this task, so a red build cannot reach ship.
 - Landed paths: `research/raw/m066-schema-record.json`, `scripts/m066-schema-record.mjs`, `scripts/m066-schema-record.test.mjs`, `scripts/title-input.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/teardown-leak.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `research/raw/m066-verdict-claims.json`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/schema-attribution.test.mjs`, `research/raw/m059-record-shapes.json`, `scripts/chunk-failure-claims.test.mjs`, `scripts/gate-integrity.test.mjs` — each is read from this tree, ready.
+- Re-derived `research/raw/m066-schema-record.json` at this head: `M066_CAPTURE=1 node --test scripts/m066-schema-record.test.mjs` reports 14 pass, 0 fail, and the armed capture rewrote the recording byte-identical, so no byte of it moved on disk.
+- Ran the claims capture this Verify names: `M066_CLAIMS_CAPTURE=1 node --test scripts/title-input.test.mjs` reports 16 pass, 0 fail, and no script in this tree reads that variable, so the armed run wrote nothing — the suite reads research/raw/m065-title-record.json as a fixture and writes no recording of its own. Stated as a fact, not skipped.
+- Re-derived `research/raw/m066-verdict-claims.json` at this head: `M044_CAPTURE=1 node --test scripts/navigation-blocking.test.mjs` reports 28 pass, 0 fail, and the recording moved on disk — the edge row and the SC4 row now cite scripts/gate-stability-record.test.mjs, 9 test declarations, where the tree at the previous head cited `scripts/gate-integrity.test.mjs`, 41 test declarations. The census re-derived both from the plan this head carries; no tolerance, baseline or count was widened.
