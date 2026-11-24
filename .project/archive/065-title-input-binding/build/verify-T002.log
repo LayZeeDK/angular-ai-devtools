@@ -1,0 +1,35 @@
+head: fb6ebdb0983c6cf1af2224be28b7d633729707ef at 2026-11-24T01:17:50.321Z
+AC3 mutant: the mutant’s answer (defect: answered an empty object where the route binds nothing) states `state` undefined, which is not one of the four states ["finding","agrees","cannot-tell","no-record"] — the record's answer is {"state":"cannot-tell","reason":"route-binds-nothing"}
+AC1 mutant: the mutant’s answer (defect: copied the route’s title over the document’s) states `documentTitle` "Claim", and the document carried "Claim | Insurance Portal"
+AC2 mutant: the mutant’s answer (defect: promoted the current title to an observed write) must answer `state` "cannot-tell" (the record's answer is {"state":"cannot-tell","reason":"observation-started-after-the-write"}); it answered "finding"
+SC3 mutant: the mutant’s inputs (defect: read a field the join does not publish as an input) must read exactly the fields it publishes as its inputs: it read `titleInput` that RECORD_INPUTS does not name, and RECORD_INPUTS names nothing that it never read
+T002 fixture states: the committed recording of the portal: cannot-tell/route-binds-nothing || a route that binds nothing, with a title resolved in facts: cannot-tell/route-binds-nothing || a record whose injector resolved no strategy: cannot-tell/no-strategy || a bound route that implies no title: cannot-tell/no-implied-title || an observation that began after the write: cannot-tell/observation-started-after-the-write || a document title that differs from the route’s: finding || a document title that matches the route’s: agrees || a title the caller resolved from a route function: agrees || an agreeing pair with a write the observer did not see: agrees || two navigations, the last one differing: finding || nothing captured: null: no-record || nothing captured: undefined: no-record || nothing captured: a string: no-record || nothing captured: a number: no-record || nothing captured: an array: no-record || nothing captured: an empty object: no-record || nothing captured: a record with no navigation: no-record || nothing captured: a navigation that is not an object: no-record || nothing captured: a navigation with no title read: no-record || nothing captured: a navigation whose titles are empty: no-record || nothing captured: a navigation whose only title is blank: no-record
+21 fixtures, 4 mutants, 4 states, 4 reasons, 17 record inputs
+✔ the module publishes one join, four states, four reasons and the two input lists (1.5743ms)
+✔ the module runs where no page, clock or console exists, and reads none of them (1.1499ms)
+✔ AC3 — the committed recording answers route-binds-nothing, and its bytes say why (0.5019ms)
+✔ AC3 MUTANT: an empty object where the route binds nothing reddens the pin, naming state (3.5524ms)
+✔ AC1 — a document title that differs from the route’s implied title is a finding naming both (0.2023ms)
+✔ AC1 MUTANT: the route’s title copied over the document’s reddens the pin, naming documentTitle (3.2115ms)
+✔ AC2 — an observation that began after the write answers cannot-tell and counts no observed write (0.1641ms)
+✔ AC2 MUTANT: the pre-observation title taken as observed reddens the pin, naming the reason (1.7572ms)
+✔ every fixture answers the one state and the fields its own record warrants (0.4681ms)
+✔ the absences are decided in one order, and the more specific fact answers (0.1814ms)
+✔ the last navigation answers, and no navigation is folded into another (0.1026ms)
+✔ nothing captured answers no-record, and never an empty object (0.1219ms)
+✔ SC3 — the record’s fields and the join’s inputs are one list, asserted in one place (0.6673ms)
+✔ SC3 MUTANT: a field the join reads and does not publish reddens the pin, naming the field (3.4601ms)
+✔ the join is pure: it holds no state and writes nothing into the records it is handed (0.1509ms)
+✔ the mutants ran from scratch copies, and the committed module is the one this suite read (0.2915ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 137.1032
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run npx
+npm notice run prettier --check extension/title-input.js scripts/title-input.test.mjs

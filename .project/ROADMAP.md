@@ -2251,8 +2251,8 @@ Open questions
 Depends on: [M020]
 Programme: Generation 3 · Batch: 5 · Group: @angular/router
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/065-title-input-binding
 Integrated: null
 
 Goal: The panel answers why the document title, or a value bound from the route, did not follow the navigation, naming the strategy in effect and the last write that beat it.

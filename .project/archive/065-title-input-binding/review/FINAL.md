@@ -1,6 +1,6 @@
 # FINAL — M065 title-input-binding
 
-Reviewed HEAD: 372ec2a7fb24d52f66a1f3b78d426eed2e77f1db
+Reviewed HEAD: 286668e1465164b62cec20958ab80ac824145cc5
 Overall verdict: pass
 
 ## Verdict
