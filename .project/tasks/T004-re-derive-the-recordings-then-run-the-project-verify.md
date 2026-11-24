@@ -50,6 +50,7 @@ Re-derive each recording at this head with its own capture variable, in the orde
 ## Acceptance criteria
 
 1. the task's `## Log` names the command that proved it and the string the mutant produced.
+2. The project verify runs as this task's last stage and reports zero failures, so a red build cannot reach ship.
 
 ## Files
 
