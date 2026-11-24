@@ -2,10 +2,10 @@
 id: T001
 title: Measure a schema-disabled field on the portal and record what the page states
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: 5eaed2a15a220db477aa668b7896dd4220c03883
 worktree: null
 task_branch: null
 files:
