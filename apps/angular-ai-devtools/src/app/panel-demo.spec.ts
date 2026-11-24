@@ -326,6 +326,16 @@ import {
   STATES as CHUNK_FAILURE_STATES,
   chunkFailurePanel,
 } from './panel-chunk-failure';
+import {
+  AGREES as TITLE_INPUT_AGREES,
+  CANNOT_TELL as TITLE_INPUT_CANNOT_TELL,
+  FINDING as TITLE_INPUT_FINDING,
+  FIELDS as TITLE_INPUT_FIELDS,
+  LABELS as TITLE_INPUT_LABELS,
+  NO_RECORD as TITLE_INPUT_NO_RECORD,
+  STATES as TITLE_INPUT_STATES,
+  titleInputPanel,
+} from './panel-title-input';
 
 /** The part of the committed recording this spec reads. */
 interface OnpushMetadataRecording {
@@ -3025,7 +3035,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — forty-three paths, the same ordered list
+    // The whole table, in order and to the count — forty-four paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -3056,6 +3066,7 @@ describe('the panel demo', () => {
       'stability',
       'console', // M045 SC3-5 surface: the join's state and one block per captured diagnostic
       'console-read', // M046 SC1-3 surface: the control, the body the pane drew, the absence or the reason
+      'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -3074,7 +3085,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(43);
+    expect(appRoutes).toHaveLength(44);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -8942,5 +8953,344 @@ describe('the chunk-failure surface', () => {
       chunkFailurePanel(baseRow).lines,
     );
     expect(chunkFailurePanel(smuggled).text.includes('redeploy')).toBe(false);
+  });
+});
+
+// The title-input surface, and the discipline this milestone is about: the sample fact is the shipped
+// join's own answer over the record T001 captured, and the pane renders that answer's fields and no
+// other. `research/raw/m065-title-record.json` is re-read here, `extension/title-input.js` is
+// evaluated from its own committed text, and the fact the demo is handed must equal that answer field
+// for field — so a fact that drifted from the record, the join or the tree reddens here rather than
+// shipping.
+
+/** The two fields of T001's title record the join is a function of: the navigations and the writes. */
+interface TitleRecordRecording {
+  navigations: unknown[];
+  writes: unknown[];
+}
+
+/** The namespace `extension/title-input.js` publishes on the page's global. */
+interface TitleInputNamespace {
+  titleInput(record: unknown, facts?: unknown): Record<string, unknown>;
+  STATES: readonly string[];
+  REASONS: readonly string[];
+  FIELDS: readonly string[];
+}
+
+/** T001's title record, inlined from disk the way every recording in this spec arrives. */
+function readTitleRecordRecording(): TitleRecordRecording {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m065-title-record.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  return JSON.parse(
+    inlinedText(modules, 'research/raw/m065-title-record.json'),
+  ) as TitleRecordRecording;
+}
+
+/**
+ * The join `extension/title-input.js` publishes on the page's global, evaluated from its own committed
+ * text: the demo's `title-input` fact is held to the join's answer, not to a copy of it. The module is
+ * an IIFE with no imports, so running it is the whole of loading it.
+ */
+function titleInputJoin(): TitleInputNamespace {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/title-input.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  new Function(inlinedText(modules, 'extension/title-input.js'))();
+  const api = (
+    globalThis as unknown as { angularAiTitleInput?: TitleInputNamespace }
+  ).angularAiTitleInput;
+  if (api === undefined || typeof api.titleInput !== 'function') {
+    throw new Error(
+      'extension/title-input.js published no titleInput on the global',
+    );
+  }
+  return api;
+}
+
+/** A pin that must redden on a mutant: returns the failure the pin raises on it. */
+function reddens(pin: () => void, defect: string): Error {
+  let failure: Error | null = null;
+  try {
+    pin();
+  } catch (error) {
+    failure = error as Error;
+  }
+  if (failure === null) {
+    throw new Error(
+      `"${defect}" passed its pin on the mutant, so the mutation is not caught`,
+    );
+  }
+  return failure;
+}
+
+/**
+ * The pin the pane's field table is held to: it enumerates the join's fields, in the join's order, and
+ * writes a line under exactly one label per field, spelled as the field is spelled. Kept callable with
+ * doctored tables, so a table that grew a field the answer does not carry — or lost one the answer
+ * does — reddens naming the surface and the field list rather than passing on a table nobody re-read.
+ */
+function assertPaneFields(
+  joinFields: readonly string[],
+  fields: readonly string[],
+  labels: Record<string, string>,
+): void {
+  const enumerated = [...fields];
+  if (JSON.stringify(enumerated) !== JSON.stringify([...joinFields])) {
+    throw new Error(
+      `the title-input pane must enumerate the join's ${joinFields.length} fields (${joinFields.join(', ')}) in that order; it enumerates ${JSON.stringify(enumerated)}`,
+    );
+  }
+  const written = Object.values(labels);
+  if (JSON.stringify(written) !== JSON.stringify([...joinFields])) {
+    throw new Error(
+      `the title-input pane must write every line under one of the join's own field names, one label per field; its labels are ${JSON.stringify(written)}`,
+    );
+  }
+}
+
+/**
+ * The pin the pane's state table is held to: the four state words the join answers, in the join's own
+ * order, and no fifth. Callable with a doctored list, so a state list that lost a word reddens naming
+ * the surface.
+ */
+function assertPaneStates(
+  joinStates: readonly string[],
+  states: readonly string[],
+): void {
+  if (JSON.stringify([...states]) !== JSON.stringify([...joinStates])) {
+    throw new Error(
+      `the title-input pane must enumerate the join's ${joinStates.length} states (${joinStates.join(', ')}) in that order; it enumerates ${JSON.stringify([...states])}`,
+    );
+  }
+}
+
+describe('the title-input surface', () => {
+  it('is the join’s own answer over T001’s record, reached by the route and loader key the table carries', async () => {
+    const recording = readTitleRecordRecording();
+    const join = titleInputJoin();
+    const answer = join.titleInput(recording);
+
+    // The sample fact is not written here and not written by hand in the demo either: it is the shipped
+    // join's answer over the committed record, field for field, key for key.
+    expect(FACTS['title-input']).toEqual(answer);
+    expect(Object.keys(FACTS['title-input'] as object)).toEqual(
+      Object.keys(answer),
+    );
+
+    // The record answers one absence and nothing beside it: no route binds data and no route declares
+    // a title, so no strategy, no title and no write count is in the answer for the pane to print.
+    expect(answer).toEqual({
+      state: TITLE_INPUT_CANNOT_TELL,
+      reason: 'route-binds-nothing',
+    });
+    expect(join.REASONS).toContain(answer['reason']);
+    expect(recording.navigations.length).toBeGreaterThan(0);
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'title-input',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the title-input surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('title-input');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(route.data?.['surface']).not.toBe('console-read');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'title-input'),
+    ).toHaveLength(1);
+
+    // The demo renders the pane the module answers, and the pane is the loader key's own module.
+    const demo = await renderDemo('title-input');
+    const pane = titleInputPanel(FACTS['title-input']);
+    expect(demo.state()).toBe(TITLE_INPUT_CANNOT_TELL);
+    expect(demo.lines()).toEqual(pane.lines);
+  });
+
+  it('enumerates the join’s six fields and four states, and reddens naming the surface when either list moves', () => {
+    const join = titleInputJoin();
+
+    // Green first, on the tables as they sit on disk.
+    assertPaneFields(join.FIELDS, TITLE_INPUT_FIELDS, TITLE_INPUT_LABELS);
+    assertPaneStates(join.STATES, TITLE_INPUT_STATES);
+    expect([...TITLE_INPUT_STATES]).toEqual([
+      TITLE_INPUT_FINDING,
+      TITLE_INPUT_AGREES,
+      TITLE_INPUT_CANNOT_TELL,
+      TITLE_INPUT_NO_RECORD,
+    ]);
+    expect([...join.FIELDS]).toEqual([
+      'state',
+      'strategy',
+      'documentTitle',
+      'impliedTitle',
+      'observedWrites',
+      'reason',
+    ]);
+
+    // Mutant: a seventh field the answer does not carry, added to both halves of the pane's table. The
+    // pin must redden naming the surface and the field it invented.
+    const inventedField = reddens(
+      () =>
+        assertPaneFields(join.FIELDS, [...TITLE_INPUT_FIELDS, 'remedy'], {
+          ...TITLE_INPUT_LABELS,
+          remedy: 'remedy',
+        }),
+      'a field the answer does not carry',
+    );
+    expect(inventedField.message).toContain('title-input');
+    expect(inventedField.message).toContain('remedy');
+
+    // Mutant: one field dropped from the enumeration — the defect a pane that stopped rendering the
+    // observed-write count would have. The pin must redden naming the field list and the field.
+    const droppedField = reddens(
+      () =>
+        assertPaneFields(
+          join.FIELDS,
+          TITLE_INPUT_FIELDS.filter((field) => field !== 'observedWrites'),
+          Object.fromEntries(
+            Object.entries(TITLE_INPUT_LABELS).filter(
+              ([key]) => key !== 'observedWrites',
+            ),
+          ),
+        ),
+      'a field dropped from the enumeration',
+    );
+    expect(droppedField.message).toContain('title-input');
+    expect(droppedField.message).toContain('observedWrites');
+
+    // Mutant: one state dropped from the enumeration. The pin must redden naming the surface.
+    const droppedState = reddens(
+      () =>
+        assertPaneStates(
+          join.STATES,
+          TITLE_INPUT_STATES.filter((state) => state !== TITLE_INPUT_AGREES),
+        ),
+      'a state dropped from the enumeration',
+    );
+    expect(droppedState.message).toContain('title-input');
+    expect(droppedState.message).toContain(TITLE_INPUT_AGREES);
+  });
+
+  it('renders the four states with the fields the answer carries and no line for a field it does not', () => {
+    const join = titleInputJoin();
+
+    // The join's own state words, and the closed set of reasons the pane may print. A reason the join
+    // does not answer is a word the pane has no line for.
+    expect([...join.STATES]).toEqual([...TITLE_INPUT_STATES]);
+    expect([...join.REASONS]).toEqual([
+      'no-strategy',
+      'route-binds-nothing',
+      'no-implied-title',
+      'observation-started-after-the-write',
+    ]);
+
+    // `finding`: the five fields the join carries on a difference, each under its own name.
+    const finding = {
+      state: TITLE_INPUT_FINDING,
+      strategy: 'DefaultTitleStrategy',
+      documentTitle: 'Insurance Portal',
+      impliedTitle: 'Claims',
+      observedWrites: 2,
+    };
+    expect(titleInputPanel(finding).lines).toEqual([
+      'state: finding',
+      'strategy: DefaultTitleStrategy',
+      'documentTitle: Insurance Portal',
+      'impliedTitle: Claims',
+      'observedWrites: 2',
+    ]);
+
+    // `agrees`: the join carries no `observedWrites` on an agreement, so the pane writes no count and
+    // no zero in its place — a zero would be a measurement the join did not make.
+    const agrees = {
+      state: TITLE_INPUT_AGREES,
+      strategy: 'DefaultTitleStrategy',
+      documentTitle: 'Insurance Portal',
+      impliedTitle: 'Insurance Portal',
+    };
+    expect(titleInputPanel(agrees).lines).toEqual([
+      'state: agrees',
+      'strategy: DefaultTitleStrategy',
+      'documentTitle: Insurance Portal',
+      'impliedTitle: Insurance Portal',
+    ]);
+
+    // `cannot-tell`: the reason token and nothing beside it.
+    expect(
+      titleInputPanel({
+        state: TITLE_INPUT_CANNOT_TELL,
+        reason: 'route-binds-nothing',
+      }).lines,
+    ).toEqual(['state: cannot-tell', 'reason: route-binds-nothing']);
+
+    // `no-record`: the bare word, which is the whole of that answer.
+    expect(titleInputPanel({ state: TITLE_INPUT_NO_RECORD }).lines).toEqual([
+      'state: no-record',
+    ]);
+
+    // Every reason the join can answer is a line the pane prints, and every state the pane was written
+    // for is reachable from the join's own words.
+    for (const reason of join.REASONS)
+      expect(
+        titleInputPanel({ state: TITLE_INPUT_CANNOT_TELL, reason }).lines,
+      ).toEqual(['state: cannot-tell', `reason: ${reason}`]);
+
+    // Every line is a label the table names and a value the answer carries — nothing composed, nothing
+    // paraphrased, and no sentence of the pane's own.
+    const answers = [
+      finding,
+      agrees,
+      { state: TITLE_INPUT_CANNOT_TELL, reason: join.REASONS[0] },
+      { state: TITLE_INPUT_NO_RECORD },
+    ];
+    for (const answer of answers)
+      for (const line of titleInputPanel(answer).lines)
+        expect(Object.values(TITLE_INPUT_LABELS)).toContain(
+          line.slice(0, line.indexOf(': ')),
+        );
+
+    // A seventh field on the answer renders nothing: the pane reads the contract's fields and no other,
+    // so a cause or a remedy smuggled in beside them has no label to appear under (SC4, N1).
+    const smuggled: Record<string, unknown> = {
+      ...finding,
+      remedy: 'set the title in the route config',
+      cause: 'the navigation settled after the strategy ran',
+    };
+    expect(titleInputPanel(smuggled).lines).toEqual(
+      titleInputPanel(finding).lines,
+    );
+    const everyState = [finding, agrees, smuggled]
+      .map((answer) => titleInputPanel(answer).text)
+      .join('\n');
+    expect(everyState.includes('set the title')).toBe(false);
+    expect(everyState.includes('settled after')).toBe(false);
+
+    // No cause, no remedy, no schematic and no suggestion: the words a pane would have to write for
+    // itself, scanned over every state it renders.
+    const rendered = [
+      ...answers.map((answer) => titleInputPanel(answer).text),
+      titleInputPanel(FACTS['title-input']).text,
+    ].join('\n');
+    for (const word of [
+      'fix',
+      'remedy',
+      'schematic',
+      'cause',
+      'because',
+      'should',
+      'declare',
+    ])
+      expect(new RegExp(`\\b${word}\\b`, 'i').test(rendered)).toBe(false);
+
+    // The same answer twice renders the same bytes, and the pane writes nothing into the answer.
+    const before = JSON.stringify(finding);
+    expect(titleInputPanel(finding).text).toBe(titleInputPanel(finding).text);
+    expect(JSON.stringify(finding)).toBe(before);
   });
 });
