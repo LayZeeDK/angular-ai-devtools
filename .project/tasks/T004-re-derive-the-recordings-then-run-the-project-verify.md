@@ -2,14 +2,14 @@
 id: T004
 title: Re-derive the recordings, then run the project verify
 wave: 4
-status: in-progress
+status: pending
 deps: 
 - T001
 - T002
 - T003
-agent: build_T004
-base: 18542b93dac5d0472630400dd2f143be4c67e36a
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
 - research/raw/m066-schema-record.json
