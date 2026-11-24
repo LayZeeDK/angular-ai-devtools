@@ -31,6 +31,7 @@ files:
 - research/raw/m066-verdict-claims.json
 - scripts/teardown-leak-shapes.test.mjs
 - scripts/schema-attribution.test.mjs
+- research/raw/m059-record-shapes.json
 ---
 
 # T004 — Re-derive the recordings, then run the project verify
@@ -75,6 +76,9 @@ Every path this task may touch, and nothing else:
 - \research/raw/m066-verdict-claims.json\n
 - \scripts/teardown-leak-shapes.test.mjs\n
 - \scripts/schema-attribution.test.mjs\n
+- `research/raw/m059-record-shapes.json`
+- `scripts/teardown-leak-shapes.test.mjs`
+
 ## Interface contract
 
 Byte-identical across the tasks that share it:
