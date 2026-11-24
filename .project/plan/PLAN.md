@@ -6,6 +6,7 @@ Milestone: M067 — formfield-binder · Branch: gsd-path/M067 · Baseline: `main
 
 review_panel: off
 finding_skeptics: off
+max_review_cycles: 3
 
 Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test`
 
@@ -29,18 +30,42 @@ Goal: Give every recording one manifest row naming its suite and its arm, and re
 milestone Log is empty, because that capture reads the Log it counts.
 Review depth: full
 
+## Wave 4 — T004: measure what a field hosts
+
+Goal: Write the record this milestone joins, from a page, before any join exists — with the default run read-only.
+Review depth: full
+
+## Wave 5 — T005: join the hosted control against the expected one
+
+Goal: One pure join that tells a bound field from a mis-bound one and refuses to name a host it was not given.
+Review depth: full
+
+## Wave 6 — T006: one panel surface, every pin moved with it
+
+Goal: Render exactly what the join returns on one route, with the route table, loader map, surface record and ordered pins
+in the same landing.
+Review depth: full
+
+## Wave 7 — T007: re-derive the recordings and run the project verify
+
+Goal: Re-derive both tree-counting recordings at the final head and prove the milestone did not break the build it
+measures.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
 |---|---|---|
 | SC1 | T001 | AC1 |
 | SC2 | T001 | AC2 |
-| SC3 | T001 | AC3 |
-| SC3 | T002 | AC1 |
-| SC4 | T002 | AC2 |
-| SC1 | T003 | AC1 |
-| SC2 | T003 | AC2 |
 | SC3 | T003 | AC3 |
+| SC3 | T004 | AC1 |
+| SC3 | T004 | AC3 |
+| SC1 | T005 | AC1 |
+| SC2 | T005 | AC2 |
+| SC4 | T006 | AC1 |
+| SC4 | T006 | AC2 |
+| SC4 | T007 | AC2 |
 
 ## Surface contract
 
