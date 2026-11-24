@@ -73,9 +73,12 @@ States: `declared`, `no-node`, `no-record` and `cannot-tell`, rendered exactly a
 field, the node and input when the record carries them, the reason when it does not, and the observed row's own keys. An
 absent schema prints as `no-node` with its reason and never as a failure.
 
-Walkthrough: on a page whose form binds a field, the pane names the state the field tree reports and states that the
-record carries no schema node for it, because the target builds its schema as a closure the injector does not expose. On a
-record that carries a node, the pane names the node and the input that node read, and nothing else.
+Walkthrough:
+
+1. Open the `schema` route from the pane picker on a page whose form binds a field.
+2. The pane names the state the field tree reports and states that the record carries no schema node for it, because the
+   target builds its schema as a closure the injector does not expose.
+3. Open a record that carries a node: the pane names the node and the input that node read, and nothing else.
 
 ## Held-out checks
 
