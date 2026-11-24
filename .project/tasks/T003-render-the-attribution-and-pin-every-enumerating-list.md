@@ -71,9 +71,9 @@ One component that renders only the object the join returns; one `LOADERS` key; 
 
 ## Acceptance criteria
 
-1. the task's `## Log` names the command that proved it and the string the mutant produced.
-2. the task's `## Log` names the command that proved it and the string the mutant produced.
-3. the task's `## Log` names the command that proved it and the string the mutant produced.
+- AC1: the task's `## Log` names the command that proved it and the string the mutant produced.
+- AC2: the task's `## Log` names the command that proved it and the string the mutant produced.
+- AC3: the task's `## Log` names the command that proved it and the string the mutant produced.
 
 ## Files
 
