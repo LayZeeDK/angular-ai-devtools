@@ -28,6 +28,7 @@ files:
 - scripts/outlet-record-shapes.test.mjs
 - extension/title-input.js
 - extension/panel/index.html
+- scripts/title-input.test.mjs
 ---
 
 # T004 — Re-derive the recordings, then run the project verify
@@ -78,6 +79,7 @@ Every path this task may touch, and nothing else:
 - scripts/outlet-record-shapes.test.mjs
 - extension/title-input.js
 - extension/panel/index.html
+- scripts/title-input.test.mjs
 
 ## Acceptance criteria
 
