@@ -5,7 +5,7 @@ wave: 4
 status: in-progress
 deps: [T003]
 agent: build_T004
-base: 007c30ec66ad3091897e816bd858936b017604df
+base: 48b13d275ea76f0a2ad8a2ce3daf5eb1a74ee2be
 worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
@@ -27,6 +27,7 @@ files:
 - scripts/guard-record-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
 - research/raw/m056-gate-stability.json
+- extension/title-input.js
 ---
 
 # T004 — Re-derive the recordings, then run the project verify
@@ -53,24 +54,25 @@ None
 
 Every path this task may touch, and nothing else:
 
-- `research/raw/m044-gate-shapes.json`
-- `research/raw/m059-record-shapes.json`
-- `scripts/gate-integrity.test.mjs`
-- `scripts/gate-stability-record.test.mjs`
-- `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`
-- `scripts/gate-integrity-default-tasks.test.mjs`
-- `scripts/outlet-verdict-claims.test.mjs`
-- `scripts/teardown-leak-shapes.test.mjs`
-- `scripts/teardown-leak.test.mjs`
-- `research/raw/m065-verdict-claims.json`
-- `scripts/guard-verdict-claims.test.mjs`
-- `scripts/navigation-blocking.test.mjs`
-- `scripts/tutor-answer.test.mjs`
-- `scripts/tutor-record-shapes.test.mjs`
-- `scripts/chunk-failure-claims.test.mjs`
-- `scripts/guard-record-shapes.test.mjs`
-- `scripts/outlet-record-shapes.test.mjs`
-- `research/raw/m056-gate-stability.json`
+- research/raw/m044-gate-shapes.json
+- research/raw/m059-record-shapes.json
+- scripts/gate-integrity.test.mjs
+- scripts/gate-stability-record.test.mjs
+- apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+- scripts/gate-integrity-default-tasks.test.mjs
+- scripts/outlet-verdict-claims.test.mjs
+- scripts/teardown-leak-shapes.test.mjs
+- scripts/teardown-leak.test.mjs
+- research/raw/m065-verdict-claims.json
+- scripts/guard-verdict-claims.test.mjs
+- scripts/navigation-blocking.test.mjs
+- scripts/tutor-answer.test.mjs
+- scripts/tutor-record-shapes.test.mjs
+- scripts/chunk-failure-claims.test.mjs
+- scripts/guard-record-shapes.test.mjs
+- scripts/outlet-record-shapes.test.mjs
+- research/raw/m056-gate-stability.json
+- extension/title-input.js
 
 ## Acceptance criteria
 
@@ -92,3 +94,4 @@ M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M059_CAPTURE=1 nod
 ## Log
 
 - scaffolded
+- Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m059-record-shapes.json`, `scripts/gate-integrity.test.mjs`, `scripts/gate-stability-record.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/teardown-leak.test.mjs`, `research/raw/m065-verdict-claims.json`, `scripts/guard-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `research/raw/m056-gate-stability.json` — each is read from this tree, ready.
