@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: schema-disabled-hidden
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M066
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1337,3 +1337,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-24 — plan — plan approved
 - 2026-11-24 — build — build started
 - 2026-11-24 — build — build blocked
+- 2026-11-24 — plan — build plan repair requested
+- 2026-11-24 — plan — build recovery: {"base": "3c47854c248a9ea183b76c984ca20927ff7726f5", "branch": "gsd-path/M066", "kind": "plan", "source": "build"}
