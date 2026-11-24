@@ -2,10 +2,10 @@
 id: T003
 title: Name every recording and refuse a census capture taken before the Log
 wave: 3
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T003
+base: 0a4c4f52fca01528858a3341cb3dc4b6379a0827
 worktree: null
 task_branch: null
 files:

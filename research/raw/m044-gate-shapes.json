@@ -8,7 +8,7 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 372,
+    "filesExamined": 373,
     "suitesExamined": 193,
     "examined": 219,
     "movedSubtrees": [
@@ -950,7 +950,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1940,
+        "line": 1949,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -958,7 +958,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1947,
+        "line": 1956,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -966,7 +966,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1951,
+        "line": 1960,
         "path": ".project/archive",
         "site": "message",
         "class": "deliberate-archive-read",
@@ -974,7 +974,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1955,
+        "line": 1964,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -982,7 +982,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1957,
+        "line": 1966,
         "path": ".project",
         "site": "segment",
         "class": "undecided",
@@ -992,7 +992,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1962,
+        "line": 1971,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -1000,7 +1000,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 1981,
+        "line": 1990,
         "path": ".project/archive",
         "site": "path",
         "class": "deliberate-archive-read",
@@ -1008,7 +1008,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3430,
+        "line": 3439,
         "path": ".project/STATE.md",
         "site": "path",
         "class": "undecided",
@@ -1016,7 +1016,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3434,
+        "line": 3443,
         "path": ".project/STATE.md",
         "site": "message",
         "class": "undecided",
@@ -1024,7 +1024,7 @@
       },
       {
         "file": "scripts/gate-integrity.test.mjs",
-        "line": 3824,
+        "line": 3833,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -2354,7 +2354,7 @@
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
     "examined": 223,
-    "filesListed": 547,
+    "filesListed": 548,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
@@ -2646,9 +2646,9 @@
         "file": "scripts/chunk-failure-claims.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1999,
+        "addedLines": 2009,
         "removedLines": 0,
-        "addedAssertionLines": 129,
+        "addedAssertionLines": 130,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -2896,9 +2896,9 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5918,
+        "addedLines": 5927,
         "removedLines": 0,
-        "addedAssertionLines": 347,
+        "addedAssertionLines": 348,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -3492,14 +3492,14 @@
       "removedAssertionLines": 200,
       "recutAssertionLines": 200,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 7956
+      "addedAssertionLines": 7958
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
     "examined": 223,
-    "filesListed": 547,
+    "filesListed": 548,
     "suites": {
       "scripts": 146,
       "extension": 11,
@@ -3585,6 +3585,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-24T17:11:32.210Z"
+    "at": "2026-11-24T17:54:02.791Z"
   }
 }

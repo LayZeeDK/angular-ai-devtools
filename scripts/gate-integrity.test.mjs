@@ -1854,6 +1854,15 @@ function capture(path, at) {
 
 if (ARMED) {
   test('armed: re-derive, write only what moved, and a second run changes no byte', (t) => {
+    // This capture counts each task's own ## Log, so a capture taken before the Log is written cannot
+    // agree with the verify that follows it. Refuse rather than write a record born stale.
+    const owned = derivedSections().fixRecord?.tasks ?? [];
+    const logged = owned.filter((row) => String(row.log ?? '').trim() !== '');
+    if (owned.length > 0 && logged.length === 0) {
+      assert.fail(
+        'armed capture refused: the fix-record census reads this milestone task ## Log and none is written yet, so the recording would be born stale. Write the Log first. Nothing was written to research/raw/m044-gate-shapes.json.',
+      );
+    }
     const first = capture(RECORD_PATH, new Date().toISOString());
     t.diagnostic(
       first.wrote
