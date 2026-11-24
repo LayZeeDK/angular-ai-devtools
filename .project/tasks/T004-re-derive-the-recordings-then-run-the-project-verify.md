@@ -2,10 +2,10 @@
 id: T004
 title: Re-derive the recordings, then run the project verify
 wave: 4
-status: done
+status: pending
 deps: [T003]
-agent: build_T004
-base: 2bd5e63da0a423a59ce73934799781a9d7e5d4cb
+agent: null
+base: null
 worktree: null
 task_branch: null
 files:
