@@ -1,0 +1,349 @@
+{
+  "schema": "m067-verdict-claims/v1",
+  "milestone": "M067",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(ROOT, \"M067\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 4 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "proofs": "every claim's suite and test are read from this checkout at capture: 17 citation(s) over [\"scripts/field-binder.test.mjs\",\"scripts/gate-integrity.test.mjs\",\"scripts/field-binder-record.test.mjs\",\"apps/angular-ai-devtools/src/app/panel-demo.spec.ts\",\"scripts/panel-routes.test.mjs\",\"apps/angular-ai-devtools/src/app/app.spec.ts\"], each checked to declare the test title it names on the line that declares it, and each claim names every suite the plan resolves one of its criterion's edges to",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-criterion mapping from .project/plan/PLAN.md's ## Intent coverage table and the tasks it names, because this plan's ## Held-out checks section holds nothing out: it reads 0 row(s) of edge -> task -> test there and resolves each criterion through the plan's coverage rows and the first suite the owning task's files list declares that the task's base does not carry - [\"SC1 -> scripts/gate-integrity.test.mjs\",\"SC2 -> scripts/gate-integrity.test.mjs\",\"SC3 -> scripts/gate-integrity.test.mjs\",\"SC4 -> apps/angular-ai-devtools/src/app/app.spec.ts\"] - so a claim cites the suite the milestone's own plan assigns its criterion rather than one this file chose: 8 edge row(s) over the criteria [\"SC1\",\"SC3\",\"SC2\",\"SC4\"] and the suites [\"scripts/field-binder.test.mjs\",\"scripts/gate-integrity.test.mjs\",\"scripts/field-binder-record.test.mjs\",\"apps/angular-ai-devtools/src/app/panel-demo.spec.ts\",\"scripts/panel-routes.test.mjs\",\"apps/angular-ai-devtools/src/app/app.spec.ts\"]. The plan's ## Held-out checks and its ## Intent coverage table disagree at 0 row(s) [], recorded under evidence.plan.disagreements rather than refused, because a reader needs the citation and the disagreement in one place"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 4,
+    "why": [
+      "No row is required, and the record therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext. Every fact the 4 criteria this milestone declares is written about is a fact about this repository's own field record, the join that reads it and the tests that hold them, against 12 stage(s) of the check chain; none of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each claim names the suite, the test and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": [],
+      "coverage": [
+        "SC1 T001 AC1",
+        "SC2 T001 AC2",
+        "SC3 T003 AC3",
+        "SC3 T004 AC1",
+        "SC3 T004 AC3",
+        "SC1 T005 AC1",
+        "SC2 T005 AC2",
+        "SC4 T006 AC1",
+        "SC4 T006 AC2",
+        "SC4 T007 AC2"
+      ],
+      "resolved": [
+        "SC1 scripts/gate-integrity.test.mjs",
+        "SC2 scripts/gate-integrity.test.mjs",
+        "SC3 scripts/gate-integrity.test.mjs",
+        "SC4 apps/angular-ai-devtools/src/app/app.spec.ts"
+      ],
+      "disagreements": []
+    },
+    "edges": {
+      "rows": 8,
+      "criteria": [
+        "SC1",
+        "SC3",
+        "SC2",
+        "SC4"
+      ],
+      "columns": [
+        "Edge",
+        "Criterion",
+        "Category",
+        "Disposition",
+        "Detail"
+      ]
+    },
+    "suites": [
+      {
+        "path": "apps/angular-ai-devtools/src/app/app.spec.ts",
+        "tests": 2,
+        "groups": 2
+      },
+      {
+        "path": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+        "tests": 48,
+        "groups": 13
+      },
+      {
+        "path": "scripts/field-binder-record.test.mjs",
+        "tests": 17,
+        "groups": 4
+      },
+      {
+        "path": "scripts/field-binder.test.mjs",
+        "tests": 22,
+        "groups": 4
+      },
+      {
+        "path": "scripts/gate-integrity.test.mjs",
+        "tests": 41,
+        "groups": 0
+      },
+      {
+        "path": "scripts/panel-routes.test.mjs",
+        "tests": 4,
+        "groups": 0
+      }
+    ],
+    "records": [
+      "research/raw/m067-field-binder.json"
+    ]
+  },
+  "capture": {
+    "command": "M067_CAPTURE=1 node --test scripts/m067-verdict-claims.test.mjs",
+    "check": "node --test scripts/m067-verdict-claims.test.mjs",
+    "records": "research/raw/m067-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3",
+      "SC4"
+    ],
+    "reading": "an armed run re-derives the list from the intent this checkout binds, its five-column edge coverage, the suites the plan resolves each criterion to and the tests this checkout declares, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives, naming the field that moved when it is not, and the writer refuses a candidate that is not the fixed point of this pin."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "A field that hosts a control different from the one its record expects produces a finding naming both the hosted control and the expected one; a mutant that reports only the hosted control reddens it.",
+      "criterionCharacters": 200,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"A field that hosts a control different from the one its record expects produces a finding naming both the hosted control and the expected one; a mutant that reports only the hosted control reddens it.\" - a fact about this repository's own field record, the join that reads it and the tests that hold them, which no route of any page produces: it is proved by the suite and test this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a test reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E2\"] the intent itself assigns the criterion, held by the plan at [\"scripts/gate-integrity.test.mjs\"], and the 4 citation(s) below name the tests that carry them.",
+      "suite": "scripts/field-binder.test.mjs",
+      "test": "AC1: a field hosting another control is mismatch, and the answer names both controls",
+      "citations": [
+        {
+          "suite": "scripts/field-binder.test.mjs",
+          "test": "AC1: a field hosting another control is mismatch, and the answer names both controls",
+          "holds": "a field that hosts a control other than the one its record expects answers `mismatch` naming both the hosted control and the expected one, in one answer and one place"
+        },
+        {
+          "suite": "scripts/field-binder.test.mjs",
+          "test": "a field hosting the control its record expects is bound",
+          "holds": "a field that hosts the expected control answers `bound` and produces no finding, rather than a finding with an empty comparison in it"
+        },
+        {
+          "suite": "scripts/field-binder.test.mjs",
+          "test": "AC1 mutant: a mismatch reporting only the hosted control reddens the pin, naming hosted without expected",
+          "holds": "the mutant that reports only the hosted control reddens the pin by name, so the comparison is measured rather than stated"
+        },
+        {
+          "suite": "scripts/gate-integrity.test.mjs",
+          "test": "T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails",
+          "holds": "the suite the plan’s own `## Intent coverage` row assigns SC1 to, cited as the plan resolves it: it holds the gate’s reading of the suite diff at this head"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E1",
+          "category": "empty",
+          "disposition": "criterion SC1",
+          "detail": "A field that hosts the expected control reports no finding, rather than a finding with an empty comparison.",
+          "suite": "scripts/gate-integrity.test.mjs"
+        },
+        {
+          "edge": "E2",
+          "category": "ordering",
+          "disposition": "criterion SC1",
+          "detail": "When a field hosts two candidate controls, the one the field's own tree holds is named and the other is not.",
+          "suite": "scripts/gate-integrity.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/field-binder.test.mjs",
+      "artefact": "scripts/field-binder.test.mjs (test \"AC1: a field hosting another control is mismatch, and the answer names both controls\"; edge [\"E1\",\"E2\"] of the intent's own coverage: E1 empty criterion SC1: A field that hosts the expected control reports no finding, rather than a finding with an empty comparison.; E2 ordering criterion SC1: When a field hosts two candidate controls, the one the field's own tree holds is named and the other is not.; the suite carries 22 test declaration(s) in 4 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "4 citation(s) over 2 suite(s) hold SC1 through the edge row(s) [\"E1\",\"E2\"] the intent assigns it: every one is a test this checkout declares at this head, read from the file that declares it, and the last is the suite this milestone's own plan resolves the criterion to, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m067-verdict-claims.test.mjs",
+        "node --test scripts/field-binder.test.mjs",
+        "node --test scripts/gate-integrity.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "A field that is not a components field at all — a plain input, or an element with no hosting field — reports that absence with its reason rather than naming a control it was not given; a mutant that infers a host reddens it.",
+      "criterionCharacters": 224,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"A field that is not a components field at all — a plain input, or an element with no hosting field — reports that absence with its reason rather than naming a control it was not given; a mutant that infers a host reddens it.\" - a fact about this repository's own field record, the join that reads it and the tests that hold them, which no route of any page produces: it is proved by the suite and test this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a test reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E4\",\"E7\"] the intent itself assigns the criterion, held by the plan at [\"scripts/gate-integrity.test.mjs\"], and the 4 citation(s) below name the tests that carry them.",
+      "suite": "scripts/field-binder.test.mjs",
+      "test": "AC2: a field that is not a components field is no-host, with that reason and no inferred control",
+      "citations": [
+        {
+          "suite": "scripts/field-binder.test.mjs",
+          "test": "AC2: a field that is not a components field is no-host, with that reason and no inferred control",
+          "holds": "a plain input, and an element with no hosting field, answer `no-host` with that reason and name no control, so no host is inferred from a label or a class"
+        },
+        {
+          "suite": "scripts/field-binder.test.mjs",
+          "test": "a row carrying no hosted fact at all is cannot-tell naming that fact, not no-host",
+          "holds": "a field whose host was never read answers `cannot-tell` naming the absent reading, and never a control inferred from the field’s own label"
+        },
+        {
+          "suite": "scripts/field-binder.test.mjs",
+          "test": "AC2 mutant: a join that infers a host from a label reddens the pin, naming the inference",
+          "holds": "the mutant that infers a host from a label reddens the pin by name, so the absence is measured rather than asserted"
+        },
+        {
+          "suite": "scripts/gate-integrity.test.mjs",
+          "test": "T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails",
+          "holds": "the suite the plan’s own `## Intent coverage` row assigns SC2 to, cited as the plan resolves it: it holds the gate’s reading of the suite diff at this head"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E4",
+          "category": "precision",
+          "disposition": "criterion SC2",
+          "detail": "A hidden field is not reported as unbound, and an unbound field is not reported as hidden; a mutant that collapses the two reddens by name.",
+          "suite": "scripts/gate-integrity.test.mjs"
+        },
+        {
+          "edge": "E7",
+          "category": "boundary",
+          "disposition": "criterion SC2",
+          "detail": "A field whose host was never read reports the absence of that reading, and never a control inferred from the label.",
+          "suite": "scripts/gate-integrity.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/field-binder.test.mjs",
+      "artefact": "scripts/field-binder.test.mjs (test \"AC2: a field that is not a components field is no-host, with that reason and no inferred control\"; edge [\"E4\",\"E7\"] of the intent's own coverage: E4 precision criterion SC2: A hidden field is not reported as unbound, and an unbound field is not reported as hidden; a mutant that collapses the two reddens by name.; E7 boundary criterion SC2: A field whose host was never read reports the absence of that reading, and never a control inferred from the label.; the suite carries 22 test declaration(s) in 4 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "4 citation(s) over 2 suite(s) hold SC2 through the edge row(s) [\"E4\",\"E7\"] the intent assigns it: every one is a test this checkout declares at this head, read from the file that declares it, and the last is the suite this milestone's own plan resolves the criterion to, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m067-verdict-claims.test.mjs",
+        "node --test scripts/field-binder.test.mjs",
+        "node --test scripts/gate-integrity.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "The hosted control and the field identity are read from a record this milestone writes, and the field identity is the one `extension/field-state.js` already uses, asserted in one place rather than derived twice.",
+      "criterionCharacters": 211,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"The hosted control and the field identity are read from a record this milestone writes, and the field identity is the one `extension/field-state.js` already uses, asserted in one place rather than derived twice.\" - a fact about this repository's own field record, the join that reads it and the tests that hold them, which no route of any page produces: it is proved by the suite and test this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a test reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\",\"E6\"] the intent itself assigns the criterion, held by the plan at [\"scripts/gate-integrity.test.mjs\"], and the 4 citation(s) below name the tests that carry them.",
+      "suite": "scripts/field-binder-record.test.mjs",
+      "test": "AC3: the identity this record carries is the one extension/field-state.js produces",
+      "citations": [
+        {
+          "suite": "scripts/field-binder-record.test.mjs",
+          "test": "AC3: the identity this record carries is the one extension/field-state.js produces",
+          "holds": "the field identity the record carries is the one `extension/field-state.js` produces, asserted against that producer rather than derived a second time here"
+        },
+        {
+          "suite": "scripts/field-binder-record.test.mjs",
+          "test": "a second identity reddens the identity pin, naming the field and what the producer produces",
+          "holds": "a field identity the producer does not produce reddens the pin by name, so a second identity cannot be introduced quietly"
+        },
+        {
+          "suite": "scripts/field-binder.test.mjs",
+          "test": "writes no recording: the committed record is read into memory and never re-captured",
+          "holds": "the join reads the one record this milestone writes and re-captures nothing, so the hosted control has one source rather than a second reader"
+        },
+        {
+          "suite": "scripts/gate-integrity.test.mjs",
+          "test": "T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails",
+          "holds": "the suite the plan’s own `## Intent coverage` row assigns SC3 to, cited as the plan resolves it: it holds the gate’s reading of the suite diff at this head"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E3",
+          "category": "boundary",
+          "disposition": "criterion SC3",
+          "detail": "A field identity that `extension/field-state.js` does not produce is `cannot-tell`, never a second identity derived here.",
+          "suite": "scripts/gate-integrity.test.mjs"
+        },
+        {
+          "edge": "E6",
+          "category": "boundary",
+          "disposition": "criterion SC3",
+          "detail": "The record is the only source of a hosted control; a second reader reddens the task's own suite.",
+          "suite": "scripts/gate-integrity.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/field-binder-record.test.mjs",
+      "artefact": "scripts/field-binder-record.test.mjs (test \"AC3: the identity this record carries is the one extension/field-state.js produces\"; edge [\"E3\",\"E6\"] of the intent's own coverage: E3 boundary criterion SC3: A field identity that `extension/field-state.js` does not produce is `cannot-tell`, never a second identity derived here.; E6 boundary criterion SC3: The record is the only source of a hosted control; a second reader reddens the task's own suite.; the suite carries 17 test declaration(s) in 4 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "4 citation(s) over 3 suite(s) hold SC3 through the edge row(s) [\"E3\",\"E6\"] the intent assigns it: every one is a test this checkout declares at this head, read from the file that declares it, and the last is the suite this milestone's own plan resolves the criterion to, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m067-verdict-claims.test.mjs",
+        "node --test scripts/field-binder-record.test.mjs",
+        "node --test scripts/field-binder.test.mjs",
+        "node --test scripts/gate-integrity.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "The panel renders exactly the object the join returns: one new surface, its loader key, its route-table pin and every enumerating suite moved in the same task, and the answer names no remedy, no cause and no control it was not given.",
+      "criterionCharacters": 233,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC4 is \"The panel renders exactly the object the join returns: one new surface, its loader key, its route-table pin and every enumerating suite moved in the same task, and the answer names no remedy, no cause and no control it was not given.\" - a fact about this repository's own field record, the join that reads it and the tests that hold them, which no route of any page produces: it is proved by the suite and test this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a test reddens, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E5\",\"E8\"] the intent itself assigns the criterion, held by the plan at [\"apps/angular-ai-devtools/src/app/app.spec.ts\"], and the 5 citation(s) below name the tests that carry them.",
+      "suite": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+      "test": "is the join’s own answer over T004’s record, reached by the route and loader key the table carries",
+      "citations": [
+        {
+          "suite": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+          "test": "is the join’s own answer over T004’s record, reached by the route and loader key the table carries",
+          "holds": "the pane renders exactly the object the join returns over the committed record, reached through its own route and its own loader key rather than a copy of the answer"
+        },
+        {
+          "suite": "scripts/panel-routes.test.mjs",
+          "test": "E4: every declared route surface has a panel-demo LOADERS key",
+          "holds": "every declared route surface has a loader key, so the surface this milestone adds is reached by its own name and a dropped key reddens naming it"
+        },
+        {
+          "suite": "scripts/panel-routes.test.mjs",
+          "test": "E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name",
+          "holds": "the route table is one list mapped over one literal and the surface keeps its own path, which is the pin this milestone moved in the same task"
+        },
+        {
+          "suite": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+          "test": "enumerates the five keys it renders and the join’s four states, and reddens naming the surface and the remedy a pane invents",
+          "holds": "the pane enumerates the join’s own keys and states and renders no sixth line, so no remedy, no cause and no control it was not given can appear"
+        },
+        {
+          "suite": "apps/angular-ai-devtools/src/app/app.spec.ts",
+          "test": "appends the panel surfaces last and installs each through the demo component",
+          "holds": "the suite the plan’s own `## Intent coverage` row assigns SC4 to, cited as the plan resolves it: it holds the route table’s own enumeration of the surface at this head"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E5",
+          "category": "boundary",
+          "disposition": "criterion SC4",
+          "detail": "The route table, the loader map, the ordered path pins and the surface record move together; a mutant that omits one reddens naming it.",
+          "suite": "apps/angular-ai-devtools/src/app/app.spec.ts"
+        },
+        {
+          "edge": "E8",
+          "category": "precision",
+          "disposition": "criterion SC4",
+          "detail": "No answer names a remedy, a schematic, a cause or a control the record did not carry; a mutant that adds a remedy reddens it.",
+          "suite": "apps/angular-ai-devtools/src/app/app.spec.ts"
+        }
+      ],
+      "artefactPath": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+      "artefact": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts (test \"is the join’s own answer over T004’s record, reached by the route and loader key the table carries\"; edge [\"E5\",\"E8\"] of the intent's own coverage: E5 boundary criterion SC4: The route table, the loader map, the ordered path pins and the surface record move together; a mutant that omits one reddens naming it.; E8 precision criterion SC4: No answer names a remedy, a schematic, a cause or a control the record did not carry; a mutant that adds a remedy reddens it.; the suite carries 48 test declaration(s) in 13 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "5 citation(s) over 3 suite(s) hold SC4 through the edge row(s) [\"E5\",\"E8\"] the intent assigns it: every one is a test this checkout declares at this head, read from the file that declares it, and the last is the suite this milestone's own plan resolves the criterion to, so the criterion is proved by a test this repository runs rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m067-verdict-claims.test.mjs",
+        "npx nx run angular-ai-devtools:test",
+        "node --test scripts/panel-routes.test.mjs",
+        "npx nx run angular-ai-devtools:test",
+        "npm run check"
+      ]
+    }
+  ]
+}
