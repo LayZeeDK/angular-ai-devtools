@@ -5,7 +5,7 @@
   "title": "Measure what the console record and the digest state",
   "question": "what does the digest state for NG0205, what does a console message carry once the shipped joins have read it, can the portal or spikes/ng222-app be driven to emit it, and which counts state the handle record this agent does not hold?",
   "verdict": "the digest is 61577 bytes and carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 47 extension modules, 159 suites and 163 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.",
-  "head": "ee2acf6d22de4f34e67d1b6a2f9c169798ed715f",
+  "head": "bd839b59c392b54fb794ae2971448eec1f487f53",
   "headCommand": "git rev-parse HEAD",
   "capturedAt": "2026-11-22T00:27:11.118Z",
   "instrument": {
@@ -88,7 +88,7 @@
   "commands": [
     {
       "command": "git rev-parse HEAD",
-      "output": "ee2acf6d22de4f34e67d1b6a2f9c169798ed715f"
+      "output": "bd839b59c392b54fb794ae2971448eec1f487f53"
     },
     {
       "command": "node -e \"const c=require('node:crypto'),f=require('node:fs');const b=f.readFileSync('extension/error-digest.json');const d=JSON.parse(b);const e=d.entries.find(x=>x.code==='NG0205');console.log(e.code, e.title);console.log(d.entries.length, c.createHash('sha256').update(b).digest('hex'), b.length)\"",
@@ -1014,7 +1014,7 @@
     "windowsCommand": "set \"M059_CAPTURE=1\"&& node --test scripts/teardown-leak-shapes.test.mjs",
     "check": "node --test scripts/teardown-leak-shapes.test.mjs",
     "records": "research/raw/m059-record-shapes.json",
-    "head": "ee2acf6d22de4f34e67d1b6a2f9c169798ed715f",
+    "head": "bd839b59c392b54fb794ae2971448eec1f487f53",
     "criteria": [
       "SC1",
       "SC6"
