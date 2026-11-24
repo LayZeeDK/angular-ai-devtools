@@ -1,0 +1,82 @@
+head: 658c3e7dd5c24986fbebc861cc92f67e55192b50 at 2026-11-23T23:10:18.136Z
+✔ readTargetWidth returns 0 and does not throw when the element has no box yet (47.4687ms)
+✔ readTargetWidth returns the element value 640, not a constant (7.7195ms)
+✔ the afterNextRender callback reads offsetWidth from the element without throwing (6.1068ms)
+✔ PRECONDITION: the after-render route is registered with AfterRenderPage (2.3961ms)
+✔ PRECONDITION: the route table declares all nineteen routes in order (0.4768ms)
+✔ PRECONDITION: the fixture adds no profiler instrumentation (0.2193ms)
+✔ the route, the loader key and the sample fact are the tree’s, and the fact is the join’s own answer (6.0325ms)
+✔ the four states and the seven fields are the words the shipped join answers with (1.2253ms)
+✔ every line is a label the pane enumerates and a value the answer carries, and a field it lacks renders no line (1.8239ms)
+✔ a truncated hash renders truncated, two failures render two rows in router order, and no response is never a 404 (1.6003ms)
+✔ the pane declares no sentence and reads no page (1.3226ms)
+✔ mutants redden by name: a remedy sentence, two rows collapsed, a hash completed, a loader key dropped (111.4749ms)
+✔ E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name (9.6987ms)
+✔ E2: the surface functions are still exported for their suites (15.8848ms)
+✔ E3: the demo module renders the surface text it is handed (1.4407ms)
+✔ E4: every declared route surface has a panel-demo LOADERS key (31.683ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 648.7549
+
+[2m> [22m[2mnx run[22m angular-ai-devtools:test
+
+[33m❯[39m Building...
+[32m✔[39m Building...
+[37mApplication bundle generation complete. [2.647 seconds] - 2026-11-23T23:10:11.155Z
+[39m
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mD:/projects/sandbox/angular-ai-devtools[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/role-name.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/hostile-tools.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/extension-message.service.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/n3-di-doctor.component.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/error-digest.tool.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/job-handles.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/read-tools.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/n1-update-cause.component.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/tool-registry.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/worker-read.service.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 140[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/panel-environment.tool.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-registry/app-facts.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/summarize-job.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/app.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/message-ring-buffer.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/extension-prompt.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/signal-provenance.service.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/tool-groups.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/panel-context.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/chunked-fact-list-job.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 236[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/context-budget.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/feature-fingerprint.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/signal-provenance.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/companion.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/anti-pattern-detector.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/update-cause-chain.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/di-path-display.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/panel-outlet.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/jobs/clone-measurement.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/page-picker.component.spec.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 263[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 277[2mms[22m[39m
+ [32m✓[39m [30m[46m angular-ai-devtools [49m[39m apps/angular-ai-devtools/src/app/panel-demo.spec.ts [2m([22m[2m39 tests[22m[2m)[22m[33m 1925[2mms[22m[39m
+[2m Test Files [22m [1m[32m33 passed[39m[22m[90m (33)[39m
+[2m      Tests [22m [1m[32m400 passed[39m[22m[90m (400)[39m
+[2m   Start at [22m 00:10:12
+[2m   Duration [22m 4.61s[2m (transform 6.58s, setup 4.09s, import 7.17s, tests 3.32s, environment 26.19s)[22m
+
+[2m[32m[39m[22m
+
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project angular-ai-devtools[39m
+
+
+  Run duration:      10.0s
+  Cache:             0/1 hit (0%)
+  Critical path:     9.9s (1 task)
+  Recoverable time:  <1ms
+npm notice run npx
+npm notice run nx run angular-ai-devtools:test

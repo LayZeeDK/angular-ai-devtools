@@ -1351,8 +1351,9 @@ test('T002 — a record present and not named outside the map still reddens the 
     [
       `${RECORD_DIR}/m062-verdict-claims.json`,
       `${RECORD_DIR}/m063-verdict-claims.json`,
+      `${RECORD_DIR}/m064-verdict-claims.json`,
     ],
-    `exactly the claim lists M062 T004 and M063 T004 write are held by their own censuses at this head, and no other record is excused this way: ${JSON.stringify(selfHeld.map((entry) => entry.path))}`,
+    `exactly the claim lists M062 T004, M063 T004 and M064 T004 write are held by their own censuses at this head, and no other record is excused this way: ${JSON.stringify(selfHeld.map((entry) => entry.path))}`,
   );
   assert.ok(
     selfHeld.every(

@@ -1084,12 +1084,26 @@ describe('measurement', () => {
       const assigned = edges
         .filter((edge) => edge.criterion === criterion)
         .map((edge) => heldOut.get(edge.edge)?.test ?? '');
-      const cited = proofOf(criterion).map((proof) => proof.suite);
-      for (const suite of assigned) {
-        assert.ok(
-          cited.includes(suite),
-          `${criterion} is held by the plan at ${suite} and this census cites ${JSON.stringify(cited)}: the suite the plan assigns the criterion must be cited`,
-        );
+      if (CLAIMS_OWNED_ELSEWHERE) {
+        // The pen is another census's, so the citations this direction is held to are the bound
+        // record's own: every suite the plan resolves one of the criterion's edges to must be among
+        // the citations the record states for it. `PROOFS` above is M063's table and is applied only
+        // to M063's record.
+        const cited = citationsOf(criterion);
+        for (const suite of assigned) {
+          assert.ok(
+            cited.includes(suite),
+            `${criterion} is held by the plan at ${suite} and ${CLAIMS_REL} cites ${JSON.stringify(cited)}: the suite the plan assigns the criterion must be cited`,
+          );
+        }
+      } else {
+        const cited = proofOf(criterion).map((proof) => proof.suite);
+        for (const suite of assigned) {
+          assert.ok(
+            cited.includes(suite),
+            `${criterion} is held by the plan at ${suite} and this census cites ${JSON.stringify(cited)}: the suite the plan assigns the criterion must be cited`,
+          );
+        }
       }
     }
 
@@ -1101,14 +1115,20 @@ describe('measurement', () => {
       agreements > 0,
       'the plan must agree with the intent about at least one edge, or the reading of the two tables is broken',
     );
-    assert.ok(
-      disagreements.length > 0,
-      `the plan's ## Held-out checks holds E7 out at T003 while its ## Intent coverage table assigns T003 to ${JSON.stringify(
-        coverage
-          .filter((row) => row.criterion === 'SC1')
-          .map((row) => row.task),
-      )} and not to SC1, so this head carries at least one disagreement and the record must state it`,
-    );
+    if (!CLAIMS_OWNED_ELSEWHERE) {
+      // The requirement is this file's own head's: M063's plan held E7 out at T003 while its coverage
+      // table assigned T003 no SC1. The bound record is another census's, so whether *its* head carries
+      // a disagreement is stated by the record and pinned by the test below; this file asserts the
+      // requirement only over the record it derives itself.
+      assert.ok(
+        disagreements.length > 0,
+        `the plan's ## Held-out checks holds E7 out at T003 while its ## Intent coverage table assigns T003 to ${JSON.stringify(
+          coverage
+            .filter((row) => row.criterion === 'SC1')
+            .map((row) => row.task),
+        )} and not to SC1, so this head carries at least one disagreement and the record must state it`,
+      );
+    }
     console.log(
       `${MILESTONE}: ${String(Object.keys(criteria).length)} criteria, ${String(edges.length)} edge row(s), ${String(heldOut.size)} held-out row(s), ${String(agreements)} agreeing, ${String(disagreements.length)} disagreement(s) ${JSON.stringify(disagreements.map((one) => `${one.edge}: held by ${one.heldBy}, coverage assigns ${one.assignedByCoverage.join('/') || 'no task'}`))}`,
     );
@@ -1139,6 +1159,42 @@ describe('the claim list', () => {
       CLAIMS_PATH,
       'the list is part of this repository',
     );
+    if (CLAIMS_OWNED_ELSEWHERE) {
+      // The pen is the owner's, so the comparison this file can make without it is the ownership
+      // chain: the record names the suite that captured it, that suite carries this record's own path
+      // and reads the armed flag the record states, and the record states the milestone its file is
+      // numbered for. The list's equality with its derivation is asserted by that suite, which the
+      // project runs, rather than guessed at here — this file's derivation is M063's table and would
+      // compare M064's record to M063's proofs.
+      const command = String(recorded.capture?.command ?? '');
+      const flag = /M\d{3}_CAPTURE/.exec(command)?.[0];
+      assert.ok(
+        command.includes(CLAIMS_OWNER),
+        `${CLAIMS_REL} names the command that captured it, and that command must name the suite that owns it (${CLAIMS_OWNER}): ${JSON.stringify(command)}`,
+      );
+      assert.ok(
+        flag !== undefined,
+        `${CLAIMS_REL}'s capture command must arm an M0NN_CAPTURE flag of its own, and it names none: ${JSON.stringify(command)}`,
+      );
+      const ownerPath = join(ROOT, CLAIMS_OWNER);
+      assert.ok(
+        existsSync(ownerPath),
+        `${CLAIMS_REL} names ${CLAIMS_OWNER} as its census, and this checkout does not carry that suite`,
+      );
+      const ownerSource = readFileSync(ownerPath, 'utf8');
+      assert.ok(
+        ownerSource.includes(CLAIMS_REL),
+        `${CLAIMS_OWNER} owns ${CLAIMS_REL} and must name that path rather than derive it, and a census that derives its record's path names the kind of file and not the file; it does not`,
+      );
+      assert.ok(
+        ownerSource.includes(flag),
+        `${CLAIMS_OWNER} owns ${CLAIMS_REL} and must read the flag the record states (${flag}); it does not`,
+      );
+      console.log(
+        `${CLAIMS_REL} is owned by ${CLAIMS_OWNER} (${flag}), so this file holds it to the ownership chain and not to a second derivation`,
+      );
+      return;
+    }
     const derived = derivedList();
     assert.deepEqual(
       recorded,
@@ -1169,18 +1225,50 @@ describe('the claim list', () => {
       assertQuotedCriteria(recording, intentCriteria(intentSource)),
     );
     assert.doesNotThrow(() => assertProofsResolve(recording));
-    assert.doesNotThrow(() =>
-      assertCitationsFollowThePlan(
-        recording,
-        intentEdges(intentSource),
-        planHeldOut(planSource),
-      ),
-    );
-    assert.equal(
-      recording.capture?.command,
-      CAPTURE_COMMAND,
-      'the list names the command that captured it, armed by its own flag',
-    );
+    const edges = intentEdges(intentSource);
+    const heldOut = planHeldOut(planSource);
+    if (CLAIMS_OWNED_ELSEWHERE) {
+      // The direction this file can hold without a proof table of its own: every suite the plan
+      // resolves one of the criterion's edges to is cited. The reverse direction — that no citation
+      // is a suite the plan never assigned — is read through `PROOFS`, which is M063's table, so the
+      // census the record names asserts it there with its own table.
+      for (const row of recording.claims) {
+        const assigned = [
+          ...new Set(
+            edges
+              .filter((edge) => edge.criterion === row.criterion)
+              .map((edge) => heldOut.get(edge.edge)?.test ?? ''),
+          ),
+        ].filter((suite) => suite !== '');
+        const cited = row.citations.map(
+          (/** @type {any} */ citation) => citation.suite,
+        );
+        for (const suite of assigned) {
+          assert.ok(
+            cited.includes(suite),
+            `${row.criterion} is held by the plan at ${suite}, and ${CLAIMS_REL} cites ${JSON.stringify(cited)}: the suite the milestone assigned the criterion must be cited`,
+          );
+        }
+      }
+    } else {
+      assert.doesNotThrow(() =>
+        assertCitationsFollowThePlan(recording, edges, heldOut),
+      );
+    }
+    if (CLAIMS_OWNED_ELSEWHERE) {
+      // The command that captured it is the owner's, so the command this file can hold is the one the
+      // record states to read it with: it must name the suite the record names as its census.
+      assert.ok(
+        String(recording.capture?.check ?? '').includes(CLAIMS_OWNER),
+        `${CLAIMS_REL} states the command that reads it, and that command must name the suite that owns it (${CLAIMS_OWNER}): ${JSON.stringify(recording.capture?.check)}`,
+      );
+    } else {
+      assert.equal(
+        recording.capture?.command,
+        CAPTURE_COMMAND,
+        'the list names the command that captured it, armed by its own flag',
+      );
+    }
     assert.equal(
       recording.capture?.records,
       CLAIMS_REL,
@@ -1218,9 +1306,10 @@ describe('the claim list', () => {
     );
     const planted = structuredClone(recording);
     const live = planted.claims[0];
-    live.criterionText = live.criterionText
-      .replace('naming the guard, the phase', 'naming the guard and the phase')
-      .replace('reddens it', 'reddens the pin');
+    // The word the row states is added to, not a phrase M063's criterion happens to carry: the mutant
+    // has to move whichever milestone's record is bound, or it would be a no-op for every record but
+    // the one this file was written for.
+    live.criterionText = `${live.criterionText} (reworded here)`;
     live.criterionCharacters = live.criterionText.length;
     assert.notEqual(
       live.criterionText,
@@ -1261,6 +1350,45 @@ describe('the claim list', () => {
       'the intent belongs to the milestone the list is numbered for',
     );
     const planSource = claimText(planPath, `the plan ${MILESTONE} binds`);
+    if (CLAIMS_OWNED_ELSEWHERE) {
+      // The derivation half of this property is the owning census's: it derives the bound milestone's
+      // list by editing the intent in memory and names the field `claims[0].criterionText` from
+      // `firstDifference`. This file's derivation is M063's, so what it proves here is the same
+      // property from the record's side: a criterion edited after the capture no longer matches the
+      // quote the record states, and the refusal names the criterion and the field it moved.
+      const criteria = intentCriteria(intentSource);
+      const edited = {
+        ...criteria,
+        SC1: `${criteria.SC1} (edited after the capture)`,
+      };
+      assert.notEqual(
+        edited.SC1,
+        criteria.SC1,
+        'the edited criterion must be a different text, so the record it stales is a different record',
+      );
+      const failure = reddens(
+        () => assertQuotedCriteria(recording, edited),
+        'a criterion edited after the capture',
+      );
+      assert.match(
+        failure.message,
+        /SC1 must quote the intent character for character/,
+        `an edited criterion must redden by claim id; it produced ${JSON.stringify(failure.message.slice(0, 240))}`,
+      );
+      assert.match(
+        failure.message,
+        /claims\[0\]\.criterionText/,
+        `the refusal must name the field that moved; it produced ${JSON.stringify(failure.message.slice(0, 240))}`,
+      );
+      assert.doesNotThrow(
+        () => assertQuotedCriteria(recording, criteria),
+        'the committed record quotes the intent as it stands, so the red above is the mutation',
+      );
+      console.log(
+        `stale-criterion mutant (record side; the derivation is ${CLAIMS_OWNER}'s): ${failure.message.split('\n')[0]}`,
+      );
+      return;
+    }
     const edited = intentSource.replace(
       'produces a finding naming the guard, the phase it ran in',
       'produces a finding naming the guard and the phase',
@@ -1373,12 +1501,15 @@ describe('the claim list', () => {
       ),
       'the record states the disagreement count in the sentence that reads the tables',
     );
-    // Both directions: the disagreement this head measures is E7 held by T003 under SC1, and a record
-    // that dropped it or invented another is refused above rather than tolerated.
+    // Both directions: the disagreement this head derives is the one the record states, and a record
+    // that dropped one or invented another is refused above rather than tolerated. The head this file
+    // was written for carried one (E7 held out at T003 under SC1); this head's plan gives every
+    // held-out row's task the criterion its coverage table assigns that edge, so the derivation is the
+    // empty list and the moved-row mutant below proves the reading is not vacuous.
     assert.deepEqual(
       derived.map((one) => `${one.edge} ${one.criterion} ${one.heldBy}`),
-      ['E7 SC1 T003'],
-      `this head's plan holds exactly E7 out at T003 under SC1; it derives ${JSON.stringify(derived)}`,
+      [],
+      `this head's plan holds out no edge under a task its coverage table gives another criterion; it derives ${JSON.stringify(derived)}`,
     );
 
     // The reading is non-vacuous: moving one held-out row's task to a task the coverage table does
@@ -1407,3 +1538,72 @@ describe('the claim list', () => {
     );
   });
 });
+
+// ------------------------------------------------------- whose census this is ----
+//
+// One milestone later this file is the predecessor rather than the census. M064's plan resolves its
+// criteria's edges to suites of its own (`scripts/chunk-failure.test.mjs`,
+// `scripts/import-failure.test.mjs` and `scripts/panel-routes.test.mjs`) and its record names a census
+// of its own (`scripts/chunk-failure-claims.test.mjs`). When the bound milestone's record says so in
+// its own `capture.command`, this file stands down the way `scripts/outlet-verdict-claims.test.mjs`
+// already stands down for M063's record: it holds that record to the ownership chain and to every rule
+// that needs no proof table of its own — the quotes against the intent, each citation resolving, the
+// plan's own disagreements, the missing-test and reworded-quote mutants — and leaves the derivation and
+// the reverse direction of the citation rule to the suite the record names. `PROOFS` above is M063's
+// table and is applied only to M063's record.
+//
+// This block sits after the last line the M044 recording's archive-reference census pins in this file,
+// for the same reason `scripts/outlet-verdict-claims.test.mjs` appends its own block at the end: a row
+// added above a pinned line would stale the recorded line number by moving it. A `const` declared here
+// is initialized when this module finishes evaluating and before any test callback runs, so the tests
+// above read it exactly as they would read one declared at the top.
+
+/**
+ * The suite that owns the bound milestone's claim list, read from the record's own `capture.command`.
+ *
+ * This file is M063's census: its `PROOFS` table and its `CLAIMS_NAMED` literal are M063's, and it can
+ * derive the list only for the milestone it names. A later milestone whose record names a different
+ * census in its own `capture.command` (`research/raw/m064-verdict-claims.json` names
+ * `scripts/chunk-failure-claims.test.mjs`) is therefore owned elsewhere — the same rule
+ * `scripts/outlet-verdict-claims.test.mjs` already applies to a record another census writes. A record
+ * that names this file is derived and pinned here exactly as before.
+ *
+ * @param {any} recording the claim list, or null when it has never been captured
+ * @returns {string} the repository path of the suite that captures it
+ */
+function owningCensus(recording) {
+  const command = String(recording?.capture?.command ?? '');
+  const named = /scripts\/[a-z0-9-]+\.test\.mjs/.exec(command)?.[0];
+  return named ?? SUITE_REL;
+}
+
+/**
+ * The suites the bound record cites for one criterion, de-duplicated and in record order: the citations
+ * a criterion's rows carry, which is the reading this file can hold another census's record to.
+ *
+ * @param {string} criterion `SC1` to `SC4`
+ * @returns {string[]}
+ */
+function citationsOf(criterion) {
+  const recording = claimJson(
+    CLAIMS_PATH,
+    'the list is part of this repository',
+  );
+  const rows = (recording.claims ?? []).filter(
+    (/** @type {any} */ row) => row.criterion === criterion,
+  );
+  return [
+    ...new Set(
+      rows.flatMap((/** @type {any} */ row) =>
+        (row.citations ?? []).map(
+          (/** @type {any} */ citation) => citation.suite,
+        ),
+      ),
+    ),
+  ];
+}
+
+const CLAIMS_OWNER = existsSync(CLAIMS_PATH)
+  ? owningCensus(claimJson(CLAIMS_PATH, 'the list is part of this repository'))
+  : SUITE_REL;
+const CLAIMS_OWNED_ELSEWHERE = CLAIMS_OWNER !== SUITE_REL;

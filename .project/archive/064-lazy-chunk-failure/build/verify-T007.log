@@ -1,0 +1,28 @@
+head: f2ac1903ad1a4ab9537f919058e273b7b12ba1da at 2026-11-23T17:52:30.795Z
+✔ the recording parses, names itself and declares the questions this task settles (2.0969ms)
+✔ every citation in the recording still names the line it quotes (19.3362ms)
+✔ every claim is cited, names its kind, and does not report an unwitnessed record as observed (0.6008ms)
+✔ the relay ruling is stated, with the citations that support it (0.3287ms)
+✔ the property list is the one the measured expression carried, each with its own declarations (0.3789ms)
+✔ the reading is instrumented, and every hook carries a value for every declared property (1.8825ms)
+✔ the two artefacts measured read differently, and the recording says which is which (0.2725ms)
+✔ the recording states its own absences, and names the artefact the portal lacks (0.6336ms)
+✔ mutant D1 a citation quotes a line it no longer sits on: the pin names what it broke (16.6723ms)
+✔ mutant D2 a citation slides one line off its text: the pin names what it broke (13.6932ms)
+✔ mutant D3 a citation names a file this tree does not hold: the pin names what it broke (17.0852ms)
+✔ mutant D4 the declared property list drops one the expression measured: the pin names what it broke (1.7266ms)
+✔ mutant D5 a record this task did not witness is reported as observed here: the pin names what it broke (2.6237ms)
+✔ the recording answers the three exposure questions and names the canary (19.3997ms)
+✔ every cited path and line is the one the record read (14.5863ms)
+✔ the tool list is readable by the recorded surface, and never read by anything here (0.1872ms)
+✔ the canary asks only for a typeof, and still does (3.9293ms)
+✔ the page-world agent the extension ships reads no model context (0.4245ms)
+✔ a doctored citation reddens naming the claim it breaks (34.6325ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 441.82

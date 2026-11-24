@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: guard-phase
+milestone: lazy-chunk-failure
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M063
-archive: .project/archive/063-guard-phase
+branch: gsd-path/M064
+archive: .project/archive/064-lazy-chunk-failure
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1292,3 +1292,23 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-23 — build — build complete
 - 2026-11-23 — ship — build done; final review pending
 - 2026-11-23 — shipped — archive preflight passed; shipment recorded
+- 2026-11-23 — inspect — router bound next milestone
+- 2026-11-23 — inspect — inspection complete
+- 2026-11-23 — define — milestone define started
+- 2026-11-23 — define — milestone intent approved
+- 2026-11-23 — research — research started
+- 2026-11-23 — research — research complete
+- 2026-11-23 — decide — decisions started
+- 2026-11-23 — decide — decisions recorded
+- 2026-11-23 — plan — planning started
+- 2026-11-23 — plan — plan approved
+- 2026-11-23 — build — build started
+- 2026-11-23 — build — build complete
+- 2026-11-23 — ship — build done; final review pending
+- 2026-11-23 — ship — review findings require a plan patch
+- 2026-11-23 — plan — patch plan reopened
+- 2026-11-24 — plan — plan approved
+- 2026-11-24 — build — build started
+- 2026-11-24 — build — build complete
+- 2026-11-24 — ship — build done; final review pending
+- 2026-11-24 — shipped — archive preflight passed; shipment recorded

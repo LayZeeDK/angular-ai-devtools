@@ -298,3 +298,27 @@ A rule with nothing in the second column is a rule that will be broken again.
 | An archive is prepared, then rendered, then committed                 | `render_manifest` refuses an archive already in HEAD (`archive_milestone.py:1696`), so committing before rendering cannot happen twice                                                                       |
 | An identifier is read, never assembled                                | `--expected-head` must resolve; a padded SHA fails before it is recorded                                                                                                                                     |
 | A wave review is written during build, not when a validator complains | `lars-gsd build-guard --repo <root>` refuses build/done: every `## Wave <N>` in PLAN.md needs a `.project/review/wave-N.cycleC.md`, so M052's empty `review/` is named before `archive_milestone.py prepare` |
+
+## Correction, 2026-11-23 — artifact grammars are emitted, not guessed
+
+Every artifact is parsed by a helper that refuses on its **first** defect, so an author who guesses a shape pays one
+round trip per rule. M064 paid eleven in a single milestone: tables where the parser wanted bare `- SC1` bullets,
+unnumbered acceptance criteria, a surface contract missing `Entry:`/`States:`/`Walkthrough:`, synthesis decisions written
+as a bullet list, wave reviews with prose evidence where a `- ✅` mark was required, and a `FINAL.md` with no
+`Overall verdict:`.
+
+The grammars are in `~/.commandcode/references/gsd-path-artifact-grammars.md`, with the verb that emits each artifact. Two
+verbs close the loop:
+
+- `lars-gsd plan-scaffold`, `synthesis-scaffold --apply` and `review-emit` produce a shape the gates accept, so the honest
+  path is emit-then-fill rather than compose-from-memory.
+- `lars-gsd artifacts-check --repo <root>` runs `intent-lint`, `plan-lint` and `review-check` and prints **every** outcome
+  in one call. One invocation replaces four, and it reports a refusing gate alongside a passing one instead of stopping.
+
+| Rule                                                                | Enforced by                                                                                                                                                                                                                        |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A task file and a synthesis are emitted by a verb, not hand-written | `plan-scaffold` and `synthesis-scaffold` emit skeletons the gates accept; `plan-lint` and `check_handoffs decide` refuse the shapes that look reasonable but are not                                                               |
+| A criterion's evidence is a mark, not a paragraph                   | `review-check` refuses a section whose only evidence is prose; a `- ✅`/`- ❌` bullet is required                                                                                                                                  |
+| Every gate's verdict is visible in one pass                         | `lars-gsd artifacts-check` exits 1 naming each refusing gate (`lib/artifacts-check.ts`, 7 unit tests)                                                                                                                              |
+| A recording task stays within four authored artefacts               | `plan-lint` `verify-weight`: recordings under `research/raw/` count, a declared suite does not, the task's own Log counts as one                                                                                                   |
+| A declared path is created by the task or already exists            | `land` refuses a `files:` entry that neither exists at the task base nor appears in the landing; `plan-lint` cannot make that call, because a declaration may legitimately name a file that does not exist yet (`lib/task-ops.ts`) |
