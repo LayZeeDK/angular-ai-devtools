@@ -2,10 +2,10 @@
 id: T002
 title: Join the title record into four states, purely
 wave: 2
-status: pending
+status: done
 deps: [T001]
-agent: null
-base: null
+agent: build_T002
+base: 218c2ad89af15490a9ecbdcfd026476b79fd76d6
 worktree: null
 task_branch: null
 files:
@@ -68,3 +68,20 @@ node --test scripts/title-input.test.mjs && npx prettier --check extension/title
 ## Log
 
 - scaffolded
+
+- The join's precedence is `no-strategy → route-binds-nothing → no-implied-title → observation-started-after-the-write`,
+  and that order is exported as `REASONS` rather than left implicit: on the portal every `route.titleDeclared` is `null`,
+  so deciding `no-implied-title` first would contradict the measured answer that every navigation is `route-binds-nothing`.
+- `facts` carries exactly one field, `impliedTitle` — the title a `Resolve<string>` route implies, which the recording
+  cannot carry because T001 measured `titleDeclared: null` on every route. The document title is never taken from the
+  caller; `author`, `basis`, `at` and `observation` are refused, so a second clock is never consulted and no writer is
+  invented.
+- A record whose navigations carry no title value at all (empty `titles`, or only blank values) has no token in the
+  intent's closed reason set. This task answers `no-record` — nothing about the title was captured — and says so. If a
+  fifth reason (`no-title-observed`) is wanted, that is a decision above this task rather than an inference taken here.
+- **Defect found outside this task's files, not fixed here:** `scripts/chunk-failure-claims.test.mjs` fails 2 of its 14
+  tests at this head. It reads `.project/intent/INTENT.md` and `.project/plan/PLAN.md` as live paths, and M064 archived
+  those while M065 wrote new ones, so the suite judges M064's claims against M065's documents. It is declared in T003's
+  `files:` (the pinned-file closure) and must be re-pointed at `.project/archive/064-*/` before the project verify can be
+  green in T004; it is recorded here rather than repaired inside a task that does not own it.
+- Landed paths: `extension/title-input.js`, `scripts/title-input.test.mjs` — each is read from this tree, ready.
