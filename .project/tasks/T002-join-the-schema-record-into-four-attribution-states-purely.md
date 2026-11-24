@@ -2,11 +2,11 @@
 id: T002
 title: Join the schema record into four attribution states, purely
 wave: 2
-status: pending
+status: done
 deps: 
 - T001
-agent: null
-base: null
+agent: build_T002
+base: 9345945c39827d0342abd3801690513222a86e40
 worktree: null
 task_branch: null
 files:
@@ -66,3 +66,20 @@ node --check extension/schema-attribution.js && node --test scripts/schema-attri
 ## Log
 
 - pending
+
+- `scripts/schema-attribution.test.mjs` reports 27 tests, 27 pass, 0 fail. The join reads the committed
+  `research/raw/m066-schema-record.json` and answers `no-node` for all four fields, because the record states
+  `schema.absent: true` and carries `inputs: []`; `no-node` is the measured absence, not a failure of the field.
+- Seven mutant blocks, each pinning the untouched module first and asserting its exact first message line. `DECLARED`
+  reddens with `DECLARED: a record carrying the node and the input it read must state declared, never no-node`;
+  `CANNOT-TELL` with `CANNOT-TELL: a record that names a node and records no input for it must state cannot-tell, never
+  declared`; `NO-NODE` with `NO-NODE: the committed record states the schema is absent, so a field it carries no node for
+  must state no-node, never cannot-tell`; `NO-RECORD` with `NO-RECORD PARSE: a record that does not parse must state
+  no-record, never a state read off a string`; `SINGLE LIST` with `SINGLE LIST: a field outside the declared list must
+  state cannot-tell, never no-node`; `INVENTED STATE` with `INVENTED STATE: observed must be the record row copied
+  unchanged, never what the facts carry`; `INPUT PRESENCE` with `INPUT PRESENCE: a node whose input was recorded as false
+  read something, so it must state declared, never cannot-tell`.
+- The single list is proven directly: a write to `FIELD_NAMES[0]`, a `push` and a `length` write each throw, and the
+  refusal message names the four field names. `npx prettier --check` on both files is clean, and the suites that
+  enumerate `extension/` sources pass at 58 of 58.
+- Landed paths: `extension/schema-attribution.js`, `scripts/schema-attribution.test.mjs`, `research/raw/m066-schema-record.json` — each is read from this tree, ready.
