@@ -11,7 +11,6 @@ task_branch: null
 files:
 - research/raw/m044-gate-shapes.json
 - research/raw/m059-record-shapes.json
-- research/raw/m056-gate-stability.json
 - scripts/gate-integrity.test.mjs
 - scripts/gate-stability-record.test.mjs
 - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
@@ -27,6 +26,7 @@ files:
 - scripts/chunk-failure-claims.test.mjs
 - scripts/guard-record-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
+- research/raw/m056-gate-stability.json
 - extension/title-input.js
 - extension/panel/index.html
 ---
@@ -57,7 +57,6 @@ Every path this task may touch, and nothing else:
 
 - research/raw/m044-gate-shapes.json
 - research/raw/m059-record-shapes.json
-- research/raw/m056-gate-stability.json
 - scripts/gate-integrity.test.mjs
 - scripts/gate-stability-record.test.mjs
 - apps/angular-ai-devtools/src/app/panel-demo.spec.ts
@@ -73,6 +72,7 @@ Every path this task may touch, and nothing else:
 - scripts/chunk-failure-claims.test.mjs
 - scripts/guard-record-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
+- research/raw/m056-gate-stability.json
 - extension/title-input.js
 - extension/panel/index.html
 
@@ -97,6 +97,3 @@ M044_CAPTURE=1 node --test scripts/gate-integrity.test.mjs && M059_CAPTURE=1 nod
 
 - scaffolded
 - Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m059-record-shapes.json`, `scripts/gate-integrity.test.mjs`, `scripts/gate-stability-record.test.mjs`, `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/teardown-leak.test.mjs`, `research/raw/m065-verdict-claims.json`, `scripts/guard-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `research/raw/m056-gate-stability.json` — each is read from this tree, ready.
-
-- **Ship-gate blocker, measured:** plan-lint refuses this task with [verify-weight] T004: 5 authored artefacts (4 recording(s) under research/raw, 0 suite(s), the task's own Log) exceed the ceiling of 4. The fourth recording is 
-esearch/raw/m056-gate-stability.json, which this task's capture rewrote and therefore declared. The contract cannot both match its landing commit and satisfy the ceiling: the repair is a plan patch that moves one recording's ownership to another task and re-lands this one, which is the shape M064's T008 took. Recorded here rather than resolved by trimming a path after the landing.
