@@ -2,10 +2,10 @@
 id: T004
 title: Measure what a form field hosts on the portal
 wave: 4
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T004
+base: 706965b7eff2c625244a851f479884ebbdf5d628
 worktree: null
 task_branch: null
 files:
@@ -63,3 +63,7 @@ node --test scripts/field-binder-record.test.mjs
 ## Log
 
 - pending
+- 2026-11-23: the record carries four portal fields. Identity was read for all four from the field-tree names M066 recorded and asserted against a live run of \xtension/field-state.js\; hosted was read for three (\policyNumber\ input, \insuranceStartOn\ p-datepicker, \customer\ p-select) and is a named absence for \status\, whose element M066 recorded as null; expected was read for none, because no artefact in this checkout names a control a field's record expects, and per INTENT C2 that is a named absence rather than a defect.
+- 2026-11-23: armed run writes only what moved and is idempotent; default run is read-only and pins sha256 0ef36615558e3255a948b5d7fd7661d27d4ca2cd160ee73a0385845c308cbe01. Verify 16 tests, 16 pass; armed 17/17.
+- 2026-11-23: known and owned by T007 — the new suite needs a \SUITE_DIFF_REASONS\ row and the census record needs re-deriving (\suitesExamined\ 193 to 194). Both paths are declared by T007, which runs the project verify.
+- Landed paths: `scripts/field-binder-record.test.mjs`, `research/raw/m067-field-binder.json` — each is read from this tree, ready.
