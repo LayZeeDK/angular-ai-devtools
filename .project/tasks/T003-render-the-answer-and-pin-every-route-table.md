@@ -2,11 +2,11 @@
 id: T003
 title: Render the answer and pin every route table
 wave: 3
-status: pending
+status: in-progress
 deps: [T002]
-agent: null
-base: null
-worktree: null
+agent: build_T003
+base: 35d54a609d4290235fc73125f7dc7ccb28254e7f
+worktree: D:\projects\sandbox\angular-ai-devtools
 task_branch: null
 files:
 - apps/angular-ai-devtools/src/app/panel-title-input.ts
@@ -39,6 +39,7 @@ files:
 - scripts/tutor-routing-shapes.test.mjs
 - scripts/tutor-routing.test.mjs
 - tests/held-out/fixture-explainers-unchanged.test.mjs
+- research/raw/m061-surface.json
 ---
 
 # T003 — Render the answer and pin every route table
@@ -68,36 +69,37 @@ no cause. Register the route, its loader key and every enumerating suite in the 
 
 Every path this task may touch, and nothing else:
 
-- `apps/angular-ai-devtools/src/app/panel-title-input.ts`
-- `apps/angular-ai-devtools/src/app/panel-demo.ts`
-- `apps/angular-ai-devtools/src/app/app.routes.ts`
-- `apps/angular-ai-devtools/src/app/app.spec.ts`
-- `apps/angular-ai-devtools/src/app/page-picker.component.spec.ts`
-- `scripts/panel-routes.test.mjs`
-- `scripts/after-render-fixture.test.mjs`
-- `research/raw/m030-router-config.json`
-- `apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts`
-- `apps/angular-ai-devtools/src/app/panel-demo.spec.ts`
-- `scripts/chunk-failure-claims.test.mjs`
-- `scripts/chunk-failure-copy.test.mjs`
-- `scripts/component-search.test.mjs`
-- `scripts/gate-integrity.test.mjs`
-- `scripts/guard-verdict-claims.test.mjs`
-- `scripts/outlet-verdict-claims.test.mjs`
-- `scripts/panel-copy.test.mjs`
-- `scripts/redirect-chain.test.mjs`
-- `apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts`
-- `apps/angular-ai-devtools/src/app/panel-outlet.spec.ts`
-- `scripts/gate-integrity-default-tasks.test.mjs`
-- `scripts/navigation-blocking.test.mjs`
-- `scripts/tutor-answer.test.mjs`
-- `scripts/guard-record-shapes.test.mjs`
-- `scripts/outlet-record-shapes.test.mjs`
-- `scripts/teardown-leak-shapes.test.mjs`
-- `scripts/tutor-record-shapes.test.mjs`
-- `scripts/tutor-routing-shapes.test.mjs`
-- `scripts/tutor-routing.test.mjs`
-- `tests/held-out/fixture-explainers-unchanged.test.mjs`
+- apps/angular-ai-devtools/src/app/panel-title-input.ts
+- apps/angular-ai-devtools/src/app/panel-demo.ts
+- apps/angular-ai-devtools/src/app/app.routes.ts
+- apps/angular-ai-devtools/src/app/app.spec.ts
+- apps/angular-ai-devtools/src/app/page-picker.component.spec.ts
+- scripts/panel-routes.test.mjs
+- scripts/after-render-fixture.test.mjs
+- research/raw/m030-router-config.json
+- apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts
+- apps/angular-ai-devtools/src/app/panel-demo.spec.ts
+- scripts/chunk-failure-claims.test.mjs
+- scripts/chunk-failure-copy.test.mjs
+- scripts/component-search.test.mjs
+- scripts/gate-integrity.test.mjs
+- scripts/guard-verdict-claims.test.mjs
+- scripts/outlet-verdict-claims.test.mjs
+- scripts/panel-copy.test.mjs
+- scripts/redirect-chain.test.mjs
+- apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts
+- apps/angular-ai-devtools/src/app/panel-outlet.spec.ts
+- scripts/gate-integrity-default-tasks.test.mjs
+- scripts/navigation-blocking.test.mjs
+- scripts/tutor-answer.test.mjs
+- scripts/guard-record-shapes.test.mjs
+- scripts/outlet-record-shapes.test.mjs
+- scripts/teardown-leak-shapes.test.mjs
+- scripts/tutor-record-shapes.test.mjs
+- scripts/tutor-routing-shapes.test.mjs
+- scripts/tutor-routing.test.mjs
+- tests/held-out/fixture-explainers-unchanged.test.mjs
+- research/raw/m061-surface.json
 
 ## Acceptance criteria
 
