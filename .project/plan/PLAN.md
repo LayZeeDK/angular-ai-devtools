@@ -50,11 +50,18 @@ Goal: Give the two suites M066 added their reason rows in `SUITE_DIFF_REASONS`, 
 `captureClaims`, and re-derive both recordings with their own capture commands, so the project verify has a true reading.
 Review depth: full
 
+## Wave 7 — T007: rebuild the panel and re-derive the stability record
+
+Goal: Produce a panel build this milestone authored, so the budget suite measures an output rather than a stale file, and
+re-derive the stability record against that tree.
+Review depth: full
+
 ## Intent coverage
 
 | Criterion | Task | Acceptance |
 |---|---|---|
 | SC1 | T001 | AC1 |
+| SC4 | T007 | AC1 |
 | SC3 | T006 | AC1 |
 | SC4 | T006 | AC2 |
 | SC2 | T001 | AC2 |
