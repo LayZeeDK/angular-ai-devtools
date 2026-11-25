@@ -9,6 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
+- research/raw/m059-record-shapes.json
 - scripts/navigation-blocking.test.mjs
 - scripts/chunk-failure-claims.test.mjs
 - scripts/tutor-record-shapes.test.mjs
@@ -34,7 +35,8 @@ The project verify is the only run that proves the milestone did not break the b
 
 ## Approach
 
-Re-capture the claims record so its default run reproduces at this head, run the plan's project verify unchanged, and record its exit code and counts. Land nothing that moves a recording, so the census and the stability record stay true.
+The claims record is re-captured first, and then the one map that counts
+`research/raw` is re-derived from it, because a record's content moves the counts a map reads even when its file count does not. Re-capture the claims record so its default run reproduces at this head, run the plan's project verify unchanged, and record its exit code and counts. Land nothing that moves a recording, so the census and the stability record stay true.
 
 ## Intent coverage
 
@@ -65,6 +67,7 @@ Every path this task may touch, and nothing else:
 - `scripts/gate-integrity.test.mjs`
 - `scripts/m068-verdict-claims.test.mjs`
 - `research/raw/m068-verdict-claims.json`
+- `research/raw/m059-record-shapes.json`
 
 ## Interface contract
 
