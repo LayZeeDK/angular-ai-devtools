@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: head-state
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M068
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1399,3 +1399,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-25 — plan — plan approved
 - 2026-11-25 — build — build started
 - 2026-11-25 — build — build blocked
+- 2026-11-25 — plan — build plan repair requested
+- 2026-11-25 — plan — build recovery: {"base": "f997184992f3511e355cb2fb30de5abf1a111a32", "branch": "gsd-path/M068", "kind": "plan", "source": "build"}
