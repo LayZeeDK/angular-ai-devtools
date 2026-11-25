@@ -2497,6 +2497,43 @@ const CLAIMS_OWNER = existsSync(CLAIMS_PATH)
   : SUITE_REL;
 const CLAIMS_OWNED_ELSEWHERE = CLAIMS_OWNER !== SUITE_REL;
 
+/**
+ * The suite every edge of the bound milestone's intent is proved by, as the bound milestone's own claim
+ * census states it in `evidence.plan.edgeSuites`.
+ *
+ * This file used to resolve an edge the plan does not hold out to the first suite the owning task's
+ * `files:` list declares that the task's base does not carry, and at M069's head that resolved SC1 to
+ * `scripts/teardown-leak-shapes.test.mjs` — the first suite T002 declares, a record-shape suite for M059
+ * that proves nothing about the token layer. The task-file list is a list of what a task may touch, in
+ * the order a task happened to write it; it is not a statement of what proves an edge. The milestone
+ * that landed the token layer settles that question in its own census, which states one suite per edge,
+ * holds that table to the intent's own rows and copies it into the record it writes — so a reader can
+ * resolve the edge on the milestone's own assignment instead of guessing one from a file list. A
+ * milestone whose census predates that field states nothing here, which is the bootstrap case the
+ * task-file rule still answers; a bound milestone with no record at all is the same case.
+ *
+ * @returns {Map<string, string>} edge id -> the suite its census states, empty where none is stated
+ */
+function censusEdgeSuites() {
+  /** @type {Map<string, string>} */
+  const suites = new Map();
+  if (!existsSync(CLAIMS_PATH)) return suites;
+  const recording = claimJson(
+    CLAIMS_PATH,
+    'the list is part of this repository',
+  );
+  const stated = recording?.evidence?.plan?.edgeSuites;
+  if (!Array.isArray(stated)) return suites;
+  for (const row of stated) {
+    const [edge, suite] = String(row).split(' ');
+    if (/^E\d+$/.test(edge ?? '') && suite !== undefined && suite !== '')
+      suites.set(String(edge), suite);
+  }
+  return suites;
+}
+
+const CENSUS_EDGE_SUITES = censusEdgeSuites();
+
 /** @param {Buffer | string} bytes @returns {string} */
 function digest(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
@@ -2927,12 +2964,22 @@ function planPathForIntent(intentPath) {
 }
 
 /**
- * The suite one edge is held by, and the derivation that says so. A held-out edge names its suite in
- * the plan's own `## Held-out checks` table. An in-scope edge has no row there, so the suite is the one
- * the task the plan assigns its criterion added - read from that task's `files:` list and its own
- * `base`, never from this file's opinion. A criterion whose edges resolve to different suites is a
- * failed derivation, because a row carries one citation and two suites would name evidence the row
- * cannot open in one place.
+ * The suite one edge is held by, and the derivation that says so, in the order the tree states it:
+ *
+ *   1. a held-out edge names its suite in the plan's own `## Held-out checks` table, which is the
+ *      plan's assignment and outranks every inference;
+ *   2. an in-scope edge is proved by the suite the bound milestone's own claim census states for it
+ *      ({@link censusEdgeSuites}) — the table that census holds to the intent's rows and writes into
+ *      the record, so the milestone that landed the change is the one that says what proves it;
+ *   3. only where that census states nothing — a record written before the field existed, or no record
+ *      at all — is the suite the task the plan assigns the criterion added: the first suite that task's
+ *      `files:` list declares that its own `base` commit does not carry. That is the bootstrap answer,
+ *      and it is the one that resolved SC1 to the first suite a task happened to declare rather than to
+ *      the suite that proves the criterion, which is why it is no longer the first thing asked.
+ *
+ * A criterion whose edges resolve to different suites is a real case — M062's SC1 was held by two — so
+ * the row cites each one rather than refusing; what a row cannot do is cite a suite none of its edges
+ * names.
  *
  * @param {{ edge: string, criterion: string }} edge
  * @param {Map<string, { task: string, test: string }>} heldOut
@@ -2943,6 +2990,8 @@ function planPathForIntent(intentPath) {
 function suiteForEdge(edge, heldOut, coverage, tasksDir) {
   const held = heldOut.get(edge.edge);
   if (held !== undefined) return held.test;
+  const stated = CENSUS_EDGE_SUITES.get(edge.edge);
+  if (stated !== undefined) return stated;
   for (const row of coverage.filter(
     (entry) => entry.criterion === edge.criterion,
   )) {
@@ -2957,7 +3006,7 @@ function suiteForEdge(edge, heldOut, coverage, tasksDir) {
     if (suite !== null) return suite;
   }
   assert.fail(
-    `the plan holds no held-out row for ${edge.edge}, and no task it assigns ${edge.criterion} adds a suite this checkout carries, so ${edge.criterion} would cite no test at all`,
+    `the plan holds no held-out row for ${edge.edge}, the milestone's own claim census states no suite for it, and no task the plan assigns ${edge.criterion} adds a suite this checkout carries, so ${edge.criterion} would cite no test at all`,
   );
   return '';
 }
@@ -3832,10 +3881,12 @@ describe('the claim list', () => {
       );
     }
 
-    // Every edge in the intent has a row in the plan: the held-out mapping above where the edge is
-    // held out, and the `## Intent coverage` row for its criterion - and the suite that task's own
-    // `files:` list declares - where it is not. Each one resolves to a test this checkout carries,
-    // so no edge is left with a citation this suite cannot open.
+    // Every edge in the intent has a suite, in one of the three places the tree states it: the
+    // held-out mapping above where the plan holds the edge out, the edge-suite table the bound
+    // milestone's own claim census states where the plan holds nothing out, and - only where that
+    // census states nothing, which is the bootstrap case - the suite the task the `## Intent coverage`
+    // table assigns the criterion declares. Each one resolves to a test this checkout carries, so no
+    // edge is left with a citation this suite cannot open.
     const tasksDir = join(dirname(planPath), '..', 'tasks');
     const mapped = [];
     for (const edge of edges) {
@@ -4006,10 +4057,13 @@ describe('the claim list', () => {
       `a row the reader loses must redden naming the section and both counts; it produced ${JSON.stringify(unreadMessage.slice(0, 320))}`,
     );
 
-    // 2. The row deleted outright. Nothing in the section says the edge was ever there, so no count
-    // can see it, and the derivation does not refuse: `## Intent coverage` answers instead and SC3
-    // cites whatever suite the first task covering SC3 happens to have added. Recorded as the drift
-    // it is - the plan is the only statement of what it holds out.
+    // 2. The row deleted outright. Nothing in the section says the edge was ever there, so no count can
+    // see it. At this head the deletion also moves no citation: the edge the plan no longer names is
+    // resolved by the bound milestone's own claim census, which states E5's suite and holds that table
+    // to the intent's rows. Both facts are read below - the row is gone from the map, and SC3's claim
+    // still cites the suite that proves E5 beside the suite that proves its other edge - so the drift
+    // the plan cannot see no longer changes which suite a criterion cites, which is why the edge is
+    // resolved on the census rather than on whichever task the coverage table names first.
     const e5 = sectionOf(subject, '## Held-out checks')
       .split(/\r?\n/)
       .filter((entry) => /^\s*[-*]\s*E5\b/.test(entry))[0];
@@ -4048,22 +4102,23 @@ describe('the claim list', () => {
     assert.equal(
       sc3.artefactPath,
       fallback,
-      `the edge no row names falls back to the suite ${fallback} the coverage table's task added`,
+      `the edge no row names resolves to ${fallback}, which is the suite the milestone's own claim census states for E5 rather than the first suite a task's files list declares`,
     );
-    // The drift is the route, and at this head it is not visible as a different path: the suite
-    // `## Intent coverage` resolves SC3 to is the same one the plan assigns E5 (`outlet-state.test.mjs`
-    // is the suite M062's T001 added, and T001 is the task the coverage table assigns SC3). So the
-    // reading states which of the two it measured rather than asserting a difference this plan does
-    // not have — the row was never read either way, and the citation above is the fallback's.
     const assignedE5 = live.get('E5')?.test;
     assert.ok(
       assignedE5 !== undefined,
-      'the plan assigns E5 a suite, so the fallback below is a drift away from a stated citation',
+      'the plan this test drives states E5 a suite, so the deleted row is a citation the plan states and the derivation loses',
     );
-    assert.equal(
-      sc3.suites.length,
-      1,
-      'the drifted SC3 claim cites the one suite the fallback resolved',
+    assert.deepEqual(
+      sc3.suites,
+      [
+        ...new Set(
+          edges
+            .filter((edge) => edge.criterion === 'SC3')
+            .map((edge) => suiteForEdge(edge, new Map(), coverage, tasksDir)),
+        ),
+      ],
+      `the deleted row moves no citation: SC3 cites ${JSON.stringify(sc3.suites)}, one suite per suite its own edges resolve to, because the edge the plan no longer names is resolved by the milestone's own census (${String(assignedE5)}) and not by the coverage table's first task`,
     );
 
     // 3. A row whose task the plan's own coverage table does not assign that edge's criterion: the task
@@ -4184,9 +4239,13 @@ describe('the claim list', () => {
         heldOutRowsWritten(subject),
       )} written on the plan this test drives; unread row -> ${unreadMessage.split('\n')[0]}; deleted E5 row -> SC3 cites ${
         sc3.artefactPath
-      } through ## Intent coverage against ${String(
+      } on the milestone's own census against ${String(
         assignedE5,
-      )} the plan assigns E5 (${sc3.artefactPath === assignedE5 ? 'the same suite, so the drift is the route' : 'a different suite, so the drift is the path'}); moved task -> ${
+      )} the plan assigns E5 (${
+        sc3.artefactPath === assignedE5
+          ? 'the same suite, so the deleted row moved no citation'
+          : 'a different suite, so the deleted row moved the citation'
+      }); moved task -> ${
         movedMessage.split('\n')[0]
       }; absent suite -> ${carriedMessage.split('\n')[0]}`,
     );

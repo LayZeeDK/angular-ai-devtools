@@ -1,0 +1,122 @@
+head: 5aed16894b44215d3ab289714ac39897821c3435 at 2026-11-25T13:30:15.722Z
+✔ the recording parses, names itself and declares the questions this task settles (1.0494ms)
+✔ every citation in the recording still names the line it quotes (13.5839ms)
+✔ every claim is cited, names its kind, and does not report an unwitnessed record as observed (0.636ms)
+✔ the relay ruling is stated, with the citations that support it (0.2788ms)
+✔ the property list is the one the measured expression carried, each with its own declarations (0.3216ms)
+✔ the reading is instrumented, and every hook carries a value for every declared property (0.3269ms)
+✔ the two artefacts measured read differently, and the recording says which is which (0.1415ms)
+✔ the recording states its own absences, and names the artefact the portal lacks (0.2533ms)
+✔ mutant D1 a citation quotes a line it no longer sits on: the pin names what it broke (10.0003ms)
+✔ mutant D2 a citation slides one line off its text: the pin names what it broke (9.7591ms)
+✔ mutant D3 a citation names a file this tree does not hold: the pin names what it broke (9.7671ms)
+✔ mutant D4 the declared property list drops one the expression measured: the pin names what it broke (0.8975ms)
+✔ mutant D5 a record this task did not witness is reported as observed here: the pin names what it broke (1.0117ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 169.7306
+visual-qa measured: h2 -> 5 rows, first {"property":"padding","computed":"8px 0px 6px","baseline":"8px 0px 6px"}
+visual-qa sides: borderTopWidth computed "1.71429px" / baseline "2px"
+visual-qa E4: reached-and-absent -> no-such-element naming chrome-extension://mgkfgkdgobahfcgkdlokpoehblpbkfok/panel/lint; unreadable -> no-document
+visual-qa no-baseline: h2 -> ["fontFamily"], p.state -> ["borderTopWidth","color","fontSize","fontFamily"]
+visual-qa unchanged: p.line padding, backgroundColor, color -> measured with 3 matching rows
+visual-qa states: measured, no-baseline, no-document, no-such-element
+visual-qa measured-nothing: 0 rows for a run that read no property, 0 rows for a reading with no value, 0 rows for no measurement at all
+visual-qa properties: 6 accepted by name, 8 refused by name
+visual-qa twice: 6 measurements answered identically on a second call
+visual-qa purity: 6 reports answer identically with document, getComputedStyle, fetch and Date armed as traps
+visual-qa measured: h2 -> 5 rows, first {"property":"padding","computed":"8px 0px 6px","baseline":"8px 0px 6px"}
+visual-qa M1 (a property hidden from the report) -> rows ["padding"]
+  reddened: SC1 one-row-per-property-the-measurement-read: 5 properties carried a computed value and a declared baseline, so 5 rows are reported and no property is hidden
+visual-qa sides: borderTopWidth computed "1.71429px" / baseline "2px"
+visual-qa M2 (one value printed for both sides) -> baseline "1.71429px"
+  reddened: SC1 a-baseline-is-never-the-measured-reading: the baseline column is the value the stylesheet declares, exactly as it declares it — a computed value is never printed where the declaration belongs (N2)
+visual-qa sides: borderTopWidth computed "1.71429px" / baseline "2px"
+visual-qa M3 (a stylesheet declaration labelled as the computed reading) -> computed "2px"
+  reddened: SC1 the-measurement’s-value-is-carried-verbatim: the computed column is the value the element computed, exactly as the browser serialised it — a used value the sheet does not spell (1.71429px for a declared 2px) is not normalised into the declaration (E2)
+visual-qa E4: reached-and-absent -> no-such-element naming chrome-extension://mgkfgkdgobahfcgkdlokpoehblpbkfok/panel/lint; unreadable -> no-document
+visual-qa M4 (an absence rendered as a row of matching readings) -> rows [{"property":"padding","computed":"0px","baseline":"0px"}]
+  reddened: E4 no-row-for-an-element-that-is-not-there: the absence renders no row of matching readings (N3)
+visual-qa E4: reached-and-absent -> no-such-element naming chrome-extension://mgkfgkdgobahfcgkdlokpoehblpbkfok/panel/lint; unreadable -> no-document
+visual-qa M5 (a wrong absence named) -> reason.code "no-reachable-document"
+  reddened: E4 the-absence-is-named-no-such-element: the reason names no-such-element, and never no-reachable-document
+visual-qa measured-nothing: 0 rows for a run that read no property, 0 rows for a reading with no value, 0 rows for no measurement at all
+visual-qa M6 (placeholder values for a measurement that did not run) -> [{"property":"padding","computed":"not measured","baseline":"not measured"}]
+  reddened: SC3 a-run-that-measured-nothing-renders-no-row: no property row is rendered for a measurement that read no property
+visual-qa measured: h2 -> 5 rows, first {"property":"padding","computed":"8px 0px 6px","baseline":"8px 0px 6px"}
+visual-qa M7 (a property name folded and trimmed) -> "bordertopwidth"
+  reddened: SC1 the-property-is-named-as-the-measurement-wrote-it: each row names the property by the name the measurement read it under, in the order it read them — never folded, trimmed or matched as a prefix (E1)
+visual-qa no-baseline: h2 -> ["fontFamily"], p.state -> ["borderTopWidth","color","fontSize","fontFamily"]
+visual-qa M8 (an unmeasurable property rendered as unchanged) -> {"property":"fontFamily","computed":"system-ui, sans-serif","baseline":"system-ui, sans-serif"}
+  reddened: SC2 no-baseline-is-a-state-not-a-row: a measured property the sheet declares nothing for is the no-baseline state
+visual-qa measured: h2 -> 5 rows, first {"property":"padding","computed":"8px 0px 6px","baseline":"8px 0px 6px"}
+visual-qa M9 (a property row invented) -> {"property":"marginTop","computed":"0px","baseline":"0px"}
+  reddened: SC1 one-row-per-property-the-measurement-read: 5 properties carried a computed value and a declared baseline, so 5 rows are reported and no property is hidden
+visual-qa properties: 6 accepted by name, 8 refused by name
+visual-qa M10 (a property outside the six accepted by prefix match) -> "paddingInline"
+  reddened: C2 a-property-outside-the-six-is-refused: "borderTopWidths" is not a property the recording declares, and the join refuses it rather than folding it into one it resembles
+visual-qa sides: borderTopWidth computed "1.71429px" / baseline "2px"
+visual-qa M11 (a value normalised into the declaration's spelling) -> computed "2px"
+  reddened: SC1 the-measurement’s-value-is-carried-verbatim: the computed column is the value the element computed, exactly as the browser serialised it — a used value the sheet does not spell (1.71429px for a declared 2px) is not normalised into the declaration (E2)
+visual-qa measured: h2 -> 5 rows, first {"property":"padding","computed":"8px 0px 6px","baseline":"8px 0px 6px"}
+visual-qa M12 (a join that refuses every input) -> "no-document"
+  reddened: SC1 measured-is-a-report-that-ran: an element the measurement read with a baseline for every property it read is the measured state, and a join that answers an absence here has refused a surface its report
+visual-qa twice: 6 measurements answered identically on a second call
+visual-qa M13 (a second reading returning a different answer) -> "the baseline stylesheet declares no value for fontFamily, so no baseline reading stands beside the element’s own (read 2)"
+  reddened: E5 the-same-measurement-answers-the-same-record: no-baseline answered identically on the second call — a reading that answers differently has read something it was not handed
+▶ the recording the join answers to
+  ✔ declares six properties, and they are the six the module carries (1.57ms)
+  ✔ reads the run whose declarations apply, and the hooks the sheet names (0.1241ms)
+  ✔ declares different properties for different hooks, which is where no-baseline comes from (0.1027ms)
+  ✔ carries a computed value the sheet does not spell, which is the E2 case (0.0769ms)
+✔ the recording the join answers to (2.5848ms)
+▶ visual-qa.js is a pure join
+  ✔ publishes one function and nothing else, and is safe to run twice (0.4403ms)
+  ✔ holds no DOM read, no computed-style call, no clock, no network and no import (0.5921ms)
+✔ visual-qa.js is a pure join (1.1211ms)
+▶ SC1 — every property the measurement read, with both readings labelled
+  ✔ SC1 — one row per property, named as written, carrying both sides (1.9636ms)
+  ✔ SC1 — the two columns are two readings, and neither is normalised into the other (0.6526ms)
+✔ SC1 — every property the measurement read, with both readings labelled (2.7547ms)
+▶ E4 — a reached document that renders no such element is its own absence
+  ✔ E4 — no-such-element names the reading that located the document, and no-document is the other state (0.4597ms)
+✔ E4 — a reached document that renders no such element is its own absence (0.5175ms)
+▶ SC2 — an element that cannot be compared is reported as such
+  ✔ SC2 — no-baseline is a state naming the properties the sheet declares nothing for (0.5555ms)
+  ✔ SC2 — a measured element whose readings match the declarations is still measured (0.3807ms)
+  ✔ SC2 — the vocabulary is closed at four states, one record shape (0.4694ms)
+✔ SC2 — an element that cannot be compared is reported as such (1.4736ms)
+▶ SC3 — no reading is invented, and absence is stable
+  ✔ SC3 — a run that measured nothing renders no row, no default and no placeholder (0.3961ms)
+  ✔ SC3 — the property list is the recording’s, and an unknown property is refused by name (0.485ms)
+  ✔ SC3 — the same measurement answers the same record twice, and the input is not written to (0.5599ms)
+  ✔ SC3 — every state answers identically with document, getComputedStyle, fetch and Date armed as traps (2.8454ms)
+✔ SC3 — no reading is invented, and absence is stable (4.3667ms)
+▶ mutants redden by name
+  ✔ reddens by name: a property hidden from the report (1.3874ms)
+  ✔ reddens by name: one value printed for both sides (1.4448ms)
+  ✔ reddens by name: a stylesheet declaration labelled as the computed reading (0.8783ms)
+  ✔ reddens by name: an absence rendered as a row of matching readings (0.9065ms)
+  ✔ reddens by name: a wrong absence named, no-reachable-document for a reached document (0.936ms)
+  ✔ reddens by name: placeholder values for a measurement that did not run (1.105ms)
+  ✔ reddens by name: a property name folded and trimmed (0.8895ms)
+  ✔ reddens by name: an unmeasurable property rendered as unchanged (0.8089ms)
+  ✔ reddens by name: a property row invented (0.8003ms)
+  ✔ reddens by name: a property outside the six accepted by prefix match (1.6803ms)
+  ✔ reddens by name: a value normalised into the declaration’s spelling (0.9109ms)
+  ✔ reddens by name: a join that refuses every input (0.7924ms)
+  ✔ reddens by name: a second reading returning a different answer (2.4013ms)
+✔ mutants redden by name (15.2431ms)
+ℹ tests 29
+ℹ suites 7
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 147.8684

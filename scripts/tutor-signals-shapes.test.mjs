@@ -459,6 +459,60 @@ const ROW_KEYS = Object.freeze([
 ]);
 
 /**
+ * The claim censuses that landed after `research/raw/m057-record-shapes.json` was last re-derived, each
+ * with the milestone whose `## Edge coverage` table its own `edges` list carries. M068's T008 re-derived
+ * that recording when five of these records were already present (M062's, M063's, M064's, M067's and
+ * M068's, which is the move the recording states in its own conclusion); M069's census landed after it,
+ * so the union has grown by exactly the rows M069's intent declares and this head states that delta
+ * rather than folding it into a capture this task does not write.
+ *
+ * The list is stated, like the self-held claim lists `scripts/tutor-answer.test.mjs` keeps, because it
+ * is the reading that must not grow unnoticed: a record that lands rows and is not named here reddens
+ * the vocabulary pin below, naming the counts and the list it holds.
+ */
+const LANDED_SINCE = Object.freeze([
+  { milestone: 'M069', record: 'm069-verdict-claims.json' },
+]);
+
+/**
+ * One count map with its keys in the one order an assertion can compare.
+ * @param {Record<string, number>} counts
+ * @returns {Record<string, number>}
+ */
+function sorted(counts) {
+  return Object.fromEntries(
+    Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0])),
+  );
+}
+
+/**
+ * The counts the vocabulary pin expects at this head: the M057 measurement plus, for every census that
+ * landed since, the rows that census carries in the intent's own five-column table shape. The expected
+ * delta is read from the record (and, by `rowsCarriedBy`, from the intent's own table) rather than from
+ * the union itself — a pin that follows the union cannot fail, which is the lesson the delta pin below
+ * records.
+ * @param {any} stated the recording's `noEdgeCarriesAnOrderField` measurement
+ * @returns {Record<string, number>}
+ */
+function expectedEdgeKeys(stated) {
+  const counts = new Map(
+    Object.entries(/** @type {Record<string, number>} */ (stated.edgeKeys)),
+  );
+  for (const census of LANDED_SINCE) {
+    const rows = rowsCarriedBy(census.record);
+    assert.deepEqual(
+      rows,
+      [...intentEdgeRows(census.milestone)].sort(),
+      `${census.record} carries the rows of the intent ${census.milestone} binds, whose \`## Edge coverage\` table declares ${intentEdgeRows(census.milestone).join(', ')}; it states ${rows.join(', ') || 'none'}. The counts below are that table's, so a record that carries another shape is not a delta this pin can state`,
+    );
+    for (const key of ROW_KEYS) {
+      counts.set(key, (counts.get(key) ?? 0) + rows.length);
+    }
+  }
+  return sorted(Object.fromEntries(counts));
+}
+
+/**
  * The edge ids one record carries in the intent's own five-column table shape, sorted so a row stated
  * twice is still two rows: the table is the intent's, so a record that lands a row the intent does not
  * declare, or drops one it does, is what this reads.
@@ -503,13 +557,9 @@ test('no edge carries a field to order a write in', () => {
   assert.deepEqual(orderish, [], 'an edge now carries an order-ish field');
   assert.deepEqual(orderish, stated.orderishEdgeKeys);
   assert.deepEqual(
-    Object.fromEntries(
-      [...edgeKeys.entries()].sort((a, b) => a[0].localeCompare(b[0])),
-    ),
-    Object.fromEntries(
-      Object.entries(stated.edgeKeys).sort((a, b) => a[0].localeCompare(b[0])),
-    ),
-    'the edge vocabulary under research/raw moved',
+    sorted(Object.fromEntries(edgeKeys)),
+    expectedEdgeKeys(stated),
+    `the edge vocabulary under research/raw moved against what the recording states plus the rows the censuses that landed since declare (${JSON.stringify(LANDED_SINCE.map((census) => census.record))}): the union states ${JSON.stringify(sorted(Object.fromEntries(edgeKeys)))} and this head expects ${JSON.stringify(expectedEdgeKeys(stated))}`,
   );
 });
 

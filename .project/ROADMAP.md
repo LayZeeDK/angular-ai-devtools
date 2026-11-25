@@ -906,7 +906,7 @@ Depends on: [M019]
 Surfaces: none
 Status: shipped
 Archive: .project/archive/023-fixture-components
-Integrated: 6ea8aff4af2a162a30753c9b2eecd96c8cca97f1
+Integrated: 1f2351cf1ad3d29937a654582b6198ef6b7139c6
 
 Scope: in
 - `@angular/aria`, `@angular/cdk` and `@angular/material` in the verification fixture.
@@ -1565,7 +1565,7 @@ Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/043-stability-explainer
-Integrated: null
+Integrated: 748ca84c62347a2fdb05f456930e5c766cb94172
 
 Scope: in
 - The outstanding work the fixture reports: pending tasks, in-flight requests and unsettled resources.
@@ -1596,7 +1596,7 @@ Surfaces: command-line gate, research notes
 
 Status: shipped
 Archive: .project/archive/044-gate-integrity
-Integrated: null
+Integrated: a83eff087fff563748df02da7e9ce8e3669771ea
 
 Scope: in
 - A deterministic ship check that fails when any committed test resolves a `.project/` path the milestone's own archive move deletes. Measured instances: `scripts/performance-capture.test.mjs:56` at `c03ed6fa` (M040), `scripts/error-boundary-capture.test.mjs:46` and `scripts/error-boundary-measure.test.mjs:53` at `fb84ff3b` (M042), both red at the shipped head after a green gate one commit earlier.
@@ -1623,7 +1623,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/045-console-read
-Integrated: null
+Integrated: ed3194b0a6c9af249c64847bc6c66b5f6559b8db
 
 Scope: in
 - The capture of console diagnostics the page agent already performs, read as the observable; no new page-side instrumentation.
@@ -1653,7 +1653,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/046-copy-to-agent
-Integrated: null
+Integrated: de01ec2c8ab156f9e0072f2e6257171f244567d4
 
 Scope: in
 - The panel's own rendered finding, passed to the agent with the identifiers the page record carries.
@@ -1683,7 +1683,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/047-component-search
-Integrated: null
+Integrated: 72b813b4c529fa0d3e1dbc4a5b9b2141946588ba
 
 Scope: in
 - The component tree the page agent already captures, read as the observable.
@@ -1713,7 +1713,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/048-ui-copy-check
-Integrated: null
+Integrated: e620c156302b985de9eeb3b39917ec7998a7c8f8
 
 Scope: in
 - The rendered text the page already publishes in its record, read as the observable.
@@ -1743,7 +1743,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/049-interaction-story
-Integrated: null
+Integrated: c28ba22a614ad55af44b481eb08330d72ee6a496
 
 Scope: in
 - The interaction and emit events the agent already records, in their recorded order.
@@ -1773,7 +1773,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/050-dead-click
-Integrated: null
+Integrated: d29f6b354d5857e057467d8adda7a84d4249af47
 
 Scope: in
 - The click events and the events that followed them within the recorded window.
@@ -1803,7 +1803,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/051-what-changed
-Integrated: null
+Integrated: bde53dcc0171e20b960fb7032821aff2295ea814
 
 Scope: in
 - Two records the agent captured for one page, compared field by field.
@@ -1833,7 +1833,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/052-webmcp-audit
-Integrated: null
+Integrated: 201d6587c96485009d704e9b20c830ee8a32534a
 
 Scope: in
 - The tool declarations the app's own WebMCP registration exposes to the page.
@@ -1863,7 +1863,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/053-webmcp-rehearsal
-Integrated: null
+Integrated: 79489b8f60358b2db7b21b69450f4711c896aaf3
 
 Scope: in
 - A declared tool and the panel-local model the companion already provides.
@@ -1893,7 +1893,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/054-visual-qa
-Integrated: null
+Integrated: a78b4595106f9a54eedc3d0320eb6e62767744a2
 
 Scope: in
 - Computed style readings the panel measures for a named element in its own document.
@@ -1923,7 +1923,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/055-tutor-foundations
-Integrated: null
+Integrated: 4dd334153c0ae88b328abd0b95729f66cad1f037
 
 Scope: in
 - The verdict claims and recordings the shipped milestones archived.
@@ -1960,7 +1960,7 @@ Programme: Generation 3 · Batch: 3 · Group: command-line
 Surfaces: command-line gate, research notes
 Status: shipped
 Archive: .project/archive/056-gate-phase-stability
-Integrated: null
+Integrated: 02bba9d28a55e4a639aeac2a17ab36660fbdad4f
 
 Scope: in
 - The fix-record stage's default task input, resolved to the live `.project/tasks` while a milestone is being
@@ -1997,7 +1997,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/057-tutor-signals
-Integrated: null
+Integrated: 30393e5efc20f29375b8d54fd0de4f57cb6d4621
 
 Goal: The tutor answers why a signal-driven template re-rendered, or failed to, citing the recorded graph and the write that preceded the render, so the answer names a rule the evidence supports rather than a plausible one.
 
@@ -2029,7 +2029,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/058-tutor-routing
-Integrated: null
+Integrated: 23736c46471a613db1bf5a2cf9e62a454a8fbbc1
 
 Goal: The tutor answers why a navigation landed where it did, naming the route node, the redirect and the guard verdict that decided it, from the recorded navigation stream and the router config.
 
@@ -2061,7 +2061,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/059-teardown-leak
-Integrated: null
+Integrated: 9cbba8ede502d5a273945c276933f5825b16d688
 
 Goal: The panel answers why a destroyed component still changes state, naming the subscription, effect or timer that outlived its injector and the owner it belonged to.
 
@@ -2093,7 +2093,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/060-error-routing
-Integrated: null
+Integrated: 522877a1717efc42a050a18a4ced5e0a9409d19f
 
 Goal: The panel answers why an error that should have reached an ErrorHandler was reported as uncaught, naming the handler chain in effect and the phase the error was thrown in.
 
@@ -2125,7 +2125,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/common
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/061-locale-correctness
-Integrated: null
+Integrated: e32373e7c5dff17b2deb7a31381009c597de9784
 
 Goal: The panel answers why a formatted date, number or currency renders in the wrong locale, naming the LOCALE_ID in effect, the provider that set it and the call that used it.
 
@@ -2157,7 +2157,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/062-outlet-explainer
-Integrated: null
+Integrated: 5235d67128e3657f5cb82ec79d3893bed37ebb06
 
 Goal: The panel answers why routed content appeared in the wrong outlet, or in none, naming the outlet name requested, the name matched and the route that supplied it.
 
@@ -2189,7 +2189,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/063-guard-phase
-Integrated: null
+Integrated: 5cdf359b93f03d89506e7a57dfde8d37e2dc8740
 
 Goal: The panel answers why a guard's side effect ran even though the navigation was cancelled, naming the guard phase it ran in and the guard that produced the value.
 
@@ -2221,7 +2221,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/064-lazy-chunk-failure
-Integrated: null
+Integrated: 6007b8360d58862f18823f69a1055706356a193c
 
 Goal: The panel answers why a lazily loaded route failed to render, naming the import it could not load, the route that owns it and the chunk state the failure left behind.
 
@@ -2253,7 +2253,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/065-title-input-binding
-Integrated: null
+Integrated: 80e65555f897cbcc328e2ebc033d2d6bd9e76f05
 
 Goal: The panel answers why the document title, or a value bound from the route, did not follow the navigation, naming the strategy in effect and the last write that beat it.
 
@@ -2285,7 +2285,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/forms
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/066-schema-disabled-hidden
-Integrated: null
+Integrated: 0c88627d3b7c64ee0d40479c5793b9990c6e4da1
 
 Goal: The panel answers why a Signal Forms field is disabled or hidden, naming the schema node that declared it and the state that node derived from.
 
@@ -2317,7 +2317,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/material
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/067-formfield-binder
-Integrated: null
+Integrated: 2bd49d829fab5726582de391501bc859165d15cd
 
 Goal: The panel answers why a form field is not bound to the control its label names, naming the control the binder resolved and the field it attached it to.
 
@@ -2349,7 +2349,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/068-head-state
-Integrated: null
+Integrated: 170fff1137eadf3831c931ea803d5b840b9cc016
 
 Goal: The panel answers why a document head entry is stale or duplicated, naming the entry the app wrote, the one still present and the route that wrote it.
 
@@ -2371,6 +2371,363 @@ Success criteria
 
 Risks
 - A service worker or another extension can add head entries, so the writer's identity, not the tag's presence, is the evidence.
+
+Open questions
+- none
+
+
+### M069 — ds-tokens
+Depends on: [M023]
+Programme: Generation 4 · Batch: design system · Group: design system
+Surfaces: panel
+Status: shipped
+Archive: .project/archive/069-ds-tokens
+Integrated: null
+
+Goal: The design system ships its density, colour, type and motion custom properties, with a reduced-motion contract every later component inherits.
+
+Scope: in
+- The custom properties for density, colour, type and motion, in one stylesheet with one naming scheme.
+- The `prefers-reduced-motion` contract stated in CSS, with motion expressed only as transitions and keyframes.
+- A suite that reads the stylesheet as text and asserts every property it declares is named in one place.
+
+Scope: out
+- Motion implemented in an imperative animation API rather than CSS.
+- - A complete component library; A11 bounds the design system to what shipped features already use.
+
+Success criteria
+1. Every property the design system declares is present under both motion preferences, asserted by reading the stylesheet; a mutant that drops the reduced-motion block reddens naming it.
+2. No property is declared twice under two names, and a mutant that adds a second spelling reddens naming both.
+3. The stylesheet carries no colour literal outside the token block; a mutant that adds one reddens naming the line.
+
+Risks
+- A token set drifts from the surfaces that consume it unless one suite reads both sides.
+
+Open questions
+- none
+
+### M070 — ds-explainer-shell
+Depends on: [M069]
+Programme: Generation 4 · Batch: design system · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel renders its six explainer surfaces through one shared shell — picker, chain display, explain button, answer block, and the empty, loading and error states — instead of six copies.
+
+Scope: in
+- One shell component owning the picker, the chain display, the explain button, the answer block and the three states.
+- The six shipped explainer surfaces moved onto it, with their rendered output unchanged.
+- A suite that proves each surface renders through the shell and that the shell has one definition.
+
+Scope: out
+- A component library; the shell is harvested from what the six surfaces already repeat.
+- Restyling any surface beyond what the shell change requires.
+
+Success criteria
+1. All six surfaces render through the one shell, and a mutant that reintroduces a local copy reddens naming the surface.
+2. Each surface's rendered output is byte-identical to what it rendered before, asserted by the existing surface suites unchanged.
+3. The shell has exactly one definition; a mutant that duplicates it reddens naming both files.
+
+Risks
+- Moving six surfaces at once can hide a behavioural change inside a restyle, so the existing suites must stay untouched.
+
+Open questions
+- none
+
+### M071 — recordings-manifest-truth
+Depends on: [M068]
+Programme: Generation 4 · Batch: tooling · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: Every row of `scripts/recordings.json` names the suite that actually writes its record, and every capture-backed record has a true row.
+
+Scope: in
+- The `m055-record-shapes.json` row corrected to `scripts/tutor-record-shapes.test.mjs`, which is the suite whose arm writes it.
+- A read-only suite asserting, per row, that the named suite exists, names the record in its source, reads the row's arm, and that the record's own capture command names that suite and arm.
+- The reverse assertion: every record under `research/raw/` carrying an armed capture command has a row that names it.
+- An armed writer for `research/raw/m057-record-shapes.json`, the last record-shapes map with none, refusing a candidate its own pins reject.
+
+Scope: out
+- Widening the manifest to records that no armed capture writes, which would make the reverse assertion vacuous.
+
+Success criteria
+1. A row naming a suite that does not write its record reddens with all three sides named: the row, the suite the record's capture command names, and the record the named suite writes.
+2. The m068 row is asserted present and passing, so a stub or empty manifest cannot pass vacuously.
+3. `m057-record-shapes.json` is produced by an armed run, and a second armed run moves no byte; a mutant that makes the derivation non-idempotent is refused and nothing is written.
+4. The census is re-derived last, after every suite edit, and its default run is green.
+
+Risks
+- A manifest read by nothing decays silently, which is how this row survived three milestones.
+
+Open questions
+- none
+
+### M072 — ds-services
+Depends on: [M069]
+Programme: Generation 4 · Batch: design system · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel offers toast, tooltip and clipboard through presentational services, and an awaitable confirm gate rendered with the CDK dialog rather than a page protocol.
+
+Scope: in
+- Toast, tooltip and clipboard services with one canonical implementation each.
+- An awaitable `confirm(request): Promise<boolean>` rendered with the CDK dialog, never a page `confirm` or a protocol message.
+- A suite that proves each service is reachable from a surface and that the confirm gate resolves both answers.
+
+Scope: out
+- A page-side dialog or protocol message for confirmation.
+- A second toast or tooltip implementation beside the canonical one.
+
+Success criteria
+1. The confirm gate resolves `true` on accept and `false` on dismiss, proven by driving both; a mutant that resolves a constant reddens naming the branch.
+2. No surface calls a page protocol or `window.confirm`; a mutant that adds one reddens naming the surface.
+3. Each service has exactly one definition, and a mutant that copies one reddens naming both.
+
+Risks
+- A CDK dialog inside the panel depends on a stylesheet the panel must carry, which the bundle budget measures.
+
+Open questions
+- none
+
+### M073 — ds-harnesses
+Depends on: [M070]
+Programme: Generation 4 · Batch: design system · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The design system ships the two panel harnesses the shipped surfaces need, and claims only those two.
+
+Scope: in
+- Harness claims HAR-1 and HAR-2 for the shell and the answer block.
+- HAR-3 and HAR-4 stay with M023, which own the ambiguous host and the action-reached-Angular claim.
+- A suite that proves each harness loads against the shipped surface it claims.
+
+Scope: out
+- A harness for an ambiguous host or an action claim, which have no clean design-system subject.
+
+Success criteria
+1. Each claimed harness loads and drives its surface, and a mutant that points a harness at the wrong surface reddens naming both.
+2. No harness claims HAR-3 or HAR-4; a mutant that adds such a claim reddens naming the claim.
+3. The harness list is one declaration, and a mutant that duplicates it reddens.
+
+Risks
+- A harness written against a shell that later changes shape fails silently unless the harness drives a rendered assertion.
+
+Open questions
+- none
+
+### M074 — ds-playwright
+Depends on: [M068]
+Programme: Generation 4 · Batch: design system · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: Playwright proves what a browser outside DevTools can prove about this extension: that it loads, that the panel bundle and its `baseHref` resolve, and that the background relay answers an ordinary tab.
+
+Scope: in
+- A Playwright project that loads the built extension in a throwaway, git-ignored profile.
+- Assertions for extension load, panel bundle presence, `baseHref` resolution and the background/relay path driven from an ordinary tab.
+- The stated limit recorded in the suite: the DevTools panel itself cannot be driven, because `chrome.devtools` is undefined outside DevTools.
+
+Scope: out
+- Driving the DevTools panel, which lives in a `devtools://` target Playwright does not surface as a page.
+- Using a `control-ai-browsers` instance; the run must use its own profile.
+
+Success criteria
+1. The run proves extension load, the panel bundle and `baseHref`, and the relay path from an ordinary tab, each with its own assertion.
+2. The suite states the DevTools-panel limit and no assertion claims it; a mutant that adds such a claim reddens naming the limit.
+3. The profile is throwaway and git-ignored, and a run that finds a shared browser profile refuses before driving.
+
+Risks
+- A Playwright browser that signs into an account would leak it into the repository; the profile rule is the guard.
+
+Open questions
+- none
+
+### M075 — storybook-story-index
+Depends on: [M074]
+Programme: Generation 4 · Batch: Storybook · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel detects a Storybook application and lists its stories, naming the resume it used and the count it read.
+
+Scope: in
+- Detection of `window.__STORYBOOK_PREVIEW__` and its story index without page-side instrumentation.
+- A panel surface listing stories with their ids and titles.
+- A named absence when the page is not a Storybook application.
+
+Scope: out
+- Reading a story's rendered DOM as its own evidence; the index is read, not the iframe.
+
+Success criteria
+1. A Storybook page yields its story index with the count the page itself states; a mutant that fabricates a count reddens naming it.
+2. A non-Storybook page answers the named absence and never an empty list; a mutant that returns an empty list reddens naming the absence.
+3. The detection reads only the documented global; a mutant that sniffs the URL instead reddens naming the global.
+
+Risks
+- Storybook's global is undocumented API and may move between majors; the absence state must survive that.
+
+Open questions
+- none
+
+### M076 — storybook-story-gap
+Depends on: [M075]
+Programme: Generation 4 · Batch: Storybook · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel names the components a Storybook application covers with no story, and the stories that exist for a component it cannot find.
+
+Scope: in
+- Coverage join between the story index and the components the panel already enumerates.
+- The two absences named separately: a component with no story, and a story naming a component not found.
+- One panel surface rendering the join.
+
+Scope: out
+- A remedy, a suggested story, or a scaffolded file.
+
+Success criteria
+1. A component with no story is named with its selector; a mutant that reports it as covered reddens naming it.
+2. A story naming an unknown component is named with its id; a mutant that drops it reddens naming the id.
+3. The answer names no remedy and no generated file; a mutant that adds either reddens.
+
+Risks
+- Component enumeration and story ids use different naming schemes, so the join key must be derived and asserted, not assumed.
+
+Open questions
+- none
+
+### M077 — storybook-story-explain
+Depends on: [M076]
+Programme: Generation 4 · Batch: Storybook · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel explains one story: its args, its variants and what it does not exercise.
+
+Scope: in
+- Per-story reading of args and variants from the story index.
+- A panel surface rendering them, with the panel-local Prompt API answer on request.
+- A named absence when the index carries no args for the story.
+
+Scope: out
+- Running the story; the panel reads the index, it does not render the iframe.
+
+Success criteria
+1. A story with args is explained with every arg named; a mutant that drops one reddens naming the arg.
+2. A story with no declared args answers the named absence rather than an empty list; a mutant that returns an empty list reddens.
+3. A story with one variant and a story with three are both reported with the count the index states; a mutant that hardcodes a count reddens.
+
+Risks
+- Story args are type-less at runtime, so the panel must report the value it read, never a coerced one.
+
+Open questions
+- none
+
+### M078 — ds-story-variants
+Depends on: [M069]
+Programme: Generation 4 · Batch: design system · Group: design system
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: Every design-system component ships a story that exposes its args and at least one variant, so the design system can be reviewed in its own Storybook.
+
+Scope: in
+- One story per design-system component, exposing args and at least one variant.
+- A suite that proves each component has a story, that the story declares args, and that it renders at least one variant.
+- The Storybook application that hosts them, with no interaction test wired into `npm test`.
+
+Scope: out
+- An interaction test as a gate; Storybook is a review surface, not a gate.
+- Storybook mocks of `chrome.*`, which would be a second unowned copy of the wire contract.
+
+Success criteria
+1. Every component has a story with declared args; a mutant that removes one component's story reddens naming it.
+2. Every story renders at least one variant, proven from the story's own declaration; a mutant that drops the variant reddens.
+3. No Storybook test runs in `npm test`; a mutant that wires one in reddens naming the stage.
+
+Risks
+- Stories are the only review surface for the design system, so a missing story is invisible until someone looks.
+
+Open questions
+- none
+
+### M079 — cap-1-capability-guidance
+Depends on: [M075]
+Programme: Generation 4 · Batch: Storybook · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel turns a missing Prompt API into a stated capability gap with the guidance to enable it, never a silent failure.
+
+Scope: in
+- Capability detection for the panel-local Prompt API.
+- The guidance state naming what is missing and what enables it, on every surface that can call it.
+- A suite that proves the guidance appears in place of the call, and the call never runs when the capability is absent.
+
+Scope: out
+- A silent fallback that answers as if the model had run.
+
+Success criteria
+1. With the capability absent, the guidance state renders and no call is attempted; a mutant that calls anyway reddens naming the call.
+2. With the capability present, the guidance does not render; a mutant that renders both reddens.
+3. The guidance names the capability and never a remedy outside it; a mutant that names a page edit reddens.
+
+Risks
+- A capability check read once at startup goes stale when the model downloads mid-session.
+
+Open questions
+- none
+
+### M080 — show-1-showcase-stories
+Depends on: [M078]
+Programme: Generation 4 · Batch: design system · Group: design system
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The design system's Storybook also hosts the six panel surfaces as showcase stories, so the shell and the surfaces are reviewed on one surface.
+
+Scope: in
+- One story per shipped panel surface, rendering it with recorded data.
+- The showcase stories kept out of `npm test`, as every Storybook story is.
+- A suite that proves each surface has a showcase story and that the story's data is the surface's own recorded fact.
+
+Scope: out
+- A second rendering path for any surface; the showcase renders the shipped component.
+- A mock of `chrome.*`.
+
+Success criteria
+1. Each of the six surfaces has a showcase story rendering the shipped component; a mutant that removes one reddens naming the surface.
+2. Each story's data is the recorded fact the surface's own suite uses; a mutant that inlines different data reddens naming both.
+3. No showcase story runs in `npm test`; a mutant that wires one in reddens naming the stage.
+
+Risks
+- A showcase story rendering a copy of a surface would drift from the shipped one without any gate noticing.
 
 Open questions
 - none

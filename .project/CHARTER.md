@@ -195,6 +195,32 @@ questions, answered in the panel, on the developer's machine.
   the design-system generation follows this one unless the next roadmap approval
   reorders it. This Correction does not move A10; it records where the cap has put it.
 
+- 2026-11-25: programme 3 · Generation 4 admission (design system and Storybook).
+  The generation A10 placed immediately after the `angular/components` work is
+  admitted, and its twelve entries enter `Full scope: in`: `M069 ds-tokens`, `M070
+  ds-explainer-shell`, `M071 recordings-manifest-truth`, `M072 ds-services`, `M073
+  ds-harnesses`, `M074 ds-playwright`, `M075 storybook-story-index`, `M076
+  storybook-story-gap`, `M077 storybook-story-explain`, `M078 ds-story-variants`,
+  `M079 cap-1-capability-guidance`, `M080 show-1-showcase-stories`. The design
+  system is a subset bounded by shipped use (A11), not a component library: it ships
+  the tokens, the explainer shell the six surfaces already repeat, the presentational
+  services they need, the two harnesses they claim, and the Playwright proof a
+  browser outside DevTools can carry. The Storybook work is the tool's own feature
+  set for browsing a Storybook application (§6.2), and the design system's Storybook
+  hosts the six panel surfaces as showcase stories, so each reviews the other. The
+  owner's instruction of 2026-11-25 fixed the ordering: the design-system subset is
+  the first entries of this generation, and the Storybook-browsing features follow
+  inside it.
+
+  **Inserted at admission, not planned in advance.** `M071
+  recordings-manifest-truth` is a measured repair, not new product work: M068 found
+  that `scripts/recordings.json` names a suite that writes a different record for
+  the `m055` map, and that `m057-record-shapes.json` is the last map with no armed
+  writer. A cross-family consultation on 2026-11-25 held that the first is a check
+  plus a one-row edit and the second is work, so both are one entry rather than two.
+  It sits third, after the two entries that establish the design system.
+
+
 - 2026-11-14: programme 2 · Generation 3 admission. Generation 2 (M032-M043) is
   closed with all twelve entries shipped, integrated, tagged and archived, and a
   two-arm `lars-review` panel has reviewed each of the twelve individually.

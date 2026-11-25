@@ -1,0 +1,2825 @@
+{
+  "schema": "m069-token-baseline/v1",
+  "milestone": "M069",
+  "task": "T001",
+  "question": "Which selector and which property does the panel stylesheet declare a value for, what value does it declare as text, and what value does the panel render today — and which of those values could not be resolved without a browser?",
+  "capture": {
+    "capturedAt": "2026-11-25T08:27:46.270Z",
+    "command": "M069_CAPTURE=1 node --test scripts/token-baseline.test.mjs",
+    "check": "node --test scripts/token-baseline.test.mjs",
+    "records": "research/raw/m069-token-baseline.json",
+    "writes": "one: the armed test re-derives this record from the files below and writes it only when a value moved, and it refuses to write a candidate that is not a fixed point of this suite’s default pin",
+    "armedBy": "M069_CAPTURE=1",
+    "note": "the instant this record was first written; every re-capture derives through it, so the record moves for no clock - the values it carries are read from the stylesheet and the document at every run, and none of them is a time"
+  },
+  "sources": [
+    {
+      "path": "apps/angular-ai-devtools/src/styles.css",
+      "contributes": "the declarations themselves: every rule, its media context, its selector as authored and the value text it carries, read from the file rather than from a normalised copy of it."
+    },
+    {
+      "path": "scripts/panel-styles.test.mjs",
+      "contributes": "the document the computed readings are taken from and the hooks the style suite measures it on: this suite imports `panelMarkup`, `documentWith`, `darkBlock`, `measure`, `MEASURED_HOOKS`, `DARK_HOOKS`, `MEASURED_PROPERTIES` and `STATES` from it, so the surface recorded here is that suite’s surface and not a second one."
+    }
+  ],
+  "facts": {
+    "media": "The media context the declaration sits in: `all` for the sheet’s own rules, and the dark block’s own media text for the rules it carries, so a value the dark scheme restates is recorded beside the value it restates rather than instead of it.",
+    "selector": "The selector the value is declared under, exactly as the stylesheet authors it — a selector list keeps its own line breaks and its own quote characters, so the record names the declaration a reader can find in the file and never a normalised spelling of it.",
+    "selectorParts": "The same selector split into the parts a document can be asked for, so every part of a selector list is either the element the reading was taken from or a part recorded as rendered by nothing in the measured document.",
+    "document": "The document the computed reading was taken from: the default markup `scripts/panel-styles.test.mjs` renders, a document carrying that suite’s own state value where the selector names one of the four states, or the default document with the dark block’s rules appended as a second sheet — which is how that suite measures the scheme, since jsdom implements no `matchMedia`.",
+    "property": "The CSS property as the stylesheet authors it, shorthands included: `border-top` is recorded as `border-top` and not as the longhands it expands to, so the row names the declaration the author wrote.",
+    "declared": "The value the stylesheet declares, as the text its author wrote: hex colours, `currentcolor`, `inherit` and shorthands are carried unexpanded and unnormalised, because a normalised value could not tell the token layer re-expressing this value from the token layer retuning it.",
+    "computed": "The value `window.getComputedStyle` resolves for that declaration on the element the measured document renders, read through `scripts/panel-styles.test.mjs`’s own `documentWith` and `panelMarkup` — or, where the value cannot be resolved without a browser, a named absence carrying the measurement that showed it unread rather than a value only jsdom would agree with."
+  },
+  "census": {
+    "recordings": "scripts/recordings.json",
+    "row": {
+      "recording": "research/raw/m069-token-baseline.json",
+      "suite": "scripts/token-baseline.test.mjs",
+      "arm": "M069_CAPTURE=1"
+    },
+    "reasonRow": {
+      "path": "scripts/gate-integrity.test.mjs",
+      "present": true
+    },
+    "reading": "the manifest names this recording with the suite that writes it and the arm that writes it, and the census carries the reason row the suite this milestone adds owes it, both read at capture rather than stated here"
+  },
+  "derivedFrom": {
+    "stylesheet": {
+      "path": "apps/angular-ai-devtools/src/styles.css",
+      "bytes": 11648,
+      "lines": 302,
+      "sha256": "4926ba86a8553bb2216247e1fc5459026af0eac680fd0f0ad8a65e3eb05ec799",
+      "darkMedia": "(prefers-color-scheme: dark)",
+      "darkRules": 7
+    },
+    "measuredBy": {
+      "path": "scripts/panel-styles.test.mjs",
+      "sha256": "8cae976e71bb2ddb479c4c806e081eae0d95ac04b0a8cc18e5541bc59ba1277d",
+      "markupSha256": "2f9300a4451b147c8f2259ca39ee66d563a0b8f594f814ed288c4c7d74d11650",
+      "hooks": [
+        {
+          "label": "heading",
+          "selector": "h2"
+        },
+        {
+          "label": "row",
+          "selector": "p.line"
+        },
+        {
+          "label": "surface",
+          "selector": "section.panel-demo"
+        },
+        {
+          "label": "control",
+          "selector": "button"
+        }
+      ],
+      "darkHooks": [
+        {
+          "label": "body",
+          "selector": "body"
+        },
+        {
+          "label": "surface",
+          "selector": "section.panel-demo"
+        },
+        {
+          "label": "block",
+          "selector": "section.panel-block"
+        },
+        {
+          "label": "row",
+          "selector": "p.line"
+        },
+        {
+          "label": "state",
+          "selector": "p.state"
+        },
+        {
+          "label": "control",
+          "selector": "button"
+        }
+      ],
+      "properties": [
+        "padding",
+        "borderTopWidth",
+        "backgroundColor"
+      ],
+      "states": [
+        "finding",
+        "differing",
+        "cannot-tell",
+        "idle"
+      ],
+      "document": "the default document `scripts/panel-styles.test.mjs` builds from its own `panelMarkup()` — a `section.panel-demo` carrying `data-surface=\"render-phase\"` and its state, an `h2`, a `p.state`, two `section.panel-block` elements with their own `p.block-state` and `p.line` rows, a `button` and a `select`"
+    },
+    "documents": {
+      "default": "the default document `scripts/panel-styles.test.mjs` builds from its own `panelMarkup()` — a `section.panel-demo` carrying `data-surface=\"render-phase\"` and its state, an `h2`, a `p.state`, two `section.panel-block` elements with their own `p.block-state` and `p.line` rows, a `button` and a `select`",
+      "media:(prefers-color-scheme: dark)": "the default document with the rules of the \"(prefers-color-scheme: dark)\" block appended as a second sheet, which is how `scripts/panel-styles.test.mjs` measures a media context jsdom offers no `matchMedia` for",
+      "media:(prefers-reduced-motion: reduce)": "the default document with the rules of the \"(prefers-reduced-motion: reduce)\" block appended as a second sheet, which is how `scripts/panel-styles.test.mjs` measures a media context jsdom offers no `matchMedia` for",
+      "state:finding": "the document `scripts/panel-styles.test.mjs` builds for the state \"finding\" — its own `panelMarkup` with that state on the surface and on one block, which is the document its `stateColours` reads",
+      "state:differing": "the document `scripts/panel-styles.test.mjs` builds for the state \"differing\" — its own `panelMarkup` with that state on the surface and on one block, which is the document its `stateColours` reads",
+      "state:cannot-tell": "the document `scripts/panel-styles.test.mjs` builds for the state \"cannot-tell\" — its own `panelMarkup` with that state on the surface and on one block, which is the document its `stateColours` reads",
+      "state:idle": "the document `scripts/panel-styles.test.mjs` builds for the state \"idle\" — its own `panelMarkup` with that state on the surface and on one block, which is the document its `stateColours` reads"
+    },
+    "rules": [
+      {
+        "media": "all",
+        "selector": ":root",
+        "selectorParts": [
+          ":root"
+        ],
+        "declarations": 57
+      },
+      {
+        "media": "all",
+        "selector": "body",
+        "selectorParts": [
+          "body"
+        ],
+        "declarations": 7
+      },
+      {
+        "media": "all",
+        "selector": "h1,\nh2,\nh3",
+        "selectorParts": [
+          "h1",
+          "h2",
+          "h3"
+        ],
+        "declarations": 6
+      },
+      {
+        "media": "all",
+        "selector": "h2",
+        "selectorParts": [
+          "h2"
+        ],
+        "declarations": 1
+      },
+      {
+        "media": "all",
+        "selector": "section.panel-demo[data-surface][data-state]",
+        "selectorParts": [
+          "section.panel-demo[data-surface][data-state]"
+        ],
+        "declarations": 4
+      },
+      {
+        "media": "all",
+        "selector": "p.state",
+        "selectorParts": [
+          "p.state"
+        ],
+        "declarations": 5
+      },
+      {
+        "media": "all",
+        "selector": "section.panel-block[data-block-kind][data-block-state]",
+        "selectorParts": [
+          "section.panel-block[data-block-kind][data-block-state]"
+        ],
+        "declarations": 5
+      },
+      {
+        "media": "all",
+        "selector": "p.block-state",
+        "selectorParts": [
+          "p.block-state"
+        ],
+        "declarations": 4
+      },
+      {
+        "media": "all",
+        "selector": "p.line",
+        "selectorParts": [
+          "p.line"
+        ],
+        "declarations": 6
+      },
+      {
+        "media": "all",
+        "selector": "section.panel-demo[data-state='finding'],\nsection.panel-block[data-block-state='finding']",
+        "selectorParts": [
+          "section.panel-demo[data-state='finding']",
+          "section.panel-block[data-block-state='finding']"
+        ],
+        "declarations": 1
+      },
+      {
+        "media": "all",
+        "selector": "section.panel-demo[data-state='differing'],\nsection.panel-block[data-block-state='differing']",
+        "selectorParts": [
+          "section.panel-demo[data-state='differing']",
+          "section.panel-block[data-block-state='differing']"
+        ],
+        "declarations": 1
+      },
+      {
+        "media": "all",
+        "selector": "section.panel-demo[data-state='cannot-tell'],\nsection.panel-block[data-block-state='cannot-tell']",
+        "selectorParts": [
+          "section.panel-demo[data-state='cannot-tell']",
+          "section.panel-block[data-block-state='cannot-tell']"
+        ],
+        "declarations": 1
+      },
+      {
+        "media": "all",
+        "selector": "section.panel-demo[data-state='idle'],\nsection.panel-block[data-block-state='idle']",
+        "selectorParts": [
+          "section.panel-demo[data-state='idle']",
+          "section.panel-block[data-block-state='idle']"
+        ],
+        "declarations": 1
+      },
+      {
+        "media": "all",
+        "selector": "button,\nselect",
+        "selectorParts": [
+          "button",
+          "select"
+        ],
+        "declarations": 6
+      },
+      {
+        "media": "all",
+        "selector": "button",
+        "selectorParts": [
+          "button"
+        ],
+        "declarations": 1
+      },
+      {
+        "media": "all",
+        "selector": "button:focus-visible,\nselect:focus-visible",
+        "selectorParts": [
+          "button:focus-visible",
+          "select:focus-visible"
+        ],
+        "declarations": 1
+      },
+      {
+        "media": "(prefers-color-scheme: dark)",
+        "selector": "body",
+        "selectorParts": [
+          "body"
+        ],
+        "declarations": 2
+      },
+      {
+        "media": "(prefers-color-scheme: dark)",
+        "selector": "h1,\n  h2,\n  h3",
+        "selectorParts": [
+          "h1",
+          "h2",
+          "h3"
+        ],
+        "declarations": 3
+      },
+      {
+        "media": "(prefers-color-scheme: dark)",
+        "selector": "section.panel-demo[data-surface][data-state]",
+        "selectorParts": [
+          "section.panel-demo[data-surface][data-state]"
+        ],
+        "declarations": 2
+      },
+      {
+        "media": "(prefers-color-scheme: dark)",
+        "selector": "p.state",
+        "selectorParts": [
+          "p.state"
+        ],
+        "declarations": 1
+      },
+      {
+        "media": "(prefers-color-scheme: dark)",
+        "selector": "section.panel-block[data-block-kind][data-block-state]",
+        "selectorParts": [
+          "section.panel-block[data-block-kind][data-block-state]"
+        ],
+        "declarations": 2
+      },
+      {
+        "media": "(prefers-color-scheme: dark)",
+        "selector": "p.line",
+        "selectorParts": [
+          "p.line"
+        ],
+        "declarations": 3
+      },
+      {
+        "media": "(prefers-color-scheme: dark)",
+        "selector": "button,\n  select",
+        "selectorParts": [
+          "button",
+          "select"
+        ],
+        "declarations": 3
+      },
+      {
+        "media": "(prefers-reduced-motion: reduce)",
+        "selector": ":root",
+        "selectorParts": [
+          ":root"
+        ],
+        "declarations": 3
+      }
+    ]
+  },
+  "declarations": [
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-flush",
+      "declared": "0",
+      "computed": [
+        {
+          "property": "--ds-density-flush",
+          "read": true,
+          "element": ":root",
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-body-block",
+      "declared": "14px 16px 20px",
+      "computed": [
+        {
+          "property": "--ds-density-body-block",
+          "read": true,
+          "element": ":root",
+          "value": "14px 16px 20px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-heading-margin",
+      "declared": "0 0 10px",
+      "computed": [
+        {
+          "property": "--ds-density-heading-margin",
+          "read": true,
+          "element": ":root",
+          "value": "0 0 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-heading-block",
+      "declared": "8px 0 6px",
+      "computed": [
+        {
+          "property": "--ds-density-heading-block",
+          "read": true,
+          "element": ":root",
+          "value": "8px 0 6px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-surface-block",
+      "declared": "16px 18px 18px",
+      "computed": [
+        {
+          "property": "--ds-density-surface-block",
+          "read": true,
+          "element": ":root",
+          "value": "16px 18px 18px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-state-margin",
+      "declared": "0 0 12px",
+      "computed": [
+        {
+          "property": "--ds-density-state-margin",
+          "read": true,
+          "element": ":root",
+          "value": "0 0 12px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-state-block",
+      "declared": "4px 10px",
+      "computed": [
+        {
+          "property": "--ds-density-state-block",
+          "read": true,
+          "element": ":root",
+          "value": "4px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-block-margin",
+      "declared": "0 0 12px",
+      "computed": [
+        {
+          "property": "--ds-density-block-margin",
+          "read": true,
+          "element": ":root",
+          "value": "0 0 12px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-block-block",
+      "declared": "10px 12px",
+      "computed": [
+        {
+          "property": "--ds-density-block-block",
+          "read": true,
+          "element": ":root",
+          "value": "10px 12px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-word-margin",
+      "declared": "0 0 6px",
+      "computed": [
+        {
+          "property": "--ds-density-word-margin",
+          "read": true,
+          "element": ":root",
+          "value": "0 0 6px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-row-block",
+      "declared": "5px 10px",
+      "computed": [
+        {
+          "property": "--ds-density-row-block",
+          "read": true,
+          "element": ":root",
+          "value": "5px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-control-block",
+      "declared": "5px 10px",
+      "computed": [
+        {
+          "property": "--ds-density-control-block",
+          "read": true,
+          "element": ":root",
+          "value": "5px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-stroke-hairline",
+      "declared": "1px",
+      "computed": [
+        {
+          "property": "--ds-density-stroke-hairline",
+          "read": true,
+          "element": ":root",
+          "value": "1px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-stroke-emphasis",
+      "declared": "2px",
+      "computed": [
+        {
+          "property": "--ds-density-stroke-emphasis",
+          "read": true,
+          "element": ":root",
+          "value": "2px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-stroke-state",
+      "declared": "3px",
+      "computed": [
+        {
+          "property": "--ds-density-stroke-state",
+          "read": true,
+          "element": ":root",
+          "value": "3px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-radius-surface",
+      "declared": "6px",
+      "computed": [
+        {
+          "property": "--ds-density-radius-surface",
+          "read": true,
+          "element": ":root",
+          "value": "6px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-cursor-control",
+      "declared": "pointer",
+      "computed": [
+        {
+          "property": "--ds-density-cursor-control",
+          "read": true,
+          "element": ":root",
+          "value": "pointer"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink",
+      "declared": "#1b1f24",
+      "computed": [
+        {
+          "property": "--ds-color-ink",
+          "read": true,
+          "element": ":root",
+          "value": "#1b1f24"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink-strong",
+      "declared": "#10151b",
+      "computed": [
+        {
+          "property": "--ds-color-ink-strong",
+          "read": true,
+          "element": ":root",
+          "value": "#10151b"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas",
+      "declared": "#ffffff",
+      "computed": [
+        {
+          "property": "--ds-color-canvas",
+          "read": true,
+          "element": ":root",
+          "value": "#ffffff"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-heading",
+      "declared": "#f6f8fa",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-heading",
+          "read": true,
+          "element": ":root",
+          "value": "#f6f8fa"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-raised",
+      "declared": "#fbfcfd",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-raised",
+          "read": true,
+          "element": ":root",
+          "value": "#fbfcfd"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-state",
+      "declared": "#eef1f5",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-state",
+          "read": true,
+          "element": ":root",
+          "value": "#eef1f5"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-block",
+      "declared": "#ffffff",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-block",
+          "read": true,
+          "element": ":root",
+          "value": "#ffffff"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-row",
+      "declared": "#f7f8fa",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-row",
+          "read": true,
+          "element": ":root",
+          "value": "#f7f8fa"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-control",
+      "declared": "#ffffff",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-control",
+          "read": true,
+          "element": ":root",
+          "value": "#ffffff"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule",
+      "declared": "#cfd6e2",
+      "computed": [
+        {
+          "property": "--ds-color-rule",
+          "read": true,
+          "element": ":root",
+          "value": "#cfd6e2"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-soft",
+      "declared": "#dde2ea",
+      "computed": [
+        {
+          "property": "--ds-color-rule-soft",
+          "read": true,
+          "element": ":root",
+          "value": "#dde2ea"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-block",
+      "declared": "#b9c2cf",
+      "computed": [
+        {
+          "property": "--ds-color-rule-block",
+          "read": true,
+          "element": ":root",
+          "value": "#b9c2cf"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-row",
+      "declared": "#e6eaf0",
+      "computed": [
+        {
+          "property": "--ds-color-rule-row",
+          "read": true,
+          "element": ":root",
+          "value": "#e6eaf0"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-control",
+      "declared": "#c2cad6",
+      "computed": [
+        {
+          "property": "--ds-color-rule-control",
+          "read": true,
+          "element": ":root",
+          "value": "#c2cad6"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-focus",
+      "declared": "#2f6fd0",
+      "computed": [
+        {
+          "property": "--ds-color-focus",
+          "read": true,
+          "element": ":root",
+          "value": "#2f6fd0"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-state-finding",
+      "declared": "#0b4a8c",
+      "computed": [
+        {
+          "property": "--ds-color-state-finding",
+          "read": true,
+          "element": ":root",
+          "value": "#0b4a8c"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-state-differing",
+      "declared": "#8a4b06",
+      "computed": [
+        {
+          "property": "--ds-color-state-differing",
+          "read": true,
+          "element": ":root",
+          "value": "#8a4b06"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-state-idle",
+      "declared": "#565e6b",
+      "computed": [
+        {
+          "property": "--ds-color-state-idle",
+          "read": true,
+          "element": ":root",
+          "value": "#565e6b"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink-dark",
+      "declared": "#e4e7ec",
+      "computed": [
+        {
+          "property": "--ds-color-ink-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#e4e7ec"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink-strong-dark",
+      "declared": "#f1f3f6",
+      "computed": [
+        {
+          "property": "--ds-color-ink-strong-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#f1f3f6"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink-row-dark",
+      "declared": "#dfe3e9",
+      "computed": [
+        {
+          "property": "--ds-color-ink-row-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#dfe3e9"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-dark",
+      "declared": "#2b313a",
+      "computed": [
+        {
+          "property": "--ds-color-rule-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#2b313a"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-control-dark",
+      "declared": "#3a424e",
+      "computed": [
+        {
+          "property": "--ds-color-rule-control-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#3a424e"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-heading-dark",
+      "declared": "#1f242b",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-heading-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#1f242b"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-raised-dark",
+      "declared": "#1a1e24",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-raised-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#1a1e24"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-state-dark",
+      "declared": "#232830",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-state-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#232830"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-block-dark",
+      "declared": "#22272f",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-block-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#22272f"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-control-dark",
+      "declared": "#262c35",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-control-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#262c35"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-size-body",
+      "declared": "13px",
+      "computed": [
+        {
+          "property": "--ds-type-size-body",
+          "read": true,
+          "element": ":root",
+          "value": "13px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-size-heading",
+      "declared": "15px",
+      "computed": [
+        {
+          "property": "--ds-type-size-heading",
+          "read": true,
+          "element": ":root",
+          "value": "15px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-size-word",
+      "declared": "11px",
+      "computed": [
+        {
+          "property": "--ds-type-size-word",
+          "read": true,
+          "element": ":root",
+          "value": "11px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-weight-semibold",
+      "declared": "600",
+      "computed": [
+        {
+          "property": "--ds-type-weight-semibold",
+          "read": true,
+          "element": ":root",
+          "value": "600"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-weight-bold",
+      "declared": "700",
+      "computed": [
+        {
+          "property": "--ds-type-weight-bold",
+          "read": true,
+          "element": ":root",
+          "value": "700"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-leading-body",
+      "declared": "1.5",
+      "computed": [
+        {
+          "property": "--ds-type-leading-body",
+          "read": true,
+          "element": ":root",
+          "value": "1.5"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-leading-row",
+      "declared": "1.6",
+      "computed": [
+        {
+          "property": "--ds-type-leading-row",
+          "read": true,
+          "element": ":root",
+          "value": "1.6"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-transform-word",
+      "declared": "uppercase",
+      "computed": [
+        {
+          "property": "--ds-type-transform-word",
+          "read": true,
+          "element": ":root",
+          "value": "uppercase"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-control-font",
+      "declared": "inherit",
+      "computed": [
+        {
+          "property": "--ds-type-control-font",
+          "read": true,
+          "element": ":root",
+          "value": "inherit"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-motion-duration-fast",
+      "declared": "120ms",
+      "computed": [
+        {
+          "property": "--ds-motion-duration-fast",
+          "read": true,
+          "element": ":root",
+          "value": "120ms"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-motion-duration-base",
+      "declared": "200ms",
+      "computed": [
+        {
+          "property": "--ds-motion-duration-base",
+          "read": true,
+          "element": ":root",
+          "value": "200ms"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-motion-easing-standard",
+      "declared": "cubic-bezier(0.2, 0, 0.2, 1)",
+      "computed": [
+        {
+          "property": "--ds-motion-easing-standard",
+          "read": true,
+          "element": ":root",
+          "value": "cubic-bezier(0.2, 0, 0.2, 1)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "body",
+      "selectorParts": [
+        "body"
+      ],
+      "document": "default",
+      "property": "margin",
+      "declared": "var(--ds-density-flush)",
+      "computed": [
+        {
+          "property": "margin",
+          "read": true,
+          "element": "body",
+          "value": "0px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "body",
+      "selectorParts": [
+        "body"
+      ],
+      "document": "default",
+      "property": "padding",
+      "declared": "var(--ds-density-body-block)",
+      "computed": [
+        {
+          "property": "padding",
+          "read": true,
+          "element": "body",
+          "value": "14px 16px 20px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "body",
+      "selectorParts": [
+        "body"
+      ],
+      "document": "default",
+      "property": "color",
+      "declared": "var(--ds-color-ink)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "body",
+          "value": "rgb(27, 31, 36)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "body",
+      "selectorParts": [
+        "body"
+      ],
+      "document": "default",
+      "property": "background",
+      "declared": "var(--ds-color-canvas)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "body",
+          "value": "rgb(255, 255, 255)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "body",
+      "selectorParts": [
+        "body"
+      ],
+      "document": "default",
+      "property": "font-family",
+      "declared": "system-ui, sans-serif",
+      "computed": [
+        {
+          "property": "fontFamily",
+          "read": false,
+          "kind": "policy",
+          "probed": [
+            "fontFamily"
+          ],
+          "reason": "`font-family` under \"body\" was not resolved: the style suite refuses `font-family` as a discriminator on purpose, because Chrome injects `font-family: \"Segoe UI\"` into a `chrome-extension://` document and a reading on it passes on a pane with no typography of its own — so this record states the absence rather than writing a value the browser would not agree with"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "body",
+      "selectorParts": [
+        "body"
+      ],
+      "document": "default",
+      "property": "font-size",
+      "declared": "var(--ds-type-size-body)",
+      "computed": [
+        {
+          "property": "fontSize",
+          "read": true,
+          "element": "body",
+          "value": "13px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "body",
+      "selectorParts": [
+        "body"
+      ],
+      "document": "default",
+      "property": "line-height",
+      "declared": "var(--ds-type-leading-body)",
+      "computed": [
+        {
+          "property": "lineHeight",
+          "read": true,
+          "element": "body",
+          "value": "1.5"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "h1,\nh2,\nh3",
+      "selectorParts": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "document": "default",
+      "property": "margin",
+      "declared": "var(--ds-density-heading-margin)",
+      "computed": [
+        {
+          "property": "margin",
+          "read": true,
+          "element": "h2",
+          "value": "0px 0px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "h1,\nh2,\nh3",
+      "selectorParts": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "document": "default",
+      "property": "padding",
+      "declared": "var(--ds-density-heading-block)",
+      "computed": [
+        {
+          "property": "padding",
+          "read": true,
+          "element": "h2",
+          "value": "8px 0px 6px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "h1,\nh2,\nh3",
+      "selectorParts": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "document": "default",
+      "property": "border-top",
+      "declared": "var(--ds-density-stroke-emphasis) solid var(--ds-color-rule)",
+      "computed": [
+        {
+          "property": "borderTopWidth",
+          "read": true,
+          "element": "h2",
+          "value": "2px"
+        },
+        {
+          "property": "borderTopStyle",
+          "read": true,
+          "element": "h2",
+          "value": "solid"
+        },
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "h2",
+          "value": "rgb(207, 214, 226)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "h1,\nh2,\nh3",
+      "selectorParts": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "document": "default",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-heading)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "h2",
+          "value": "rgb(246, 248, 250)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "h1,\nh2,\nh3",
+      "selectorParts": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "document": "default",
+      "property": "color",
+      "declared": "var(--ds-color-ink-strong)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "h2",
+          "value": "rgb(16, 21, 27)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "h1,\nh2,\nh3",
+      "selectorParts": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "document": "default",
+      "property": "font-weight",
+      "declared": "var(--ds-type-weight-semibold)",
+      "computed": [
+        {
+          "property": "fontWeight",
+          "read": true,
+          "element": "h2",
+          "value": "600"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "h2",
+      "selectorParts": [
+        "h2"
+      ],
+      "document": "default",
+      "property": "font-size",
+      "declared": "var(--ds-type-size-heading)",
+      "computed": [
+        {
+          "property": "fontSize",
+          "read": true,
+          "element": "h2",
+          "value": "15px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-demo[data-surface][data-state]",
+      "selectorParts": [
+        "section.panel-demo[data-surface][data-state]"
+      ],
+      "document": "default",
+      "property": "padding",
+      "declared": "var(--ds-density-surface-block)",
+      "computed": [
+        {
+          "property": "padding",
+          "read": true,
+          "element": "section.panel-demo[data-surface][data-state]",
+          "value": "16px 18px 18px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-demo[data-surface][data-state]",
+      "selectorParts": [
+        "section.panel-demo[data-surface][data-state]"
+      ],
+      "document": "default",
+      "property": "border",
+      "declared": "var(--ds-density-stroke-hairline) solid var(--ds-color-rule)",
+      "computed": [
+        {
+          "property": "borderTopWidth",
+          "read": true,
+          "element": "section.panel-demo[data-surface][data-state]",
+          "value": "1px"
+        },
+        {
+          "property": "borderTopStyle",
+          "read": true,
+          "element": "section.panel-demo[data-surface][data-state]",
+          "value": "solid"
+        },
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "section.panel-demo[data-surface][data-state]",
+          "value": "rgb(207, 214, 226)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-demo[data-surface][data-state]",
+      "selectorParts": [
+        "section.panel-demo[data-surface][data-state]"
+      ],
+      "document": "default",
+      "property": "border-radius",
+      "declared": "var(--ds-density-radius-surface)",
+      "computed": [
+        {
+          "property": "borderRadius",
+          "read": true,
+          "element": "section.panel-demo[data-surface][data-state]",
+          "value": "6px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-demo[data-surface][data-state]",
+      "selectorParts": [
+        "section.panel-demo[data-surface][data-state]"
+      ],
+      "document": "default",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-raised)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "section.panel-demo[data-surface][data-state]",
+          "value": "rgb(251, 252, 253)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.state",
+      "selectorParts": [
+        "p.state"
+      ],
+      "document": "default",
+      "property": "margin",
+      "declared": "var(--ds-density-state-margin)",
+      "computed": [
+        {
+          "property": "margin",
+          "read": true,
+          "element": "p.state",
+          "value": "0px 0px 12px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.state",
+      "selectorParts": [
+        "p.state"
+      ],
+      "document": "default",
+      "property": "padding",
+      "declared": "var(--ds-density-state-block)",
+      "computed": [
+        {
+          "property": "padding",
+          "read": true,
+          "element": "p.state",
+          "value": "4px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.state",
+      "selectorParts": [
+        "p.state"
+      ],
+      "document": "default",
+      "property": "border-left",
+      "declared": "var(--ds-density-stroke-state) solid currentcolor",
+      "computed": [
+        {
+          "property": "borderLeftWidth",
+          "read": true,
+          "element": "p.state",
+          "value": "3px"
+        },
+        {
+          "property": "borderLeftStyle",
+          "read": true,
+          "element": "p.state",
+          "value": "solid"
+        },
+        {
+          "property": "borderLeftColor",
+          "read": true,
+          "element": "p.state",
+          "value": "rgb(27, 31, 36)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.state",
+      "selectorParts": [
+        "p.state"
+      ],
+      "document": "default",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-state)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "p.state",
+          "value": "rgb(238, 241, 245)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.state",
+      "selectorParts": [
+        "p.state"
+      ],
+      "document": "default",
+      "property": "font-weight",
+      "declared": "var(--ds-type-weight-bold)",
+      "computed": [
+        {
+          "property": "fontWeight",
+          "read": true,
+          "element": "p.state",
+          "value": "700"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-block[data-block-kind][data-block-state]",
+      "selectorParts": [
+        "section.panel-block[data-block-kind][data-block-state]"
+      ],
+      "document": "default",
+      "property": "margin",
+      "declared": "var(--ds-density-block-margin)",
+      "computed": [
+        {
+          "property": "margin",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "0px 0px 12px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-block[data-block-kind][data-block-state]",
+      "selectorParts": [
+        "section.panel-block[data-block-kind][data-block-state]"
+      ],
+      "document": "default",
+      "property": "padding",
+      "declared": "var(--ds-density-block-block)",
+      "computed": [
+        {
+          "property": "padding",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "10px 12px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-block[data-block-kind][data-block-state]",
+      "selectorParts": [
+        "section.panel-block[data-block-kind][data-block-state]"
+      ],
+      "document": "default",
+      "property": "border",
+      "declared": "var(--ds-density-stroke-hairline) solid var(--ds-color-rule-soft)",
+      "computed": [
+        {
+          "property": "borderTopWidth",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "1px"
+        },
+        {
+          "property": "borderTopStyle",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "solid"
+        },
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "rgb(221, 226, 234)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-block[data-block-kind][data-block-state]",
+      "selectorParts": [
+        "section.panel-block[data-block-kind][data-block-state]"
+      ],
+      "document": "default",
+      "property": "border-left",
+      "declared": "var(--ds-density-stroke-state) solid var(--ds-color-rule-block)",
+      "computed": [
+        {
+          "property": "borderLeftWidth",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "3px"
+        },
+        {
+          "property": "borderLeftStyle",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "solid"
+        },
+        {
+          "property": "borderLeftColor",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "rgb(185, 194, 207)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-block[data-block-kind][data-block-state]",
+      "selectorParts": [
+        "section.panel-block[data-block-kind][data-block-state]"
+      ],
+      "document": "default",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-block)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "rgb(255, 255, 255)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.block-state",
+      "selectorParts": [
+        "p.block-state"
+      ],
+      "document": "default",
+      "property": "margin",
+      "declared": "var(--ds-density-word-margin)",
+      "computed": [
+        {
+          "property": "margin",
+          "read": true,
+          "element": "p.block-state",
+          "value": "0px 0px 6px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.block-state",
+      "selectorParts": [
+        "p.block-state"
+      ],
+      "document": "default",
+      "property": "font-size",
+      "declared": "var(--ds-type-size-word)",
+      "computed": [
+        {
+          "property": "fontSize",
+          "read": true,
+          "element": "p.block-state",
+          "value": "11px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.block-state",
+      "selectorParts": [
+        "p.block-state"
+      ],
+      "document": "default",
+      "property": "font-weight",
+      "declared": "var(--ds-type-weight-bold)",
+      "computed": [
+        {
+          "property": "fontWeight",
+          "read": true,
+          "element": "p.block-state",
+          "value": "700"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.block-state",
+      "selectorParts": [
+        "p.block-state"
+      ],
+      "document": "default",
+      "property": "text-transform",
+      "declared": "var(--ds-type-transform-word)",
+      "computed": [
+        {
+          "property": "textTransform",
+          "read": true,
+          "element": "p.block-state",
+          "value": "uppercase"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.line",
+      "selectorParts": [
+        "p.line"
+      ],
+      "document": "default",
+      "property": "margin",
+      "declared": "var(--ds-density-flush)",
+      "computed": [
+        {
+          "property": "margin",
+          "read": true,
+          "element": "p.line",
+          "value": "0px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.line",
+      "selectorParts": [
+        "p.line"
+      ],
+      "document": "default",
+      "property": "padding",
+      "declared": "var(--ds-density-row-block)",
+      "computed": [
+        {
+          "property": "padding",
+          "read": true,
+          "element": "p.line",
+          "value": "5px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.line",
+      "selectorParts": [
+        "p.line"
+      ],
+      "document": "default",
+      "property": "border-top",
+      "declared": "var(--ds-density-stroke-hairline) solid var(--ds-color-rule-row)",
+      "computed": [
+        {
+          "property": "borderTopWidth",
+          "read": true,
+          "element": "p.line",
+          "value": "1px"
+        },
+        {
+          "property": "borderTopStyle",
+          "read": true,
+          "element": "p.line",
+          "value": "solid"
+        },
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "p.line",
+          "value": "rgb(230, 234, 240)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.line",
+      "selectorParts": [
+        "p.line"
+      ],
+      "document": "default",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-row)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "p.line",
+          "value": "rgb(247, 248, 250)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.line",
+      "selectorParts": [
+        "p.line"
+      ],
+      "document": "default",
+      "property": "color",
+      "declared": "var(--ds-color-ink)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "p.line",
+          "value": "rgb(27, 31, 36)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "p.line",
+      "selectorParts": [
+        "p.line"
+      ],
+      "document": "default",
+      "property": "line-height",
+      "declared": "var(--ds-type-leading-row)",
+      "computed": [
+        {
+          "property": "lineHeight",
+          "read": true,
+          "element": "p.line",
+          "value": "1.6"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-demo[data-state='finding'],\nsection.panel-block[data-block-state='finding']",
+      "selectorParts": [
+        "section.panel-demo[data-state='finding']",
+        "section.panel-block[data-block-state='finding']"
+      ],
+      "document": "state:finding",
+      "property": "color",
+      "declared": "var(--ds-color-state-finding)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "section.panel-demo[data-state='finding']",
+          "value": "rgb(11, 74, 140)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-demo[data-state='differing'],\nsection.panel-block[data-block-state='differing']",
+      "selectorParts": [
+        "section.panel-demo[data-state='differing']",
+        "section.panel-block[data-block-state='differing']"
+      ],
+      "document": "state:differing",
+      "property": "color",
+      "declared": "var(--ds-color-state-differing)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "section.panel-demo[data-state='differing']",
+          "value": "rgb(138, 75, 6)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-demo[data-state='cannot-tell'],\nsection.panel-block[data-block-state='cannot-tell']",
+      "selectorParts": [
+        "section.panel-demo[data-state='cannot-tell']",
+        "section.panel-block[data-block-state='cannot-tell']"
+      ],
+      "document": "state:cannot-tell",
+      "property": "color",
+      "declared": "#6b5200",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "section.panel-demo[data-state='cannot-tell']",
+          "value": "rgb(107, 82, 0)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "section.panel-demo[data-state='idle'],\nsection.panel-block[data-block-state='idle']",
+      "selectorParts": [
+        "section.panel-demo[data-state='idle']",
+        "section.panel-block[data-block-state='idle']"
+      ],
+      "document": "state:idle",
+      "property": "color",
+      "declared": "var(--ds-color-state-idle)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "section.panel-demo[data-state='idle']",
+          "value": "rgb(86, 94, 107)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "button,\nselect",
+      "selectorParts": [
+        "button",
+        "select"
+      ],
+      "document": "default",
+      "property": "padding",
+      "declared": "var(--ds-density-control-block)",
+      "computed": [
+        {
+          "property": "padding",
+          "read": true,
+          "element": "button",
+          "value": "5px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "button,\nselect",
+      "selectorParts": [
+        "button",
+        "select"
+      ],
+      "document": "default",
+      "property": "border",
+      "declared": "var(--ds-density-stroke-hairline) solid var(--ds-color-rule-control)",
+      "computed": [
+        {
+          "property": "borderTopWidth",
+          "read": true,
+          "element": "button",
+          "value": "1px"
+        },
+        {
+          "property": "borderTopStyle",
+          "read": true,
+          "element": "button",
+          "value": "solid"
+        },
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "button",
+          "value": "rgb(194, 202, 214)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "button,\nselect",
+      "selectorParts": [
+        "button",
+        "select"
+      ],
+      "document": "default",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-control)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "button",
+          "value": "rgb(255, 255, 255)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "button,\nselect",
+      "selectorParts": [
+        "button",
+        "select"
+      ],
+      "document": "default",
+      "property": "color",
+      "declared": "var(--ds-color-ink)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "button",
+          "value": "rgb(27, 31, 36)"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "button,\nselect",
+      "selectorParts": [
+        "button",
+        "select"
+      ],
+      "document": "default",
+      "property": "font",
+      "declared": "var(--ds-type-control-font)",
+      "computed": [
+        {
+          "property": "font",
+          "read": false,
+          "kind": "policy",
+          "probed": [
+            "font"
+          ],
+          "reason": "`font` under \"button,\\nselect\" was not resolved: `font` is the shorthand that carries `font-family`, so it inherits that refusal: the only reading jsdom offers for it here is `inherit`, which is the declaration echoed back rather than the font the panel paints — so this record states the absence rather than writing a value the browser would not agree with"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "button,\nselect",
+      "selectorParts": [
+        "button",
+        "select"
+      ],
+      "document": "default",
+      "property": "cursor",
+      "declared": "var(--ds-density-cursor-control)",
+      "computed": [
+        {
+          "property": "cursor",
+          "read": true,
+          "element": "button",
+          "value": "pointer"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "button",
+      "selectorParts": [
+        "button"
+      ],
+      "document": "default",
+      "property": "font-weight",
+      "declared": "var(--ds-type-weight-semibold)",
+      "computed": [
+        {
+          "property": "fontWeight",
+          "read": true,
+          "element": "button",
+          "value": "inherit"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": "button:focus-visible,\nselect:focus-visible",
+      "selectorParts": [
+        "button:focus-visible",
+        "select:focus-visible"
+      ],
+      "document": "default",
+      "property": "outline",
+      "declared": "var(--ds-density-stroke-emphasis) solid var(--ds-color-focus)",
+      "computed": [
+        {
+          "property": "outlineWidth",
+          "read": false,
+          "kind": "unmatched-selector",
+          "probed": [
+            "outlineWidth",
+            "outlineStyle",
+            "outlineColor",
+            "outline"
+          ],
+          "reason": "`outline` under \"button:focus-visible,\\nselect:focus-visible\" was not resolved: in this document \"button:focus-visible\" matched no element; \"select:focus-visible\" matched no element, so no element carries the declaration and a computed value would have to be invented rather than read"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "body",
+      "selectorParts": [
+        "body"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "color",
+      "declared": "var(--ds-color-ink-dark)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "body",
+          "value": "rgb(228, 231, 236)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "body",
+      "selectorParts": [
+        "body"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "background",
+      "declared": "#14171c",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "body",
+          "value": "rgb(20, 23, 28)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "h1,\n  h2,\n  h3",
+      "selectorParts": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "border-top-color",
+      "declared": "var(--ds-color-rule-dark)",
+      "computed": [
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "h2",
+          "value": "rgb(43, 49, 58)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "h1,\n  h2,\n  h3",
+      "selectorParts": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-heading-dark)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "h2",
+          "value": "rgb(31, 36, 43)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "h1,\n  h2,\n  h3",
+      "selectorParts": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "color",
+      "declared": "var(--ds-color-ink-strong-dark)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "h2",
+          "value": "rgb(241, 243, 246)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "section.panel-demo[data-surface][data-state]",
+      "selectorParts": [
+        "section.panel-demo[data-surface][data-state]"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "border-color",
+      "declared": "var(--ds-color-rule-dark)",
+      "computed": [
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "section.panel-demo[data-surface][data-state]",
+          "value": "rgb(43, 49, 58)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "section.panel-demo[data-surface][data-state]",
+      "selectorParts": [
+        "section.panel-demo[data-surface][data-state]"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-raised-dark)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "section.panel-demo[data-surface][data-state]",
+          "value": "rgb(26, 30, 36)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "p.state",
+      "selectorParts": [
+        "p.state"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-state-dark)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "p.state",
+          "value": "rgb(35, 40, 48)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "section.panel-block[data-block-kind][data-block-state]",
+      "selectorParts": [
+        "section.panel-block[data-block-kind][data-block-state]"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "border-color",
+      "declared": "var(--ds-color-rule-dark)",
+      "computed": [
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "rgb(43, 49, 58)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "section.panel-block[data-block-kind][data-block-state]",
+      "selectorParts": [
+        "section.panel-block[data-block-kind][data-block-state]"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-block-dark)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "section.panel-block[data-block-kind][data-block-state]",
+          "value": "rgb(34, 39, 47)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "p.line",
+      "selectorParts": [
+        "p.line"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "border-top-color",
+      "declared": "var(--ds-color-rule-dark)",
+      "computed": [
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "p.line",
+          "value": "rgb(43, 49, 58)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "p.line",
+      "selectorParts": [
+        "p.line"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-state-dark)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "p.line",
+          "value": "rgb(35, 40, 48)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "p.line",
+      "selectorParts": [
+        "p.line"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "color",
+      "declared": "var(--ds-color-ink-row-dark)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "p.line",
+          "value": "rgb(223, 227, 233)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "button,\n  select",
+      "selectorParts": [
+        "button",
+        "select"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "border-color",
+      "declared": "var(--ds-color-rule-control-dark)",
+      "computed": [
+        {
+          "property": "borderTopColor",
+          "read": true,
+          "element": "button",
+          "value": "rgb(58, 66, 78)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "button,\n  select",
+      "selectorParts": [
+        "button",
+        "select"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "background",
+      "declared": "var(--ds-color-canvas-control-dark)",
+      "computed": [
+        {
+          "property": "backgroundColor",
+          "read": true,
+          "element": "button",
+          "value": "rgb(38, 44, 53)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "button,\n  select",
+      "selectorParts": [
+        "button",
+        "select"
+      ],
+      "document": "media:(prefers-color-scheme: dark)",
+      "property": "color",
+      "declared": "var(--ds-color-ink-dark)",
+      "computed": [
+        {
+          "property": "color",
+          "read": true,
+          "element": "button",
+          "value": "rgb(228, 231, 236)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-reduced-motion: reduce)",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "media:(prefers-reduced-motion: reduce)",
+      "property": "--ds-motion-duration-fast",
+      "declared": "0ms",
+      "computed": [
+        {
+          "property": "--ds-motion-duration-fast",
+          "read": true,
+          "element": ":root",
+          "value": "0ms"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-reduced-motion: reduce)",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "media:(prefers-reduced-motion: reduce)",
+      "property": "--ds-motion-duration-base",
+      "declared": "0ms",
+      "computed": [
+        {
+          "property": "--ds-motion-duration-base",
+          "read": true,
+          "element": ":root",
+          "value": "0ms"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-reduced-motion: reduce)",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "media:(prefers-reduced-motion: reduce)",
+      "property": "--ds-motion-easing-standard",
+      "declared": "linear",
+      "computed": [
+        {
+          "property": "--ds-motion-easing-standard",
+          "read": true,
+          "element": ":root",
+          "value": "linear"
+        }
+      ]
+    }
+  ],
+  "absences": [
+    {
+      "kind": "policy",
+      "media": "all",
+      "selector": "body",
+      "property": "font-family",
+      "computedProperty": "fontFamily",
+      "probed": [
+        "fontFamily"
+      ],
+      "reason": "`font-family` under \"body\" was not resolved: the style suite refuses `font-family` as a discriminator on purpose, because Chrome injects `font-family: \"Segoe UI\"` into a `chrome-extension://` document and a reading on it passes on a pane with no typography of its own — so this record states the absence rather than writing a value the browser would not agree with"
+    },
+    {
+      "kind": "policy",
+      "media": "all",
+      "selector": "button,\nselect",
+      "property": "font",
+      "computedProperty": "font",
+      "probed": [
+        "font"
+      ],
+      "reason": "`font` under \"button,\\nselect\" was not resolved: `font` is the shorthand that carries `font-family`, so it inherits that refusal: the only reading jsdom offers for it here is `inherit`, which is the declaration echoed back rather than the font the panel paints — so this record states the absence rather than writing a value the browser would not agree with"
+    },
+    {
+      "kind": "unmatched-selector",
+      "media": "all",
+      "selector": "button:focus-visible,\nselect:focus-visible",
+      "property": "outline",
+      "computedProperty": "outlineWidth",
+      "probed": [
+        "outlineWidth",
+        "outlineStyle",
+        "outlineColor",
+        "outline"
+      ],
+      "reason": "`outline` under \"button:focus-visible,\\nselect:focus-visible\" was not resolved: in this document \"button:focus-visible\" matched no element; \"select:focus-visible\" matched no element, so no element carries the declaration and a computed value would have to be invented rather than read"
+    }
+  ],
+  "partsNotRendered": [
+    {
+      "media": "all",
+      "selector": "h1,\nh2,\nh3",
+      "part": "h1",
+      "reason": "selector part \"h1\" of \"h1,\\nh2,\\nh3\" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it"
+    },
+    {
+      "media": "all",
+      "selector": "h1,\nh2,\nh3",
+      "part": "h3",
+      "reason": "selector part \"h3\" of \"h1,\\nh2,\\nh3\" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it"
+    },
+    {
+      "media": "all",
+      "selector": "button:focus-visible,\nselect:focus-visible",
+      "part": "button:focus-visible",
+      "reason": "selector part \"button:focus-visible\" of \"button:focus-visible,\\nselect:focus-visible\" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it"
+    },
+    {
+      "media": "all",
+      "selector": "button:focus-visible,\nselect:focus-visible",
+      "part": "select:focus-visible",
+      "reason": "selector part \"select:focus-visible\" of \"button:focus-visible,\\nselect:focus-visible\" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it"
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "h1,\n  h2,\n  h3",
+      "part": "h1",
+      "reason": "selector part \"h1\" of \"h1,\\n  h2,\\n  h3\" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it"
+    },
+    {
+      "media": "(prefers-color-scheme: dark)",
+      "selector": "h1,\n  h2,\n  h3",
+      "part": "h3",
+      "reason": "selector part \"h3\" of \"h1,\\n  h2,\\n  h3\" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it"
+    }
+  ],
+  "counts": {
+    "rules": 24,
+    "darkRules": 7,
+    "mediaBlocks": 3,
+    "selectors": 18,
+    "properties": 75,
+    "declarations": 126,
+    "darkDeclarations": 16,
+    "readings": 140,
+    "readingsRead": 137,
+    "readingsAbsent": 3,
+    "policyAbsences": 2,
+    "unresolvedValues": 0,
+    "unmatchedSelectors": 1,
+    "selectorPartsNotRendered": 6,
+    "documents": 7
+  },
+  "statement": "126 declaration(s) over 24 rule(s), 18 selector(s) and 75 property(ies) were read from apps/angular-ai-devtools/src/styles.css, 16 of them inside the (prefers-color-scheme: dark) block: 137 of 140 reading(s) resolved through scripts/panel-styles.test.mjs's own document and getComputedStyle, and 3 did not. What was not resolved, with the reason: font-family under \"body\" (`font-family` under \"body\" was not resolved: the style suite refuses `font-family` as a discriminator on purpose, because Chrome injects `font-family: \"Segoe UI\"` into a `chrome-extension://` document and a reading on it passes on a pane with no typography of its own — so this record states the absence rather than writing a value the browser would not agree with) font under \"button,\\nselect\" (`font` under \"button,\\nselect\" was not resolved: `font` is the shorthand that carries `font-family`, so it inherits that refusal: the only reading jsdom offers for it here is `inherit`, which is the declaration echoed back rather than the font the panel paints — so this record states the absence rather than writing a value the browser would not agree with) outline under \"button:focus-visible,\\nselect:focus-visible\" (`outline` under \"button:focus-visible,\\nselect:focus-visible\" was not resolved: in this document \"button:focus-visible\" matched no element; \"select:focus-visible\" matched no element, so no element carries the declaration and a computed value would have to be invented rather than read) The tokens no declaration reads are --ds-motion-duration-base, --ds-motion-duration-fast, --ds-motion-easing-standard: the motion contract, declared in the token block and restated for a reader who asks for less motion, is read by no declaration because this sheet carries no transition and no animation — recorded here rather than given a consumer by inventing one, which would be a rendered change. What the style suite measures — heading h2, row p.line, surface section.panel-demo, control button on padding, borderTopWidth, backgroundColor — is carried by these rows' own readings, so the token layer that follows can be proved to re-express these values rather than retune them.",
+  "byteStatement": "The stylesheet this record is derived from is 11648 bytes, the total derivedFrom.stylesheet.bytes records — stated here in prose because scripts/recording-consistency.test.mjs holds a recording that measures bytes to say that total in a sentence, and a scan that examined no sentence of a recording proves nothing, while the count this record carries stays the number in the field beside the sentence that states it."
+}

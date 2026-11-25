@@ -23,5 +23,15 @@
     "recording": "research/raw/m068-head-record.json",
     "suite": "scripts/head-record.test.mjs",
     "arm": "M068_CAPTURE=1"
+  },
+  {
+    "recording": "research/raw/m069-token-baseline.json",
+    "suite": "scripts/token-baseline.test.mjs",
+    "arm": "M069_CAPTURE=1"
+  },
+  {
+    "recording": "research/raw/m069-verdict-claims.json",
+    "suite": "scripts/m069-verdict-claims.test.mjs",
+    "arm": "M069_CAPTURE=1"
   }
 ]

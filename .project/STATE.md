@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: head-state
+milestone: ds-tokens
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M068
-archive: .project/archive/068-head-state
+branch: gsd-path/M069
+archive: .project/archive/069-ds-tokens
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1404,5 +1404,45 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-25 — plan — plan approved
 - 2026-11-25 — build — build started
 - 2026-11-25 — build — build complete; waves reviewed
+- 2026-11-25 — ship — build done; final review pending
+- 2026-11-25 — shipped — archive preflight passed; shipment recorded
+- 2026-11-25 — inspect — generation 4 opened; inspection started
+- 2026-11-25 — inspect — generation 4 inspection recorded as a measured delta
+- 2026-11-25 — define — define started
+- 2026-11-25 — roadmap — roadmap re-slice started
+- 2026-11-25 — roadmap — program roadmap approved
+- 2026-11-25 — define — define started
+- 2026-11-25 — define — milestone intent approved
+- 2026-11-25 — plan — planning started
+- 2026-11-25 — plan — plan approved
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build blocked
+- 2026-11-25 — plan — build plan repair requested
+- 2026-11-25 — plan — build recovery: {"base": "1fb95ba09d48cda9b0bdc2ac8c9bd8fb806feebd", "branch": "gsd-path/M069", "kind": "plan", "source": "build"}
+- 2026-11-25 — plan — plan approved
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build blocked
+- 2026-11-25 — plan — build plan repair requested
+- 2026-11-25 — plan — build recovery: {"base": "c4b26efd892421a3d97eef027c6f1f267f1135a5", "branch": "gsd-path/M069", "kind": "plan", "source": "build"}
+- 2026-11-25 — plan — plan approved
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build blocked
+- 2026-11-25 — plan — build plan repair requested
+- 2026-11-25 — plan — build recovery: {"base": "a98361854102bac91ae69dfa230ca927613d4864", "branch": "gsd-path/M069", "kind": "plan", "source": "build"}
+- 2026-11-25 — plan — plan approved
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build blocked
+- 2026-11-25 — plan — build plan repair requested
+- 2026-11-25 — plan — build recovery: {"base": "6adac838b955346c1588fa0e73b59bc103b6d25c", "branch": "gsd-path/M069", "kind": "plan", "source": "build"}
+- 2026-11-25 — plan — plan approved
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build blocked
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build blocked
+- 2026-11-25 — plan — build plan repair requested
+- 2026-11-25 — plan — build recovery: {"base": "bf3f8fbc8fe30cd5bcf260b4643c1a0819fd4155", "branch": "gsd-path/M069", "kind": "plan", "source": "build"}
+- 2026-11-25 — plan — plan approved
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build finished
 - 2026-11-25 — ship — build done; final review pending
 - 2026-11-25 — shipped — archive preflight passed; shipment recorded
