@@ -12,6 +12,8 @@ Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-d
 
 Plan patch 2026-11-25: the project verify moved from T006 to T009, because T006 writes the claims record and that record moves the census, the stability record and three shape maps — ten tests went red at the first project verify for exactly that reason. Three tasks re-derive what it moved before the verify runs.
 
+Plan patch 2026-11-25 (second): the census moved again because T008 edited a pinned suite after T007 captured it — four tests red at the project verify, `suiteDiff.differing[67].addedLines` 576 to 816. The tail is re-cut so the census is captured after the last suite edit and the stability record after the census: T009 the census, T010 the stability record, T011 the project verify.
+
 ## Waves
 
 ## Wave 1 — T001: measure the head entries and the navigations beside them
@@ -57,9 +59,19 @@ Review depth: full
 Goal: Re-derive the shape maps and move the vocabulary pin the eight edges move.
 Review depth: full
 
-## Wave 9 — T009: the project verify at the final head
+## Wave 9 — T009: re-derive the census after the last suite edit
 
-Goal: Run the plan's project verify after the last file-adding landing and record its exit and counts.
+Goal: Capture the census after the last landing that edits a pinned suite, and default-run it.
+Review depth: full
+
+## Wave 10 — T010: re-derive the stability record
+
+Goal: Capture the record that pins each gate's exit code, after the census it reads is green.
+Review depth: full
+
+## Wave 11 — T011: the project verify at the final head
+
+Goal: Run the plan's project verify from a landing that changes nothing the recordings count.
 Review depth: full
 
 ## Intent coverage
@@ -78,6 +90,8 @@ Review depth: full
 | SC4 | T007 | AC1 |
 | SC4 | T008 | AC1 |
 | SC4 | T009 | AC1 |
+| SC4 | T010 | AC1 |
+| SC4 | T011 | AC1 |
 
 ## Surface contract
 

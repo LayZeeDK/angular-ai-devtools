@@ -1,6 +1,6 @@
 ---
 id: T009
-title: Run the project verify at the final head
+title: Re-derive the census after the last suite edit
 wave: 9
 status: pending
 deps: []
@@ -9,19 +9,33 @@ base: null
 worktree: null
 task_branch: null
 files:
+- scripts/tutor-record-shapes.test.mjs
+- scripts/teardown-leak-shapes.test.mjs
+- scripts/outlet-record-shapes.test.mjs
+- scripts/guard-record-shapes.test.mjs
+- scripts/chunk-failure-claims.test.mjs
+- scripts/tutor-answer.test.mjs
+- scripts/navigation-blocking.test.mjs
+- scripts/m067-verdict-claims.test.mjs
+- scripts/guard-verdict-claims.test.mjs
+- scripts/outlet-verdict-claims.test.mjs
 - scripts/m068-verdict-claims.test.mjs
+- scripts/head-record.test.mjs
+- scripts/gate-integrity-default-tasks.test.mjs
+- research/raw/m044-gate-shapes.json
+- scripts/gate-integrity.test.mjs
+- scripts/gate-stability-record.test.mjs
 - research/raw/m068-verdict-claims.json
 ---
-
-# T009 — Run the project verify at the final head
+# T009 — Re-derive the census after the last suite edit
 
 ## Context
 
-The project verify is the only run that proves the milestone did not break the build it measures, and it must run after the last landing that adds a file. Every earlier attempt was red on recordings the milestone itself moved; this task lands nothing that moves one.
+The census counts the diff of every suite against a pinned commit, so any landing that edits a pinned suite moves it. T007 re-derived it and T008 then edited `scripts/tutor-signals-shapes.test.mjs`, which moved `suiteDiff.differing[67].addedLines` from 576 to 816 and turned four tests red at the project verify. The census therefore has to be captured after the last suite edit in the milestone, not before it.
 
 ## Approach
 
-Re-capture the claims record so it names the head it is verified at, run the plan's project verify command unchanged, and record its exit code and counts. Land nothing that adds a file, so the recordings T007 and T008 re-derived stay true.
+Re-derive the census through its own arm at this head, then default-run it and the suite that reads it. Nothing in this task edits a suite, so the capture holds until the landing.
 
 ## Intent coverage
 
@@ -29,16 +43,30 @@ Re-capture the claims record so it names the head it is verified at, run the pla
 
 ## Acceptance criteria
 
-1. The project verify runs at this head and exits 0, and its stage-by-stage outcome and test counts are recorded in this task's Log with the command that produced them.
-2. The claims record names the head it was verified at and its default run reproduces it byte for byte.
-3. This landing adds no file under `research/raw/` or `scripts/`, so the recordings the previous two tasks re-derived stay true.
+1. The census is re-derived at this head and its default run reports zero failures.
+2. Every value that moved is named with what moved it: the suite T008 edited, and the rows it moved.
+3. A second armed run writes nothing, and a default run writes nothing.
 
 ## Files
 
 Every path this task may touch, and nothing else:
 
+- `scripts/tutor-record-shapes.test.mjs`
+- `scripts/teardown-leak-shapes.test.mjs`
+- `scripts/outlet-record-shapes.test.mjs`
+- `scripts/guard-record-shapes.test.mjs`
+- `scripts/chunk-failure-claims.test.mjs`
+- `scripts/tutor-answer.test.mjs`
+- `scripts/navigation-blocking.test.mjs`
+- `scripts/m067-verdict-claims.test.mjs`
+- `scripts/guard-verdict-claims.test.mjs`
+- `scripts/outlet-verdict-claims.test.mjs`
 - `scripts/m068-verdict-claims.test.mjs`
-- `research/raw/m068-verdict-claims.json`
+- `scripts/head-record.test.mjs`
+- `scripts/gate-integrity-default-tasks.test.mjs`
+- `research/raw/m044-gate-shapes.json`
+- `scripts/gate-integrity.test.mjs`
+- `scripts/gate-stability-record.test.mjs`
 
 ## Interface contract
 
@@ -57,7 +85,7 @@ carries them; `reason` names why the comparison could not be made.
 ## Verify
 
 ```bash
-node --test scripts/m068-verdict-claims.test.mjs && node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test
+node --experimental-strip-types --test scripts/gate-integrity.test.mjs
 ```
 
 ## Log

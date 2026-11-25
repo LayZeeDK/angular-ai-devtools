@@ -9,6 +9,8 @@ base: c7a87d1975fbfe6fc99837e0e1068975b5a95996
 worktree: null
 task_branch: null
 files:
+- scripts/gate-stability-record.test.mjs
+- scripts/gate-integrity.test.mjs
 - scripts/teardown-leak-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
 - scripts/guard-record-shapes.test.mjs
@@ -51,6 +53,8 @@ Re-derive each through its own arm — `M044_CAPTURE=1` for the census and `M056
 
 Every path this task may touch, and nothing else:
 
+- `scripts/gate-stability-record.test.mjs`
+- `scripts/gate-integrity.test.mjs`
 - `scripts/teardown-leak-shapes.test.mjs`
 - `scripts/outlet-record-shapes.test.mjs`
 - `scripts/guard-record-shapes.test.mjs`
