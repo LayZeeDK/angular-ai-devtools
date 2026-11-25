@@ -2,10 +2,10 @@
 id: T005
 title: Re-derive the shape maps the new suite and record moved
 wave: 5
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T005
+base: 744720d1a09637661a7291eef1031c8d0544a749
 worktree: null
 task_branch: null
 files:
