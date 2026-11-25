@@ -23,6 +23,14 @@ base, 538.25 kB after the tokens — 2.81 kB over the recorded 535.44 kB, from t
 `scripts/panel-bundle-budget.test.mjs` therefore joins T004, which states the cost, the reason it is declared and
 M070's projection: Material and CDK arrive there and will need a further declared move rather than another quiet one.
 
+Plan patch 2026-11-25 (third): T005's verify exposed eighteen reds and this patch pays for them in three tasks rather than one,
+because the couplings are real and a single task would move six recordings at once. T006 owns the census chain — the reason row,
+the edge resolution `scripts/navigation-blocking.test.mjs` gets wrong today, the two allow-lists and the older census's stand-down,
+then both captures; T007 re-points `research/raw/m054-style-read.json` at the sheet the token block rewrote, which has no capture arm
+and so is a re-derivation rather than a command; T008 pays the five reds that predate this milestone, because T005's criterion is a
+zero exit and that cannot be satisfied while they stay red. The ordering inside each is enforced by the helpers: an armed capture
+refuses a Log-less run, and the stability record spawns the census and records its exit, so the Log comes first and M056 last.
+
 ## Waves
 
 ## Wave 1 — T001: measure the values the token layer must re-express
@@ -88,3 +96,23 @@ Verify runs that suite. `plan-lint` refuses a row here for an edge a task alread
 `[held-out-row] ... names E1, which is not held-out` — so listing the edges' suites in this table contradicts the gate
 that owns it. Which suite holds which edge is recorded in the milestone's claim census instead, which is the artefact a
 reader opens for exactly that question.
+
+## Wave 6 — T006: land the census chain the new suite and record moved,
+
+Review depth: verify-only
+
+T006: land the census chain the new suite and record moved,
+then re-derive both recordings — Log first, M044 next, M056 last.
+
+## Wave 7 — T007: re-point `research/raw/m054-style-read.json` at the sheet the token block rewrote.
+
+Review depth: verify-only
+
+T007: re-point `research/raw/m054-style-read.json` at the sheet the token block rewrote.
+
+## Wave 8 — T008: pay the reds that predate this milestone.
+
+Review depth: verify-only
+
+T008: pay the reds that predate this milestone.
+
