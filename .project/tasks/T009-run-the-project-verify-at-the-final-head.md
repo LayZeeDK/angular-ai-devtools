@@ -2,10 +2,10 @@
 id: T009
 title: Re-derive the census after the last suite edit
 wave: 9
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T009
+base: fa3f28071c22c5b3568664a334dce726437be452
 worktree: null
 task_branch: null
 files:
@@ -91,3 +91,7 @@ node --experimental-strip-types --test scripts/gate-integrity.test.mjs
 ## Log
 
 - pending
+- 2026-11-25: the census was re-derived by its own arm at this head and moved what T008's edit moved: `archiveReferences.examined` 237 to 238, plus the `suiteDiff` rows for `scripts/tutor-signals-shapes.test.mjs` whose `addedLines` went 576 to 816. Default run 40/40.
+- 2026-11-25: this task was re-cut by the second plan patch. It was "run the project verify at the final head" and the verify was red on four census tests, because T008 edited a pinned suite after T007 captured the census. The census now runs after the last suite edit, the stability record after the census, and the project verify in T011.
+- 2026-11-25: a second armed run writes nothing and a default run writes nothing.
+- Landed paths: `scripts/tutor-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/m068-verdict-claims.test.mjs`, `scripts/head-record.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `research/raw/m044-gate-shapes.json`, `scripts/gate-integrity.test.mjs`, `scripts/gate-stability-record.test.mjs`, `research/raw/m068-verdict-claims.json` — each is read from this tree, ready.

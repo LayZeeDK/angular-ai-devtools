@@ -10,7 +10,7 @@
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
     "filesExamined": 383,
     "suitesExamined": 199,
-    "examined": 237,
+    "examined": 238,
     "movedSubtrees": [
       "build",
       "intent",
@@ -27,11 +27,11 @@
     "counts": {
       "archived-by-the-move": 24,
       "deliberate-archive-read": 29,
-      "undecided": 184
+      "undecided": 185
     },
     "sites": {
       "path": 16,
-      "comment": 94,
+      "comment": 95,
       "segment": 67,
       "pattern": 12,
       "message": 40,
@@ -2013,6 +2013,14 @@
         "reason": "named in a regular expression, which resolves no path, so neither class applies"
       },
       {
+        "file": "scripts/tutor-signals-shapes.test.mjs",
+        "line": 165,
+        "path": null,
+        "site": "comment",
+        "class": "undecided",
+        "reason": "named in a comment, which resolves no path and is read by nothing, so neither class applies"
+      },
+      {
         "file": "scripts/tutor-signals.test.mjs",
         "line": 1089,
         "path": null,
@@ -3586,9 +3594,9 @@
         "file": "scripts/tutor-signals-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 576,
+        "addedLines": 816,
         "removedLines": 0,
-        "addedAssertionLines": 84,
+        "addedAssertionLines": 93,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -3720,7 +3728,7 @@
       "removedAssertionLines": 203,
       "recutAssertionLines": 203,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 8860
+      "addedAssertionLines": 8869
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
@@ -3737,9 +3745,9 @@
       "total": 229
     },
     "declarations": {
-      "tests": 3024,
+      "tests": 3026,
       "describes": 407,
-      "total": 3431
+      "total": 3433
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -3813,6 +3821,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-25T04:45:23.548Z"
+    "at": "2026-11-25T05:20:51.298Z"
   }
 }
