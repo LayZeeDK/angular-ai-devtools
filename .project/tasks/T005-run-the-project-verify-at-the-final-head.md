@@ -2,11 +2,11 @@
 id: T005
 title: Run the project verify at the final head
 wave: 5
-status: in-progress
+status: done
 deps: []
 agent: build_T005
-base: afdf072080196467878156c09b65e1b573047b7c
-worktree: D:\projects\sandbox\angular-ai-devtools
+base: a86077b4ea36459d8877a4670aad75f75b9e955c
+worktree: null
 task_branch: null
 files:
 - scripts/m069-verdict-claims.test.mjs
