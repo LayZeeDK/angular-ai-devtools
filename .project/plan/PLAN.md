@@ -97,22 +97,36 @@ Verify runs that suite. `plan-lint` refuses a row here for an edge a task alread
 that owns it. Which suite holds which edge is recorded in the milestone's claim census instead, which is the artefact a
 reader opens for exactly that question.
 
-## Wave 6 — T006: land the census chain the new suite and record moved,
+## Wave 6 — T006: land the census chain the new suite and record moved
+
+Goal: Get `npm test` back to green after one new suite and one new record moved the census, and make the edge assignment resolve on what the milestone actually assigned.
 
 Review depth: verify-only
 
-T006: land the census chain the new suite and record moved,
-then re-derive both recordings — Log first, M044 next, M056 last.
+Artefacts: scripts/gate-integrity.test.mjs, the two recordings, scripts/navigation-blocking.test.mjs, two allow-lists and one stand-down.
 
-## Wave 7 — T007: re-point `research/raw/m054-style-read.json` at the sheet the token block rewrote.
 
 Review depth: verify-only
 
-T007: re-point `research/raw/m054-style-read.json` at the sheet the token block rewrote.
+## Wave 7 — T007: re-point the style-read record
 
-## Wave 8 — T008: pay the reds that predate this milestone.
+Goal: Put `research/raw/m054-style-read.json` back on the lines that carry the declarations it quotes, after the token block moved them.
 
 Review depth: verify-only
 
-T008: pay the reds that predate this milestone.
+Artefacts: research/raw/m054-style-read.json, scripts/visual-qa-style-read.test.mjs.
+
+
+Review depth: verify-only
+
+## Wave 8 — T008: pay the reds that predate this milestone
+
+Goal: Clear the five suites that were red before M069 touched anything, so the project verify can exit 0 as T005 requires.
+
+Review depth: verify-only
+
+Artefacts: research/raw/m059-record-shapes.json, research/raw/m069-token-baseline.json, scripts/token-baseline.test.mjs.
+
+
+Review depth: verify-only
 
