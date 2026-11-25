@@ -2,10 +2,10 @@
 id: T010
 title: Re-derive the stability record the census feeds
 wave: 10
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T010
+base: dac849b35918d30e6a5d480f67dc962605e47200
 worktree: null
 task_branch: null
 files:
@@ -91,3 +91,6 @@ node --test scripts/gate-stability-record.test.mjs
 ## Log
 
 - pending
+- 2026-11-25: the stability record was re-derived by its own arm at this head (6568 bytes, sha256 `951cfe2f…`) after the census it reads was green, and its default run is 8/8. The `fixRecord` section now records a suite that exits as it runs, not the red census T008 left behind.
+- 2026-11-25: a second armed run writes nothing and a default run writes nothing.
+- Landed paths: `scripts/teardown-leak-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/m068-verdict-claims.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/head-record.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/gate-integrity.test.mjs`, `research/raw/m056-gate-stability.json`, `scripts/gate-stability-record.test.mjs` — each is read from this tree, ready.
