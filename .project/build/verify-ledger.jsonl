@@ -8,3 +8,4 @@
 {"command": "node --test scripts/tutor-record-shapes.test.mjs && node --test scripts/tutor-signals-shapes.test.mjs", "commit": "3b997658e72043f15554861da8b3d67a45873484", "recorded_at": "2026-11-25T03:27:16+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "node --test scripts/m068-verdict-claims.test.mjs && npm run check", "commit": "6f2e6bd383c58e0535f6bd66b1b5f7d9598d7212", "recorded_at": "2026-11-25T04:41:47+00:00", "result": "fail", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "node --test scripts/m068-verdict-claims.test.mjs && npm run check", "commit": "6f2e6bd383c58e0535f6bd66b1b5f7d9598d7212", "recorded_at": "2026-11-25T04:42:39+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "node --test scripts/m068-verdict-claims.test.mjs && npm run check", "commit": "4f010fac8f4559ec67c6e85d9329d9d26f9192e4", "recorded_at": "2026-11-25T04:43:48+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
