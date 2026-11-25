@@ -6,7 +6,7 @@ Wave verdict: pass
 Tasks reviewed: 1
 Reviewed HEAD: 0f3e8a25
 
-## T004 — Re-derive the census and the stability recordings at this head: pass
+## T004 — Re-derive the census and stability recordings at this head: pass
 
 - ✅ Census re-derived by its own arm: `archiveReferences.filesExamined` 378 to 382 and `suitesExamined` 196 to 197, from the suite and record this milestone added; default run 40/40.
 - ✅ Stability record re-derived at this head (6567 bytes) and its default run is 8/8. Both captured last, so the head did not move between capture and landing.
