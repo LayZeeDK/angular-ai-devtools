@@ -975,7 +975,6 @@ function derive(capturedAt) {
     `The tokens no declaration reads are ${unreadTokensOf(declarations).join(', ')}: the motion contract, declared in the token block and restated for a reader who asks for less motion, is read by no declaration because this sheet carries no transition and no animation — recorded here rather than given a consumer by inventing one, which would be a rendered change.`,
     `What the style suite measures — ${MEASURED_HOOKS.map(([label, selector]) => `${label} ${selector}`).join(', ')} on ${MEASURED_PROPERTIES.join(', ')} — is carried by these rows' own readings, so the token layer that follows can be proved to re-express these values rather than retune them.`,
   ].join(' ');
-
   return {
     schema: SCHEMA,
     milestone: MILESTONE,
@@ -1036,6 +1035,7 @@ function derive(capturedAt) {
     partsNotRendered,
     counts,
     statement,
+    byteStatement: `The stylesheet this record is derived from is ${String(statSync(STYLES_PATH).size)} bytes, the total derivedFrom.stylesheet.bytes records — stated here in prose because scripts/recording-consistency.test.mjs holds a recording that measures bytes to say that total in a sentence, and a scan that examined no sentence of a recording proves nothing, while the count this record carries stays the number in the field beside the sentence that states it.`,
   };
 }
 
