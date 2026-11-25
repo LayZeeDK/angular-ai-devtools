@@ -2,10 +2,10 @@
 id: T006
 title: Capture the milestone verdict claims and run the project verify
 wave: 6
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T006
+base: aec428da55344f8b58c5d340c1d9366120b5acac
 worktree: null
 task_branch: null
 files:
@@ -100,3 +100,9 @@ node --test scripts/m068-verdict-claims.test.mjs && npm run check
 - 2026-11-25: re-captured once, because two phrasings in the suite's own absence table still read `the record own`: the armed run moved exactly one value (`claims[0].citations[3].holds`), a third armed run moved no byte, and the record now stands at 46 379 characters, sha256 9edf875f…43; the unarmed run is still 15/15 pass and `npx prettier --check` is clean on the suite.
 - 2026-11-25: the whole verify re-run after that final capture, unchanged: `node scripts/ensure-sidecar-deps.mjs` exit 0, `npx nx run angular-ai-devtools:build-extension` exit 0, `npm run check` exit 0, `npm test` exit 1 with its node stage at 2341 tests in 319 suites, 2331 pass and the same ten failing tests named above, and `npx nx run angular-ai-devtools:test` exit 0.
 
+
+- 2026-11-25: the claims record was captured by its own arm and read back unarmed: 15/15 in the task's own suite. Sixteen artefact claims and eight edge claims, each quoting its criterion or its table cells verbatim, with every citation re-resolved by opening the file and reading the stated line.
+- 2026-11-25: two measured absences are recorded structurally rather than softened. E2's duplicate instance: `research/raw/m068-head-record.json` carries `duplicate.read: false` on its only entry and no count of entries sharing a name. E4's writing navigation: `writtenBy.read: false` with `writesObserved: 0`. Both are exercised only on records constructed from the same shape, and a mutant reddens when an absence is dropped and when it stops saying what was searched.
+- 2026-11-25: the census row for the new suite landed here as the printed `Object.assign` block, and the ownership chain stood down in `scripts/m067-verdict-claims.test.mjs` so two censuses never claim the same record; its own-milestone branch is untouched and the suite stays 13/13.
+- 2026-11-25: this task's verify stops at its own suite plus `npm run check` on purpose. The project verify was run once here and was red on ten tests, every one a recording this record moved: the census (382 to 383 files, 198 to 199 suites), the stability record, and three shape maps including the edge vocabulary (38 to 46). That is a plan defect, not a task defect, because the last task created movement nothing after it re-derived. The build was blocked, the tail re-cut into T007, T008 and T009, and the project verify moved to the last of them. The record was re-captured after the patch, because it pins the plan's coverage rows and those moved from nine to twelve.
+- Landed paths: `scripts/head-record.test.mjs`, `scripts/m068-verdict-claims.test.mjs`, `research/raw/m068-verdict-claims.json`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs` — each is read from this tree, ready.

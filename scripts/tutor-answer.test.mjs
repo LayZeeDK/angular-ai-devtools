@@ -1376,8 +1376,9 @@ test('T002 — a record present and not named outside the map still reddens the 
   );
   const selfHeld = presentRecords.filter((entry) => heldByItsOwnCensus(entry));
   // The three claim lists M062, M063 and M064 each gave a census of its own are excused by that census
-  // naming their path literally, and M067's is excused by `scripts/m067-verdict-claims.test.mjs` naming
-  // its own path and the `M067_CAPTURE` flag the same way. M066's is excused by neither any more: the
+  // naming their path literally, and M067's and M068's are excused the same way — by
+  // `scripts/m067-verdict-claims.test.mjs` and `scripts/m068-verdict-claims.test.mjs`, each naming its
+  // own path and its own `M0NN_CAPTURE` flag. M066's is excused by neither any more: the
   // census M044 introduced derives `research/raw/<the bound milestone>-verdict-claims.json` from the
   // bound branch, and the branch moved from gsd-path/M066 to gsd-path/M067 after M066's record landed,
   // so the record that template derives at this head is M067's and no other milestone's. That is the
@@ -1392,8 +1393,9 @@ test('T002 — a record present and not named outside the map still reddens the 
       `${RECORD_DIR}/m063-verdict-claims.json`,
       `${RECORD_DIR}/m064-verdict-claims.json`,
       `${RECORD_DIR}/m067-verdict-claims.json`,
+      `${RECORD_DIR}/m068-verdict-claims.json`,
     ],
-    `exactly the claim lists M062 T004, M063 T004, M064 T004 and M067 T004 write are held by their own censuses at this head, and no other record is excused this way: ${JSON.stringify(selfHeld.map((entry) => entry.path))}`,
+    `exactly the claim lists M062 T004, M063 T004, M064 T004, M067 T008 and M068 T006 write are held by their own censuses at this head, and no other record is excused this way: ${JSON.stringify(selfHeld.map((entry) => entry.path))}`,
   );
   assert.ok(
     selfHeld.every(

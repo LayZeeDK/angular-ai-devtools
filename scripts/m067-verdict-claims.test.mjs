@@ -78,6 +78,46 @@ const CLAIMS_PATH = join(ROOT, ...CLAIMS_REL.split('/'));
  */
 const CLAIMS_NAMED = 'research/raw/m067-verdict-claims.json';
 
+/**
+ * The milestone this census owns: the file it writes, not whichever milestone happens to be bound. One
+ * milestone later this suite is the predecessor rather than the census — the bound branch resolves a
+ * later milestone's record, which another suite derives with its own proof table — so a record this file
+ * does not own is held to the ownership chain and the derivation stands down. That is the same rule
+ * `scripts/outlet-verdict-claims.test.mjs` and `scripts/navigation-blocking.test.mjs` already apply to a
+ * record another census writes.
+ */
+const OWN_MILESTONE = 'M067';
+const OWNS_THE_BOUND_RECORD = MILESTONE === OWN_MILESTONE;
+
+/**
+ * The suite the bound milestone's record names as the census that captured it, read from the record's
+ * own `capture.command`.
+ * @param {any} recording the claim list, or null when it has never been captured
+ * @returns {string} the repository path of the suite that captures it
+ */
+function owningCensus(recording) {
+  const command = String(recording?.capture?.command ?? '');
+  const named = /scripts\/[a-z0-9-]+\.test\.mjs/.exec(command)?.[0];
+  return named ?? SUITE_REL;
+}
+
+/**
+ * Whether the suite a record names as its census names that record. Two spellings count: the path
+ * written literally, and the `research/raw/<milestone>-verdict-claims.json` template keyed on the
+ * milestone the state file binds.
+ * @param {string} source the owning census's text
+ * @param {string} record the repository path of the record it owns
+ * @returns {boolean}
+ */
+function namesThisRecord(source, record) {
+  if (source.includes(record)) return true;
+  return (
+    source.includes('-verdict-claims.json') &&
+    /`research\/raw\/\$\{/.test(source) &&
+    /boundMilestone\s*\(/.test(source)
+  );
+}
+
 /** The record this milestone measures, and the join and surface this milestone ships. */
 const MEASURED_REL = 'research/raw/m067-field-binder.json';
 const JOIN_REL = 'extension/field-binder.js';
@@ -1130,6 +1170,7 @@ function assertCitationsResolve(record) {
  * @param {any} record @returns {void}
  */
 function assertCitationsFollowThePlan(record) {
+  if (!OWNS_THE_BOUND_RECORD) return;
   const { planSource, tasksDir } = sources();
   for (const row of claimsOf(record)) {
     const where = row.criterion;
@@ -1166,15 +1207,27 @@ function assertCaptureChain(record) {
     MILESTONE,
     'the record names the milestone its file is numbered for',
   );
-  assert.equal(
-    record.capture?.command,
-    CAPTURE_COMMAND,
-    'the record names the command that captured it, armed by its own flag',
-  );
+  // The command is the owning census's when another one owns the record; what this file can hold is that
+  // the record states a command at all, and the chain above names the suite it arms.
+  if (OWNS_THE_BOUND_RECORD) {
+    assert.equal(
+      record.capture?.command,
+      CAPTURE_COMMAND,
+      'the record names the command that captured it, armed by its own flag',
+    );
+  } else {
+    assert.match(
+      String(record.capture?.command ?? ''),
+      /M\d{3}_CAPTURE=1 node --test scripts\/[a-z0-9-]+\.test\.mjs/,
+      `the record names the command that captured it, armed by its own flag, and it names ${JSON.stringify(record.capture?.command)}`,
+    );
+  }
   assert.equal(
     record.capture?.check,
-    CHECK_COMMAND,
-    'the record names the command that reads it',
+    OWNS_THE_BOUND_RECORD
+      ? CHECK_COMMAND
+      : `node --test ${owningCensus(record)}`,
+    "the record names the command that reads it, and that command is the owning census's",
   );
   assert.equal(
     record.capture?.records,
@@ -1208,6 +1261,7 @@ function assertCaptureChain(record) {
  * @param {any} record @returns {void}
  */
 function assertPlanEvidence(record) {
+  if (!OWNS_THE_BOUND_RECORD) return;
   const { planSource } = sources();
   const edges = intentEdges(sources().intentSource);
   const heldOut = planHeldOut(planSource);
@@ -1246,10 +1300,63 @@ function assertPlanEvidence(record) {
 }
 
 /**
+ * The chain a record this file does not own is held to: the record names the suite that captured it,
+ * that suite names the record, and it reads the armed flag the record states. The list's equality with
+ * its own derivation is the owning census's to assert, and that suite is one the project runs.
+ * @param {any} record @returns {void}
+ */
+function assertOwnershipChain(record) {
+  const command = String(record?.capture?.command ?? '');
+  const flag = /M\d{3}_CAPTURE/.exec(command)?.[0];
+  const owner = owningCensus(record);
+  assert.ok(
+    command.includes(owner),
+    `${CLAIMS_REL} names the command that captured it, and that command must name the suite that owns it (${owner}): ${JSON.stringify(command)}`,
+  );
+  assert.ok(
+    flag !== undefined,
+    `${CLAIMS_REL}'s capture command must arm an M0NN_CAPTURE flag of its own, and it names none: ${JSON.stringify(command)}`,
+  );
+  const ownerPath = join(ROOT, owner);
+  assert.ok(
+    existsSync(ownerPath),
+    `${CLAIMS_REL} names ${owner} as its census, and this checkout does not carry that suite`,
+  );
+  const ownerSource = readFileSync(ownerPath, 'utf8');
+  assert.ok(
+    namesThisRecord(ownerSource, CLAIMS_REL),
+    `${owner} owns ${CLAIMS_REL} and must name that record — literally, or as the research/raw/<milestone>-verdict-claims.json template keyed on the bound milestone — and it names neither`,
+  );
+  assert.ok(
+    ownerSource.includes(flag),
+    `${owner} owns ${CLAIMS_REL} and must read the flag the record states (${flag}); it does not`,
+  );
+  assert.equal(
+    record.capture?.records,
+    CLAIMS_REL,
+    'the record names the file it is',
+  );
+}
+
+/**
+ * Whether this suite stands down from the derivation for a record another census owns, applying the
+ * ownership chain instead. Every pin that needs M067's proof table asks this first, so another
+ * milestone's record is never compared to the wrong criteria — and, while M067 is bound, every pin runs
+ * exactly as it did when this record was captured.
+ * @param {any} record @returns {boolean}
+ */
+function standsDown(record) {
+  if (OWNS_THE_BOUND_RECORD) return false;
+  assertOwnershipChain(record);
+  return true;
+}
+
+/**
  * The artefact each claim publishes resolves, and the whole record is what this head derives.
  * @param {any} record @returns {void}
  */
 function assertDerivesAtThisHead(record) {
+  if (standsDown(record)) return;
   const expected = atRecordedDocumentLocations(derived());
   assert.deepEqual(
     record,
@@ -1269,6 +1376,7 @@ function assertDerivesAtThisHead(record) {
  * @param {any} record @returns {void}
  */
 function assertRecordPins(record) {
+  if (standsDown(record)) return;
   assertCriteriaQuoted(record);
   assertClaimsCarryEdges(record);
   assertCitationsResolve(record);
@@ -1362,6 +1470,15 @@ if (ARMED) {
 
 describe('measurement', () => {
   it('reads the criteria, the edge rows, the plan’s coverage and the suites the plan resolves, and every cited file is here', () => {
+    const recorded = JSON.parse(readFileSync(CLAIMS_PATH, 'utf8'));
+    // The suites the plan resolves are this milestone's reading; a later milestone's record is another
+    // census's to derive, so the table below is held to M067's own plan and the chain stands in here.
+    if (standsDown(recorded)) {
+      console.log(
+        `${CLAIMS_REL} is ${owningCensus(recorded)}'s to derive, so the plan resolution stands down at this head`,
+      );
+      return;
+    }
     const { intentSource, planSource, tasksDir } = sources();
     const criteria = intentCriteria(intentSource);
     const edges = intentEdges(intentSource);
@@ -1595,6 +1712,9 @@ describe('the mutants', () => {
 
   it('a claim that drops the suite the plan resolves reddens naming the criterion and both suites', () => {
     const recorded = JSON.parse(readFileSync(CLAIMS_PATH, 'utf8'));
+    // The suite the plan resolves is this milestone's table; the mutant stands down with the pin it
+    // exercises when another census owns the record, and the chain is what this file checks instead.
+    if (standsDown(recorded)) return;
     assert.doesNotThrow(() => assertCitationsFollowThePlan(recorded));
 
     const planted = clone(recorded);
