@@ -2,10 +2,10 @@
 id: T001
 title: Measure the head entries the portal writes and the navigations beside them
 wave: 1
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T001
+base: c4806647b7490ca6631a9ef7638e1d5895f133b7
 worktree: null
 task_branch: null
 files:
@@ -89,3 +89,10 @@ node --test scripts/head-record.test.mjs
 ## Log
 
 - pending
+- 2026-11-25: the record reads one head entry, `title`, from M065's own observation, and states the other facts honestly. Identity was read: `title`, from `observation.observedTitleElement` and the mechanism naming the `<title>` element, never from the entry's text — asserted against `extension/title-input.js` run in a bare `node:vm` context. First sight was read: navigation 0 (`/home`). The entry that remained was read: `"Insurance Portal"`, carried by all three settled reads. The page carrying it was read: navigation 2 (`/claim`).
+- 2026-11-25: two facts are named absences rather than invented values. `writtenBy` is not read, because `writesSeen` is 0 at every one of the three reads and the record's single write entry is the title the document carried before the observer attached (`observed: false`, `navigationIndex: null`, `author: null`); no navigation is named and no route inferred. `duplicate` is not read, because the record states one title value per read and none of its key paths counts entries sharing a name, so a second `<title>` would be invisible to it.
+- 2026-11-25: Verify 17 tests / 17 pass. The armed run wrote the record and a second armed run moved no byte (sha256 `2f14440c...` before and after). A derivation made non-idempotent on purpose was refused with "armed capture refused: the bytes it would write fail this suite's default pin ... Nothing was written", and the file's sha256 was unchanged.
+- 2026-11-25: six mutants each redden by name — an invented writing navigation, an invented duplicate, a route the record did not carry, a first sight moved, a second identity, and a name taken from the entry text.
+- 2026-11-25: the recording is named in `scripts/recordings.json` with its suite and its arm, and the suite carries its `SUITE_DIFF_REASONS` row in `scripts/gate-integrity.test.mjs`.
+- 2026-11-25: two records outside this contract go stale by exactly one file each and are owned elsewhere: `m044-gate-shapes` (`filesExamined` 378 to 379, `suitesExamined` 196 to 197) at T004, and `m059-record-shapes` (`recordsSearched` 167 to 168) at T005.
+- Landed paths: `scripts/head-record.test.mjs`, `research/raw/m068-head-record.json`, `scripts/recordings.json`, `scripts/gate-integrity.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs` — each is read from this tree, ready.
