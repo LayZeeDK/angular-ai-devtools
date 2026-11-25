@@ -40,6 +40,15 @@
 // (`atRecordedDocumentLocations`) and every other field is compared byte for byte against the
 // derivation.
 //
+// One milestone later this suite is the predecessor rather than the census: the record it reads can name
+// another suite in its own `capture.command`, and that suite's proof table is then the one the list is
+// derived against. This file holds such a record to the ownership chain instead — the rule
+// `scripts/guard-verdict-claims.test.mjs` applies to M064's record and
+// `scripts/navigation-blocking.test.mjs` applies to every milestone's — and leaves the derivation, the
+// quotes against the intent and the plan resolution to the suite the record names. At this head
+// `research/raw/m068-verdict-claims.json` names this file, so the derivation runs and the stand-down
+// holds the chain in reserve.
+//
 // `M068_CAPTURE=1` arms the one write. It re-derives, compares, and writes only when a value moved, so
 // two armed runs leave the file byte-identical; a default run reads the file, asserts it is exactly what
 // this head derives, and asserts its own bytes did not move:
@@ -85,6 +94,54 @@ const CLAIMS_PATH = join(ROOT, ...CLAIMS_REL.split('/'));
  * that owner to name the record's path, so the two spellings are kept one by the assertion in `derive`.
  */
 const CLAIMS_NAMED = 'research/raw/m068-verdict-claims.json';
+
+/**
+ * The suite that owns the claim list this file reads, read from the record's own `capture.command`.
+ *
+ * This file is M068's census: its `PROOFS` table, its plan resolution, its two document paths and its
+ * two measured absences are M068's, and it can derive the list only for the record M068 wrote. A record
+ * whose own `capture.command` names another suite is therefore owned elsewhere — the same rule
+ * `scripts/guard-verdict-claims.test.mjs` applies to M064's record and
+ * `scripts/navigation-blocking.test.mjs` applies to every milestone's — and this file stands down to the
+ * ownership chain instead of comparing that record against M068's tables. A record that names this file
+ * is derived and pinned here exactly as before, which is what
+ * `research/raw/m068-verdict-claims.json` does at this head: its command arms `M068_CAPTURE` and names
+ * this suite, so the stand-down holds the chain in reserve rather than firing.
+ *
+ * @param {any} recording the claim list, or null when it has never been captured
+ * @returns {string} the repository path of the suite that captures it
+ */
+function owningCensus(recording) {
+  const command = String(recording?.capture?.command ?? '');
+  const named = /scripts\/[a-z0-9-]+\.test\.mjs/.exec(command)?.[0];
+  return named ?? SUITE_REL;
+}
+
+/**
+ * Whether the suite a record names as its census names that record. Two spellings count: the path
+ * written literally, and the `research/raw/<milestone>-verdict-claims.json` template keyed on the
+ * milestone the state file binds. A census that names neither does not own what it claims to.
+ * @param {string} source the owning census's text
+ * @param {string} record the repository path of the record it owns
+ * @returns {boolean}
+ */
+function namesThisRecord(source, record) {
+  if (source.includes(record)) return true;
+  return (
+    source.includes('-verdict-claims.json') &&
+    /`research\/raw\/\$\{/.test(source) &&
+    /boundMilestone\s*\(/.test(source)
+  );
+}
+
+const CLAIMS_OWNER = existsSync(CLAIMS_PATH)
+  ? owningCensus(
+      JSON.parse(readText(CLAIMS_REL, 'the list is part of this repository')),
+    )
+  : SUITE_REL;
+
+/** Whether the record on disk names another suite as the census that captured it. */
+const CLAIMS_OWNED_ELSEWHERE = CLAIMS_OWNER !== SUITE_REL;
 
 /** The commands this record is held to, recorded in it so a reader runs what produced it. */
 const CAPTURE_ENV = 'M068_CAPTURE';
@@ -1146,7 +1203,11 @@ function sources() {
  * @param {string} resolved @returns {string}
  */
 function recordedSpelling(resolved) {
-  const at = `/${DOTTED}/archive/`;
+  // `shown` yields a repository-relative path, so the archive prefix is spelled with no leading slash.
+  // It carried one until this repair, and a prefix that matched nothing turned the rebasing into a
+  // no-op: the record was then compared at the archived location the ship moved its documents to rather
+  // than at the live location it states, which is the one field that reddened once M068 shipped.
+  const at = `${DOTTED}/archive/`;
   if (!resolved.startsWith(at)) return resolved;
   const matched = /^\d{3}-[^/]+\/((?:intent|plan)\/(?:INTENT|PLAN)\.md)$/.exec(
     resolved.slice(at.length),
@@ -1572,6 +1633,7 @@ function edgeClaimsOf(record) {
  * @param {any} record @returns {void}
  */
 function assertCriteriaQuoted(record) {
+  if (standsDown(record)) return;
   const criteria = intentCriteria(sources().intentSource);
   assert.deepEqual(
     claimsOf(record).map((row) => row.criterion),
@@ -1598,6 +1660,7 @@ function assertCriteriaQuoted(record) {
  * @param {any} record @returns {void}
  */
 function assertClaimsCarryEdges(record) {
+  if (standsDown(record)) return;
   const edges = intentEdges(sources().intentSource);
   for (const row of claimsOf(record)) {
     const where = row.criterion;
@@ -1733,6 +1796,7 @@ function assertCitationsResolve(record) {
  * @param {any} record @returns {void}
  */
 function assertCitationsFollowThePlan(record) {
+  if (standsDown(record)) return;
   const { planSource, tasksDir } = sources();
   for (const row of claimsOf(record)) {
     const where = row.criterion;
@@ -1764,6 +1828,7 @@ function assertCitationsFollowThePlan(record) {
  * @param {any} record @returns {void}
  */
 function assertEdgeClaims(record) {
+  if (standsDown(record)) return;
   const edges = intentEdges(sources().intentSource);
   const joinFields = answerFieldsOfTheJoin();
   assert.deepEqual(
@@ -1884,16 +1949,31 @@ function assertCaptureChain(record) {
     MILESTONE,
     'the record names the milestone its file is numbered for',
   );
-  assert.equal(
-    record.capture?.command,
-    CAPTURE_COMMAND,
-    'the record names the command that captured it, armed by its own flag',
-  );
-  assert.equal(
-    record.capture?.check,
-    CHECK_COMMAND,
-    'the record names the command that reads it',
-  );
+  // The command is the owning census's when another one owns the record; what this file can hold is that
+  // the command names the suite the record names and arms that suite's own flag.
+  if (owningCensus(record) === SUITE_REL) {
+    assert.equal(
+      record.capture?.command,
+      CAPTURE_COMMAND,
+      'the record names the command that captured it, armed by its own flag',
+    );
+    assert.equal(
+      record.capture?.check,
+      CHECK_COMMAND,
+      'the record names the command that reads it',
+    );
+  } else {
+    assert.match(
+      String(record.capture?.command ?? ''),
+      /M\d{3}_CAPTURE=1 node --test scripts\/[a-z0-9-]+\.test\.mjs/,
+      `the record names the command that captured it, armed by its own flag, and it names ${JSON.stringify(record.capture?.command)}`,
+    );
+    assert.equal(
+      record.capture?.check,
+      `node --test ${owningCensus(record)}`,
+      "the record names the command that reads it, and that command is the owning census's",
+    );
+  }
   assert.equal(
     record.capture?.records,
     CLAIMS_REL,
@@ -1926,6 +2006,7 @@ function assertCaptureChain(record) {
  * @param {any} record @returns {void}
  */
 function assertPlanEvidence(record) {
+  if (standsDown(record)) return;
   const { planSource } = sources();
   const edges = intentEdges(sources().intentSource);
   const heldOut = planHeldOut(planSource);
@@ -1969,11 +2050,65 @@ function assertPlanEvidence(record) {
 }
 
 /**
+ * The chain a record this file does not own is held to: the record names the suite that captured it,
+ * that suite names the record, and it reads the armed flag the record states. The list's equality with
+ * its own derivation is the owning census's to assert, and that suite is one the project runs.
+ * @param {any} record @returns {void}
+ */
+function assertOwnershipChain(record) {
+  const command = String(record?.capture?.command ?? '');
+  const flag = /M\d{3}_CAPTURE/.exec(command)?.[0];
+  const owner = owningCensus(record);
+  assert.ok(
+    command.includes(owner),
+    `${CLAIMS_REL} names the command that captured it, and that command must name the suite that owns it (${owner}): ${JSON.stringify(command)}`,
+  );
+  assert.ok(
+    flag !== undefined,
+    `${CLAIMS_REL}'s capture command must arm an M0NN_CAPTURE flag of its own, and it names none: ${JSON.stringify(command)}`,
+  );
+  assert.ok(
+    existsSync(join(ROOT, owner)),
+    `${CLAIMS_REL} names ${owner} as its census, and this checkout does not carry that suite`,
+  );
+  const ownerSource = readText(owner, `${owner} owns ${CLAIMS_REL}`);
+  assert.ok(
+    namesThisRecord(ownerSource, CLAIMS_REL),
+    `${owner} owns ${CLAIMS_REL} and must name that record — literally, or as the research/raw/<milestone>-verdict-claims.json template keyed on the bound milestone — and it names neither`,
+  );
+  assert.ok(
+    ownerSource.includes(flag),
+    `${owner} owns ${CLAIMS_REL} and must read the flag the record states (${flag}); it does not`,
+  );
+  assert.equal(
+    record.capture?.records,
+    CLAIMS_REL,
+    'the record names the file it is',
+  );
+}
+
+/**
+ * Whether this suite stands down from the derivation for a record another census owns, applying the
+ * ownership chain instead. Every pin that needs M068's proof table asks this first, so a record whose
+ * own `capture.command` names another suite is never compared against M068's criteria, its plan
+ * resolution or its two document paths. The question is asked of the record in front of the pin rather
+ * than of a value read once at load, so a copy of the record handed to a pin is judged as the record it
+ * is; at this head nothing owns `research/raw/m068-verdict-claims.json` elsewhere, so every pin runs.
+ * @param {any} record @returns {boolean}
+ */
+function standsDown(record) {
+  if (owningCensus(record) === SUITE_REL) return false;
+  assertOwnershipChain(record);
+  return true;
+}
+
+/**
  * The whole record is what this head derives, byte for byte, and the artefact each claim publishes
- * resolves.
+ * resolves. A record another census owns is held to that chain instead of being derived here.
  * @param {any} record @returns {void}
  */
 function assertDerivesAtThisHead(record) {
+  if (standsDown(record)) return;
   const expected = atRecordedDocumentLocations(derived());
   assert.deepEqual(
     record,
@@ -1993,6 +2128,7 @@ function assertDerivesAtThisHead(record) {
  * @param {any} record @returns {void}
  */
 function assertRecordPins(record) {
+  if (standsDown(record)) return;
   assertCriteriaQuoted(record);
   assertClaimsCarryEdges(record);
   assertCitationsResolve(record);
@@ -2021,6 +2157,13 @@ let claimsBaseline = claimsAtLoad;
  * @returns {{ wrote: boolean, before: string | null, after: string, moved: string }}
  */
 function captureClaims(path) {
+  // An armed run of a record another census owns would overwrite that census's record with M068's
+  // derivation: the pen is the owner's, so the run refuses and names the suite to arm instead.
+  if (CLAIMS_OWNED_ELSEWHERE) {
+    assert.fail(
+      `an armed run would write ${CLAIMS_REL}, and that record is owned by ${CLAIMS_OWNER}: this file's derivation is not the one the record records, so an armed run here would overwrite another census's record with a second derivation of it. Run ${CLAIMS_OWNER}'s own arm instead`,
+    );
+  }
   const present = existsSync(path);
   const text = present ? readFileSync(path, 'utf8') : '';
   const before = present ? digest(text) : null;
@@ -2237,6 +2380,9 @@ describe('the claim record', () => {
 describe('the mutants', () => {
   it('a claim quoting its criterion in its own words reddens naming the claim and the field', () => {
     const recorded = JSON.parse(readFileSync(CLAIMS_PATH, 'utf8'));
+    // The mutant exercises a pin that needs M068's intent, so it stands down with that pin when another
+    // census owns the record: the ownership chain is what this file checks instead.
+    if (standsDown(recorded)) return;
     assert.doesNotThrow(() => assertCriteriaQuoted(recorded));
 
     const planted = clone(recorded);
@@ -2309,6 +2455,9 @@ describe('the mutants', () => {
 
   it('a claim that drops the suite the plan resolves reddens naming the criterion and both suites', () => {
     const recorded = JSON.parse(readFileSync(CLAIMS_PATH, 'utf8'));
+    // The suite the plan resolves is this milestone's table; the mutant stands down with the pin it
+    // exercises when another census owns the record, and the chain is what this file checks instead.
+    if (standsDown(recorded)) return;
     assert.doesNotThrow(() => assertCitationsFollowThePlan(recorded));
 
     const planted = clone(recorded);
@@ -2344,6 +2493,9 @@ describe('the mutants', () => {
 
   it('a claim whose edge cells are not the intent’s reddens naming the criterion and the edge', () => {
     const recorded = JSON.parse(readFileSync(CLAIMS_PATH, 'utf8'));
+    // The edge cells are M068's intent's; the mutant stands down with the pin it exercises when another
+    // census owns the record.
+    if (standsDown(recorded)) return;
     assert.doesNotThrow(() => assertClaimsCarryEdges(recorded));
 
     const planted = clone(recorded);
@@ -2374,6 +2526,9 @@ describe('the mutants', () => {
 
   it('a measured absence softened to prose reddens naming the edge and the field it lost', () => {
     const recorded = JSON.parse(readFileSync(CLAIMS_PATH, 'utf8'));
+    // The two measured absences are M068's; the mutant stands down with the pin it exercises when another
+    // census owns the record.
+    if (standsDown(recorded)) return;
     assert.doesNotThrow(() => assertEdgeClaims(recorded));
 
     const softened = clone(recorded);
@@ -2412,6 +2567,70 @@ describe('the mutants', () => {
     console.log(
       `absence mutants: ${dropped.message.split('\n')[0]} | ${hollow.message.split('\n')[0]}`,
     );
+  });
+
+  it('a record another census owns is held to the ownership chain instead of derived here', () => {
+    const recorded = JSON.parse(readFileSync(CLAIMS_PATH, 'utf8'));
+
+    // The control: the committed record names this suite as its census, so the chain holds and the
+    // derivation runs — which is what every pin above does at this head.
+    assert.equal(
+      owningCensus(recorded),
+      SUITE_REL,
+      `${CLAIMS_REL} names the suite that captured it, and this head reads ${JSON.stringify(owningCensus(recorded))}`,
+    );
+    assert.equal(
+      standsDown(recorded),
+      false,
+      `the record on disk is ${SUITE_REL}'s, so nothing stands down for it`,
+    );
+    assert.doesNotThrow(() => assertDerivesAtThisHead(recorded));
+
+    // The mutant: the record states another census's command, which is the one shape that means the list
+    // is another milestone's to derive. One milestone later this file is the predecessor and reads
+    // exactly such a record, so the stand-down has to bite rather than compare it against M068's tables.
+    const foreignOwner = 'scripts/m069-verdict-claims.test.mjs';
+    const foreign = clone(recorded);
+    foreign.capture.command = `M069_CAPTURE=1 node --test ${foreignOwner}`;
+    assert.equal(owningCensus(foreign), foreignOwner);
+    assert.equal(
+      namesThisRecord(
+        readText(foreignOwner, 'the suite the planted command names'),
+        CLAIMS_REL,
+      ),
+      false,
+      `the planted census must not name ${CLAIMS_REL}, or the chain would hold over a record it does not own and the mutant would be a no-op`,
+    );
+    const failure = reddens(
+      () => assertOwnershipChain(foreign),
+      'a record naming a census that does not name it',
+    );
+    assert.ok(
+      failure.message.includes(foreignOwner),
+      `the refusal must name the suite the record says captured it; it produced ${JSON.stringify(failure.message.slice(0, 320))}`,
+    );
+    assert.ok(
+      failure.message.includes(CLAIMS_REL),
+      `the refusal must name the record nobody owns; it produced ${JSON.stringify(failure.message.slice(0, 320))}`,
+    );
+
+    // A record owned elsewhere whose command arms no flag is a red too, so the chain is read rather than
+    // the stand-down returning quietly on any command that names another suite.
+    const unarmed = clone(recorded);
+    unarmed.capture.command = `node --test ${foreignOwner}`;
+    assert.equal(owningCensus(unarmed), foreignOwner);
+    const noFlag = reddens(
+      () => assertOwnershipChain(unarmed),
+      'a record whose command arms no flag',
+    );
+    assert.match(
+      noFlag.message,
+      /M0NN_CAPTURE flag/,
+      `the refusal must name the flag the record lost; it produced ${JSON.stringify(noFlag.message.slice(0, 320))}`,
+    );
+
+    assert.doesNotThrow(() => assertDerivesAtThisHead(recorded));
+    console.log(`stand-down: ${failure.message.split('\n')[0]}`);
   });
 
   it('the pins are different checks rather than one check listed twice', () => {
