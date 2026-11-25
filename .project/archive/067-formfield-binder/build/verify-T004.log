@@ -1,0 +1,45 @@
+head: f69b5e29eee3804e46cfde53c0c532db4511c4f8 at 2026-11-24T18:40:21.917Z
+identity producer extension/field-state.js: echoes ["policyNumber","insuranceStartOn","customer","status"] for the fields the tree reported
+Insurance Portal /contract/create "Contract Create": 4 field(s) ["policyNumber","insuranceStartOn","customer","status"]
+AC1: 4 field(s); identity read 4; hosted read 3, not read 1; expected read 0, not read 4; absences ["policyNumber.expected","insuranceStartOn.expected","customer.expected","status.hosted","status.expected"]
+fallback /field-form (spikes/ng222-app/src/app/app.routes.ts): the portal carries a form whose fields host elements: 3 of the 4 fields research/raw/m066-schema-record.json read on /contract/create host one (policyNumber <input>, insuranceStartOn <p-datepicker>, customer <p-select>), so the fixture route /field-form was not needed and was not driven
+research/raw/m067-field-binder.json at load and after the run: 9362 characters, sha256 0ef36615558e3255a948b5d7fd7661d27d4ca2cd160ee73a0385845c308cbe01
+research/raw/m067-field-binder.json: re-derived field for field; a moved value names its path
+hosted: policyNumber <input id=policyNumber>; insuranceStartOn <p-datepicker id=insuranceStartOn>; customer <p-select name=customer>; not read: ["status"]
+expected: not read for ["policyNumber","insuranceStartOn","customer","status"] (no key of research/raw/m066-schema-record.json names a control a field expects); read for []
+identity: ["policyNumber","insuranceStartOn","customer","status"] from extension/field-state.js via globalThis.angularAiFieldState
+invented-host mutant: defect: fields[status].hosted names <input> and the page reading carries no element for it: the status field hosts no element in the page reading this record derives from: 3 of the 4 fields carry one (policyNumber, insuranceStartOn, customer) and no element carries status; this task read no page of its own, so the hosted element is stated as not read rather than inferred from the field's label
+moved-tag mutant: defect: fields[policyNumber].hosted.tag is "input-other" but research/raw/m066-schema-record.json recorded <input> for it
+invented-expected mutant: defect: fields[policyNumber].expected names "p-select" and no key of research/raw/m066-schema-record.json names the control a field expects: the reading carries ["boundFields","disabled","disabledType","element","field","fieldDisabled","formText","hidden","id","nameAttr"], and this record may not name a control it was not given
+second-identity mutant: defect: fields[policyNumberName].identity.value "policyNumberName" is not an identity extension/field-state.js produces: run over the 4 fields the page's tree reported it produces ["policyNumber","insuranceStartOn","customer","status"], and a second identity for a field is the defect this pin exists for
+research/raw/m067-field-binder.json: 4 pins hold 4 field(s)
+▶ measurement
+  ✔ AC3: the identity this record carries is the one extension/field-state.js produces (3.9119ms)
+  ✔ reads the portal route M066 captured, one form and the field tree that names every field (1.4359ms)
+  ✔ AC1: names each field’s identity, hosted element and expected control, or which of the three was not read and why (1.1062ms)
+  ✔ does not drive the fixture, because the portal carries a form whose fields host controls (0.8029ms)
+✔ measurement (8.0733ms)
+▶ the field-binder record
+  ✔ is a read: a default run hashes the record the same before and after (0.2842ms)
+  ✔ is exactly what this head derives, and a value that moved is named (0.9384ms)
+  ✔ is serialized as the capture writes it, so a re-capture would move no byte (0.1966ms)
+  ✔ records the hosted element the page reading carries, tag and distinguishing attribute (0.2846ms)
+  ✔ states the expected control as an absence wherever the reading carries none, each absence naming the field (0.3133ms)
+  ✔ carries the identity the producer echoes, asserted against extension/field-state.js (0.3751ms)
+  ✔ is written from one place, and only after M067_CAPTURE=1 armed the run (0.2853ms)
+✔ the field-binder record (2.9344ms)
+▶ the mutants
+  ✔ a hosted control invented for a field that hosts nothing reddens the hosted pin, naming the field (0.3892ms)
+  ✔ a hosted element whose tag moved reddens the hosted pin, naming the field and both tags (0.2535ms)
+  ✔ an expected control added to a field whose reading carries none reddens the expected pin (0.435ms)
+  ✔ a second identity reddens the identity pin, naming the field and what the producer produces (0.357ms)
+  ✔ the four mutants are four different defects, and each is proved against the same record (0.5319ms)
+✔ the mutants (2.1059ms)
+ℹ tests 16
+ℹ suites 3
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 142.0789

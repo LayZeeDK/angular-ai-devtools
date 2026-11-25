@@ -29,7 +29,7 @@
 //               what the records do *not* hold.
 //
 // Nothing here builds: no index, no join, no surface and no route. It reads the records, the files
-// they name and git, and it writes nothing.
+// they name and git; a default run writes nothing, and `M055_CAPTURE=1` arms the one write (T010).
 //
 // M057 T006 reads this milestone's own map, `research/raw/m057-record-shapes.json`, beside M055's (C2,
 // C7), because two suites reading one recording by two rules is the defect M055's T004 hit twice. The
@@ -83,7 +83,7 @@
 // before any map is read for them.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -1614,6 +1614,762 @@ function validate(candidate) {
   };
 }
 
+// ------------------------------------------------------------- the derivation ----
+//
+// M067 T010 gave this map the writer every other record in this programme carries, because a map
+// re-typed at every rebind drifts: `research/raw/m055-record-shapes.json` carried no `capture` field,
+// so nothing derived it, and it drifted twice — once at the rebind that orphaned
+// `research/raw/m066-verdict-claims.json`. The writer is this suite's own derivation, armed with
+// `M055_CAPTURE=1`, and it reuses the measurements the pins above already make — `countField`,
+// `unionKeys`, `presentRecords`, `mappedRecords`, `outsideEither`, `templateOf`, `questionShapedKeys`,
+// `lineMatching`, `textAt` — rather than a second copy of the map's shape, so there is one owner of
+// what the map says. What no derivation can read is prose (the title, the statements, each absent
+// field's `instead` sentence), and that is carried over from the document being re-derived.
+//
+// Three rules hold the write:
+//
+//   the arm      a default run derives the map at the head the file names and asserts the committed
+//                bytes are exactly that serialization, naming the record that moved; it writes
+//                nothing. Only `M055_CAPTURE=1` reaches the one `writeFileSync` in this file.
+//   the pin      the bytes about to be written are put through this suite's own `validate`, so the
+//                writer cannot emit a map the read-only run then calls wrong.
+//   the fixed point
+//                and the candidate must be the fixed point of that pin: re-deriving it at the head it
+//                names reproduces it byte for byte, so a second armed run moves nothing. A candidate
+//                that fails either refusal is not written at all.
+//
+// The armed run, from the repository root:
+//   set "M055_CAPTURE=1"&& node --test scripts/tutor-record-shapes.test.mjs
+//   M055_CAPTURE=1 node --test scripts/tutor-record-shapes.test.mjs
+
+/** The map this suite writes, the arm that writes it and the commands a reader runs to re-derive it. */
+const RECORD_PATH = join(ROOT, ...RECORD.split('/'));
+const CAPTURE_ENV = 'M055_CAPTURE';
+const HEAD_COMMAND = 'git rev-parse HEAD';
+const CHECK_COMMAND = 'node --test scripts/tutor-record-shapes.test.mjs';
+const ARMED_COMMAND = `${CAPTURE_ENV}=1 ${CHECK_COMMAND}`;
+const ARMED_COMMAND_WINDOWS = `set "${CAPTURE_ENV}=1"&& ${CHECK_COMMAND}`;
+const ARMED = String(process.env[CAPTURE_ENV] ?? '').trim() === '1';
+
+/**
+ * The sections the map carries, in the order it states them. The derivation builds every one of them
+ * and refuses a recorded document that carries a section it does not state or misses one it does.
+ */
+const RECORD_KEYS = Object.freeze([
+  'schema',
+  'milestone',
+  'task',
+  'title',
+  'question',
+  'head',
+  'headCommand',
+  'measuredAt',
+  'capture',
+  'instrument',
+  'inventory',
+  'milestoneField',
+  'map',
+  'records',
+  'artefactPaths',
+  'otherNamedPaths',
+  'negative',
+  'trap',
+  'claims',
+  'unknowns',
+]);
+
+/** The map as bytes, exactly as the writer writes them. @param {unknown} record */
+function canonical(record) {
+  return `${JSON.stringify(record, null, 2)}\n`;
+}
+
+/** The commit this suite runs at: the head an armed run states, and never a hand-typed one. */
+function gitHead() {
+  const head = execFileSync('git', ['rev-parse', 'HEAD'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  }).trim();
+  assert.match(
+    head,
+    /^[0-9a-f]{40}$/,
+    `${HEAD_COMMAND} must answer with one commit sha, and it answered ${JSON.stringify(head)}`,
+  );
+  return head;
+}
+
+/**
+ * The first place two values differ, as `path: recorded -> derived`, so a stale value is named rather
+ * than reported as a mismatch somewhere in the record. The same walk `scripts/guard-record-shapes.test.mjs`
+ * and `scripts/chunk-failure-claims.test.mjs` use to name a moved field.
+ * @param {any} left
+ * @param {any} right
+ * @param {string} at
+ * @returns {string}
+ */
+function firstDifference(left, right, at) {
+  if (JSON.stringify(left) === JSON.stringify(right)) return '';
+  if (Array.isArray(left) && Array.isArray(right)) {
+    if (left.length !== right.length)
+      return `${at}: ${String(left.length)} row(s) -> ${String(right.length)} row(s)`;
+    for (let index = 0; index < left.length; index += 1) {
+      const found = firstDifference(
+        left[index],
+        right[index],
+        `${at}[${index}]`,
+      );
+      if (found !== '') return found;
+    }
+    return at;
+  }
+  if (
+    left !== null &&
+    right !== null &&
+    typeof left === 'object' &&
+    typeof right === 'object'
+  ) {
+    for (const key of [
+      ...new Set([...Object.keys(left), ...Object.keys(right)]),
+    ]) {
+      const found = firstDifference(
+        left[key],
+        right[key],
+        at === '' ? key : `${at}.${key}`,
+      );
+      if (found !== '') return found;
+    }
+    return at;
+  }
+  return `${at}: ${JSON.stringify(left)} -> ${JSON.stringify(right)}`;
+}
+
+/**
+ * The first difference between the committed map and the one this head derives, naming the record that
+ * moved before anything else: a count that moved is a sentence, a record that moved is a path, and the
+ * refusal this map exists to make is the second one.
+ * @param {any} recorded
+ * @param {any} derived
+ * @returns {string}
+ */
+function mapDifference(recorded, derived) {
+  for (const [key, kind] of [
+    ['verdictClaims', 'verdict-claims'],
+    ['surface', 'surface'],
+  ]) {
+    const before = recorded?.inventory?.[key]?.paths ?? [];
+    const after = derived?.inventory?.[key]?.paths ?? [];
+    for (const path of after)
+      if (!before.includes(path))
+        return `${path} is a ${kind} record this head measures and ${RECORD} does not carry it`;
+    for (const path of before)
+      if (!after.includes(path))
+        return `${RECORD} carries ${path} and this head does not measure it as a ${kind} record`;
+  }
+  const rows = new Map((recorded?.records ?? []).map((row) => [row.path, row]));
+  for (const row of derived?.records ?? []) {
+    const found = firstDifference(
+      rows.get(row.path),
+      row,
+      `records[${row.path}]`,
+    );
+    if (found !== '') return found;
+  }
+  return firstDifference(recorded, derived, '');
+}
+
+/**
+ * The line a JSON key sits on, and that line's own trimmed text: the `path:line` the map quotes, found
+ * by searching the file for the key rather than typed.
+ * @param {string} rel
+ * @param {string} key
+ * @param {number} [from] the 1-indexed line to start searching at
+ * @returns {{ line: number, text: string }}
+ */
+function citationOf(rel, key, from = 0) {
+  const line = lineMatching(rel, new RegExp(`^\\s*"${key}":`), from);
+  return { line, text: String(textAt(rel, line)) };
+}
+
+/**
+ * The line a record's field is cited on. For the two fields whose key is not unique in the file, the
+ * search starts at the block the field is carried in — the same region the pins refuse a citation that
+ * sits outside.
+ * @param {string} rel
+ * @param {string} id
+ * @returns {{ line: number, text: string }}
+ */
+function fieldCitation(rel, id) {
+  let from = 0;
+  if (id === 'suitePath') from = lineMatching(rel, REGION.suitePath);
+  if (id === 'captureRecords') from = lineMatching(rel, REGION.captureRecords);
+  return citationOf(rel, JSON_KEY[id], from);
+}
+
+/**
+ * Every line of a record that states an `artefactPath`, in file order, with its trimmed text: the rows
+ * of the artefact-path table paired with the claims that carry the field, in the order both appear.
+ * @param {string} rel
+ * @returns {{ line: number, text: string }[]}
+ */
+function artefactCitedLines(rel) {
+  const lines = linesOf(rel);
+  const found = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const text = String(lines[index] ?? '')
+      .replace(/\r$/, '')
+      .trim();
+    if (text.startsWith('"artefactPath":'))
+      found.push({ line: index + 1, text });
+  }
+  return found;
+}
+
+/** The kind a record is, by the suffix its file name carries. @param {string} rel */
+function kindOf(rel) {
+  return rel.endsWith('-surface.json') ? 'surface' : 'verdict-claims';
+}
+
+/**
+ * An absent field's sentence, for a record this map has not measured before: the shape a record uses
+ * instead is the one thing a derivation cannot read, so a new absence states the keys the record does
+ * carry rather than inventing a reading of them. A recorded sentence always wins over this one.
+ * @param {any} json
+ * @param {string} id
+ * @returns {string}
+ */
+function derivedInstead(json, id) {
+  return `no \`${JSON_KEY[id]}\` field at this head: the record's top-level keys are ${Object.keys(json).join(', ')}`;
+}
+
+/**
+ * One record's row in the table: its key lists, its claim count and, for each of the seven fields, the
+ * count this head measures, the line it is cited on and the shape it uses where it carries none.
+ * @param {string} rel
+ * @param {any} [previous] the row the committed map carries, whose `instead` sentences are prose
+ * @returns {any}
+ */
+function recordEntryOf(rel, previous) {
+  const json = jsonOf(rel);
+  const claims = Array.isArray(json.claims) ? json.claims : [];
+  const fields = {};
+  const absent = [];
+  for (const id of FIELD_IDS) {
+    const count = countField(json, id);
+    const field = { present: count > 0, claim: CLAIM_OF[id], count };
+    if (count > 0) {
+      const cited = fieldCitation(rel, id);
+      field.line = cited.line;
+      field.text = cited.text;
+    } else {
+      absent.push(id);
+      field.instead =
+        previous?.fields?.[id]?.instead ?? derivedInstead(json, id);
+    }
+    fields[id] = field;
+  }
+  return {
+    path: rel,
+    kind: kindOf(rel),
+    milestone: json.milestone,
+    claims: claims.length,
+    topKeys: Object.keys(json),
+    claimKeys: Array.isArray(json.claims) ? unionKeys(json.claims) : null,
+    evidenceKeys:
+      json.evidence !== null && typeof json.evidence === 'object'
+        ? Object.keys(json.evidence)
+        : null,
+    captureKeys:
+      json.capture !== null && typeof json.capture === 'object'
+        ? Object.keys(json.capture)
+        : null,
+    absentFields: absent,
+    fields,
+  };
+}
+
+/**
+ * The artefact-path table: one row per `claims[].artefactPath` in every measured record, with what it
+ * resolves to at this head, in record and claim order.
+ * @param {readonly string[]} paths
+ * @returns {any[]}
+ */
+function artefactRowsOf(paths) {
+  const rows = [];
+  for (const rel of paths) {
+    const json = jsonOf(rel);
+    const cited = artefactCitedLines(rel);
+    const carrying = (Array.isArray(json.claims) ? json.claims : []).filter(
+      (claim) =>
+        claim !== null && typeof claim === 'object' && 'artefactPath' in claim,
+    );
+    assert.equal(
+      cited.length,
+      carrying.length,
+      `${rel} states ${String(cited.length)} \`artefactPath\` line(s) and ${String(carrying.length)} claim row(s) carrying the field: the derivation pairs them one to one, so a record where the two disagree is refused rather than paired by guess`,
+    );
+    for (const [index, claim] of carrying.entries())
+      rows.push({
+        record: rel,
+        criterion: claim.criterion,
+        line: cited[index].line,
+        text: cited[index].text,
+        named: claim.artefactPath,
+        resolves: existsSync(
+          join(ROOT, ...String(claim.artefactPath).split('/')),
+        ),
+      });
+  }
+  return rows;
+}
+
+/**
+ * How `milestone` is spelled in every measured record: the value, the line it sits on, and whether it
+ * is the bare id or the id and the milestone's name in one string.
+ * @param {readonly string[]} paths
+ * @returns {any[]}
+ */
+function milestoneRowsOf(paths) {
+  return paths.map((rel) => {
+    const value = String(jsonOf(rel).milestone);
+    const cited = fieldCitation(rel, 'milestone');
+    return {
+      path: rel,
+      kind: kindOf(rel),
+      value,
+      line: cited.line,
+      text: cited.text,
+      idOnly: value === ownIdOf(rel),
+      startsWithOwnId: value.startsWith(ownIdOf(rel)),
+    };
+  });
+}
+
+/**
+ * Every surface record's `question`, with what it asks: the value and the line are read, the sentence
+ * saying what it asks is prose and is carried over from the record being re-derived.
+ * @param {readonly string[]} paths
+ * @param {any} recorded
+ * @returns {any[]}
+ */
+function questionRowsOf(paths, recorded) {
+  const asks = new Map(
+    (recorded?.negative?.surface?.question ?? []).map((row) => [
+      row.path,
+      row.asks,
+    ]),
+  );
+  return paths.map((rel) => {
+    const json = jsonOf(rel);
+    const cited = citationOf(rel, 'question');
+    return {
+      path: rel,
+      line: cited.line,
+      text: cited.text,
+      value: json.question,
+      asks: asks.get(rel) ?? String(json.question),
+      namesACriterionId: /\b(?:SC|E|N)\d\b/.test(String(json.question)),
+      carriesClaims: Array.isArray(json.claims),
+    };
+  });
+}
+
+/**
+ * The map as this head derives it. `head` is stated rather than derived, because the map names the
+ * commit it was measured at: a read run passes the head the file carries, and the armed run passes the
+ * head it runs at. Everything a pin reads is measured here through the pins' own helpers; the prose it
+ * cannot measure is carried over from `recorded`.
+ * @param {string} head
+ * @param {any} recorded the document the prose comes from — the committed map, or a candidate of it
+ * @returns {any}
+ */
+function derive(head, recorded) {
+  assert.ok(
+    recorded !== null && typeof recorded === 'object',
+    `${RECORD} is missing - the map has never been captured: run \`${ARMED_COMMAND}\` once, then keep the file`,
+  );
+  assert.deepEqual(
+    Object.keys(recorded).filter((key) => key !== 'capture'),
+    RECORD_KEYS.filter((key) => key !== 'capture'),
+    `${RECORD} carries sections this record does not state: the derivation builds each of ${RECORD_KEYS.join(', ')} and would drop a section it does not know, so a hand-added section is refused rather than lost`,
+  );
+
+  const next = JSON.parse(JSON.stringify(recorded));
+  const present = presentRecords();
+  const mapped = mappedRecords(recorded, present);
+  const paths = [...mapped.verdictClaims, ...mapped.surface];
+  const previous = new Map(
+    (recorded.records ?? []).map((row) => [row.path, row]),
+  );
+
+  next.inventory.verdictClaims = {
+    count: mapped.verdictClaims.length,
+    paths: mapped.verdictClaims,
+  };
+  next.inventory.surface = {
+    count: mapped.surface.length,
+    paths: mapped.surface,
+  };
+  next.inventory.milestones = [
+    ...new Set(mapped.verdictClaims.map((rel) => ownIdOf(rel))),
+  ];
+  next.inventory.claims = paths.reduce(
+    (sum, rel) =>
+      sum + (Array.isArray(jsonOf(rel).claims) ? jsonOf(rel).claims.length : 0),
+    0,
+  );
+
+  next.records = paths.map((rel) => recordEntryOf(rel, previous.get(rel)));
+
+  next.milestoneField.rows = milestoneRowsOf(paths);
+  next.milestoneField.idOnly = next.milestoneField.rows.filter(
+    (row) => row.idOnly,
+  ).length;
+  next.milestoneField.idAndName = next.milestoneField.rows.filter(
+    (row) => !row.idOnly,
+  ).length;
+
+  next.map.sides = next.map.sides.map((side) => {
+    const carried = next.records.filter(
+      (entry) => entry.fields[side.field].present === true,
+    );
+    const verdictClaims = carried.filter(
+      (entry) => entry.kind === 'verdict-claims',
+    ).length;
+    const surface = carried.filter((entry) => entry.kind === 'surface').length;
+    return {
+      ...side,
+      verdictClaims,
+      surface,
+      holds: verdictClaims === next.inventory.verdictClaims.count,
+    };
+  });
+
+  const artefactRows = artefactRowsOf(paths);
+  const unresolvedArtefacts = artefactRows.filter(
+    (row) => row.resolves === false,
+  );
+  next.artefactPaths = {
+    ...next.artefactPaths,
+    claimsCarryingIt: artefactRows.length,
+    recordsCarryingIt: next.records.filter(
+      (entry) => entry.fields.artefactPath.present === true,
+    ).length,
+    distinctPaths: new Set(artefactRows.map((row) => row.named)).size,
+    distinct: [...new Set(artefactRows.map((row) => row.named))].sort(),
+    resolved: artefactRows.length - unresolvedArtefacts.length,
+    unresolved: unresolvedArtefacts.map((row) => row.named),
+    present: artefactRows,
+  };
+
+  next.otherNamedPaths.rows = (next.otherNamedPaths.rows ?? []).map((row) => ({
+    ...row,
+    resolves: existsSync(join(ROOT, ...String(row.named).split('/'))),
+  }));
+  next.otherNamedPaths.unresolved = next.otherNamedPaths.rows
+    .filter((row) => row.resolves === false)
+    .map((row) => row.named);
+
+  next.negative.verdictClaims.records = mapped.verdictClaims.length;
+  next.negative.verdictClaims.questionShapedKeys = mapped.verdictClaims.flatMap(
+    (rel) => questionShapedKeys(jsonOf(rel)).map((key) => `${rel}:${key}`),
+  );
+  next.negative.verdictClaims.nearMatches = mapped.verdictClaims.flatMap(
+    (rel) =>
+      questionShapedKeys(jsonOf(rel), 'near').map((key) => `${rel}:${key}`),
+  );
+  next.negative.surface.records = mapped.surface.length;
+  next.negative.surface.question = questionRowsOf(mapped.surface, recorded);
+  next.negative.surface.carryingClaims = next.negative.surface.question.filter(
+    (row) => row.carriesClaims,
+  ).length;
+  next.negative.surface.namingACriterionId =
+    next.negative.surface.question.filter(
+      (row) => row.namesACriterionId,
+    ).length;
+
+  const fragment = String(next.trap.sharedProse.fragment);
+  const proseRows = [];
+  const perRecord = new Map();
+  for (const rel of mapped.verdictClaims)
+    for (const claim of jsonOf(rel).claims ?? []) {
+      const reason = String(claim.reason ?? '');
+      if (!reason.includes(fragment)) continue;
+      proseRows.push({
+        path: rel,
+        template: templateOf(String(claim.criterionText), reason),
+      });
+      perRecord.set(rel, (perRecord.get(rel) ?? 0) + 1);
+    }
+  const templates = [...new Set(proseRows.map((row) => row.template))];
+  next.trap.sharedProse.rows = proseRows.length;
+  next.trap.sharedProse.records = perRecord.size;
+  next.trap.sharedProse.distinctTemplates = templates.length;
+  next.trap.sharedProse.perRecord = [...perRecord.entries()].map(
+    ([record, rows]) => ({ record, rows }),
+  );
+  if (templates.length === 1) next.trap.sharedProse.template = templates[0];
+
+  let provesRows = 0;
+  let provesRecords = 0;
+  const provesCiting = [];
+  const provesWithoutCiting = [];
+  const provesShapes = { string: 0, array: 0 };
+  for (const rel of mapped.verdictClaims) {
+    let carries = false;
+    let cites = false;
+    for (const claim of jsonOf(rel).claims ?? []) {
+      if (claim.proves === undefined) continue;
+      carries = true;
+      if (Array.isArray(claim.proves)) provesShapes.array += 1;
+      else provesShapes.string += 1;
+      const text = Array.isArray(claim.proves)
+        ? claim.proves.join(' ')
+        : String(claim.proves);
+      if (text.includes(NAV)) {
+        provesRows += 1;
+        cites = true;
+        provesCiting.push(rel);
+      }
+    }
+    if (carries) provesRecords += 1;
+    if (carries && !cites) provesWithoutCiting.push(rel);
+  }
+  const captureCommands = mapped.verdictClaims.filter((rel) =>
+    String(jsonOf(rel).capture?.command ?? '').includes(NAV),
+  );
+  next.trap.proves = {
+    ...next.trap.proves,
+    suiteExistsAtThisHead: existsSync(join(ROOT, ...NAV.split('/'))),
+    shapes: provesShapes,
+    recordsCarryingProves: provesRecords,
+    recordsCitingTheSuite: new Set(provesCiting).size,
+    rowsCitingTheSuite: provesRows,
+    recordsCarryingProvesButNotCitingIt: provesWithoutCiting,
+    evidenceSuitesNamingIt: mapped.verdictClaims.filter((rel) =>
+      (jsonOf(rel).evidence?.suites ?? []).some((suite) => suite?.path === NAV),
+    ).length,
+    captureCommandsCitingIt: captureCommands.length,
+    captureVariables: [
+      ...new Set(
+        captureCommands.map(
+          (rel) =>
+            /M\d{3}_CAPTURE/.exec(String(jsonOf(rel).capture?.command))?.[0] ??
+            '',
+        ),
+      ),
+    ],
+  };
+
+  let required = 0;
+  let notRequired = 0;
+  const requiredIn = [];
+  for (const rel of mapped.verdictClaims) {
+    let hasRequired = false;
+    for (const claim of jsonOf(rel).claims ?? []) {
+      if (claim.ruling === 'required') {
+        required += 1;
+        hasRequired = true;
+      }
+      if (claim.ruling === 'not-required') notRequired += 1;
+    }
+    if (hasRequired) requiredIn.push(rel);
+  }
+  next.trap.rulings = {
+    ...next.trap.rulings,
+    rows: required + notRequired,
+    required,
+    notRequired,
+    recordsWithARequiredRow: requiredIn,
+  };
+
+  let artefactFieldRows = 0;
+  let artefactStart = 0;
+  let readingRows = 0;
+  for (const rel of mapped.verdictClaims)
+    for (const claim of jsonOf(rel).claims ?? []) {
+      if (typeof claim.artefact === 'string') {
+        artefactFieldRows += 1;
+        if (
+          typeof claim.artefactPath === 'string' &&
+          claim.artefact.startsWith(claim.artefactPath)
+        )
+          artefactStart += 1;
+      }
+      if (claim.reading !== undefined) readingRows += 1;
+    }
+  next.trap.artefactField = {
+    ...next.trap.artefactField,
+    rows: artefactFieldRows,
+    rowsStartingWithTheArtefactPath: artefactStart,
+  };
+  next.trap.readingField = { ...next.trap.readingField, rows: readingRows };
+
+  const fieldOfClaim = new Map(
+    Object.entries(CLAIM_OF).map(([field, claim]) => [claim, field]),
+  );
+  for (const claim of next.claims) {
+    const field = fieldOfClaim.get(claim.id);
+    if (field === undefined) continue;
+    const carried = next.records.filter(
+      (entry) => entry.fields[field].present === true,
+    );
+    const verdictClaims = carried.filter(
+      (entry) => entry.kind === 'verdict-claims',
+    ).length;
+    claim.counts = {
+      verdictClaims,
+      surface: carried.filter((entry) => entry.kind === 'surface').length,
+    };
+    claim.observedHere = {
+      ...claim.observedHere,
+      holds: verdictClaims === next.inventory.verdictClaims.count,
+    };
+    claim.absentFrom = next.records
+      .filter((entry) => entry.fields[field].present !== true)
+      .map((entry) => entry.path);
+  }
+
+  // The head is a reading, so the one unknown a reader wrote about it is re-derived rather than kept:
+  // a sentence naming the head a past run measured at would contradict the head this run states. Every
+  // other unknown is the author's and carries over untouched.
+  const aboutTheHead = /^re-(?:measured|derived) at /;
+  next.unknowns = [
+    ...(recorded.unknowns ?? []).filter(
+      (note) => !aboutTheHead.test(String(note)),
+    ),
+    `re-derived at ${head}: ${String(next.inventory.verdictClaims.count)} verdict-claims and ${String(next.inventory.surface.count)} surface records are measured at this head, and the record a map names outside itself or a census of its own holds is not one of them. Every number in this map was read from the tree here; the sentences around them are the author's, carried over, so a count that moved and the sentence that quotes it can disagree until a reader re-authors the sentence.`,
+  ];
+
+  const sections = {
+    schema: next.schema,
+    milestone: next.milestone,
+    task: next.task,
+    title: next.title,
+    question: next.question,
+    head,
+    headCommand: next.headCommand,
+    measuredAt: next.measuredAt,
+    capture: {
+      task: 'T010',
+      command: ARMED_COMMAND,
+      windowsCommand: ARMED_COMMAND_WINDOWS,
+      check: CHECK_COMMAND,
+      records: RECORD,
+      head,
+      reading:
+        'an armed run re-derives the whole map from the records on disk at the head it runs at — every measured record, its key lists, the line each of the seven fields is carried on, the artefact paths and what they resolve to, the milestone spelling, the negative measurement and the C3 trap — writes it only when a value moved, and writes nothing on a default run. The prose it cannot measure carries over from the file, so a re-derivation moves the readings and keeps the sentences.',
+    },
+    instrument: next.instrument,
+    inventory: next.inventory,
+    milestoneField: next.milestoneField,
+    map: next.map,
+    records: next.records,
+    artefactPaths: next.artefactPaths,
+    otherNamedPaths: next.otherNamedPaths,
+    negative: next.negative,
+    trap: next.trap,
+    claims: next.claims,
+    unknowns: next.unknowns,
+  };
+  assert.deepEqual(
+    Object.keys(sections),
+    [...RECORD_KEYS],
+    'the derivation states every section the map carries, in the order it carries them',
+  );
+  return sections;
+}
+
+/** The map as bytes at one head, exactly as the writer writes them. */
+function serializeMap(head, recorded) {
+  return canonical(derive(head, recorded));
+}
+
+/**
+ * The committed map, as the document a re-derivation carries its prose from, or null where the file
+ * has never been written.
+ * @returns {any}
+ */
+function loadRecorded() {
+  return existsSync(RECORD_PATH)
+    ? JSON.parse(readFileSync(RECORD_PATH, 'utf8'))
+    : null;
+}
+
+/**
+ * The one write this suite has. It refuses twice before it reaches the file, and the two refusals are
+ * the two ways a map can disagree with the tree it states:
+ *
+ *   the pin      the bytes are put through this suite's own `validate`, so the writer cannot emit a map
+ *                the read-only run then calls wrong — one refusal, and the pin is the owner of it.
+ *   the fixed point
+ *                and re-deriving the candidate at the head it names must reproduce it byte for byte, so
+ *                a second armed run moves nothing and a value the writer emits is a value it derives.
+ *
+ * A candidate that fails either is not written at all: nothing below reaches `writeFileSync`.
+ * @param {string} candidate
+ * @returns {string} the bytes on disk after the check
+ */
+function writeCandidate(candidate) {
+  const refused = (() => {
+    try {
+      validate(JSON.parse(candidate));
+      return null;
+    } catch (error) {
+      assert.ok(error instanceof Error, 'the pin fails with an Error');
+      return error;
+    }
+  })();
+  assert.ok(
+    refused === null,
+    `armed capture refused: the bytes it would write fail this suite's own pin, so the derivation does not derive through the pin its reader holds: ${String(refused?.message)} - nothing was written`,
+  );
+  const again = JSON.parse(candidate);
+  assert.equal(
+    serializeMap(again.head, again),
+    candidate,
+    "armed capture refused: the bytes it would write are not the fixed point of this suite's own pin — re-deriving the candidate at the head it names moves it, so the writer would emit bytes its own next run rewrites. Nothing was written.",
+  );
+  writeFileSync(RECORD_PATH, candidate);
+  return readFileSync(RECORD_PATH, 'utf8');
+}
+
+/**
+ * The armed run: derive at this head, compare with the committed bytes, and write only what moved. A
+ * second armed run at the same head writes nothing, because the first one wrote the fixed point.
+ * @returns {{ wrote: boolean, moved: string, after: string }}
+ */
+function capture() {
+  const recorded = loadRecorded();
+  assert.ok(
+    recorded !== null,
+    `${RECORD} is missing - the map has never been captured: run \`${ARMED_COMMAND}\` once, then keep the file`,
+  );
+  const head = gitHead();
+  const candidate = serializeMap(head, recorded);
+  const text = readFileSync(RECORD_PATH, 'utf8');
+  if (text === candidate) return { wrote: false, moved: '', after: text };
+  const moved = `the map moved: ${mapDifference(recorded, JSON.parse(candidate))}`;
+  return { wrote: true, moved, after: writeCandidate(candidate) };
+}
+
+/** The bytes on disk before this suite did anything: what a default run proves it left alone. */
+const RECORD_AT_LOAD = existsSync(RECORD_PATH)
+  ? readFileSync(RECORD_PATH, 'utf8')
+  : null;
+
+/**
+ * The armed write, run before the record is read below so the pins that follow read the bytes the
+ * writer just derived. A default run never reaches `capture`.
+ * @type {{ wrote: boolean, moved: string, after: string } | null}
+ */
+const CAPTURED = ARMED ? capture() : null;
+
+if (CAPTURED !== null)
+  console.log(
+    CAPTURED.wrote
+      ? `armed run wrote ${RECORD} (${CAPTURED.moved})`
+      : 'armed run: nothing moved, nothing written',
+  );
+
 // -------------------------------------------------------------- the record ----
 
 const RECORDING = JSON.parse(
@@ -1683,8 +2439,14 @@ test('every record present is measured and every record measured is present', (t
   t.diagnostic(
     `${mapped.verdictClaims.length} verdict-claims and ${mapped.surface.length} surface record(s) measured; ${present.verdictClaims.length + present.surface.length} present, ${outsideTheMapOf(RECORDING).length} named outside M055's map at T004 and ${LATER.map((entry) => `${outsideTheMapOf(entry.map).length} outside ${String(entry.map.milestone)}'s map`).join(' and ')}`,
   );
+  // The two counts M055's T001 pinned, re-derived rather than retuned: the map measures 36
+  // verdict-claims records at this head because `research/raw/m066-verdict-claims.json` is no longer
+  // held by a census of its own. The census M044 introduced derives
+  // `research/raw/<the bound milestone>-verdict-claims.json` from the bound branch, and the branch
+  // moved from gsd-path/M065 to gsd-path/M067 after M066's record was landed: the record it derives
+  // at this head is M067's, so M066's is measured by this map instead of being excused by nothing.
   for (const expected of [
-    ['verdict-claims', 35],
+    ['verdict-claims', 36],
     ['surface', 9],
   ]) {
     const [kind, count] = expected;
@@ -2037,7 +2799,7 @@ test('each later map may name only its own records, and a record it neither meas
   }
 });
 
-test('the recording is a read: it names its head and nothing here writes', (t) => {
+test('the recording is a read: it names its head and a default run writes nothing', (t) => {
   const before = readFileSync(join(ROOT, ...RECORD.split('/')), 'utf8');
   validateHead(RECORDING);
   const source = readFileSync(fileURLToPath(import.meta.url), 'utf8');
@@ -2048,16 +2810,191 @@ test('the recording is a read: it names its head and nothing here writes', (t) =
       .split(',')
       .map((name) => name.trim())
       .sort(),
-    ['existsSync', 'readFileSync', 'readdirSync'],
-    'this suite imports readers only, so a default run writes nothing to the tree it measures',
+    ['existsSync', 'readFileSync', 'readdirSync', 'writeFileSync'],
+    'this suite imports its three readers and the one writer symbol, so a default run writes nothing to the tree it measures and the armed run has one way to write',
+  );
+  // One write, and it is the armed run's: a second call site would be a second owner of the map. The
+  // needle is built from two halves so this scan does not count its own text.
+  const call = `${'writeFileSync'}(`;
+  const calls = source.split(call).length - 1;
+  assert.equal(
+    calls,
+    1,
+    `this suite writes in one place — the armed capture — and its source names ${call} ${String(calls)} time(s)`,
   );
   assert.equal(
     readFileSync(join(ROOT, ...RECORD.split('/')), 'utf8'),
     before,
     `${RECORD} is the same before and after the run`,
   );
+  if (CAPTURED === null)
+    assert.equal(
+      readFileSync(join(ROOT, ...RECORD.split('/')), 'utf8'),
+      RECORD_AT_LOAD,
+      `${RECORD} is the byte-for-byte file this run loaded, because a default run derives and compares rather than writing`,
+    );
   t.diagnostic(
     `head ${String(RECORDING.head).slice(0, 8)} is a commit this checkout carries, and the suite resolves it through ${String(RECORDING.headCommand)}`,
+  );
+});
+
+test('the map is the one this head derives, and a record that moved is named', () => {
+  const recorded = loadRecorded();
+  const head = String(recorded.head);
+  const difference = mapDifference(recorded, derive(head, recorded));
+  assert.equal(
+    difference,
+    '',
+    `${RECORD} is not what this head derives: ${difference} - re-derive with \`${ARMED_COMMAND}\` at this head rather than editing the map`,
+  );
+  assert.equal(
+    readFileSync(RECORD_PATH, 'utf8'),
+    serializeMap(head, recorded),
+    `${RECORD} is not serialized as the armed writer writes it, so a re-derivation would move bytes the values do not`,
+  );
+
+  // The mutant the criterion is written about: the record this rebind orphaned, dropped from the table
+  // and from the inventory without touching the tree. The unmutated map passes the same pin above, so
+  // the red below is the mutation and not drift.
+  const orphan = `${RAW}/m066-verdict-claims.json`;
+  const planted = JSON.parse(JSON.stringify(recorded));
+  planted.records = planted.records.filter((row) => row.path !== orphan);
+  planted.inventory.verdictClaims.paths =
+    recorded.inventory.verdictClaims.paths.filter((path) => path !== orphan);
+  planted.inventory.verdictClaims.count =
+    planted.inventory.verdictClaims.paths.length;
+  const failure = (() => {
+    try {
+      const moved = mapDifference(
+        planted,
+        derive(String(recorded.head), planted),
+      );
+      assert.equal(
+        moved,
+        '',
+        `${RECORD} is not what this head derives: ${moved}`,
+      );
+      return null;
+    } catch (error) {
+      assert.ok(error instanceof Error, 'the check fails with an Error');
+      return error;
+    }
+  })();
+  assert.ok(
+    failure !== null,
+    `a map that does not measure ${orphan} must redden, and it reddened nothing`,
+  );
+  assert.ok(
+    failure.message.includes(orphan),
+    `the refusal names the record that moved rather than reporting a bare count, and it says ${JSON.stringify(failure.message)}`,
+  );
+  console.log(`mutant: unmeasured record -> ${failure.message.split('\n')[0]}`);
+});
+
+test('the armed writer refuses a candidate that is not the fixed point of its own pin, and writes nothing', () => {
+  const before = readFileSync(RECORD_PATH, 'utf8');
+  const recorded = loadRecorded();
+  const good = serializeMap(String(recorded.head), recorded);
+
+  // The first refusal: a candidate this suite's own pin calls wrong. Nothing reaches the file.
+  const short = JSON.parse(good);
+  short.records = short.records.slice(0, short.records.length - 1);
+  const pinRefusal = (() => {
+    try {
+      writeCandidate(canonical(short));
+      return null;
+    } catch (error) {
+      assert.ok(error instanceof Error, 'the refusal fails with an Error');
+      return error;
+    }
+  })();
+  assert.ok(
+    pinRefusal !== null,
+    'a candidate the pin refuses must be refused by the writer rather than written, and it was written',
+  );
+  assert.match(
+    pinRefusal.message,
+    /armed capture refused/,
+    `the refusal says what it is, and it says ${JSON.stringify(pinRefusal.message.split('\n')[0])}`,
+  );
+  assert.match(
+    pinRefusal.message,
+    /nothing was written/,
+    `the refusal states that it wrote nothing, and it says ${JSON.stringify(pinRefusal.message.split('\n')[0])}`,
+  );
+  assert.equal(
+    readFileSync(RECORD_PATH, 'utf8'),
+    before,
+    'a refused candidate wrote nothing to the map',
+  );
+
+  // The second refusal: a candidate the pin passes and the writer still refuses, because a value the
+  // derivation owns moved. `inventory.milestones` is measured by the writer and read by no pin, so
+  // without the fixed point this candidate would be written and the next armed run would rewrite it.
+  const drifted = JSON.parse(good);
+  drifted.inventory.milestones = drifted.inventory.milestones.slice(0, 3);
+  assert.doesNotThrow(
+    () => validate(drifted),
+    'the pin does not read inventory.milestones, which is why the fixed point is the second refusal',
+  );
+  const fixedPointRefusal = (() => {
+    try {
+      writeCandidate(canonical(drifted));
+      return null;
+    } catch (error) {
+      assert.ok(error instanceof Error, 'the refusal fails with an Error');
+      return error;
+    }
+  })();
+  assert.ok(
+    fixedPointRefusal !== null,
+    'a candidate that is not the fixed point of the pin must be refused, and it was written',
+  );
+  assert.match(
+    fixedPointRefusal.message,
+    /fixed point/,
+    `the refusal names the rule it holds, and it says ${JSON.stringify(fixedPointRefusal.message.split('\n')[0])}`,
+  );
+  assert.equal(
+    readFileSync(RECORD_PATH, 'utf8'),
+    before,
+    'a candidate the writer refuses as not its own fixed point wrote nothing to the map',
+  );
+  console.log(
+    `mutant: armed refusal -> ${pinRefusal.message.split('\n')[0]} || ${fixedPointRefusal.message.split('\n')[0]}`,
+  );
+});
+
+test('the armed run writes only what moved, and a second armed run changes no byte', (t) => {
+  if (CAPTURED === null) {
+    assert.equal(
+      readFileSync(RECORD_PATH, 'utf8'),
+      RECORD_AT_LOAD,
+      'a default run derives the map and leaves the file exactly as it loaded it',
+    );
+    t.diagnostic(
+      'default run: nothing written; the armed run is the only writer this suite has',
+    );
+    return;
+  }
+  assert.equal(
+    readFileSync(RECORD_PATH, 'utf8'),
+    CAPTURED.after,
+    'the bytes the armed run reports are not the bytes on disk',
+  );
+  const second = capture();
+  assert.equal(
+    second.wrote,
+    false,
+    `a second armed run wrote, and nothing had moved: ${second.moved}`,
+  );
+  assert.equal(
+    second.after,
+    CAPTURED.after,
+    'a second armed run changed the map, so the re-derivation is not idempotent',
+  );
+  t.diagnostic(
+    `armed run: ${CAPTURED.wrote ? CAPTURED.moved : 'nothing moved'} — a second run moved no byte of ${String(CAPTURED.after.length)} (${CAPTURED.after.split('\n').length} line(s))`,
   );
 });
 

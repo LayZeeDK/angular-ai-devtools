@@ -1,0 +1,63 @@
+head: fdbfd022b041a8efc94e5148b891713b67e4b8c2 at 2026-11-24T18:54:54.505Z
+extension/field-binder.js: exports ["fieldBinder"] with 2 parameters
+committed record: 3 field(s) host an element; joined states ["cannot-tell","cannot-tell","cannot-tell","no-host"]
+committed record: status hosts nothing -> no-host (hosts-no-element)
+the pin holds the untouched module to 13 case(s), answering all 4 states
+mismatch mutant: a field hosting a control other than the one its record expects: the mismatch must name both controls, and it names the hosted control {"tag":"p-select","attribute":{"name":"name","value":"customer"}} and reports expected as null: the two controls are what a caller compares, and one of the two is not in the answer
+inferred-host mutant: the committed status field, which hosts no element: the no-host answer names a hosted control the record did not carry: {"tag":"input","attribute":{"name":"id","value":"status"}} is inferred from the field's identity "status", and a host read off a label, a placeholder or a class is not a host any reading took
++ actual - expected
+
++ {
++   attribute: {
++     name: 'id',
++     value: 'status'
++   },
++   tag: 'input'
++ }
+- null
+
+remedy mutant: the committed policyNumber field, whose expected control the record states as not read: the join names a remedy: ["add a control library to package.json so the record can name the expected control"] - a state that cannot tell names the fact it is missing and stops there, and no answer carries a remedy, a cause or a control the record did not contain
++ actual - expected
+
++ '["add a control library to package.json so the record can name the expected control"]'
+- null
+
+three mutants, three defects: ["inferHost","onlyHosted","remedy"] each redden the pin; the record was neither rewritten nor re-captured
+▶ the interface
+  ✔ exports one function, at the name and the signature the contract states (1.1512ms)
+  ✔ is pure: no DOM, no I/O, no import, and nothing written (0.4094ms)
+  ✔ writes no recording: the committed record is read into memory and never re-captured (0.3739ms)
+✔ the interface (2.8712ms)
+▶ the committed record, joined as it stands
+  ✔ AC3: answers cannot-tell naming the missing expected control for every field that hosts an element (0.4456ms)
+  ✔ AC2: answers no-host for the field that hosts nothing, with that reason and no control (0.1356ms)
+  ✔ quotes the record in observed, rather than paraphrasing what it read (0.1954ms)
+  ✔ reads the same answer from the document, from its fields list and from one row (0.1814ms)
+✔ the committed record, joined as it stands (1.1583ms)
+▶ rows constructed from the same shape
+  ✔ AC1: a field hosting another control is mismatch, and the answer names both controls (0.2553ms)
+  ✔ a field hosting the control its record expects is bound (0.0847ms)
+  ✔ compares a control in another case as the same one, and reports the string the record carries (0.1347ms)
+  ✔ AC2: a field that is not a components field is no-host, with that reason and no inferred control (0.2188ms)
+  ✔ AC3: a row without an expected control is cannot-tell, and names no remedy and no invented control (0.2028ms)
+  ✔ a row carrying no hosted fact at all is cannot-tell naming that fact, not no-host (0.1246ms)
+  ✔ a record carrying several fields and no field named is cannot-tell, not a guess (0.049ms)
+  ✔ a field the record does not carry is cannot-tell, and names no control (0.0936ms)
+  ✔ an expected fact of a shape that is not a control name is not read as a control (0.0723ms)
+  ✔ purity: reads a frozen record and frozen facts, writes neither, and points into neither (0.1949ms)
+✔ rows constructed from the same shape (2.2601ms)
+▶ the pin and its mutants
+  ✔ pins the untouched module first, so the mutants have something to move (0.8203ms)
+  ✔ AC1 mutant: a mismatch reporting only the hosted control reddens the pin, naming hosted without expected (1.2137ms)
+  ✔ AC2 mutant: a join that infers a host from a label reddens the pin, naming the inference (1.8082ms)
+  ✔ AC3 mutant: a join that names a remedy reddens the pin, naming the remedy (0.9175ms)
+  ✔ the three mutants are three different defects, each caught by the pin it names (0.7134ms)
+✔ the pin and its mutants (5.6046ms)
+ℹ tests 22
+ℹ suites 4
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 138.88

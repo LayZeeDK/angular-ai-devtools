@@ -1,0 +1,198 @@
+{
+  "schema": "m067-field-binder/v1",
+  "milestone": "M067",
+  "task": "T004",
+  "question": "Which element does each field of the Insurance Portal's contract-create form host, what identity does the field tree report for it, and what control does its record expect?",
+  "capture": {
+    "capturedAt": "2026-11-24T18:34:17.737Z",
+    "command": "M067_CAPTURE=1 node --test scripts/field-binder-record.test.mjs",
+    "check": "node --test scripts/field-binder-record.test.mjs",
+    "records": "research/raw/m067-field-binder.json",
+    "writes": "one: the armed test re-derives this record from the files below and writes it only when a value moved, and it refuses to write a candidate that is not a fixed point of this suite’s default pin",
+    "armedBy": "M067_CAPTURE=1",
+    "note": "the instant this record was first written; every re-capture derives through it, so the record moves no byte for a clock - the instant the page was read is page.capturedAt, which comes from the reading it derives from"
+  },
+  "sources": [
+    {
+      "path": "research/raw/m066-schema-record.json",
+      "contributes": "the portal page reading: the route it drove, the form it found, the field-tree identities and the element each field hosts, as M066 captured them"
+    },
+    {
+      "path": "research/raw/m031-field-state.json",
+      "contributes": "the field-state reading whose `fields` keys are the identity shape this record carries, recorded from the fixture’s /field-form page"
+    },
+    {
+      "path": "extension/field-state.js",
+      "contributes": "the identity producer: this suite runs it in a bare node:vm context and asks which keys it echoes"
+    },
+    {
+      "path": "spikes/ng222-app/src/app/app.routes.ts",
+      "contributes": "the fixture route table that names the fallback route"
+    },
+    {
+      "path": "spikes/ng222-app/src/app/field-form-page.ts",
+      "contributes": "the fixture form that binds the two fields the fallback would have read"
+    },
+    {
+      "path": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "contributes": "the panel route table that declares the fields surface this identity already renders on"
+    },
+    {
+      "path": "package.json",
+      "contributes": "the declared packages, none of which is a control library, which is why no expected control is read"
+    }
+  ],
+  "page": {
+    "target": "Insurance Portal",
+    "route": "/contract/create",
+    "url": "http://localhost:4507/contract/create",
+    "heading": "Contract Create",
+    "formCount": 1,
+    "formRootCount": 1,
+    "capturedAt": "2026-11-24T06:46:14.065Z",
+    "readBy": "research/raw/m066-schema-record.json",
+    "fieldTreeNames": [
+      "policyNumber",
+      "insuranceStartOn",
+      "customer",
+      "status"
+    ],
+    "boundFields": [
+      "customer",
+      "policyNumber",
+      "insuranceStartOn"
+    ]
+  },
+  "identity": {
+    "producer": "extension/field-state.js",
+    "publication": "globalThis.angularAiFieldState",
+    "exports": [
+      "CANNOT_TELL",
+      "FIELDS",
+      "fields",
+      "inspect",
+      "read",
+      "state",
+      "triage"
+    ],
+    "expression": "angularAiFieldState.read({ fields, root, submitState }).fields, then its own keys",
+    "meaning": "a field’s identity is the key the read copies from state.fields: the module echoes every key verbatim and invents none, so an identity this record carries is the key it is keyed by and a second spelling of one field is the defect this record refuses",
+    "surface": {
+      "route": "fields",
+      "declaredIn": "apps/angular-ai-devtools/src/app/app.routes.ts",
+      "declared": true
+    }
+  },
+  "fallback": {
+    "used": false,
+    "why": "the portal carries a form whose fields host elements: 3 of the 4 fields research/raw/m066-schema-record.json read on /contract/create host one (policyNumber <input>, insuranceStartOn <p-datepicker>, customer <p-select>), so the fixture route /field-form was not needed and was not driven",
+    "route": "/field-form",
+    "routeSource": "spikes/ng222-app/src/app/app.routes.ts",
+    "formFields": [
+      "name",
+      "age"
+    ],
+    "formBindings": 2,
+    "formSource": "spikes/ng222-app/src/app/field-form-page.ts",
+    "fieldsSource": "research/raw/m031-field-state.json"
+  },
+  "counts": {
+    "fields": 4,
+    "identityRead": 4,
+    "hostedRead": 3,
+    "hostedUnread": 1,
+    "expectedRead": 0,
+    "expectedUnread": 4
+  },
+  "fields": [
+    {
+      "field": "policyNumber",
+      "identity": {
+        "read": true,
+        "value": "policyNumber",
+        "source": "research/raw/m066-schema-record.json#page.fieldTreeNames",
+        "producer": "extension/field-state.js"
+      },
+      "hosted": {
+        "read": true,
+        "value": {
+          "tag": "input",
+          "attribute": {
+            "name": "id",
+            "value": "policyNumber"
+          }
+        },
+        "source": "research/raw/m066-schema-record.json#input.fields[policyNumber]"
+      },
+      "expected": {
+        "read": false,
+        "reason": "the control the policyNumber field's record expects was not read: the one page reading this record derives from (research/raw/m066-schema-record.json) carries the 10 keys [\"boundFields\",\"disabled\",\"disabledType\",\"element\",\"field\",\"fieldDisabled\",\"formText\",\"hidden\",\"id\",\"nameAttr\"] for a field and none of them names a control a field expects; this task read no page of its own, and package.json declares 30 packages of which 0 is @angular/material or @angular/cdk, so no control library in this tree names one either - recorded as an absence, never inferred from the field's label"
+      }
+    },
+    {
+      "field": "insuranceStartOn",
+      "identity": {
+        "read": true,
+        "value": "insuranceStartOn",
+        "source": "research/raw/m066-schema-record.json#page.fieldTreeNames",
+        "producer": "extension/field-state.js"
+      },
+      "hosted": {
+        "read": true,
+        "value": {
+          "tag": "p-datepicker",
+          "attribute": {
+            "name": "id",
+            "value": "insuranceStartOn"
+          }
+        },
+        "source": "research/raw/m066-schema-record.json#input.fields[insuranceStartOn]"
+      },
+      "expected": {
+        "read": false,
+        "reason": "the control the insuranceStartOn field's record expects was not read: the one page reading this record derives from (research/raw/m066-schema-record.json) carries the 10 keys [\"boundFields\",\"disabled\",\"disabledType\",\"element\",\"field\",\"fieldDisabled\",\"formText\",\"hidden\",\"id\",\"nameAttr\"] for a field and none of them names a control a field expects; this task read no page of its own, and package.json declares 30 packages of which 0 is @angular/material or @angular/cdk, so no control library in this tree names one either - recorded as an absence, never inferred from the field's label"
+      }
+    },
+    {
+      "field": "customer",
+      "identity": {
+        "read": true,
+        "value": "customer",
+        "source": "research/raw/m066-schema-record.json#page.fieldTreeNames",
+        "producer": "extension/field-state.js"
+      },
+      "hosted": {
+        "read": true,
+        "value": {
+          "tag": "p-select",
+          "attribute": {
+            "name": "name",
+            "value": "customer"
+          }
+        },
+        "source": "research/raw/m066-schema-record.json#input.fields[customer]"
+      },
+      "expected": {
+        "read": false,
+        "reason": "the control the customer field's record expects was not read: the one page reading this record derives from (research/raw/m066-schema-record.json) carries the 10 keys [\"boundFields\",\"disabled\",\"disabledType\",\"element\",\"field\",\"fieldDisabled\",\"formText\",\"hidden\",\"id\",\"nameAttr\"] for a field and none of them names a control a field expects; this task read no page of its own, and package.json declares 30 packages of which 0 is @angular/material or @angular/cdk, so no control library in this tree names one either - recorded as an absence, never inferred from the field's label"
+      }
+    },
+    {
+      "field": "status",
+      "identity": {
+        "read": true,
+        "value": "status",
+        "source": "research/raw/m066-schema-record.json#page.fieldTreeNames",
+        "producer": "extension/field-state.js"
+      },
+      "hosted": {
+        "read": false,
+        "reason": "the status field hosts no element in the page reading this record derives from: 3 of the 4 fields carry one (policyNumber, insuranceStartOn, customer) and no element carries status; this task read no page of its own, so the hosted element is stated as not read rather than inferred from the field's label"
+      },
+      "expected": {
+        "read": false,
+        "reason": "the control the status field's record expects was not read: the one page reading this record derives from (research/raw/m066-schema-record.json) carries the 10 keys [\"boundFields\",\"disabled\",\"disabledType\",\"element\",\"field\",\"fieldDisabled\",\"formText\",\"hidden\",\"id\",\"nameAttr\"] for a field and none of them names a control a field expects; this task read no page of its own, and package.json declares 30 packages of which 0 is @angular/material or @angular/cdk, so no control library in this tree names one either - recorded as an absence, never inferred from the field's label"
+      }
+    }
+  ]
+}

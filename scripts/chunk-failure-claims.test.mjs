@@ -1487,7 +1487,10 @@ function captureClaims(path) {
   const present = existsSync(path);
   const text = present ? readFileSync(path, 'utf8') : '';
   const before = present ? digest(text) : null;
-  const record = atRecordedDocumentLocations(derived());
+  // The committed record is the anchor the default pin reads through, so the writer reads through the
+  // same anchor. Writing the unanchored derivation emitted bytes the pin refuses, and did so silently.
+  const recorded = present ? JSON.parse(text) : null;
+  const record = atRecordedDocumentLocations(derived(), recorded);
   const candidate = canonical(record);
   let moved = 'the record had not been written';
   if (present && text === candidate) {
@@ -1500,6 +1503,13 @@ function captureClaims(path) {
   assert.doesNotThrow(() => assertCitationsResolve(record));
   assert.doesNotThrow(() => assertClaimedFields(record));
   assert.doesNotThrow(() => assertNamesNoRepair(record));
+  // Nor one its own default pin would refuse: the candidate must be the fixed point of the pin, so a
+  // capture cannot write bytes the read-only run then calls wrong.
+  assert.equal(
+    canonical(atRecordedDocumentLocations(derived(), JSON.parse(candidate))),
+    candidate,
+    "armed capture refused: the bytes it would write fail this suite's default pin, so the capture does not derive through the pin its reader holds. Nothing was written.",
+  );
   writeFileSync(path, candidate);
   return { wrote: true, before, after: digest(readFileSync(path)), moved };
 }

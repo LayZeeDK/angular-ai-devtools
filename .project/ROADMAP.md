@@ -2315,8 +2315,8 @@ Open questions
 Depends on: [M037]
 Programme: Generation 3 · Batch: 5 · Group: @angular/material
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/067-formfield-binder
 Integrated: null
 
 Goal: The panel answers why a form field is not bound to the control its label names, naming the control the binder resolved and the field it attached it to.

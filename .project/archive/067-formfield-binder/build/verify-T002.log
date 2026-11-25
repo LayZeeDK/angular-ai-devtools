@@ -1,0 +1,85 @@
+head: f088507a3d54d67761db9eb4012d70a7c7377c87 at 2026-11-24T17:38:53.893Z
+armed run: nothing moved, nothing written
+M064: 4 criteria, 8 edge row(s), 8 held-out row(s), 27 line citation(s)
+the join's fields: ["state","specifier","routePath","status","hash","consideredCount","reason"]
+specifier census: ["extension/chunk-failure.js","extension/import-failure.js"] | exactly extension/chunk-failure.js and extension/import-failure.js must name an import specifier under extension/, and these do: ["extension/chunk-failure.js","extension/import-failure.js","extension/panel.js"] - a third module is the second source this census refuses
+research/raw/m064-verdict-claims.json at load and after the run: 40154 characters, sha256 e12faecb4f6cbfc6b15a1f07a07367baca092e9e2a361815366f50ff43a0025b
+research/raw/m064-verdict-claims.json: edge claims ["E1","E2","E3","E4","E5","E6","E7","E8"]; citations [3,3,3,4,4,5,2,3]; absences ["E4","E6"]
+research/raw/m064-verdict-claims.json: 27 citation(s) re-resolved line by line
+research/raw/m064-verdict-claims.json: 4 criterion row(s), 8 edge claim(s), 2 absence(s), plan disagreements []
+absences: E4 (a sample whose hash the record marks as truncated); E6 (one assertion that the three chat-entry lists and app.spec.ts move together)
+deleted-citation mutant: the claim for E3 carries no citation: a claim with no citation is held by no line of this checkout
+line-text mutant: the claim for E1 cites scripts/chunk-failure.test.mjs:1036 and that line reads "test('SC1 - a resolved import reports no failure, and the absence of a hash as absent', () => {" at this head, not the "test('SC1 - a resolved import reports no failure, and the absence of a hash as absent', () => { (reworded here)" the citation states | moved line: the claim for E2 cites scripts/chunk-failure.test.mjs:1116 and that line reads "const answers = answerOf(TWO_FAILURES, NAVIGATION);" at this head, not the "test('SC1 - both failures of one navigation are named, in the order the router attempted them', () => {" the citation states
+invented-field mutant: the claim for E1 names the field "cause", and the join returns ["state","specifier","routePath","status","hash","consideredCount","reason"]: a claim may name only a field an answer carries
+remedy-claim mutant: the claim for E8 states "fix", and a claim states what the record carries: no claim may name a cause, a repair or a drift it did not measure - "no line of the pane prints a value the answer did not carry, and no literal the pane declares is a sentence-shaped repair, a schematic or an identity the answer was not given. the fix is to redeploy t"
+▶ the claim record, armed
+  ✔ re-derives, writes only what moved, and a second run changes no byte (24.6981ms)
+✔ the claim record, armed (25.4258ms)
+▶ measurement
+  ✔ reads four criteria, eight edge rows and eight held-out rows, and every cited file is here (0.9325ms)
+  ✔ the join returns the fields the claims name, and a claim may not name another (1.0989ms)
+  ✔ the import-failure record is the only producer of an import specifier, and the join its one reader (5.0366ms)
+✔ measurement (7.2648ms)
+▶ the claim record
+  ✔ is a read: a default run hashes the record the same before and after (0.3569ms)
+  ✔ is exactly what this head derives, and a value that moved is named (0.8024ms)
+  ✔ carries one claim per edge row, each with a citation, a suite and a test this head declares (4.8463ms)
+  ✔ resolves every citation to the file and the line it names, and every citation names one line (2.7493ms)
+  ✔ quotes each criterion, cites the suites the plan assigns, and names no repair (4.7824ms)
+  ✔ records each absence with its reason rather than softening it into prose (0.3695ms)
+✔ the claim record (14.471ms)
+▶ the mutants
+  ✔ a deleted citation reddens naming the claim, and the never-completed claim is the one planted on (9.8029ms)
+  ✔ a citation whose line text no longer matches its line reddens naming the claim and the citation (5.6201ms)
+  ✔ a claim naming a field the join does not return reddens naming the claim and the field (1.9592ms)
+  ✔ a claim that asserts a remedy reddens naming the claim and the word (0.4738ms)
+  ✔ the four mutants are four different defects, and each is proved against the same record (6.5676ms)
+✔ the mutants (24.6106ms)
+ℹ tests 15
+ℹ suites 4
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 199.7899
+M064: 4 criteria, 8 edge row(s), 8 held-out row(s), 27 line citation(s)
+the join's fields: ["state","specifier","routePath","status","hash","consideredCount","reason"]
+specifier census: ["extension/chunk-failure.js","extension/import-failure.js"] | exactly extension/chunk-failure.js and extension/import-failure.js must name an import specifier under extension/, and these do: ["extension/chunk-failure.js","extension/import-failure.js","extension/panel.js"] - a third module is the second source this census refuses
+research/raw/m064-verdict-claims.json at load and after the run: 40154 characters, sha256 e12faecb4f6cbfc6b15a1f07a07367baca092e9e2a361815366f50ff43a0025b
+research/raw/m064-verdict-claims.json: edge claims ["E1","E2","E3","E4","E5","E6","E7","E8"]; citations [3,3,3,4,4,5,2,3]; absences ["E4","E6"]
+research/raw/m064-verdict-claims.json: 27 citation(s) re-resolved line by line
+research/raw/m064-verdict-claims.json: 4 criterion row(s), 8 edge claim(s), 2 absence(s), plan disagreements []
+absences: E4 (a sample whose hash the record marks as truncated); E6 (one assertion that the three chat-entry lists and app.spec.ts move together)
+deleted-citation mutant: the claim for E3 carries no citation: a claim with no citation is held by no line of this checkout
+line-text mutant: the claim for E1 cites scripts/chunk-failure.test.mjs:1036 and that line reads "test('SC1 - a resolved import reports no failure, and the absence of a hash as absent', () => {" at this head, not the "test('SC1 - a resolved import reports no failure, and the absence of a hash as absent', () => { (reworded here)" the citation states | moved line: the claim for E2 cites scripts/chunk-failure.test.mjs:1116 and that line reads "const answers = answerOf(TWO_FAILURES, NAVIGATION);" at this head, not the "test('SC1 - both failures of one navigation are named, in the order the router attempted them', () => {" the citation states
+invented-field mutant: the claim for E1 names the field "cause", and the join returns ["state","specifier","routePath","status","hash","consideredCount","reason"]: a claim may name only a field an answer carries
+remedy-claim mutant: the claim for E8 states "fix", and a claim states what the record carries: no claim may name a cause, a repair or a drift it did not measure - "no line of the pane prints a value the answer did not carry, and no literal the pane declares is a sentence-shaped repair, a schematic or an identity the answer was not given. the fix is to redeploy t"
+▶ measurement
+  ✔ reads four criteria, eight edge rows and eight held-out rows, and every cited file is here (24.6217ms)
+  ✔ the join returns the fields the claims name, and a claim may not name another (1.1085ms)
+  ✔ the import-failure record is the only producer of an import specifier, and the join its one reader (5.1591ms)
+✔ measurement (31.7197ms)
+▶ the claim record
+  ✔ is a read: a default run hashes the record the same before and after (0.3936ms)
+  ✔ is exactly what this head derives, and a value that moved is named (0.9001ms)
+  ✔ carries one claim per edge row, each with a citation, a suite and a test this head declares (3.8575ms)
+  ✔ resolves every citation to the file and the line it names, and every citation names one line (3.6783ms)
+  ✔ quotes each criterion, cites the suites the plan assigns, and names no repair (4.7229ms)
+  ✔ records each absence with its reason rather than softening it into prose (0.3192ms)
+✔ the claim record (14.1941ms)
+▶ the mutants
+  ✔ a deleted citation reddens naming the claim, and the never-completed claim is the one planted on (10.6175ms)
+  ✔ a citation whose line text no longer matches its line reddens naming the claim and the citation (5.7096ms)
+  ✔ a claim naming a field the join does not return reddens naming the claim and the field (1.9709ms)
+  ✔ a claim that asserts a remedy reddens naming the claim and the word (0.4919ms)
+  ✔ the four mutants are four different defects, and each is proved against the same record (6.9223ms)
+✔ the mutants (25.8972ms)
+ℹ tests 14
+ℹ suites 3
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 198.8249

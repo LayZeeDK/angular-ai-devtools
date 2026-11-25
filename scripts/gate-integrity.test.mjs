@@ -1854,6 +1854,15 @@ function capture(path, at) {
 
 if (ARMED) {
   test('armed: re-derive, write only what moved, and a second run changes no byte', (t) => {
+    // This capture counts each task's own ## Log, so a capture taken before the Log is written cannot
+    // agree with the verify that follows it. Refuse rather than write a record born stale.
+    const owned = derivedSections().fixRecord?.tasks ?? [];
+    const logged = owned.filter((row) => String(row.log ?? '').trim() !== '');
+    if (owned.length > 0 && logged.length === 0) {
+      assert.fail(
+        'armed capture refused: the fix-record census reads this milestone task ## Log and none is written yet, so the recording would be born stale. Write the Log first. Nothing was written to research/raw/m044-gate-shapes.json.',
+      );
+    }
     const first = capture(RECORD_PATH, new Date().toISOString());
     t.diagnostic(
       first.wrote
@@ -3976,6 +3985,11 @@ function lineCount(file) {
  *
  * @returns {Record<string, any>}
  */
+// The suites a derivation found with no reason row. Held beside the section rather than inside it: the
+// record is a reading of the tree, and adding a key to it would make every capture stale for a reason
+// that has nothing to do with the tree changing.
+let suiteDiffUnexplained = [];
+
 function deriveSuiteDiff() {
   const baseline = git(['rev-parse', MEASURED_HEAD]).trim();
   const atBaseline = new Set(
@@ -4018,15 +4032,19 @@ function deriveSuiteDiff() {
   }
 
   const differing = [];
+  // A missing reason row is collected rather than thrown. Throwing here used to kill every derived section
+  // for every consumer, so one unexplained suite reddened nine assertions and none of them said what to
+  // paste; the assertion that owns this section reports the rows instead, and everything else still reads
+  // the tree it can see.
+  const unexplained = (suiteDiffUnexplained = []);
   for (const file of suites) {
     const present = atBaseline.has(file);
     const counts = moved.get(file);
     if (present && counts === undefined) continue;
     const reason = SUITE_DIFF_REASONS[file];
     if (typeof reason !== 'string' || reason === '') {
-      fail(
-        `${file} differs from ${MEASURED_HEAD} and no reason was read for it, so recording it would be a guess rather than a reading of the diff`,
-      );
+      unexplained.push(file);
+      continue;
     }
     const assertions = assertionCounts(baseline, file, present);
     // A suite the measured head lacks and the index does not carry either - the tree a capture runs on
@@ -4382,7 +4400,24 @@ test('T004 AC1: each check is driven on its measured instance and a clean contro
 
 test('T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails', (t) => {
   const section = derivedSections().suiteDiff;
-  assert.doesNotThrow(() => assertSuiteDiffShape(section));
+  assertSuiteDiffShape(section);
+
+  // One assertion owns the missing rows, and it prints the row to paste. The rest of the run reads the
+  // tree it can see, because a suite with no reason row no longer throws out of the derivation.
+  if (suiteDiffUnexplained.length > 0) {
+    const rows = suiteDiffUnexplained
+      .map(
+        (file) =>
+          `  '${file}': '<what the suite is, what it reads, what it refuses>',`,
+      )
+      .join('\n');
+    assert.fail(
+      `${suiteDiffUnexplained.join(', ')} differs from ${MEASURED_HEAD} and SUITE_DIFF_REASONS has no row for it.\n` +
+        'Add, appended after the last Object.assign in this file:\n\n' +
+        `Object.assign(SUITE_DIFF_REASONS, {\n${rows}\n});\n\n` +
+        'No other assertion in this run is affected.',
+    );
+  }
 
   const edited = section.differing.filter((row) => row.atTheMeasuredHead);
   assert.ok(
@@ -5889,4 +5924,20 @@ Object.assign(SUITE_DIFF_REASONS, {
     'a suite this milestone added rather than changed: it pins `research/raw/m066-schema-record.json`, the record T001 captured from the Insurance Portal, and asserts the field readings the page gave rather than any value inferred from them',
   'scripts/schema-attribution.test.mjs':
     'a suite this milestone added rather than changed: it pins `extension/schema-attribution.js`, the join T002 wrote, and its seven mutants each name the rule they break, so it reads the record T001 wrote and nothing else',
+});
+
+// M067 T008 — the three suites this milestone added and the one row this task reads rather than leaves
+// unexplained. T004's record suite and T005's join suite landed without their rows, so the derivation
+// named them beside the census this task writes; each row below is a reading of that suite's own diff —
+// what the suite is, what it reads and what it refuses — rather than a name admitted to the list. The
+// rows travel here, appended after the last line the M044 recording pins in this file, for the same
+// reason every block above does: a row added above one of those pinned references would stale it by
+// moving it.
+Object.assign(SUITE_DIFF_REASONS, {
+  'scripts/field-binder-record.test.mjs':
+    'wholly added at this head: M067 T004 writes the record this milestone joins, `research/raw/m067-field-binder.json`, behind its own armed flag `M067_CAPTURE=1` and reads it back unarmed — for every field the Insurance Portal’s contract-create form reports, the identity the field tree reports for it (the one `extension/field-state.js` echoes, asserted against that producer run in a bare `node:vm` context rather than reproduced here), the element the field hosts as a tag plus the attribute that distinguishes it by the field’s own identity, and the control the record expects or the named absence that says which of the three was not read and why; the default run derives the record from what this repository already carries — M066’s committed page reading of the same route, the field-state reading whose `fields` keys are the identity shape, the fixture route table and form the fallback would have used, the panel route table the identity renders on, the producer itself and `package.json` — and asserts the committed bytes are that serialization, naming the field and the value that moved; the writer derives through the recorded document and refuses a candidate that is not the fixed point of its own default pin, so a re-capture cannot emit bytes its reader refuses; four mutants — a hosted control invented for a field that hosts nothing, a hosted tag moved, an expected control added where the reading carries none, and a second identity — each redden the pin that names the field and the defect; nothing here drives a page, nothing is inferred from a label, and a default run writes nothing; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit',
+  'scripts/field-binder.test.mjs':
+    'wholly added at this head: M067 T005 pins the join `extension/field-binder.js` over T004’s committed record — one answer of six fields in every state, `state` one of `bound`, `mismatch`, `no-host` and `cannot-tell`, `hosted` and `expected` present only where the record carries them, and `reason` naming why the comparison could not be made, from the ten suffixes the module publishes rather than from a list retyped here; the committed record states its expected control as a named absence for every field, so the join over it answers `cannot-tell` for the fields that host an element and `no-host` for the one that hosts nothing, and `bound` and `mismatch` are exercised on rows constructed from the same shape, with the record read into memory and never re-captured; every string an answer carries either appears in the record it was made from or is one of the join’s own state and reason names, so a control the record did not carry cannot appear in an answer; three mutants — a mismatch reporting only the hosted control, a join that infers a host from a label, and a join that names a remedy — are planted on decorated copies with the untouched module pinned before and again after each, so a mutant that changed nothing observable cannot pass for a caught defect; the module is proved pure of DOM, I/O, imports and writes, and nothing here builds or opens a page; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit',
+  'scripts/m067-verdict-claims.test.mjs':
+    'wholly added at this head: M067 T008 writes the milestone’s claim list, `research/raw/m067-verdict-claims.json`, behind its own armed flag `M067_CAPTURE=1` and reads it back unarmed — one claim per criterion `.project/intent/INTENT.md` declares, each quoting that criterion character for character with the number of characters quoted, and each carrying the edge rows the intent’s five-column table assigns it with the detail cell verbatim; the suite a claim cites is read from the milestone’s own plan (which holds no edge out, so each criterion is resolved through the plan’s `## Intent coverage` rows and the first suite the owning task’s `files:` list declares that the task’s base does not carry) and the table must name what that resolution derives, so a plan or a task whose files list moves reddens naming both; every citation is opened at capture and must declare the test title it names on the line that declares it, and a claim’s artefact states the edge ids it is ruled on as `edge ["E1","E2"]`; the plan’s cross-table disagreements are recorded under `evidence.plan.disagreements` with the count stated in the sentence that reads the tables rather than refused; four mutants — a reworded quote, a test no suite declares, a claim that drops the suite the plan resolves, and an edge cell that is not the intent’s — each redden the pin that names the criterion and the field; the armed writer derives through the recorded document and refuses a candidate that is not the fixed point of its own pin, an armed run writes only when a value moved, a second armed run is byte-identical and a default run writes nothing; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit',
 });

@@ -1,0 +1,22 @@
+[
+  {
+    "recording": "research/raw/m044-gate-shapes.json",
+    "suite": "scripts/gate-integrity.test.mjs",
+    "arm": "M044_CAPTURE=1"
+  },
+  {
+    "recording": "research/raw/m056-gate-stability.json",
+    "suite": "scripts/gate-stability-record.test.mjs",
+    "arm": "M056_CAPTURE=1"
+  },
+  {
+    "recording": "research/raw/m064-verdict-claims.json",
+    "suite": "scripts/chunk-failure-claims.test.mjs",
+    "arm": "M064_CAPTURE=1"
+  },
+  {
+    "recording": "research/raw/m055-record-shapes.json",
+    "suite": "scripts/guard-record-shapes.test.mjs",
+    "arm": "M055_CAPTURE=1"
+  }
+]

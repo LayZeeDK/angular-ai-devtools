@@ -4,9 +4,18 @@
   "task": "T001",
   "title": "Measure what the records carry and what only a mapping can answer",
   "question": "which field of a record names the milestone, which names a criterion, which names the artefact file, and which side of an answer does no record name at all?",
-  "head": "b450c28b3a4497e5e6cba106a6c8618981ffca87",
+  "head": "fcbd932bd47479d70f19cf7ce90f30f43853fa20",
   "headCommand": "git rev-parse HEAD",
   "measuredAt": "static: every citation below was read out of the file it names at the head above, and every one is re-resolved by searching its file for the exact line it quotes rather than by trusting a typed number. No browser was opened for this record, no page was read, and no build or test of the app was run: the measurement is a read of research/raw and of the files those records name.",
+  "capture": {
+    "task": "T010",
+    "command": "M055_CAPTURE=1 node --test scripts/tutor-record-shapes.test.mjs",
+    "windowsCommand": "set \"M055_CAPTURE=1\"&& node --test scripts/tutor-record-shapes.test.mjs",
+    "check": "node --test scripts/tutor-record-shapes.test.mjs",
+    "records": "research/raw/m055-record-shapes.json",
+    "head": "fcbd932bd47479d70f19cf7ce90f30f43853fa20",
+    "reading": "an armed run re-derives the whole map from the records on disk at the head it runs at — every measured record, its key lists, the line each of the seven fields is carried on, the artefact paths and what they resolve to, the milestone spelling, the negative measurement and the C3 trap — writes it only when a value moved, and writes nothing on a default run. The prose it cannot measure carries over from the file, so a re-derivation moves the readings and keeps the sentences."
+  },
   "instrument": {
     "kind": "static read of the records on disk",
     "reads": "34 verdict-claims records and 9 surface records under research/raw, plus the files they name, at one head",
@@ -16,7 +25,7 @@
   },
   "inventory": {
     "verdictClaims": {
-      "count": 35,
+      "count": 36,
       "paths": [
         "research/raw/m022-verdict-claims.json",
         "research/raw/m023-verdict-claims.json",
@@ -52,7 +61,8 @@
         "research/raw/m053-verdict-claims.json",
         "research/raw/m054-verdict-claims.json",
         "research/raw/m056-verdict-claims.json",
-        "research/raw/m065-verdict-claims.json"
+        "research/raw/m065-verdict-claims.json",
+        "research/raw/m066-verdict-claims.json"
       ]
     },
     "surface": {
@@ -118,15 +128,17 @@
       "M052",
       "M053",
       "M054",
-      "M056"
+      "M056",
+      "M065",
+      "M066"
     ],
-    "claims": 156,
+    "claims": 164,
     "note": "every verdict-claims record present at this head is measured: 34 records holding 156 claim rows between them; no M055 record exists yet"
   },
   "milestoneField": {
     "field": "milestone",
     "note": "the id is spelled two ways: every verdict-claims record carries the bare id, every surface record carries the id and the milestone’s name in the same string, so a reader that compares the value to an id has to read the verdict-claims records or strip the name",
-    "idOnly": 35,
+    "idOnly": 36,
     "idAndName": 9,
     "rows": [
       {
@@ -445,6 +457,15 @@
         "startsWithOwnId": true
       },
       {
+        "path": "research/raw/m066-verdict-claims.json",
+        "kind": "verdict-claims",
+        "value": "M066",
+        "line": 3,
+        "text": "\"milestone\": \"M066\",",
+        "idOnly": true,
+        "startsWithOwnId": true
+      },
+      {
         "path": "research/raw/m046-surface.json",
         "kind": "surface",
         "value": "M046 copy-to-agent",
@@ -534,7 +555,7 @@
         "field": "milestone",
         "names": "the milestone the record belongs to",
         "claim": "F1",
-        "verdictClaims": 35,
+        "verdictClaims": 36,
         "surface": 9,
         "holds": true,
         "spelling": "spelled as the bare id in every verdict-claims record, and as the id followed by the milestone name in every surface record"
@@ -543,7 +564,7 @@
         "field": "criterion",
         "names": "the criterion an answer states, by id",
         "claim": "F2",
-        "verdictClaims": 35,
+        "verdictClaims": 36,
         "surface": 0,
         "holds": true
       },
@@ -551,7 +572,7 @@
         "field": "criterionText",
         "names": "that criterion in the intent’s own words",
         "claim": "F3",
-        "verdictClaims": 35,
+        "verdictClaims": 36,
         "surface": 0,
         "holds": true
       },
@@ -559,7 +580,7 @@
         "field": "artefactPath",
         "names": "the artefact file that answers the criterion",
         "claim": "F4",
-        "verdictClaims": 13,
+        "verdictClaims": 14,
         "surface": 0,
         "holds": false
       },
@@ -567,7 +588,7 @@
         "field": "recordings",
         "names": "the recordings the record was derived against",
         "claim": "F5",
-        "verdictClaims": 12,
+        "verdictClaims": 13,
         "surface": 0,
         "holds": false
       },
@@ -575,7 +596,7 @@
         "field": "suitePath",
         "names": "the suites that hold the criterion",
         "claim": "F6",
-        "verdictClaims": 12,
+        "verdictClaims": 13,
         "surface": 0,
         "holds": false
       },
@@ -583,7 +604,7 @@
         "field": "captureRecords",
         "names": "the record the capture command writes",
         "claim": "F7",
-        "verdictClaims": 13,
+        "verdictClaims": 14,
         "surface": 0,
         "holds": false
       }
@@ -3423,6 +3444,99 @@
       }
     },
     {
+      "path": "research/raw/m066-verdict-claims.json",
+      "kind": "verdict-claims",
+      "milestone": "M066",
+      "claims": 4,
+      "topKeys": [
+        "schema",
+        "milestone",
+        "quotes",
+        "ruling",
+        "evidence",
+        "capture",
+        "claims"
+      ],
+      "claimKeys": [
+        "artefact",
+        "artefactPath",
+        "criterion",
+        "criterionCharacters",
+        "criterionText",
+        "proves",
+        "reading",
+        "reason",
+        "ruling",
+        "suites"
+      ],
+      "evidenceKeys": [
+        "intent",
+        "plan",
+        "edges",
+        "suites",
+        "recordings"
+      ],
+      "captureKeys": [
+        "command",
+        "check",
+        "records",
+        "criteria",
+        "reading"
+      ],
+      "absentFields": [],
+      "fields": {
+        "milestone": {
+          "present": true,
+          "claim": "F1",
+          "count": 1,
+          "line": 3,
+          "text": "\"milestone\": \"M066\","
+        },
+        "criterion": {
+          "present": true,
+          "claim": "F2",
+          "count": 4,
+          "line": 76,
+          "text": "\"criterion\": \"SC1\","
+        },
+        "criterionText": {
+          "present": true,
+          "claim": "F3",
+          "count": 4,
+          "line": 77,
+          "text": "\"criterionText\": \"A field whose disabled state a schema node declares produces a finding that names the state, the node and the input that node read; a mutant that reports the node without the input it read reddens it.\","
+        },
+        "artefactPath": {
+          "present": true,
+          "claim": "F4",
+          "count": 4,
+          "line": 81,
+          "text": "\"artefactPath\": \"scripts/m066-schema-record.test.mjs\","
+        },
+        "recordings": {
+          "present": true,
+          "claim": "F5",
+          "count": 1,
+          "line": 58,
+          "text": "\"recordings\": ["
+        },
+        "suitePath": {
+          "present": true,
+          "claim": "F6",
+          "count": 3,
+          "line": 43,
+          "text": "\"path\": \"scripts/m066-schema-record.test.mjs\","
+        },
+        "captureRecords": {
+          "present": true,
+          "claim": "F7",
+          "count": 1,
+          "line": 65,
+          "text": "\"records\": \"research/raw/m066-verdict-claims.json\","
+        }
+      }
+    },
+    {
       "path": "research/raw/m046-surface.json",
       "kind": "surface",
       "milestone": "M046 copy-to-agent",
@@ -4159,9 +4273,9 @@
   ],
   "artefactPaths": {
     "field": "claims[].artefactPath",
-    "claimsCarryingIt": 48,
-    "recordsCarryingIt": 13,
-    "distinctPaths": 19,
+    "claimsCarryingIt": 52,
+    "recordsCarryingIt": 14,
+    "distinctPaths": 21,
     "distinct": [
       "apps/angular-ai-devtools/src/app/app.spec.ts",
       "package.json",
@@ -4174,7 +4288,10 @@
       "scripts/dead-click.test.mjs",
       "scripts/gate-integrity-default-tasks.test.mjs",
       "scripts/gate-integrity.test.mjs",
+      "scripts/gate-stability-record.test.mjs",
       "scripts/interaction-story.test.mjs",
+      "scripts/m066-schema-record.test.mjs",
+      "scripts/title-capture.test.mjs",
       "scripts/visual-qa-style-read.test.mjs",
       "scripts/visual-qa-style.test.mjs",
       "scripts/webmcp-api.test.mjs",
@@ -4182,7 +4299,7 @@
       "scripts/webmcp-rehearsal.test.mjs",
       "scripts/what-changed.test.mjs"
     ],
-    "resolved": 48,
+    "resolved": 52,
     "unresolved": [],
     "note": "all 44 artefact paths resolve to a file that exists at this head, so the missing-artefact state E4 renders has no live instance among them: the surface must still render it, and this record states that the index may never paper over a path that stops resolving",
     "present": [
@@ -4569,6 +4686,38 @@
         "text": "\"artefactPath\": \"apps/angular-ai-devtools/src/app/app.spec.ts\",",
         "named": "apps/angular-ai-devtools/src/app/app.spec.ts",
         "resolves": true
+      },
+      {
+        "record": "research/raw/m066-verdict-claims.json",
+        "criterion": "SC1",
+        "line": 81,
+        "text": "\"artefactPath\": \"scripts/m066-schema-record.test.mjs\",",
+        "named": "scripts/m066-schema-record.test.mjs",
+        "resolves": true
+      },
+      {
+        "record": "research/raw/m066-verdict-claims.json",
+        "criterion": "SC2",
+        "line": 99,
+        "text": "\"artefactPath\": \"scripts/m066-schema-record.test.mjs\",",
+        "named": "scripts/m066-schema-record.test.mjs",
+        "resolves": true
+      },
+      {
+        "record": "research/raw/m066-verdict-claims.json",
+        "criterion": "SC3",
+        "line": 117,
+        "text": "\"artefactPath\": \"scripts/gate-integrity.test.mjs\",",
+        "named": "scripts/gate-integrity.test.mjs",
+        "resolves": true
+      },
+      {
+        "record": "research/raw/m066-verdict-claims.json",
+        "criterion": "SC4",
+        "line": 135,
+        "text": "\"artefactPath\": \"scripts/gate-stability-record.test.mjs\",",
+        "named": "scripts/gate-stability-record.test.mjs",
+        "resolves": true
       }
     ]
   },
@@ -4605,7 +4754,7 @@
     "claim": "no record carries end-user question vocabulary mapped to a criterion, so the question-to-criterion side is the one authored mapping this milestone owns",
     "holds": true,
     "verdictClaims": {
-      "records": 35,
+      "records": 36,
       "keyPattern": "/question|query|prompt/i and /^(?:ask|asks|asked)$/i",
       "questionShapedKeys": [],
       "nearMatches": [
@@ -4726,8 +4875,8 @@
         "«list»"
       ],
       "normalisation": "each row’s `reason` with the criterion id replaced by «SC», its own `criterionText` (escaped or not) replaced by «criterionText» and every bracketed list of quoted strings replaced by «list»; nothing else is touched",
-      "records": 12,
-      "rows": 42,
+      "records": 13,
+      "rows": 46,
       "distinctTemplates": 1,
       "perRecord": [
         {
@@ -4776,6 +4925,10 @@
         },
         {
           "record": "research/raw/m065-verdict-claims.json",
+          "rows": 4
+        },
+        {
+          "record": "research/raw/m066-verdict-claims.json",
           "rows": 4
         }
       ],
@@ -4975,8 +5128,8 @@
     },
     "artefactField": {
       "field": "artefact",
-      "rows": 66,
-      "rowsStartingWithTheArtefactPath": 48,
+      "rows": 70,
+      "rowsStartingWithTheArtefactPath": 52,
       "citations": [
         {
           "path": "research/raw/m041-verdict-claims.json",
@@ -4993,7 +5146,7 @@
     },
     "readingField": {
       "field": "reading",
-      "rows": 44,
+      "rows": 52,
       "citations": [
         {
           "path": "research/raw/m054-verdict-claims.json",
@@ -5008,17 +5161,17 @@
       "suiteExistsAtThisHead": true,
       "shapes": {
         "string": 18,
-        "array": 48
+        "array": 52
       },
-      "recordsCarryingProves": 16,
-      "recordsCitingTheSuite": 14,
-      "rowsCitingTheSuite": 50,
+      "recordsCarryingProves": 17,
+      "recordsCitingTheSuite": 15,
+      "rowsCitingTheSuite": 54,
       "recordsCarryingProvesButNotCitingIt": [
         "research/raw/m042-verdict-claims.json",
         "research/raw/m043-verdict-claims.json"
       ],
       "evidenceSuitesNamingIt": 0,
-      "captureCommandsCitingIt": 13,
+      "captureCommandsCitingIt": 14,
       "captureVariables": [
         "M044_CAPTURE"
       ],
@@ -5087,9 +5240,9 @@
       "measured": "the suite exists at this head, and no record’s `evidence.suites` names it (0 of 35 records), while 14 records cite it in `proves` over 50 claim rows and 13 records carry it in their own `capture.command` under M044_CAPTURE — M044’s switch, which is not the milestone those commands claim to capture"
     },
     "rulings": {
-      "rows": 160,
+      "rows": 164,
       "required": 2,
-      "notRequired": 158,
+      "notRequired": 162,
       "recordsWithARequiredRow": [
         "research/raw/m022-verdict-claims.json"
       ],
@@ -5561,7 +5714,7 @@
         "measured": "34 of 34 verdict-claims records carry `milestone`; 9 of 9 surface records do"
       },
       "counts": {
-        "verdictClaims": 35,
+        "verdictClaims": 36,
         "surface": 9
       },
       "absentFrom": [],
@@ -5747,7 +5900,7 @@
         "measured": "34 of 34 verdict-claims records carry `criterion`; 0 of 9 surface records do"
       },
       "counts": {
-        "verdictClaims": 35,
+        "verdictClaims": 36,
         "surface": 0
       },
       "absentFrom": [
@@ -5943,7 +6096,7 @@
         "measured": "34 of 34 verdict-claims records carry `criterionText`; 0 of 9 surface records do"
       },
       "counts": {
-        "verdictClaims": 35,
+        "verdictClaims": 36,
         "surface": 0
       },
       "absentFrom": [
@@ -6029,7 +6182,7 @@
         "measured": "12 of 34 verdict-claims records carry `artefactPath`; 0 of 9 surface records do"
       },
       "counts": {
-        "verdictClaims": 13,
+        "verdictClaims": 14,
         "surface": 0
       },
       "absentFrom": [
@@ -6132,7 +6285,7 @@
         "measured": "11 of 34 verdict-claims records carry `recordings`; 0 of 9 surface records do"
       },
       "counts": {
-        "verdictClaims": 12,
+        "verdictClaims": 13,
         "surface": 0
       },
       "absentFrom": [
@@ -6236,7 +6389,7 @@
         "measured": "11 of 34 verdict-claims records carry `suitePath`; 0 of 9 surface records do"
       },
       "counts": {
-        "verdictClaims": 12,
+        "verdictClaims": 13,
         "surface": 0
       },
       "absentFrom": [
@@ -6345,7 +6498,7 @@
         "measured": "12 of 34 verdict-claims records carry `captureRecords`; 0 of 9 surface records do"
       },
       "counts": {
-        "verdictClaims": 13,
+        "verdictClaims": 14,
         "surface": 0
       },
       "absentFrom": [
@@ -7038,6 +7191,6 @@
     "whether the template prose was ever meant to be one sentence per milestone: only that it is word for word the same sentence across 38 rows is measured, and the derivation is not repaired here",
     "what the two records this milestone captures at T004 will carry: `research/raw/m055-verdict-claims.json` and `research/raw/m055-surface.json` do not exist at this head, which is why they are named outside this map",
     "which field an answer should read a milestone from when a surface record is the record named: the surface records carry `milestone` too, but they carry no criterion and no artefact path, so the map holds for verdict-claims records only and the surface column is recorded rather than relied on",
-    "re-measured at 43c2fe4b: the branch's move from gsd-path/M065 to gsd-path/M066 un-excused research/raw/m065-verdict-claims.json from the census M044 introduced (scripts/navigation-blocking.test.mjs derives research/raw/<the bound milestone>-verdict-claims.json, so it now derives M066's record, not M065's), and no map may name M065's record outside itself, so the table above measures it; the entry, the artefact rows, the milestone spelling row and every count this map states over the table were re-derived from the tree at 43c2fe4b by search, and the head above stays the head the original 43 entries were measured at."
+    "re-derived at fcbd932bd47479d70f19cf7ce90f30f43853fa20: 36 verdict-claims and 9 surface records are measured at this head, and the record a map names outside itself or a census of its own holds is not one of them. Every number in this map was read from the tree here; the sentences around them are the author's, carried over, so a count that moved and the sentence that quotes it can disagree until a reader re-authors the sentence."
   ]
 }
