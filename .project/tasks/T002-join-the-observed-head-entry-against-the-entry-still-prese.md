@@ -2,10 +2,10 @@
 id: T002
 title: Join the observed head entry against the entry still present
 wave: 2
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T002
+base: a434041beb8a503f312366e87a3e37887d463e41
 worktree: null
 task_branch: null
 files:
@@ -64,3 +64,9 @@ node --test scripts/head-state.test.mjs
 ## Log
 
 - pending
+- 2026-11-25: `extension/head-state.js` answers the four states from a closed reason set and always returns the six contract keys, with `present` and `writtenBy` null where the record carries no such fact. Verify 19 tests / 19 pass.
+- 2026-11-25: the committed record joins as `cannot-tell` / `duplicate-not-recorded`, because its own `entries[0]` states `duplicate.read: false` and `writtenBy.read: false`. That is the honest answer: without a count of entries sharing the name, "the entry still present" is not known to be one entry at all.
+- 2026-11-25: four mutants redden by name, each pinned against the untouched module first — a duplicate naming only the first occurrence, a stale answer without the writing navigation, an answer carrying a remedy and a route, and a writing navigation inferred from the entry's text or its order. A fifth test proves the four are distinct defects and that the record's bytes are unchanged.
+- 2026-11-25: `npm run check` measured exit 0 at the base with the two new files moved aside, and exit 0 at this head; prettier clean on both.
+- 2026-11-25: the census names one change this contract cannot make — `scripts/gate-integrity.test.mjs` needs a `SUITE_DIFF_REASONS` row for `scripts/head-state.test.mjs`, which T003's files declare, and the census recording itself is T004's.
+- Landed paths: `extension/head-state.js`, `scripts/head-state.test.mjs` — each is read from this tree, ready.
