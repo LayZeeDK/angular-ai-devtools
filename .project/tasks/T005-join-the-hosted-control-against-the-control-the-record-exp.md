@@ -25,7 +25,8 @@ One pure join over the record: `bound` when the hosted control is the expected o
 
 ## Intent coverage
 
-- SC1, SC2
+- SC1
+- SC2
 
 ## Acceptance criteria
 
