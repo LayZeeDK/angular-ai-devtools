@@ -2,11 +2,11 @@
 id: T006
 title: Capture the milestone verdict claims and run the project verify
 wave: 6
-status: in-progress
+status: pending
 deps: []
-agent: build_T006
-base: 0d2b05cf305bf5533adc2e5c011e11813a7afa65
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
 - scripts/m068-verdict-claims.test.mjs
