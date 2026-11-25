@@ -12,8 +12,7 @@
  *
  * The page channel is a fake exposing the signals `panel-context.ts` reads, because the real
  * `ExtensionMessageService` talks to `chrome.runtime` in its constructor and this suite is about
- * what the component does with the signals. The registry is either a stub that records the
- * `execute` call, or the real one built by `provideAppFactsTool()`, so the `host-unavailable` claim
+ * what the component does with the signals. The registry is either a stub that records the `execute` call, or the real one built by `provideAppFactsTool()`, so the `host-unavailable` claim
  * is measured against the shipped `app_facts` backing rather than asserted.
  */
 import { type WritableSignal, signal } from '@angular/core';
@@ -717,6 +716,7 @@ describe('the chat route', () => {
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
       'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
       'field-binder', // M067 SC4 surface: the join's answer for one form field — the state, the identity the row is keyed by, the hosted control the record read, the expected control it does not, and the reason when the comparison could not be made, each absence in the place the fact would stand
+      'head-state', // M068 SC4 surface: one head entry's state against the entry still present for the navigation the record read it at — the state, the entry, the entry still present with the page that carries it, the writing navigation and the reason the comparison could not be made, each absence under the label of the fact it is about
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -765,6 +765,7 @@ describe('the chat route', () => {
       'title-input', // M065 SC4 surface: the four states the title join answers, the strategy, both titles and the observed-write count it carries
       'schema', // M066 SC2-4 surface: the attribution for one field, the node and input a declaration carries, the reason and the keys the record's own field row carries
       'field-binder', // M067 SC4 surface: one form field's state, identity, hosted control, expected control and reason, each absence where the fact would stand
+      'head-state', // M068 SC4 surface: one head entry's state, entry, the entry still present with its carrying page, the writing navigation and the reason, each absence where the fact would stand
       'outlet', // M062 SC4 surface: the outlet the route config requested, the name the router state matched, that route's path and each absence, or the cannot-tell state
       'visual-qa', // M054 SC1-3 surface
       'tutor-foundations', // M055 SC1-3 surface
@@ -833,6 +834,7 @@ describe('the chat route', () => {
       'title-input',
       'schema',
       'field-binder',
+      'head-state',
       'outlet',
       'webmcp-rehearsal',
       'webmcp',

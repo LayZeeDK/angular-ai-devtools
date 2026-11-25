@@ -418,7 +418,7 @@ describe('PagePickerComponent', () => {
     // that, while M053 adds `webmcp-rehearsal` between `console-read` and `webmcp` — and M059 adds `teardown-leak` between
     // `webmcp` and `components` — and M060 adds `error-routing` between `interaction-story` and
     // `dead-click` — and M064 adds `chunk-failure` after `what-changed` — and M066 adds `schema` after
-    // `title-input` — so a route that quietly
+    // `title-input` — and M068 adds `head-state` after `field-binder` — so a route that quietly
     // stopped being lazy reddens
     // here as well as in the app suite rather than going unread. The list of lazy paths is one
     // reading of the table and it is not the count: the whole table is pinned below, so an eager
@@ -437,6 +437,7 @@ describe('PagePickerComponent', () => {
     expect(lazy).toContain('title-input');
     expect(lazy).toContain('schema');
     expect(lazy).toContain('field-binder');
+    expect(lazy).toContain('head-state');
     expect(lazy).toContain('outlet');
     expect(lazy).toContain('visual-qa');
     expect(lazy).toContain('tutor-foundations');
@@ -479,6 +480,7 @@ describe('PagePickerComponent', () => {
       'title-input',
       'schema',
       'field-binder',
+      'head-state',
       'outlet',
       'visual-qa',
       'tutor-foundations',
@@ -532,6 +534,7 @@ describe('PagePickerComponent', () => {
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
       'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
       'field-binder', // M067 SC4 surface: the join's answer for one form field — the state, the identity the row is keyed by, the hosted control the record read, the control the record expects and the reason when the comparison could not be made, each absence in the place the fact would stand, with no cause, no remedy, no inferred control and no advice
+      'head-state', // M068 SC4 surface: one head entry's state against the entry still present for the navigation the record read it at — the state, the entry, the entry still present with the page that carries it, the writing navigation and the reason the comparison could not be made, each absence under the label of the fact it is about, and no cause, no remedy and no navigation the record did not carry
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -550,7 +553,7 @@ describe('PagePickerComponent', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(46);
+    expect(appRoutes).toHaveLength(47);
   });
 });
 
