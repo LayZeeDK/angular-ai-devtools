@@ -5,7 +5,7 @@ milestone: ds-tokens
 phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M069
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1419,3 +1419,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-25 — build — build blocked
 - 2026-11-25 — plan — build plan repair requested
 - 2026-11-25 — plan — build recovery: {"base": "1fb95ba09d48cda9b0bdc2ac8c9bd8fb806feebd", "branch": "gsd-path/M069", "kind": "plan", "source": "build"}
+- 2026-11-25 — plan — plan approved
