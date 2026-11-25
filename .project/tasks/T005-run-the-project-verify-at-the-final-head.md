@@ -9,6 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
+- scripts/m069-verdict-claims.test.mjs
 - research/raw/m069-verdict-claims.json
 ---
 
@@ -20,10 +21,12 @@ The project verify is the only run that proves the milestone did not break the b
 
 ## Approach
 
-The milestone's claim census already exists: `scripts/guard-verdict-claims.test.mjs` reads the milestone the STATE branch
-binds, so at this head it is the census of M069 and `M069_CAPTURE=1 node --test scripts/guard-verdict-claims.test.mjs`
-is what writes `research/raw/m069-verdict-claims.json`. No second suite is added — a per-milestone copy of a shared
-census is how two records drift apart.
+The census is **per milestone**, which measurement settled after a wrong guess: `scripts/guard-verdict-claims.test.mjs`
+refuses at this head rather than writing M069's record — it is M063's census and says so — and the milestones beside it
+each own one (`m067-verdict-claims.test.mjs`, `m068-verdict-claims.test.mjs`). So this task writes
+`scripts/m069-verdict-claims.test.mjs` on the previous milestone's shape: one claim per intent criterion quoting it
+verbatim, one row per edge of the held-out table, the milestone derived from the branch STATE binds so the suite cannot
+be captured against another milestone, and `M069_CAPTURE=1` as the only write. Then the record, then the project verify.
 
 ## Approach (the earlier draft)
 
@@ -43,6 +46,7 @@ Capture this milestone's verdict claims, run the plan's project verify unchanged
 
 Every path this task may touch, and nothing else:
 
+- `scripts/m069-verdict-claims.test.mjs`
 - `research/raw/m069-verdict-claims.json`
 
 ## Interface contract
@@ -64,7 +68,7 @@ Every rule that renders a panel value reads a token; the token block precedes th
 ## Verify
 
 ```bash
-M069_CAPTURE=1 node --test scripts/guard-verdict-claims.test.mjs && node --test scripts/guard-verdict-claims.test.mjs && node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test
+M069_CAPTURE=1 node --test scripts/m069-verdict-claims.test.mjs && node --test scripts/m069-verdict-claims.test.mjs && node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test
 ```
 
 ## Log
