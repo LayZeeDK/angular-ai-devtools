@@ -142,6 +142,19 @@ import {
   STATES as FIELD_STATES,
   fieldBinderPanel,
 } from './panel-field-binder';
+import {
+  CANNOT_TELL as HEAD_CANNOT_TELL,
+  CURRENT as HEAD_CURRENT,
+  DUPLICATE as HEAD_DUPLICATE,
+  ENTRY_ABSENCES as HEAD_ENTRY_ABSENCES,
+  FIELDS as HEAD_FIELDS,
+  LABELS as HEAD_LABELS,
+  PRESENT_ABSENCES as HEAD_PRESENT_ABSENCES,
+  STALE as HEAD_STALE,
+  STATES as HEAD_STATES,
+  WRITTEN_BY_ABSENCES as HEAD_WRITTEN_BY_ABSENCES,
+  headStatePanel,
+} from './panel-head-state';
 import { fieldsPanel } from './panel-fields';
 import { errorBoundaryPanel } from './panel-error-boundary';
 import { stabilityPanel } from './panel-stability';
@@ -3058,7 +3071,7 @@ describe('the panel demo', () => {
     }
     expect(surfaceName).toBe('console');
 
-    // The whole table, in order and to the count — forty-six paths, the same ordered list
+    // The whole table, in order and to the count — forty-seven paths, the same ordered list
     // `app.spec.ts`, `chat-entry.component.spec.ts` and `page-picker.component.spec.ts` pin. This
     // suite reads the table for this one route, so without it an appended route would leave it
     // green while the other suites reddened (M045 T007, M047 T003).
@@ -3092,6 +3105,7 @@ describe('the panel demo', () => {
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
       'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
       'field-binder', // M067 SC4 surface: the join's answer for one form field — the state, the identity the row is keyed by, the hosted control the record read, the control the record expects and the reason when the comparison could not be made, each absence in the place the fact would stand, with no cause, no remedy, no inferred control and no advice
+      'head-state', // M068 SC4 surface: one head entry's state against the entry still present for the navigation the record read it at — the state, the entry, the entry still present with the page that carries it, the writing navigation and the reason the comparison could not be made, each absence under the label of the fact it is about, and no cause, no remedy and no navigation the record did not carry
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -3110,7 +3124,7 @@ describe('the panel demo', () => {
       'dead-click', // M050 SC1-2 surface: each start with no terminal and the window it was judged over, the count compared, or the cannot-tell reason, with the refused chains named
       'what-changed', // M051 SC1-2 surface: each field the two records disagree on with its before and after (or the one value that exists), the count compared, or the cannot-tell reason
     ]);
-    expect(appRoutes).toHaveLength(46);
+    expect(appRoutes).toHaveLength(47);
 
     // The capture's own payload shape, and the digest the join reads: both are the recording's.
     expect(recording.capture.payload.keys).toEqual([
@@ -10301,5 +10315,662 @@ describe('the field-binder surface', () => {
     const before = JSON.stringify(noHost);
     expect(fieldBinderPanel(noHost).text).toBe(fieldBinderPanel(noHost).text);
     expect(JSON.stringify(noHost)).toBe(before);
+  });
+});
+
+// The head-state surface, and the rule this milestone is about: one head entry's state against the
+// entry still present for the navigation the record read it at. The sample fact is the shipped join's
+// own answer over the record T001 measured (`research/raw/m068-head-record.json`), and the pane
+// renders the five keys it is written for — `state`, `entry`, `present`, `writtenBy`, `reason` — and
+// no sixth. `research/raw/m068-head-record.json` is re-read here, `extension/head-state.js` is
+// evaluated from its own committed text, and the fact the demo is handed must equal that answer field
+// for field — so a fact that drifted from the record, the join or the tree reddens here rather than
+// shipping. The record states its writing navigation and its duplicate as measured absences, so the
+// pane's other states are proven on records built here in the same shape as well as on the record's
+// own: a `current`, a `stale` and a `duplicate` the sampling page never produced are still the join's
+// answers, and the pane renders them by the same three rules.
+
+/** One row of T001's head record, in the shape the join reads. */
+interface HeadRowFile {
+  entry: string;
+  name: { read: boolean; value?: { element: string }; reason?: string };
+  firstSeenAt: {
+    read: boolean;
+    value?: { index: number; url: string; at: string };
+  };
+  remained: {
+    read: boolean;
+    value?: {
+      element: string;
+      text: string;
+      navigationsCarrying: number[];
+      sameTextAtEveryRead: boolean;
+    };
+    reason?: string;
+  };
+  carriedBy: {
+    read: boolean;
+    value?: { index: number; url: string; at: string };
+    reason?: string;
+  };
+  writtenBy: {
+    read: boolean;
+    observed?: boolean;
+    value?: { index: number; url: string };
+    reason?: string;
+  };
+  duplicate: {
+    read: boolean;
+    value?: { count: number; second?: { element: string; text: string } };
+    reason?: string;
+  };
+}
+
+/** T001's head record: the rows it read, the navigations it names and the counts it states. */
+interface HeadRecordFile {
+  entries: HeadRowFile[];
+  navigations: { index: number; url: string }[];
+  counts: Record<string, number>;
+}
+
+/** The namespace `extension/head-state.js` exports, evaluated from its own committed text. */
+interface HeadStateNamespace {
+  headState(record: unknown, facts?: unknown): Record<string, unknown>;
+  CURRENT: string;
+  STALE: string;
+  DUPLICATE: string;
+  CANNOT_TELL: string;
+  RECORD_UNREADABLE: string;
+  ENTRY_NOT_CHOSEN: string;
+  NO_HEAD_ENTRY: string;
+  NAME_NOT_RECORDED: string;
+  NAME_NOT_AN_ENTRY: string;
+  DUPLICATE_NOT_RECORDED: string;
+  DUPLICATE_NOT_A_COUNT: string;
+  DUPLICATE_NOT_NAMED: string;
+  WRITTEN_BY_NOT_RECORDED: string;
+  WRITTEN_BY_NOT_A_NAVIGATION: string;
+  CARRIED_BY_NOT_RECORDED: string;
+  CARRIED_BY_NOT_A_NAVIGATION: string;
+  PRESENT_NOT_RECORDED: string;
+}
+
+/** T001's head record, inlined from disk the way every recording in this spec arrives. */
+function readHeadRecord(): HeadRecordFile {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../research/raw/m068-head-record.json',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  return JSON.parse(
+    inlinedText(modules, 'research/raw/m068-head-record.json'),
+  ) as HeadRecordFile;
+}
+
+/**
+ * The join `extension/head-state.js` exports, evaluated from its own committed text: the demo's
+ * `head-state` fact is held to the join's answer, not to a copy of it. The module is a pure ES module
+ * with no imports, one `export` keyword and the closed sets of state words and reason words it answers
+ * with, so that keyword is dropped, the rest runs as one function body, and the join and those words
+ * are handed back — which is what lets this spec pin the pane's tables to the join's own vocabulary
+ * rather than to a second copy of it.
+ */
+function headStateJoin(): HeadStateNamespace {
+  const modules = (import.meta as unknown as GlobSurface).glob(
+    '../../../../extension/head-state.js',
+    { query: '?raw', import: 'default', eager: true },
+  );
+  const source = inlinedText(modules, 'extension/head-state.js').replace(
+    /^export /gm,
+    '',
+  );
+  const load = new Function(
+    `${source}
+return { headState, CURRENT, STALE, DUPLICATE, CANNOT_TELL, RECORD_UNREADABLE, ENTRY_NOT_CHOSEN, NO_HEAD_ENTRY, NAME_NOT_RECORDED, NAME_NOT_AN_ENTRY, DUPLICATE_NOT_RECORDED, DUPLICATE_NOT_A_COUNT, DUPLICATE_NOT_NAMED, WRITTEN_BY_NOT_RECORDED, WRITTEN_BY_NOT_A_NAVIGATION, CARRIED_BY_NOT_RECORDED, CARRIED_BY_NOT_A_NAVIGATION, PRESENT_NOT_RECORDED };`,
+  ) as () => HeadStateNamespace;
+  const api = load();
+  if (typeof api.headState !== 'function') {
+    throw new Error('extension/head-state.js declared no headState function');
+  }
+  return api;
+}
+
+/** A row of T001's record, copied, so a case is built on a copy and the record is never touched. */
+function headRow(
+  record: HeadRecordFile,
+  patch?: (row: HeadRowFile) => void,
+): HeadRowFile {
+  const first = record.entries[0];
+  if (first === undefined) {
+    throw new Error("T001's head record carries no entry row");
+  }
+  const row = JSON.parse(JSON.stringify(first)) as HeadRowFile;
+  if (patch !== undefined) patch(row);
+  return row;
+}
+
+/** A record document built from T001's own shape, carrying one row. */
+function headDocument(row: HeadRowFile): { entries: HeadRowFile[] } {
+  return { entries: [row] };
+}
+
+/** A navigation of T001's record, as the record's own facts name one: its index and its url. */
+function headNavigation(
+  record: HeadRecordFile,
+  index: number,
+): { index: number; url: string } {
+  const found = record.navigations.find((one) => one.index === index);
+  if (found === undefined) {
+    throw new Error(
+      `the committed head record carries no navigation ${String(index)}`,
+    );
+  }
+  return { index: found.index, url: found.url };
+}
+
+/**
+ * The entry still present, as the join answers it: the record's own statement of the entry, and the
+ * navigation whose page carries it.
+ */
+function headPresent(row: HeadRowFile): Record<string, unknown> | null {
+  const stayed = row.remained.read ? row.remained.value : undefined;
+  if (stayed === undefined) return null;
+  return {
+    entry: stayed,
+    carriedBy: row.carriedBy.read ? row.carriedBy.value : null,
+  };
+}
+
+/**
+ * The pin the head-state pane's field table is held to: it renders the keys of an answer the join
+ * returns, minus `observed`, in the join's own order, and writes a line under exactly one label per
+ * key rendered. Kept callable with doctored tables, so a pane that grew a key the answer does not
+ * carry — a `remedy`, a `cause` or an inferred navigation — reddens naming the surface and the key it
+ * invented rather than passing on a table nobody re-read.
+ *
+ * `observed` is the one key of the answer this pane does not render: it is the record's own row quoted
+ * back, and the five keys above it are the whole of what the surface answers for.
+ */
+function assertHeadStateFields(
+  answerKeys: readonly string[],
+  fields: readonly string[],
+  labels: Record<string, string>,
+): void {
+  const rendered = answerKeys.filter((key) => key !== 'observed');
+  if (JSON.stringify([...fields]) !== JSON.stringify(rendered)) {
+    throw new Error(
+      `the head-state pane must render the join's ${rendered.length} keys it answers for (${rendered.join(', ')}) in that order, and not the record quote; it renders ${JSON.stringify([...fields])}, and a key the answer does not carry — a remedy, a cause or an inferred navigation — is a line the join never produced`,
+    );
+  }
+  const written = Object.values(labels);
+  if (JSON.stringify(written) !== JSON.stringify([...fields])) {
+    throw new Error(
+      `the head-state pane must write every line under one of the join's own key names, one label per key; its labels are ${JSON.stringify(written)}, and a label the answer has no key for is a remedy this pane invented`,
+    );
+  }
+}
+
+/**
+ * The pin the head-state pane's state table is held to: the four state words the join answers, in the
+ * join's own order and no fifth. Callable with a doctored list, so a state list that lost a word
+ * reddens naming the surface.
+ */
+function assertHeadStateStates(
+  joinStates: readonly string[],
+  states: readonly string[],
+): void {
+  if (JSON.stringify([...states]) !== JSON.stringify([...joinStates])) {
+    throw new Error(
+      `the head-state pane must enumerate the join's ${joinStates.length} states (${joinStates.join(', ')}) in that order; it enumerates ${JSON.stringify([...states])}`,
+    );
+  }
+}
+
+/** The four state words the join answers with, read off the join's own constants. */
+function headStateStates(join: HeadStateNamespace): readonly string[] {
+  return [join.CURRENT, join.STALE, join.DUPLICATE, join.CANNOT_TELL];
+}
+
+describe('the head-state surface', () => {
+  it('is the join’s own answer over T001’s record, reached by the route and loader key the table carries', async () => {
+    const record = readHeadRecord();
+    const join = headStateJoin();
+    const first = record.entries[0];
+    if (first === undefined) {
+      throw new Error("T001's head record carries no entry row");
+    }
+    const answer = join.headState(record, { entry: first.entry });
+
+    // The sample fact is not written here and not written by hand in the demo either: it is the shipped
+    // join's answer over the committed record, field for field, key for key.
+    expect(FACTS['head-state']).toEqual(answer);
+    expect(Object.keys(FACTS['head-state'] as object)).toEqual(
+      Object.keys(answer),
+    );
+
+    // The record states what T001 measured: one head entry, whose carrying navigation was read and
+    // whose writing navigation and duplicate were not — which is why the sampled answer is the
+    // comparison the join cannot make rather than an invented `current`.
+    expect(record.counts['entries']).toBe(record.entries.length);
+    expect(record.counts['writtenByRead']).toBe(0);
+    expect(record.counts['duplicateRead']).toBe(0);
+    expect(record.counts['carriedByRead']).toBe(1);
+    expect(record.counts['writesObserved']).toBe(0);
+    expect(answer['state']).toBe(join.CANNOT_TELL);
+    expect(answer['reason']).toBe(join.DUPLICATE_NOT_RECORDED);
+    expect(answer['entry']).toEqual(first.name.value);
+    expect(answer['present']).toEqual(headPresent(first));
+    expect(answer['writtenBy']).toBeNull();
+
+    // Every row answers from the record: the entry the record observed, the entry still present with
+    // the navigation whose page carries it, and no writing navigation — because none is attributed.
+    for (const row of record.entries) {
+      const each = join.headState(record, { entry: row.entry });
+      expect(each['entry']).toEqual(row.name.value);
+      expect(each['present']).toEqual(headPresent(row));
+      expect(each['writtenBy']).toBeNull();
+      expect(each['reason']).toBe(join.DUPLICATE_NOT_RECORDED);
+    }
+
+    // The route is the one the user clicks: lazy, installed through the demo, named in route data.
+    const route = appRoutes.find(
+      (candidate) => candidate.path === 'head-state',
+    );
+    if (route === undefined || route.loadComponent === undefined) {
+      throw new Error('the head-state surface must exist and load lazily');
+    }
+    expect(route.component).toBeUndefined();
+    expect(await route.loadComponent()).toBe(PanelDemoComponent);
+    expect(route.data?.['surface']).toBe('head-state');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(route.data?.['surface']).not.toBe('field-binder');
+    expect(
+      appRoutes.filter((candidate) => candidate.path === 'head-state'),
+    ).toHaveLength(1);
+
+    // The demo renders the pane the module answers, and the pane is the loader key's own module.
+    const demo = await renderDemo('head-state');
+    const pane = headStatePanel(FACTS['head-state']);
+    expect(demo.state()).toBe(join.CANNOT_TELL);
+    expect(demo.lines()).toEqual(pane.lines);
+  });
+
+  it('enumerates the five keys it renders and the join’s four states, and reddens naming the surface and the remedy a pane invents', () => {
+    const join = headStateJoin();
+    const record = readHeadRecord();
+    const first = record.entries[0];
+    if (first === undefined) {
+      throw new Error("T001's head record carries no entry row");
+    }
+    // The join's own key list is the key list of an answer it returns: nothing else enumerates the six
+    // keys, so the pane's table is held to an answer rather than to a copy of one.
+    const answerKeys = Object.keys(
+      join.headState(record, { entry: first.entry }),
+    );
+    const joinStates = headStateStates(join);
+
+    // Green first, on the tables as they sit on disk. The pins run before the literal expectations
+    // below, so a table a pane grew reddens by the pin's own name — the surface, the key it invented
+    // and the rule it broke — rather than as a diff of two lists.
+    assertHeadStateFields(answerKeys, [...HEAD_FIELDS], { ...HEAD_LABELS });
+    assertHeadStateStates(joinStates, [...HEAD_STATES]);
+    expect([...HEAD_FIELDS]).toEqual([
+      'state',
+      'entry',
+      'present',
+      'writtenBy',
+      'reason',
+    ]);
+    expect([...HEAD_STATES]).toEqual(joinStates);
+    expect(Object.keys(HEAD_LABELS)).toEqual([...HEAD_FIELDS]);
+    expect(Object.values(HEAD_LABELS)).toEqual([...HEAD_FIELDS]);
+
+    // The three absence tables are the join's own words, not a second spelling of them: the pane prints
+    // an `entry`, a `present` or a `writtenBy` line from these lists only, so a word the join does not
+    // answer with would be a word this pane could never print.
+    expect([...HEAD_ENTRY_ABSENCES]).toEqual([
+      join.RECORD_UNREADABLE,
+      join.ENTRY_NOT_CHOSEN,
+      join.NO_HEAD_ENTRY,
+      join.NAME_NOT_RECORDED,
+      join.NAME_NOT_AN_ENTRY,
+    ]);
+    expect([...HEAD_PRESENT_ABSENCES]).toEqual([join.PRESENT_NOT_RECORDED]);
+    expect([...HEAD_WRITTEN_BY_ABSENCES]).toEqual([
+      join.WRITTEN_BY_NOT_RECORDED,
+      join.WRITTEN_BY_NOT_A_NAVIGATION,
+    ]);
+
+    // Mutant: a sixth key the answer does not carry, added to both halves of the pane's table. This is
+    // the defect the milestone exists against — a surface that renders a remedy the join never produced —
+    // so the pin must redden naming the surface and the key it invented.
+    const invented = reddens(
+      () =>
+        assertHeadStateFields(answerKeys, [...HEAD_FIELDS, 'remedy'], {
+          ...HEAD_LABELS,
+          remedy: 'remedy',
+        }),
+      'a key the answer does not carry',
+    );
+    expect(invented.message).toContain('head-state');
+    expect(invented.message).toContain('remedy');
+
+    // Mutant: the record quote added to the render list alone, which is the shape a pane that started
+    // printing `observed` would have — the sixth key the answer does carry and this surface does not.
+    const quoteRendered = reddens(
+      () =>
+        assertHeadStateFields(answerKeys, [...HEAD_FIELDS, 'observed'], {
+          ...HEAD_LABELS,
+          observed: 'observed',
+        }),
+      'the record quote rendered as a sixth line',
+    );
+    expect(quoteRendered.message).toContain('head-state');
+    expect(quoteRendered.message).toContain('observed');
+
+    // Mutant: the same sixth key added to the label table alone, which is the shape a pane that prints a
+    // remedy line for one state would have.
+    const inventedLabel = reddens(
+      () =>
+        assertHeadStateFields(answerKeys, [...HEAD_FIELDS], {
+          ...HEAD_LABELS,
+          remedy: 'remedy',
+        }),
+      'a label the answer has no key for',
+    );
+    expect(inventedLabel.message).toContain('head-state');
+    expect(inventedLabel.message).toContain('remedy');
+
+    // Mutant: one key dropped from the enumeration — the defect a pane that stopped rendering the
+    // writing navigation would have.
+    const dropped = reddens(
+      () =>
+        assertHeadStateFields(
+          answerKeys,
+          HEAD_FIELDS.filter((field) => field !== 'writtenBy'),
+          Object.fromEntries(
+            Object.entries(HEAD_LABELS).filter(([key]) => key !== 'writtenBy'),
+          ),
+        ),
+      'a key dropped from the enumeration',
+    );
+    expect(dropped.message).toContain('head-state');
+    expect(dropped.message).toContain('writtenBy');
+
+    // Mutant: one state dropped from the enumeration. The pin must redden naming the surface.
+    const droppedState = reddens(
+      () =>
+        assertHeadStateStates(
+          joinStates,
+          HEAD_STATES.filter((state) => state !== HEAD_STALE),
+        ),
+      'a state dropped from the enumeration',
+    );
+    expect(droppedState.message).toContain('head-state');
+    expect(droppedState.message).toContain(HEAD_STALE);
+  });
+
+  it('renders each state from the answer it was given, and shows a named absence where the fact would stand', () => {
+    const join = headStateJoin();
+    const record = readHeadRecord();
+    const committed = record.entries[0];
+    if (committed === undefined) {
+      throw new Error("T001's head record carries no entry row");
+    }
+    const entryText = JSON.stringify({ element: committed.entry });
+    const presentText = (row: HeadRowFile): string =>
+      JSON.stringify(headPresent(row));
+
+    // `current`: the record attributes the entry's write to the navigation whose page carries it, and
+    // the pane prints the entry, the entry still present with that page and the writer, no reason line.
+    const currentRow = headRow(record, (row) => {
+      row.duplicate = { read: true, value: { count: 1 } };
+      row.writtenBy = {
+        read: true,
+        observed: true,
+        value: headNavigation(record, 2),
+      };
+    });
+    const current = join.headState(headDocument(currentRow));
+    expect(current['state']).toBe(HEAD_CURRENT);
+    expect(headStatePanel(current).lines).toEqual([
+      `state: ${HEAD_CURRENT}`,
+      `entry: ${entryText}`,
+      `present: ${presentText(currentRow)}`,
+      `writtenBy: ${JSON.stringify(headNavigation(record, 2))}`,
+    ]);
+
+    // `stale`: one navigation wrote the entry and another navigation's page carries it. Both are named,
+    // each on its own line, and never one of the two — the answer this milestone exists to render.
+    const staleRow = headRow(record, (row) => {
+      row.duplicate = { read: true, value: { count: 1 } };
+      row.writtenBy = {
+        read: true,
+        observed: true,
+        value: headNavigation(record, 0),
+      };
+    });
+    const stale = join.headState(headDocument(staleRow));
+    expect(stale['state']).toBe(HEAD_STALE);
+    const staleLines = headStatePanel(stale).lines;
+    expect(staleLines).toEqual([
+      `state: ${HEAD_STALE}`,
+      `entry: ${entryText}`,
+      `present: ${presentText(staleRow)}`,
+      `writtenBy: ${JSON.stringify(headNavigation(record, 0))}`,
+    ]);
+    expect(staleLines.some((line) => line.startsWith('reason: '))).toBe(false);
+    // The two navigations are two facts: the writer's index and the carrier's index are both rendered,
+    // and they are not the same number.
+    expect(staleLines[3]).toContain('"index":0');
+    expect(staleLines[2]).toContain('"index":2');
+    expect(staleLines[3]).not.toBe(staleLines[2]);
+
+    // `duplicate`: the record counted two entries sharing the name and named the second. The entry the
+    // record observed is the `entry` line and the second, still present, is the entry inside `present`.
+    const second = {
+      element: committed.entry,
+      text: 'Insurance Portal (second)',
+    };
+    const duplicateRow = headRow(record, (row) => {
+      row.duplicate = { read: true, value: { count: 2, second: second } };
+    });
+    const duplicate = join.headState(headDocument(duplicateRow));
+    expect(duplicate['state']).toBe(HEAD_DUPLICATE);
+    expect(duplicate['entry']).toEqual({ element: committed.entry });
+    expect(headStatePanel(duplicate).lines).toEqual([
+      `state: ${HEAD_DUPLICATE}`,
+      `entry: ${entryText}`,
+      `present: ${JSON.stringify({ entry: second, carriedBy: committed.carriedBy.value })}`,
+    ]);
+
+    // The demo's own answer: the entry, the entry still present with its carrying navigation, no
+    // writing navigation — because none was read — and the duplicate absence named as the reason.
+    const sampled = headStatePanel(FACTS['head-state']);
+    expect(sampled.lines).toEqual([
+      `state: ${HEAD_CANNOT_TELL}`,
+      `entry: ${entryText}`,
+      `present: ${presentText(committed)}`,
+      `reason: ${join.DUPLICATE_NOT_RECORDED}`,
+    ]);
+
+    // A write the record attributes to no navigation: the `writtenBy` line carries the absence's own
+    // word rather than an empty cell, and the reason line names the same fact.
+    const unattributedRow = headRow(record, (row) => {
+      row.duplicate = { read: true, value: { count: 1 } };
+    });
+    const unattributed = join.headState(headDocument(unattributedRow));
+    expect(unattributed['reason']).toBe(join.WRITTEN_BY_NOT_RECORDED);
+    expect(headStatePanel(unattributed).lines).toEqual([
+      `state: ${HEAD_CANNOT_TELL}`,
+      `entry: ${entryText}`,
+      `present: ${presentText(unattributedRow)}`,
+      `writtenBy: ${join.WRITTEN_BY_NOT_RECORDED}`,
+      `reason: ${join.WRITTEN_BY_NOT_RECORDED}`,
+    ]);
+
+    // A carrying-navigation fact that names no navigation index: the writing navigation stands where
+    // the record read one and the `present` line quotes the entry with no carrier, so neither
+    // navigation is inferred from the other.
+    const carryingUnreadRow = headRow(record, (row) => {
+      row.duplicate = { read: true, value: { count: 1 } };
+      row.writtenBy = {
+        read: true,
+        observed: true,
+        value: headNavigation(record, 0),
+      };
+      row.carriedBy = { read: false, reason: 'no carrier was read' };
+    });
+    const carryingUnread = join.headState(headDocument(carryingUnreadRow));
+    expect(carryingUnread['reason']).toBe(join.CARRIED_BY_NOT_RECORDED);
+    expect(
+      headStatePanel(carryingUnread).lines.some((line) =>
+        line.startsWith(
+          `writtenBy: ${JSON.stringify(headNavigation(record, 0))}`,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      headStatePanel(carryingUnread).lines.some((line) =>
+        line.startsWith(`reason: ${join.CARRIED_BY_NOT_RECORDED}`),
+      ),
+    ).toBe(true);
+
+    // An entry whose name the record states it did not read: the `entry` line carries the absence, and
+    // the entry still present is still quoted beside it.
+    const unnamedRow = headRow(record, (row) => {
+      row.name = { read: false, reason: 'no name was read' };
+    });
+    const unnamed = join.headState(headDocument(unnamedRow));
+    expect(unnamed['reason']).toBe(join.NAME_NOT_RECORDED);
+    expect(headStatePanel(unnamed).lines).toEqual([
+      `state: ${HEAD_CANNOT_TELL}`,
+      `entry: ${join.NAME_NOT_RECORDED}`,
+      `present: ${presentText(unnamedRow)}`,
+      `reason: ${join.NAME_NOT_RECORDED}`,
+    ]);
+
+    // An entry still present the record states it did not read: no `present` line carries a value, so
+    // the absence stands under that label and no entry is named in its place.
+    const noPresentRow = headRow(record, (row) => {
+      row.duplicate = { read: true, value: { count: 1 } };
+      row.remained = { read: false, reason: 'no entry remained' };
+    });
+    const noPresent = join.headState(headDocument(noPresentRow));
+    expect(noPresent['reason']).toBe(join.PRESENT_NOT_RECORDED);
+    expect(headStatePanel(noPresent).lines).toEqual([
+      `state: ${HEAD_CANNOT_TELL}`,
+      `entry: ${entryText}`,
+      `present: ${join.PRESENT_NOT_RECORDED}`,
+      `reason: ${join.PRESENT_NOT_RECORDED}`,
+    ]);
+
+    // A record the join cannot read, and a value that is no answer at all: the reason word the join
+    // published, and the one word the pane can state for a value nobody answered with.
+    const unreadable = join.headState(null, { entry: committed.entry });
+    expect(headStatePanel(unreadable).lines).toEqual([
+      `state: ${HEAD_CANNOT_TELL}`,
+      `entry: ${join.RECORD_UNREADABLE}`,
+      `reason: ${join.RECORD_UNREADABLE}`,
+    ]);
+    expect(headStatePanel(undefined).lines).toEqual([
+      `state: ${HEAD_CANNOT_TELL}`,
+    ]);
+
+    // A state word this pane was not written for renders as the word alone: the pane has no reading to
+    // print for a state nobody wrote.
+    expect(headStatePanel({ state: 'derived' }).lines).toEqual([
+      'state: derived',
+    ]);
+
+    // No line is ever an empty cell: every `label: ` the pane writes is followed by something, which
+    // is what "a named absence is shown, not a blank" means at the renderer.
+    const answers = [
+      current,
+      stale,
+      duplicate,
+      unattributed,
+      carryingUnread,
+      unnamed,
+      noPresent,
+      unreadable,
+      FACTS['head-state'],
+    ];
+    for (const answer of answers)
+      for (const line of headStatePanel(answer).lines)
+        expect(line.slice(line.indexOf(': ') + 2).length).toBeGreaterThan(0);
+
+    // Every line is a label the table names and a value the answer carries — nothing composed, nothing
+    // paraphrased, and no sentence of the pane's own.
+    const labels: readonly string[] = Object.values(HEAD_LABELS);
+    for (const answer of answers)
+      for (const line of headStatePanel(answer).lines) {
+        const label = line.slice(0, line.indexOf(': '));
+        expect(labels.includes(label)).toBe(true);
+      }
+  });
+
+  it('renders no cause, no remedy and no navigation the answer did not carry, in every state the join answers', () => {
+    const join = headStateJoin();
+    const record = readHeadRecord();
+    const committed = record.entries[0];
+    if (committed === undefined) {
+      throw new Error("T001's head record carries no entry row");
+    }
+
+    const staleRow = headRow(record, (row) => {
+      row.duplicate = { read: true, value: { count: 1 } };
+      row.writtenBy = {
+        read: true,
+        observed: true,
+        value: headNavigation(record, 0),
+      };
+    });
+    const stale = join.headState(headDocument(staleRow));
+
+    // A seventh key on the answer renders nothing: the pane reads the five keys it is written for and
+    // no other, so a cause, a remedy, an inferred navigation or a suggestion smuggled in beside them
+    // has no label to appear under (SC4).
+    const smuggled: Record<string, unknown> = {
+      ...stale,
+      remedy: 'read the head again',
+      cause: 'the route changed',
+      route: '/panel/head-state',
+      suggestion: 'count the entries sharing the name',
+    };
+    expect(headStatePanel(smuggled).lines).toEqual(headStatePanel(stale).lines);
+
+    // A writing navigation the answer does not carry is never invented: the pane prints the writer the
+    // answer names, and a second navigation handed beside it renders no line at all.
+    const inventedWriter: Record<string, unknown> = {
+      ...stale,
+      navigation: { index: 1, url: '/contract' },
+    };
+    expect(headStatePanel(inventedWriter).text).not.toContain(
+      JSON.stringify({ index: 1, url: '/contract' }),
+    );
+
+    // No cause, no remedy, no advice and no inferred navigation: the words a pane would have to write
+    // for itself, scanned over every state it renders — including the demo's own fact.
+    const rendered = [
+      headStatePanel(stale).text,
+      headStatePanel(FACTS['head-state']).text,
+      headStatePanel(smuggled).text,
+    ].join('\n');
+    for (const word of [
+      'fix',
+      'remedy',
+      'schematic',
+      'suggestion',
+      'cause',
+      'because',
+      'should',
+      'declare',
+    ])
+      expect(new RegExp(`\\b${word}\\b`, 'i').test(rendered)).toBe(false);
+
+    // The same answer twice renders the same bytes, and the pane writes nothing into the answer.
+    const before = JSON.stringify(stale);
+    expect(headStatePanel(stale).text).toBe(headStatePanel(stale).text);
+    expect(JSON.stringify(stale)).toBe(before);
   });
 });

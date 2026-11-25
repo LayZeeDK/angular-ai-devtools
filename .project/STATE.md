@@ -1,13 +1,13 @@
 ---
 pipeline: gsd-path/v2
 project: angular-ai-devtools
-milestone: formfield-binder
+milestone: head-state
 phase: shipped
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
 status: done
-branch: gsd-path/M067
-archive: .project/archive/067-formfield-binder
+branch: gsd-path/M068
+archive: .project/archive/068-head-state
                     # the router rebinds before any next-milestone file change
                     # the bound branch is never main; ship integrates it there
 integration_default: direct
@@ -1383,5 +1383,26 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-24 — plan — plan approved
 - 2026-11-24 — build — build started
 - 2026-11-25 — build — build complete
+- 2026-11-25 — ship — build done; final review pending
+- 2026-11-25 — shipped — archive preflight passed; shipment recorded
+- 2026-11-25 — inspect — router bound next milestone
+- 2026-11-25 — inspect — pre-approval: {"kinds": ["intent", "plan"]}
+- 2026-11-25 — inspect — docs audit stands; inspection complete
+- 2026-11-25 — define — define started
+- 2026-11-25 — define — milestone intent approved
+- 2026-11-25 — plan — planning started
+- 2026-11-25 — plan — plan approved
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build blocked
+- 2026-11-25 — plan — build plan repair requested
+- 2026-11-25 — plan — build recovery: {"base": "82e9105b540493afd0037c4fe7e897d0567d2127", "branch": "gsd-path/M068", "kind": "plan", "source": "build"}
+- 2026-11-25 — plan — plan approved
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build blocked
+- 2026-11-25 — plan — build plan repair requested
+- 2026-11-25 — plan — build recovery: {"base": "f997184992f3511e355cb2fb30de5abf1a111a32", "branch": "gsd-path/M068", "kind": "plan", "source": "build"}
+- 2026-11-25 — plan — plan approved
+- 2026-11-25 — build — build started
+- 2026-11-25 — build — build complete; waves reviewed
 - 2026-11-25 — ship — build done; final review pending
 - 2026-11-25 — shipped — archive preflight passed; shipment recorded

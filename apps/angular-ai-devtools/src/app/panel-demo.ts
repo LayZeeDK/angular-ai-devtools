@@ -73,8 +73,9 @@ const LOADERS: Record<
   'title-input': () => import('./panel-title-input') as never,
   schema: () => import('./panel-schema') as never,
   'field-binder': () => import('./panel-field-binder') as never,
+  'head-state': () => import('./panel-head-state') as never,
 };
-// The sample facts each surface renders; the spec holds each one to the recording it came from. The M061 key above costs this map one line, and that line is paid for below by folding the `fields` note's last two lines into one, so every line the earlier surface records cite from 427 down — the loader resolution and the component template included — keeps its number. M062's `outlet` key costs the map one more line and is paid for the same way, by folding one more line of that note, so the region those records cite keeps its numbers again. M063's `guard-phase` key costs the map one more line and is paid for by folding the `onpush` note's two lines into one, so every cited line from 427 down keeps its number again. M064's `chunk-failure` key costs the map one more line and is paid for by folding the `resource` note's two last lines into one, so the region those records cite keeps its numbers once more. M065's `title-input` key costs the map one more line and is paid for by a second fold of that same `resource` note, so every cited line from 427 down keeps its number again. M066's `schema` key costs the map one more line and is paid for by a third fold of that same `resource` note, so every cited line from the loader resolution down keeps its number once more. M067's `field-binder` key costs the map one more line and is paid for by folding the `console` note's two lines into one, so every cited line from the loader resolution down — the component template, the loader resolution and every fact the surface records quote — keeps its number once more.
+// The sample facts each surface renders; the spec holds each one to the recording it came from. The M061 key above costs this map one line, and that line is paid for below by folding the `fields` note's last two lines into one, so every line the earlier surface records cite from 427 down — the loader resolution and the component template included — keeps its number. M062's `outlet` key costs the map one more line and is paid for the same way, by folding one more line of that note, so the region those records cite keeps its numbers again. M063's `guard-phase` key costs the map one more line and is paid for by folding the `onpush` note's two lines into one, so every cited line from 427 down keeps its number again. M064's `chunk-failure` key costs the map one more line and is paid for by folding the `resource` note's two last lines into one, so the region those records cite keeps its numbers once more. M065's `title-input` key costs the map one more line and is paid for by a second fold of that same `resource` note, so every cited line from 427 down keeps its number again. M066's `schema` key costs the map one more line and is paid for by a third fold of that same `resource` note, so every cited line from the loader resolution down keeps its number once more. M067's `field-binder` key costs the map one more line and is paid for by folding the `console` note's two lines into one, so every cited line from the loader resolution down — the component template, the loader resolution and every fact the surface records quote — keeps its number once more. M068's `head-state` key costs the map one more line and is paid for by a fourth fold of that same `resource` note, so every cited line from the loader resolution down keeps its number once more again.
 export const FACTS: Record<string, unknown> = {
   // The join's own field answer for the cross-field case (extension/field-state.js): every field valid, while the root carries its own error kind. The submit state is the recording's, not a label written here: M037's T001 re-captured `crossField.submitDisabled: true` for this exact shape in `research/raw/m031-field-state.json` and names the element it was read off (`submitElementId: 'submit'`), so the pane derives `submit: disabled` from that measured boolean. A fact carrying neither reading would be `cannot tell` in the join (INTENT.md SC4), which is why the demo carries the measured one.
   fields: {
@@ -152,8 +153,7 @@ export const FACTS: Record<string, unknown> = {
     ],
   },
   // The join's own idle-by-design answer (extension/resource-lifecycle.js): the graph reports
-  // `Resource#IdleResource.status` as `idle` because its params expression produces nothing, and the
-  // join names that as `idle (by design)` rather than as a request still running. The identity and the status are the recording's (`research/raw/m036-resource-graph.json`, `resources`); only the idle case is sampled here, because the other three report the same status the sample would have to invent against a recording that does not carry a params status at all. M064's `chunk-failure` key above costs this map one line and is paid for by this fold, so every cited line from the loader resolution down keeps its number. M065's `title-input` key above costs this map one more line and is paid for by this second fold, so the region those records cite keeps its numbers once more. M066's `schema` key above costs the map one more line and is paid for by this third fold of the same note, so every cited line from the loader resolution down — the component template, the loader resolution and every fact the surface records quote — keeps its number once again.
+  // `Resource#IdleResource.status` as `idle` because its params expression produces nothing, and the join names that as `idle (by design)` rather than as a request still running. The identity and the status are the recording's (`research/raw/m036-resource-graph.json`, `resources`); only the idle case is sampled here, because the other three report the same status the sample would have to invent against a recording that does not carry a params status at all. M064's `chunk-failure` key above costs this map one line and is paid for by this fold, so every cited line from the loader resolution down keeps its number. M065's `title-input` key above costs this map one more line and is paid for by this second fold, so the region those records cite keeps its numbers once more. M066's `schema` key above costs the map one more line and is paid for by this third fold of the same note, so every cited line from the loader resolution down — the component template, the loader resolution and every fact the surface records quote — keeps its number once again. M068's `head-state` key above costs the map one more line and is paid for by this fourth fold of the same note, so every cited line from the loader resolution down keeps its number once more again.
   resource: {
     facts: [
       {
@@ -1332,5 +1332,89 @@ FACTS['field-binder'] = {
         'the control the policyNumber field\'s record expects was not read: the one page reading this record derives from (research/raw/m066-schema-record.json) carries the 10 keys ["boundFields","disabled","disabledType","element","field","fieldDisabled","formText","hidden","id","nameAttr"] for a field and none of them names a control a field expects; this task read no page of its own, and package.json declares 30 packages of which 0 is @angular/material or @angular/cdk, so no control library in this tree names one either - recorded as an absence, never inferred from the field\'s label',
     },
     componentsField: null,
+  },
+};
+
+// The join's own answer (`extension/head-state.js`, T002) for T001's head record
+// (`research/raw/m068-head-record.json`), entered here after the component for the reason the facts
+// above are: every cited line of this file is pinned where it sits, so a fact added inside the literal
+// would move the template, the loader resolution and the earlier facts those records quote. A
+// statement after the component pays for nothing.
+//
+// The answer is not written here by hand: `panel-demo.spec.ts` re-reads that record, evaluates the
+// shipped join from its own committed text, hands it the one entry the record carries and holds this
+// fact to that answer field for field — so a fact that drifted from the record or the join reddens
+// there rather than shipping. The record states both of the facts the comparison needs as measured
+// absences: `writtenBy.read` is false and names no navigation, and `duplicate.read` is false and
+// carries no count, so the join answers `cannot-tell` naming the duplicate nobody counted — the
+// interesting answer, and not an invented `current` the page never produced. `entry` and `present` are
+// the record's own statements: the entry is the one it observed and the entry still present is the one
+// it states remained, together with the navigation whose page carries it. No navigation, no duplicate,
+// no cause and no remedy is written beside them (N1, SC4).
+FACTS['head-state'] = {
+  state: 'cannot-tell',
+  entry: { element: 'title' },
+  present: {
+    entry: {
+      element: 'title',
+      text: 'Insurance Portal',
+      navigationsCarrying: [0, 1, 2],
+      sameTextAtEveryRead: true,
+    },
+    carriedBy: {
+      index: 2,
+      url: '/claim',
+      at: '2026-11-24T01:04:13.785Z',
+    },
+  },
+  writtenBy: null,
+  reason: 'duplicate-not-recorded',
+  observed: {
+    entry: 'title',
+    entryChosen: 'title',
+    name: {
+      read: true,
+      value: { element: 'title' },
+      source:
+        'research/raw/m065-title-record.json#observation.observedTitleElement and #observation.mechanism',
+    },
+    firstSeenAt: {
+      read: true,
+      value: { index: 0, url: '/home', at: '2026-11-24T01:04:13.599Z' },
+      source:
+        'research/raw/m065-title-record.json#observation.beganAt, #observation.beganAfterIndex, #observation.beganAfterUrl and #observation.reads[0]',
+    },
+    remained: {
+      read: true,
+      value: {
+        element: 'title',
+        text: 'Insurance Portal',
+        navigationsCarrying: [0, 1, 2],
+        sameTextAtEveryRead: true,
+      },
+      source:
+        'research/raw/m065-title-record.json#navigations[].titles[] (phase after-navigation), the last of them the entry that remained',
+    },
+    carriedBy: {
+      read: true,
+      value: {
+        index: 2,
+        url: '/claim',
+        at: '2026-11-24T01:04:13.785Z',
+      },
+      source:
+        'research/raw/m065-title-record.json#navigations[2].titles[] (the last phase after-navigation read)',
+    },
+    writtenBy: {
+      read: false,
+      observed: false,
+      reason:
+        "the title entry's writing navigation was not read: research/raw/m065-title-record.json#observation.writesSeen is 0 and 0 of its 3 read(s) recorded one, and the 1 entry its `writes` list holds carries observed [false], navigationIndex [null] and author [null], on the record's own basis \"the title the document carried when the observation began at 2026-11-24T01:04:13.599Z; the observer saw no write for it, so the record carries no author and no navigation for it\"; the record is the only source of a writing navigation and it attributes none, so none is named and no route is inferred from the entry's text",
+    },
+    duplicate: {
+      read: false,
+      reason:
+        "the title entry's duplicate was not read: research/raw/m065-title-record.json states 2 reading(s) at most for one navigation, each a single title value rather than a list of elements, and none of its 444 key path(s) names a count of entries carrying a name; a second `<title>` would be invisible to a reading shaped that way, so no second entry is named and no duplicate is invented",
+    },
   },
 };

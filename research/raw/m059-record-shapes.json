@@ -4,8 +4,8 @@
   "task": "T001",
   "title": "Measure what the console record and the digest state",
   "question": "what does the digest state for NG0205, what does a console message carry once the shipped joins have read it, can the portal or spikes/ng222-app be driven to emit it, and which counts state the handle record this agent does not hold?",
-  "verdict": "the digest is 61577 bytes and carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 49 extension modules, 165 suites and 167 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.",
-  "head": "fcbd932bd47479d70f19cf7ce90f30f43853fa20",
+  "verdict": "the digest is 61577 bytes and carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 50 extension modules, 168 suites and 169 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.",
+  "head": "6e7011f8743efdf00a3e85690ae0fc76d754e899",
   "headCommand": "git rev-parse HEAD",
   "capturedAt": "2026-11-22T00:27:11.118Z",
   "instrument": {
@@ -88,7 +88,7 @@
   "commands": [
     {
       "command": "git rev-parse HEAD",
-      "output": "fcbd932bd47479d70f19cf7ce90f30f43853fa20"
+      "output": "6e7011f8743efdf00a3e85690ae0fc76d754e899"
     },
     {
       "command": "node -e \"const c=require('node:crypto'),f=require('node:fs');const b=f.readFileSync('extension/error-digest.json');const d=JSON.parse(b);const e=d.entries.find(x=>x.code==='NG0205');console.log(e.code, e.title);console.log(d.entries.length, c.createHash('sha256').update(b).digest('hex'), b.length)\"",
@@ -505,7 +505,7 @@
     },
     "researchRaw": {
       "glob": "research/raw/*.json",
-      "recordsSearched": 167,
+      "recordsSearched": 169,
       "excluded": [
         "research/raw/m059-record-shapes.json"
       ],
@@ -519,7 +519,7 @@
       "lines": [
         {
           "path": "research/raw/m044-gate-shapes.json",
-          "line": 3433,
+          "line": 3487,
           "text": "\"reason\": \"edited here rather than renamed: M059 T006 added the four artefacts this milestone itself adds to the suite exclusion list - its own source, the record, extension/teardown-leak.js and scripts/teardown-leak.test.mjs - because without them a landing elsewhere moved the denominators from 38 modules and 136 suites to 39 and 137, and because a record that merely quotes NG0205 flipped the derived producible verdict from not-produced to produced with eighteen page hits nobody observed; the head recorded by the git rev-parse entry is now derived from the capture own head so the record cannot state one commit and print another; the thirteen default assertions and fourteen armed ones are additions to the rule, none removed\""
         },
         {
@@ -654,7 +654,7 @@
       "scan": {
         "extension": {
           "glob": "extension/*.js",
-          "filesSearched": 49,
+          "filesSearched": 50,
           "excluded": [
             "extension/teardown-leak.js"
           ],
@@ -666,7 +666,7 @@
         },
         "scripts": {
           "glob": "scripts/*.mjs",
-          "filesSearched": 165,
+          "filesSearched": 168,
           "excluded": [
             "scripts/teardown-leak-shapes.test.mjs",
             "scripts/teardown-leak.test.mjs"
@@ -679,7 +679,7 @@
         },
         "researchRaw": {
           "glob": "research/raw/*.json",
-          "filesSearched": 167,
+          "filesSearched": 169,
           "excluded": [
             "research/raw/m059-record-shapes.json"
           ],
@@ -696,7 +696,7 @@
         "leakedHandle"
       ],
       "occurrences": 0,
-      "finding": "No record this agent holds carries a per-injector handle: the three names a handle record would need occur 0 times in 49 extension modules, 165 suites and 167 `research/raw/` records, and the console stream the panel reads could not carry one — it carries a code and a body. Building one would be the page-side instrumentation D7 and SC2 forbid, so the answer states `handle-record-not-held` (C1, SC4).",
+      "finding": "No record this agent holds carries a per-injector handle: the three names a handle record would need occur 0 times in 50 extension modules, 168 suites and 169 `research/raw/` records, and the console stream the panel reads could not carry one — it carries a code and a body. Building one would be the page-side instrumentation D7 and SC2 forbid, so the answer states `handle-record-not-held` (C1, SC4).",
       "citationIds": [
         "m045DigestEnumeration",
         "m045CodedList"
@@ -1014,7 +1014,7 @@
     "windowsCommand": "set \"M059_CAPTURE=1\"&& node --test scripts/teardown-leak-shapes.test.mjs",
     "check": "node --test scripts/teardown-leak-shapes.test.mjs",
     "records": "research/raw/m059-record-shapes.json",
-    "head": "fcbd932bd47479d70f19cf7ce90f30f43853fa20",
+    "head": "6e7011f8743efdf00a3e85690ae0fc76d754e899",
     "criteria": [
       "SC1",
       "SC6"

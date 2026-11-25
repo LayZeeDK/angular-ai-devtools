@@ -1,0 +1,162 @@
+head: 3fe51101aade8d7cfaf5a6d0c10d5effb44f731b at 2026-11-25T05:01:29.807Z
+✔ the recording declares the two sides an answer may cite (0.8411ms)
+✔ the graph side is the serializer and the one per-check carry (0.8624ms)
+✔ a node is read for index, kind and label and every other field is ignored (0.1686ms)
+✔ an edge is its two ends and nothing else (0.167ms)
+✔ the serializer writes an id, never an index (1.3551ms)
+✔ the render/effect entry declares the effect finding and its read list (0.2884ms)
+✔ the three absences are declared and distinct (0.1495ms)
+✔ the two findings are never joined (0.1332ms)
+✔ every citation carries the cited line’s own trimmed text (4.04ms)
+✔ every citation is re-resolved by searching its file for the quoted line (4.8092ms)
+✔ every citation id is unique and every reference resolves (0.1643ms)
+✔ no write record exists anywhere in extension/ (39.1152ms)
+✔ no edge carries a field to order a write in (18.9251ms)
+✔ the vocabulary moved by the rows the intent declares, and by no other count (19.5605ms)
+ℹ the M068 intent's `## Edge coverage` table declares 8 rows; m068-verdict-claims.json carries them; the union states edge 38 + 8 = 46, and each row field 32 + 8 = 40
+✔ the vocabulary pin reddens on a capture that lands more or fewer rows than the intent declares (19.128ms)
+✔ the answer’s ordering vocabulary is the named absence and not a capture (0.0611ms)
+✔ the second measurement is re-run over the tree, not read back (14.667ms)
+✔ exactly one record holds an effect node in the recorded shape (14.2677ms)
+✔ the closest record carries an indexed effect node, unlike the plan’s prose (0.4356ms)
+✔ the existing join answers from that record without authoring anything (0.9537ms)
+✔ the recording states what no record carries: an index in the serializer’s output (0.0478ms)
+✔ every premise the measurement refuted is stated as refuted (0.0495ms)
+✔ nothing was built (0.0299ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 242.2807
+✔ the recording is the canonical serialisation of its own record (1.3511ms)
+✔ the recording names the commit it was measured at, and that commit is behind this HEAD (68.1295ms)
+ℹ head 3fe51101 is a commit this checkout carries, captured at 2026-11-22T00:27:11.118Z
+✔ the digest section states the NG0205 entry verbatim, with the digest’s own hash (0.7518ms)
+ℹ digest 22.2.x: 64 entries, 64 codes, sha256 426a5be1f4e344c87e4b70817ac10da3de0f9c8a172325e704b3235953a01c35, 61577 bytes
+ℹ NG0205 — title “Injector has already been destroyed”; the build prints “NG0205: Injector has already been destroyed.”
+✔ the message section names the fields a joined message carries, and where the stack goes (0.9208ms)
+ℹ console join: text/code/title/reason/carriedCode, stack survives in text; lint join: state/construct/code/message, stack dropped by bodyOf
+ℹ the capture carries code/location/order/text/type and its location carries column/columnNumber/line/lineNumber/url; 1 of 4 messages carry a frame
+✔ the producible verdict states what was driven and, producing nothing, the observable it lacks (24.6144ms)
+ℹ producible: not-produced — 4 portal routes/38 lines, 2 fixture routes/4 lines, 0 NG0205
+ℹ research/raw: 20 occurrences in 4 record(s), 0 of them the digest enumeration, 0 on a page
+✔ the absences section states the handle record as an absence with its counts (0.3585ms)
+ℹ handle record: 0 handleRecord and 0 postDestroy occurrences over 50 extension modules, 168 suites and 169 records
+ℹ teardown sites (3, 2 the agent’s own): uninstallRouterEvents at extension/agent-main.js:1858; uninstallStability at extension/agent-main.js:2435; CURRENCY at scripts/stability-measure.test.mjs:315
+✔ every citation is the line its own number names, found by searching the file it quotes (3.0005ms)
+ℹ extension/error-digest.json: 2 citation(s) re-resolved
+ℹ spikes/ng222-app/node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs: 4 citation(s) re-resolved
+ℹ extension/console-join.js: 8 citation(s) re-resolved
+ℹ extension/lint-core.js: 7 citation(s) re-resolved
+ℹ research/raw/m032-console-diagnostics.json: 2 citation(s) re-resolved
+ℹ extension/agent-main.js: 7 citation(s) re-resolved
+ℹ research/raw/m045-console-shapes.json: 2 citation(s) re-resolved
+ℹ spikes/ng222-app/src/app/stale-view-fixture.ts: 3 citation(s) re-resolved
+ℹ D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/shared/ui-directives/src/lib/button-action.directive.ts: 1 citation(s) re-resolved
+ℹ D:/projects/github/LayZeeDK/HaasStefan__ng-journal-insurance-portal-ai-devtools/libs/contract/feature-list/src/lib/list.component.ts: 1 citation(s) re-resolved
+✔ every citation a section names is one the record makes, and no line is cited for nothing (0.4151ms)
+✔ the record names no subscription, effect or timer as the owner (D6) (0.9053ms)
+✔ the recording is what this head derives, field by field (21.4304ms)
+ℹ the digest is 61577 bytes and carries NG0205 “Injector has already been destroyed” and the installed build prints “NG0205: Injector has already been destroyed.”; a joined console message carries 5 fields with the stack kept inside `text` and 4 with it dropped, and neither join carries the capture's `location` or `component`; driving the portal over 4 routes (38 console lines) and spikes/ng222-app over 2 routes (4 console lines) produced 0 NG0205; and 0+0+0 handleRecord and 0+0+0 postDestroy occurrences across 50 extension modules, 168 suites and 169 records (the 4 files this milestone adds are excluded from the count); so not-produced and handle-record-not-held are the two answers the milestone can ship.
+ℹ 12 section(s) re-derived, 37 citation(s), 0 NG0205 produced
+✔ a mutated copy of the record reddens naming its defect, and the untouched record passes first (177.6553ms)
+ℹ mutant a-digest-code-the-file-does-not-carry -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): digest.entry.code: "NG9999" -> "NG0205"
+ℹ mutant a-title-with-a-full-stop -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): digest.entry.title: "Injector has already been destroyed." -> "Injector has already been destroyed"
+ℹ mutant a-message-field-the-join-does-not-declare -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): message.joins.consoleJoin.findingFields: 6 row(s) -> 5 row(s)
+ℹ mutant a-stack-that-survives-the-lint-join -> the record disagrees with this head at 1 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): message.joins.lintJoin.stackSurvives: true -> false
+ℹ mutant a-route-that-is-not-a-string -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.targets.portal.routesTried[0]: 42 -> "/contract/list"; producible.targets.portal.routesTried[0] is the route it tried, as a string
+ℹ mutant a-verdict-with-nothing-missing -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.missing: "" -> "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`."; producible.missing must say what is missing when nothing was produced
+ℹ mutant a-handle-record-that-exists -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): absences.handle-record-not-held.occurrences: 1 -> 0; absences.handle-record-not-held.occurrences: 1 -> 0: the handle record does not exist
+ℹ mutant a-handle-named-as-the-cause -> the record disagrees with this head at 2 value(s) (re-capture with M059_CAPTURE=1 node --test scripts/teardown-leak-shapes.test.mjs after naming what moved): producible.missing: "the leaked subscription wrote after teardown" -> "the diagnostic was not produced on either target, and what is missing is a page action rather than a read: NG0205 is thrown by Injector.get on a destroyed injector, and neither driven page leaves a callback that performs such a lookup after its own destroy. Each target states the observable it lacks in `targets.<target>.missing`."; producible.missing names a leaked handle: "the leaked subscription wrote after teardown"
+✔ nothing was built (0.2652ms)
+✔ held-out E9: the record is read-only and no capture runs on a default run (16.0596ms)
+ℹ research/raw/m059-record-shapes.json at load: 59302 bytes, sha256 5be1910a7f5e6f7cc8bb491d84eb2166e6144a5f51f5fc523ac3d98e4909de92
+ℹ after the run: 59302 bytes, sha256 5be1910a7f5e6f7cc8bb491d84eb2166e6144a5f51f5fc523ac3d98e4909de92
+ℹ E9 idempotence: sha256 5be1910a7f5e6f7cc8bb491d84eb2166e6144a5f51f5fc523ac3d98e4909de92 unchanged after the run
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 485.3701
+mutant: doctored citation -> records[research/raw/m023-verdict-claims.json].fields.criterionText (claim F3): cites research/raw/m023-verdict-claims.json:7 and searching the file for the quoted line finds it at 6 — the number is not where the line it quotes sits
+mutant: invented field -> records[research/raw/m023-verdict-claims.json].fields.artefactPath (claim F4): count is 4 and this head measures 0
+mutant: hidden field -> records[research/raw/m054-verdict-claims.json].fields.criterionText (claim F3): count is 0 and this head measures 3
+mutant: unmeasured record -> the table carries one entry per record present and no entry for a record that is not there, the records the maps name outside themselves excepted
+mutant: new unlisted record -> the map measures every surface record present, the records the maps name outside themselves excepted: the tree holds 16, and the maps name 13 outside themselves (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json, research/raw/m059-surface.json, research/raw/m059-verdict-claims.json, research/raw/m060-surface.json, research/raw/m060-verdict-claims.json, research/raw/m061-surface.json, research/raw/m061-verdict-claims.json, research/raw/m063-verdict-claims.json)
+mutant research/raw/m057-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m057-record-shapes.json and is not one of the two records this milestone owes (research/raw/m057-surface.json, research/raw/m057-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m057-surface.json is this milestone's record and is present, and research/raw/m057-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m057-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m058-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m058-record-shapes.json and is not one of the two records this milestone owes (research/raw/m058-surface.json, research/raw/m058-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m058-surface.json is this milestone's record and is present, and research/raw/m058-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m058-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m059-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m059-record-shapes.json and is not one of the two records this milestone owes (research/raw/m059-surface.json, research/raw/m059-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m059-surface.json is this milestone's record and is present, and research/raw/m059-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m059-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m060-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m060-record-shapes.json and is not one of the two records this milestone owes (research/raw/m060-surface.json, research/raw/m060-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m060-surface.json is this milestone's record and is present, and research/raw/m060-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m060-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m061-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m061-record-shapes.json and is not one of the two records this milestone owes (research/raw/m061-surface.json, research/raw/m061-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m061-surface.json is this milestone's record and is present, and research/raw/m061-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m061-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m063-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m063-record-shapes.json and is not one of the two records this milestone owes (research/raw/m063-surface.json, research/raw/m063-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m063-surface.json is this milestone's record and is present, and research/raw/m063-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m063-surface.json in its inventory.outsideTheMap or measure it
+mutant: unmeasured record -> research/raw/m055-record-shapes.json is not what this head derives: research/raw/m066-verdict-claims.json is a verdict-claims record this head measures and research/raw/m055-record-shapes.json does not carry it
+mutant: armed refusal -> armed capture refused: the bytes it would write fail this suite's own pin, so the derivation does not derive through the pin its reader holds: the table carries one entry per record present and no entry for a record that is not there, the records the maps name outside themselves excepted || armed capture refused: the bytes it would write are not the fixed point of this suite's own pin — re-deriving the candidate at the head it names moves it, so the writer would emit bytes its own next run rewrites. Nothing was written.
+✔ the recording is the shape map this head measures (123.3639ms)
+ℹ 45 record(s), 626 citation(s), 52 artefact path(s)
+ℹ the map: milestone 36/36+9/9, criterion 36/36+0/9, criterionText 36/36+0/9, artefactPath 14/36+0/9, recordings 13/36+0/9, suitePath 13/36+0/9, captureRecords 14/36+0/9
+✔ every citation is the line its own number names, found by searching the file it quotes (11.9503ms)
+ℹ 626 citation(s) re-resolved by search; the longest line quoted is in research/raw/m056-verdict-claims.json
+✔ every record present is measured and every record measured is present (13.3961ms)
+ℹ 36 verdict-claims and 9 surface record(s) measured; 62 present, 2 named outside M055's map at T004 and 2 outside M057's map and 2 outside M058's map and 2 outside M059's map and 2 outside M060's map and 2 outside M061's map and 1 outside M063's map
+✔ the per-file per-field table states its own absences, and they are the absences this head holds (3.3235ms)
+ℹ artefactPath: absent from 31 record(s), each one stating the shape it uses instead
+ℹ recordings: absent from 32 record(s), each one stating the shape it uses instead
+ℹ suitePath: absent from 32 record(s), each one stating the shape it uses instead
+ℹ captureRecords: absent from 31 record(s), each one stating the shape it uses instead
+ℹ criterion: absent from 9 record(s), each one stating the shape it uses instead
+ℹ criterionText: absent from 9 record(s), each one stating the shape it uses instead
+✔ every artefact path a record names resolves at this head, and the recording states which do not (5.8795ms)
+ℹ 52 of 52 artefact path(s) resolve over 21 distinct file(s); 0 do not
+ℹ the missing-artefact state E4 renders has no live instance among them, and the index may never paper over a path that stops resolving
+ℹ m022-verdict-claims.json SC1 names .project/build/verify/sc1-overlay-rect/verdict.json, which is not there: verdictPath, not an artefact path
+ℹ m022-verdict-claims.json SC2 names .project/build/verify/sc2-picker-descriptor/verdict.json, which is not there: verdictPath, not an artefact path
+✔ no record carries an end-user question mapped to a criterion (15.1501ms)
+ℹ 36 verdict-claims record(s) carry 0 question-shaped key(s)
+ℹ m046-surface.json asks which surfaces the panel declares, which loader serves each one, and what the hand-off join states
+ℹ m047-surface.json asks which route renders the components surface, which LOADERS key serves it, which four states it renders, and which record field each state reads
+ℹ m048-surface.json asks which route renders the copy-check surface, its LOADERS key, its three states, and which answer field each state reads
+ℹ m049-surface.json asks which route renders the interaction-story surface, its two states, and the fifth answer field beside the four the contract names
+ℹ m050-surface.json asks which route renders the dead-click surface, its three states, and the fifth answer field beside the four the contract names
+ℹ m051-surface.json asks which route renders the what-changed surface, its three states, and how the pair is bound by the inspected tab rather than by a field of either record
+ℹ m052-surface.json asks which route reaches the webmcp surface, which LOADERS key resolves it, and what each of its three states reads off the reading the model context answered
+ℹ m053-surface.json asks which route reaches the webmcp-rehearsal surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+ℹ m054-surface.json asks which route reaches the visual-qa surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+✔ the C3 trap is quoted as a ruling, not repaired (13.7053ms)
+ℹ reason: 46 row(s) in 13 record(s), 1 template
+ℹ proves/capture: 54 row(s) in 15 record(s) cite scripts/navigation-blocking.test.mjs, and 0 record(s) name it in evidence.suites
+ℹ rulings: 2 required, 162 not-required
+✔ a doctored citation reddens naming the claim it belongs to (85.1786ms)
+✔ a record that claims a field it does not carry reddens naming the claim (75.6298ms)
+✔ a record that hides a field it carries reddens naming the claim (67.431ms)
+✔ a record the map does not measure reddens naming the record (65.3892ms)
+✔ a record present and not named outside the map reddens naming the record (5.7639ms)
+✔ every map read beside M055’s is its own statement, and the subtraction is what they state (10.1003ms)
+ℹ M057's map at research/raw/m057-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M058's map at research/raw/m058-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M059's map at research/raw/m059-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M060's map at research/raw/m060-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M061's map at research/raw/m061-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M063's map at research/raw/m063-record-shapes.json names 1 record(s) outside itself and measures 0
+ℹ the maps name 13 record(s) between them (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json, research/raw/m059-surface.json, research/raw/m059-verdict-claims.json, research/raw/m060-surface.json, research/raw/m060-verdict-claims.json, research/raw/m061-surface.json, research/raw/m061-verdict-claims.json, research/raw/m063-verdict-claims.json)
+✔ each later map may name only its own records, and a record it neither measures nor names reddens naming it (5.0062ms)
+✔ the recording is a read: it names its head and a default run writes nothing (63.5149ms)
+ℹ head 3fe51101 is a commit this checkout carries, and the suite resolves it through git rev-parse HEAD
+✔ the map is the one this head derives, and a record that moved is named (77.3112ms)
+✔ the armed writer refuses a candidate that is not the fixed point of its own pin, and writes nothing (318.2847ms)
+✔ the armed run writes only what moved, and a second armed run changes no byte (0.3406ms)
+ℹ default run: nothing written; the armed run is the only writer this suite has
+✔ git was reachable, so the head check above measured something (32.0732ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1105.4095

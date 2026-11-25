@@ -1,0 +1,106 @@
+head: 3b997658e72043f15554861da8b3d67a45873484 at 2026-11-25T03:27:16.871Z
+mutant: doctored citation -> records[research/raw/m023-verdict-claims.json].fields.criterionText (claim F3): cites research/raw/m023-verdict-claims.json:7 and searching the file for the quoted line finds it at 6 — the number is not where the line it quotes sits
+mutant: invented field -> records[research/raw/m023-verdict-claims.json].fields.artefactPath (claim F4): count is 4 and this head measures 0
+mutant: hidden field -> records[research/raw/m054-verdict-claims.json].fields.criterionText (claim F3): count is 0 and this head measures 3
+mutant: unmeasured record -> the table carries one entry per record present and no entry for a record that is not there, the records the maps name outside themselves excepted
+mutant: new unlisted record -> the map measures every surface record present, the records the maps name outside themselves excepted: the tree holds 16, and the maps name 13 outside themselves (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json, research/raw/m059-surface.json, research/raw/m059-verdict-claims.json, research/raw/m060-surface.json, research/raw/m060-verdict-claims.json, research/raw/m061-surface.json, research/raw/m061-verdict-claims.json, research/raw/m063-verdict-claims.json)
+mutant research/raw/m057-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m057-record-shapes.json and is not one of the two records this milestone owes (research/raw/m057-surface.json, research/raw/m057-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m057-surface.json is this milestone's record and is present, and research/raw/m057-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m057-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m058-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m058-record-shapes.json and is not one of the two records this milestone owes (research/raw/m058-surface.json, research/raw/m058-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m058-surface.json is this milestone's record and is present, and research/raw/m058-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m058-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m059-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m059-record-shapes.json and is not one of the two records this milestone owes (research/raw/m059-surface.json, research/raw/m059-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m059-surface.json is this milestone's record and is present, and research/raw/m059-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m059-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m060-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m060-record-shapes.json and is not one of the two records this milestone owes (research/raw/m060-surface.json, research/raw/m060-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m060-surface.json is this milestone's record and is present, and research/raw/m060-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m060-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m061-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m061-record-shapes.json and is not one of the two records this milestone owes (research/raw/m061-surface.json, research/raw/m061-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m061-surface.json is this milestone's record and is present, and research/raw/m061-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m061-surface.json in its inventory.outsideTheMap or measure it
+mutant research/raw/m063-record-shapes.json: third path -> research/raw/m901-surface.json is named outside research/raw/m063-record-shapes.json and is not one of the two records this milestone owes (research/raw/m063-surface.json, research/raw/m063-verdict-claims.json): a map may excuse only its own record, so a third record cannot be excused by naming it outside a recording || owed record -> research/raw/m063-surface.json is this milestone's record and is present, and research/raw/m063-record-shapes.json measures it nowhere and names it nowhere outside itself: the two inventories would read it as an unmeasured record, which is the refusal M055's T004 hit twice — the recording names what it measured, so name research/raw/m063-surface.json in its inventory.outsideTheMap or measure it
+mutant: unmeasured record -> research/raw/m055-record-shapes.json is not what this head derives: research/raw/m066-verdict-claims.json is a verdict-claims record this head measures and research/raw/m055-record-shapes.json does not carry it
+mutant: armed refusal -> armed capture refused: the bytes it would write fail this suite's own pin, so the derivation does not derive through the pin its reader holds: the table carries one entry per record present and no entry for a record that is not there, the records the maps name outside themselves excepted || armed capture refused: the bytes it would write are not the fixed point of this suite's own pin — re-deriving the candidate at the head it names moves it, so the writer would emit bytes its own next run rewrites. Nothing was written.
+✔ the recording is the shape map this head measures (152.8214ms)
+ℹ 45 record(s), 626 citation(s), 52 artefact path(s)
+ℹ the map: milestone 36/36+9/9, criterion 36/36+0/9, criterionText 36/36+0/9, artefactPath 14/36+0/9, recordings 13/36+0/9, suitePath 13/36+0/9, captureRecords 14/36+0/9
+✔ every citation is the line its own number names, found by searching the file it quotes (11.4919ms)
+ℹ 626 citation(s) re-resolved by search; the longest line quoted is in research/raw/m056-verdict-claims.json
+✔ every record present is measured and every record measured is present (15.1166ms)
+ℹ 36 verdict-claims and 9 surface record(s) measured; 61 present, 2 named outside M055's map at T004 and 2 outside M057's map and 2 outside M058's map and 2 outside M059's map and 2 outside M060's map and 2 outside M061's map and 1 outside M063's map
+✔ the per-file per-field table states its own absences, and they are the absences this head holds (4.7429ms)
+ℹ artefactPath: absent from 31 record(s), each one stating the shape it uses instead
+ℹ recordings: absent from 32 record(s), each one stating the shape it uses instead
+ℹ suitePath: absent from 32 record(s), each one stating the shape it uses instead
+ℹ captureRecords: absent from 31 record(s), each one stating the shape it uses instead
+ℹ criterion: absent from 9 record(s), each one stating the shape it uses instead
+ℹ criterionText: absent from 9 record(s), each one stating the shape it uses instead
+✔ every artefact path a record names resolves at this head, and the recording states which do not (6.8682ms)
+ℹ 52 of 52 artefact path(s) resolve over 21 distinct file(s); 0 do not
+ℹ the missing-artefact state E4 renders has no live instance among them, and the index may never paper over a path that stops resolving
+ℹ m022-verdict-claims.json SC1 names .project/build/verify/sc1-overlay-rect/verdict.json, which is not there: verdictPath, not an artefact path
+ℹ m022-verdict-claims.json SC2 names .project/build/verify/sc2-picker-descriptor/verdict.json, which is not there: verdictPath, not an artefact path
+✔ no record carries an end-user question mapped to a criterion (27.1311ms)
+ℹ 36 verdict-claims record(s) carry 0 question-shaped key(s)
+ℹ m046-surface.json asks which surfaces the panel declares, which loader serves each one, and what the hand-off join states
+ℹ m047-surface.json asks which route renders the components surface, which LOADERS key serves it, which four states it renders, and which record field each state reads
+ℹ m048-surface.json asks which route renders the copy-check surface, its LOADERS key, its three states, and which answer field each state reads
+ℹ m049-surface.json asks which route renders the interaction-story surface, its two states, and the fifth answer field beside the four the contract names
+ℹ m050-surface.json asks which route renders the dead-click surface, its three states, and the fifth answer field beside the four the contract names
+ℹ m051-surface.json asks which route renders the what-changed surface, its three states, and how the pair is bound by the inspected tab rather than by a field of either record
+ℹ m052-surface.json asks which route reaches the webmcp surface, which LOADERS key resolves it, and what each of its three states reads off the reading the model context answered
+ℹ m053-surface.json asks which route reaches the webmcp-rehearsal surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+ℹ m054-surface.json asks which route reaches the visual-qa surface, which LOADERS key resolves it, and what each of its four states reads off the record the join answered
+✔ the C3 trap is quoted as a ruling, not repaired (24.6714ms)
+ℹ reason: 46 row(s) in 13 record(s), 1 template
+ℹ proves/capture: 54 row(s) in 15 record(s) cite scripts/navigation-blocking.test.mjs, and 0 record(s) name it in evidence.suites
+ℹ rulings: 2 required, 162 not-required
+✔ a doctored citation reddens naming the claim it belongs to (107.1227ms)
+✔ a record that claims a field it does not carry reddens naming the claim (79.6624ms)
+✔ a record that hides a field it carries reddens naming the claim (105.5547ms)
+✔ a record the map does not measure reddens naming the record (102.6349ms)
+✔ a record present and not named outside the map reddens naming the record (7.7243ms)
+✔ every map read beside M055’s is its own statement, and the subtraction is what they state (13.3079ms)
+ℹ M057's map at research/raw/m057-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M058's map at research/raw/m058-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M059's map at research/raw/m059-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M060's map at research/raw/m060-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M061's map at research/raw/m061-record-shapes.json names 2 record(s) outside itself and measures 0
+ℹ M063's map at research/raw/m063-record-shapes.json names 1 record(s) outside itself and measures 0
+ℹ the maps name 13 record(s) between them (research/raw/m055-verdict-claims.json, research/raw/m055-surface.json, research/raw/m057-surface.json, research/raw/m057-verdict-claims.json, research/raw/m058-surface.json, research/raw/m058-verdict-claims.json, research/raw/m059-surface.json, research/raw/m059-verdict-claims.json, research/raw/m060-surface.json, research/raw/m060-verdict-claims.json, research/raw/m061-surface.json, research/raw/m061-verdict-claims.json, research/raw/m063-verdict-claims.json)
+✔ each later map may name only its own records, and a record it neither measures nor names reddens naming it (8.7487ms)
+✔ the recording is a read: it names its head and a default run writes nothing (363.1535ms)
+ℹ head 3b997658 is a commit this checkout carries, and the suite resolves it through git rev-parse HEAD
+✔ the map is the one this head derives, and a record that moved is named (95.6535ms)
+✔ the armed writer refuses a candidate that is not the fixed point of its own pin, and writes nothing (1176.3948ms)
+✔ the armed run writes only what moved, and a second armed run changes no byte (0.4793ms)
+ℹ default run: nothing written; the armed run is the only writer this suite has
+✔ git was reachable, so the head check above measured something (257.5378ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2683.5032
+✔ the recording declares the two sides an answer may cite (1.0235ms)
+✔ the graph side is the serializer and the one per-check carry (1.0545ms)
+✔ a node is read for index, kind and label and every other field is ignored (0.1746ms)
+✔ an edge is its two ends and nothing else (0.2439ms)
+✔ the serializer writes an id, never an index (1.5664ms)
+✔ the render/effect entry declares the effect finding and its read list (0.3134ms)
+✔ the three absences are declared and distinct (0.1948ms)
+✔ the two findings are never joined (0.1461ms)
+✔ every citation carries the cited line’s own trimmed text (4.4666ms)
+✔ every citation is re-resolved by searching its file for the quoted line (5.7914ms)
+✔ every citation id is unique and every reference resolves (0.2574ms)
+✔ no write record exists anywhere in extension/ (40.0793ms)
+✔ no edge carries a field to order a write in (23.2725ms)
+✔ the answer’s ordering vocabulary is the named absence and not a capture (0.0892ms)
+✔ the second measurement is re-run over the tree, not read back (15.7307ms)
+✔ exactly one record holds an effect node in the recorded shape (14.1745ms)
+✔ the closest record carries an indexed effect node, unlike the plan’s prose (0.2736ms)
+✔ the existing join answers from that record without authoring anything (1.027ms)
+✔ the recording states what no record carries: an index in the serializer’s output (0.0648ms)
+✔ every premise the measurement refuted is stated as refuted (0.0476ms)
+✔ nothing was built (0.042ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 229.2203

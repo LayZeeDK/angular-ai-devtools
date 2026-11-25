@@ -1,0 +1,243 @@
+{
+  "schema": "m068-head-record/v1",
+  "milestone": "M068",
+  "task": "T001",
+  "question": "Which document head entry does the portal carry, what is its name, which navigation was it first seen at, which entry remained, and which navigation whose page carries it — and which of its writing navigation and its duplicate was not read?",
+  "capture": {
+    "capturedAt": "2026-11-25T02:17:31.881Z",
+    "command": "M068_CAPTURE=1 node --test scripts/head-record.test.mjs",
+    "check": "node --test scripts/head-record.test.mjs",
+    "records": "research/raw/m068-head-record.json",
+    "writes": "one: the armed test re-derives this record from the files below and writes it only when a value moved, and it refuses to write a candidate that is not a fixed point of this suite’s default pin",
+    "armedBy": "M068_CAPTURE=1",
+    "note": "the instant this record was first written; every re-capture derives through it, so the record moves for no clock - the instant the head was read is derivedFrom.observation.beganAt, which comes from the observation this record derives from"
+  },
+  "sources": [
+    {
+      "path": "research/raw/m065-title-record.json",
+      "contributes": "the observation: what the head carried when it began, at which navigations it was read, what the document carried at each settled read, and the writes the observer saw — which is none."
+    },
+    {
+      "path": "extension/title-input.js",
+      "contributes": "the shipped reader of that same observation: this suite runs it in a bare node:vm context and reads back the field list it publishes, so the entry identity this record carries is the word the reader reads rather than a second spelling."
+    }
+  ],
+  "facts": {
+    "name": "The entry’s own name: the element the observation recorded, read from the observation key that recorded it and never from the entry’s text — one spelling, and no second identity for one entry.",
+    "firstSeenAt": "The earliest navigation at which this record read the entry present: the navigation the observation began after, at the instant it began, with the document already carrying the entry.",
+    "remained": "The entry still present at the last read the record holds, with the entry’s own value and the navigations whose settled read carried it.",
+    "carriedBy": "The navigation whose page carries the entry at that last read: its index, its url and the instant of the read that carried it.",
+    "writtenBy": "The navigation the record correlates the entry’s write with, read from the record’s own `writes` list and from no other field, and the statement that it was not read where that list attributes no write to a navigation.",
+    "duplicate": "The second entry of the same name, where the record read one, and the statement that it was not read where the record carries no count of elements carrying that name."
+  },
+  "census": {
+    "recordings": "scripts/recordings.json",
+    "row": {
+      "recording": "research/raw/m068-head-record.json",
+      "suite": "scripts/head-record.test.mjs",
+      "arm": "M068_CAPTURE=1"
+    },
+    "reasonRow": {
+      "path": "scripts/gate-integrity.test.mjs",
+      "present": true
+    },
+    "reading": "the manifest names this recording with the suite that writes it and the arm that writes it, and the census carries the reason row the suite this milestone adds owes it, both read at capture rather than stated here"
+  },
+  "derivedFrom": {
+    "path": "research/raw/m065-title-record.json",
+    "schema": "m065-title-record/v1",
+    "milestone": "M065",
+    "question": "Does the portal expose a route that binds data the title reads?",
+    "capturedAt": "2026-11-24T01:04:13.791Z",
+    "target": {
+      "name": "Insurance Portal",
+      "url": "http://localhost:4507/",
+      "port": 4507
+    },
+    "observation": {
+      "beganAt": "2026-11-24T01:04:13.599Z",
+      "beganAfterIndex": 0,
+      "beganAfterUrl": "/home",
+      "titleAtStart": "Insurance Portal",
+      "titleElementTextAtStart": "Insurance Portal",
+      "observedTitleElement": true,
+      "mechanism": "a MutationObserver on the <title> element and document.head, created by the capture driver in a CDP isolated world; the portal carries no title instrumentation of its own and the observer names no writer",
+      "world": "isolated",
+      "worldFallbackReason": null,
+      "installedBy": "the capture driver, in an isolated world the page scripts do not share",
+      "pageSideEdit": false,
+      "writesSeen": 0,
+      "reads": [
+        {
+          "at": "2026-11-24T01:04:13.671Z",
+          "navigationIndex": 0,
+          "writesSeen": 0
+        },
+        {
+          "at": "2026-11-24T01:04:13.737Z",
+          "navigationIndex": 1,
+          "writesSeen": 0
+        },
+        {
+          "at": "2026-11-24T01:04:13.789Z",
+          "navigationIndex": 2,
+          "writesSeen": 0
+        }
+      ]
+    },
+    "writes": [
+      {
+        "index": 0,
+        "at": null,
+        "title": "Insurance Portal",
+        "observed": false,
+        "author": null,
+        "navigationIndex": null,
+        "basis": "the title the document carried when the observation began at 2026-11-24T01:04:13.599Z; the observer saw no write for it, so the record carries no author and no navigation for it"
+      }
+    ],
+    "readShape": {
+      "navigations": 3,
+      "readingsPerNavigation": [
+        2,
+        2,
+        2
+      ],
+      "mostReadingsForOneNavigation": 2
+    }
+  },
+  "identity": {
+    "producer": "extension/title-input.js",
+    "publication": "globalThis.angularAiTitleInput",
+    "exports": [
+      "FACT_INPUTS",
+      "FIELDS",
+      "REASONS",
+      "RECORD_INPUTS",
+      "STATES",
+      "titleInput"
+    ],
+    "expression": "angularAiTitleInput.RECORD_INPUTS — the fields of this record the shipped reader reads back",
+    "recordInputs": [
+      "navigations",
+      "index",
+      "strategy",
+      "resolved",
+      "className",
+      "route",
+      "data",
+      "state",
+      "keys",
+      "titleDeclared",
+      "titles",
+      "phase",
+      "value",
+      "writes",
+      "observed",
+      "title",
+      "navigationIndex"
+    ],
+    "meaning": "A head entry’s identity is the name the record’s own observation recorded: one spelling, read from the record and asserted against the module that reads the same record, so a second identity for one entry is the defect this record refuses.",
+    "assertion": "the entry is keyed by `title` because extension/title-input.js reads that field of the same observation (present in RECORD_INPUTS), and the writing navigation would be attributed by `navigationIndex`, which the same list carries (present)"
+  },
+  "navigations": [
+    {
+      "index": 0,
+      "trigger": "document load (page.goto)",
+      "requestedUrl": "/home",
+      "url": "/home",
+      "settledAt": "2026-11-24T01:04:13.554Z",
+      "observedByObserver": false,
+      "title": "Insurance Portal",
+      "titleAt": "2026-11-24T01:04:13.671Z"
+    },
+    {
+      "index": 1,
+      "trigger": "ng.ɵnavigateByUrl",
+      "requestedUrl": "/contract",
+      "url": "/contract",
+      "settledAt": "2026-11-24T01:04:13.734Z",
+      "observedByObserver": true,
+      "title": "Insurance Portal",
+      "titleAt": "2026-11-24T01:04:13.734Z"
+    },
+    {
+      "index": 2,
+      "trigger": "ng.ɵnavigateByUrl",
+      "requestedUrl": "/claim",
+      "url": "/claim",
+      "settledAt": "2026-11-24T01:04:13.785Z",
+      "observedByObserver": true,
+      "title": "Insurance Portal",
+      "titleAt": "2026-11-24T01:04:13.785Z"
+    }
+  ],
+  "entries": [
+    {
+      "entry": "title",
+      "name": {
+        "read": true,
+        "value": {
+          "element": "title"
+        },
+        "source": "research/raw/m065-title-record.json#observation.observedTitleElement and #observation.mechanism"
+      },
+      "firstSeenAt": {
+        "read": true,
+        "value": {
+          "index": 0,
+          "url": "/home",
+          "at": "2026-11-24T01:04:13.599Z"
+        },
+        "source": "research/raw/m065-title-record.json#observation.beganAt, #observation.beganAfterIndex, #observation.beganAfterUrl and #observation.reads[0]"
+      },
+      "remained": {
+        "read": true,
+        "value": {
+          "element": "title",
+          "text": "Insurance Portal",
+          "navigationsCarrying": [
+            0,
+            1,
+            2
+          ],
+          "sameTextAtEveryRead": true
+        },
+        "source": "research/raw/m065-title-record.json#navigations[].titles[] (phase after-navigation), the last of them the entry that remained"
+      },
+      "carriedBy": {
+        "read": true,
+        "value": {
+          "index": 2,
+          "url": "/claim",
+          "at": "2026-11-24T01:04:13.785Z"
+        },
+        "source": "research/raw/m065-title-record.json#navigations[2].titles[] (the last phase after-navigation read)"
+      },
+      "writtenBy": {
+        "read": false,
+        "observed": false,
+        "reason": "the title entry's writing navigation was not read: research/raw/m065-title-record.json#observation.writesSeen is 0 and 0 of its 3 read(s) recorded one, and the 1 entry its `writes` list holds carries observed [false], navigationIndex [null] and author [null], on the record's own basis \"the title the document carried when the observation began at 2026-11-24T01:04:13.599Z; the observer saw no write for it, so the record carries no author and no navigation for it\"; the record is the only source of a writing navigation and it attributes none, so none is named and no route is inferred from the entry's text"
+      },
+      "duplicate": {
+        "read": false,
+        "reason": "the title entry's duplicate was not read: research/raw/m065-title-record.json states 2 reading(s) at most for one navigation, each a single title value rather than a list of elements, and none of its 444 key path(s) names a count of entries carrying a name; a second `<title>` would be invisible to a reading shaped that way, so no second entry is named and no duplicate is invented"
+      }
+    }
+  ],
+  "counts": {
+    "entries": 1,
+    "navigations": 3,
+    "reads": 3,
+    "writesInTheRecord": 1,
+    "writesObserved": 0,
+    "pagesCarrying": 3,
+    "nameRead": 1,
+    "firstSeenRead": 1,
+    "remainedRead": 1,
+    "carriedByRead": 1,
+    "writtenByRead": 0,
+    "duplicateRead": 0
+  },
+  "statement": "1 head entry was read from research/raw/m065-title-record.json, the M065 observation of Insurance Portal on /home, /contract, /claim: `title`, first seen at navigation 0 (/home) when the observation began; the same entry carrying \"Insurance Portal\" remained at every one of the 3 read(s) whose page carried a title, and the page that carries it is navigation 2 (/claim). What was not read, with the reason: writtenBy for `title` (the title entry's writing navigation was not read: research/raw/m065-title-record.json#observation.writesSeen is 0 and 0 of its 3 read(s) recorded one, and the 1 entry its `writes` list holds carries observed [false], navigationIndex [null] and author [null], on the record's own basis \"the title the document carried when the observation began at 2026-11-24T01:04:13.599Z; the observer saw no write for it, so the record carries no author and no navigation for it\"; the record is the only source of a writing navigation and it attributes none, so none is named and no route is inferred from the entry's text) duplicate for `title` (the title entry's duplicate was not read: research/raw/m065-title-record.json states 2 reading(s) at most for one navigation, each a single title value rather than a list of elements, and none of its 444 key path(s) names a count of entries carrying a name; a second `<title>` would be invisible to a reading shaped that way, so no second entry is named and no duplicate is invented)"
+}

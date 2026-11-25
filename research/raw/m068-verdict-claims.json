@@ -1,0 +1,778 @@
+{
+  "schema": "m068-verdict-claims/v1",
+  "milestone": "M068",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(ROOT, \"M068\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 4 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "proofs": "every claim's citations are lines this checkout carries at capture: 17 test-declaration citation(s) over [\"scripts/head-state.test.mjs\",\"scripts/head-record.test.mjs\",\"apps/angular-ai-devtools/src/app/app.spec.ts\",\"scripts/panel-routes.test.mjs\"], each opened at the line it states and each held to the test title that line declares, and 35 further line citation(s) over the eight edge claims, each opened and read back",
+    "edges": "read from .project/intent/INTENT.md's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the test-to-criterion mapping from .project/plan/PLAN.md's ## Intent coverage table and the tasks it names, because this plan's ## Held-out checks section holds nothing out: it reads 0 row(s) of edge -> task -> test there and resolves each criterion through the plan's coverage rows and the first suite the owning task's files list declares that the task's base does not carry - [\"SC1 -> scripts/head-state.test.mjs\",\"SC2 -> scripts/head-state.test.mjs\",\"SC3 -> scripts/head-record.test.mjs\",\"SC4 -> apps/angular-ai-devtools/src/app/app.spec.ts\"] - so a claim cites the suite the milestone's own plan assigns its criterion rather than one this file chose: 8 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\"], and one claim per edge. The plan's ## Held-out checks and its ## Intent coverage table disagree at 0 row(s) [], recorded under evidence.plan.disagreements rather than refused, because a reader needs the citation and the disagreement in one place"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 4,
+    "why": [
+      "No row is required, and the record therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext. Every fact the 4 criteria this milestone declares is written about is a fact about this repository's own head record, the join that reads it and the lines that hold them, against 12 stage(s) of the check chain; none of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the gate.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each claim names the suite, the test and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": [],
+      "coverage": [
+        "SC1 T002 AC1",
+        "SC2 T002 AC2",
+        "SC3 T001 AC1",
+        "SC3 T001 AC3",
+        "SC4 T003 AC1",
+        "SC4 T003 AC2",
+        "SC4 T004 AC1",
+        "SC4 T005 AC1",
+        "SC4 T006 AC3",
+        "SC4 T007 AC1",
+        "SC4 T008 AC1",
+        "SC4 T009 AC1",
+        "SC4 T010 AC1",
+        "SC4 T011 AC1"
+      ],
+      "resolved": [
+        "SC1 scripts/head-state.test.mjs",
+        "SC2 scripts/head-state.test.mjs",
+        "SC3 scripts/head-record.test.mjs",
+        "SC4 apps/angular-ai-devtools/src/app/app.spec.ts"
+      ],
+      "disagreements": []
+    },
+    "edges": {
+      "rows": 8,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ],
+      "columns": [
+        "Edge",
+        "Criterion",
+        "Category",
+        "Disposition",
+        "Detail"
+      ]
+    },
+    "suites": [
+      {
+        "path": "apps/angular-ai-devtools/src/app/app.spec.ts",
+        "tests": 2,
+        "groups": 2
+      },
+      {
+        "path": "scripts/head-record.test.mjs",
+        "tests": 18,
+        "groups": 4
+      },
+      {
+        "path": "scripts/head-state.test.mjs",
+        "tests": 19,
+        "groups": 4
+      },
+      {
+        "path": "scripts/panel-routes.test.mjs",
+        "tests": 4,
+        "groups": 0
+      }
+    ],
+    "records": [
+      "research/raw/m068-head-record.json"
+    ],
+    "absences": [
+      "E2",
+      "E4"
+    ]
+  },
+  "capture": {
+    "command": "M068_CAPTURE=1 node --test scripts/m068-verdict-claims.test.mjs",
+    "check": "node --test scripts/m068-verdict-claims.test.mjs",
+    "records": "research/raw/m068-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3",
+      "SC4"
+    ],
+    "reading": "an armed run re-derives the record from the intent this checkout binds, its five-column edge coverage, the suites the plan resolves each criterion to and the lines this checkout states, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives, naming the field that moved when it is not, and the writer refuses a candidate that is not the fixed point of this pin."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "A head entry present twice produces a finding naming both the entry the record observed being written and the entry still present; a mutant that reports only the first occurrence reddens it.",
+      "criterionCharacters": 190,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"A head entry present twice produces a finding naming both the entry the record observed being written and the entry still present; a mutant that reports only the first occurrence reddens it.\" - a fact about this repository's own head record, the join that reads it and the lines that hold them, which no route of any page produces: it is proved by the citations this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a line of a suite holds, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E2\"] the intent itself assigns the criterion, held by the plan at [\"scripts/head-state.test.mjs\"], and the 4 line citation(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/head-state.test.mjs",
+      "test": "AC1: a name present twice is duplicate, and both entries are named",
+      "citations": [
+        {
+          "suite": "scripts/head-state.test.mjs",
+          "test": "AC1: a name present twice is duplicate, and both entries are named",
+          "line": 934,
+          "lineText": "it('AC1: a name present twice is duplicate",
+          "holds": "a head carrying two entries of one name answers `duplicate` with both entries named, so the entry the record observed is never the only one the answer names"
+        },
+        {
+          "suite": "scripts/head-state.test.mjs",
+          "test": "AC1 mutant: a duplicate naming only the first occurrence reddens the pin, naming both entries",
+          "line": 1203,
+          "lineText": "it('AC1 mutant: a duplicate naming only the first occurrence",
+          "holds": "the mutant that reports only the first occurrence reddens the pin by name, so the entry still present is measured rather than asserted"
+        },
+        {
+          "suite": "scripts/head-state.test.mjs",
+          "test": "E1: a head with one entry of the name reports no duplicate, and no finding with an empty comparison",
+          "line": 1046,
+          "lineText": "it('E1: a head with one entry of the name reports no duplicate",
+          "holds": "one entry of the name is not reported as two, and the answer names the entry it read rather than a finding with an empty comparison"
+        },
+        {
+          "suite": "scripts/head-record.test.mjs",
+          "test": "a duplicate invented beside the observed entry reddens the duplicate pin, naming the entry",
+          "line": 1869,
+          "lineText": "it('a duplicate invented beside the observed entry reddens the duplicate pin",
+          "holds": "a duplicate the record does not carry reddens the record’s own pin, so the entry present twice is read from the record rather than invented"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E1",
+          "category": "empty",
+          "disposition": "criterion SC1",
+          "detail": "A head with one entry of each name reports no finding, never a finding with an empty comparison.",
+          "suite": "scripts/head-state.test.mjs"
+        },
+        {
+          "edge": "E2",
+          "category": "ordering",
+          "disposition": "criterion SC1",
+          "detail": "When two entries share a name, the one written later is named as the one still present, and the earlier one as the observed write.",
+          "suite": "scripts/head-state.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/head-state.test.mjs",
+      "artefact": "scripts/head-state.test.mjs (test \"AC1: a name present twice is duplicate, and both entries are named\" at line 934; edge [\"E1\",\"E2\"] of the intent's own coverage: E1 empty criterion SC1: A head with one entry of each name reports no finding, never a finding with an empty comparison.; E2 ordering criterion SC1: When two entries share a name, the one written later is named as the one still present, and the earlier one as the observed write.; the suite carries 19 test declaration(s) in 4 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "4 line citation(s) over 2 suite(s) hold SC1 through the edge row(s) [\"E1\",\"E2\"] the intent assigns it: every one is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-state.test.mjs",
+        "node --test scripts/head-record.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "An entry written by one navigation and left behind by another is reported as stale, naming the navigation that wrote it and the one whose page carries it; a mutant that reports staleness without the writing navigation reddens it.",
+      "criterionCharacters": 229,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"An entry written by one navigation and left behind by another is reported as stale, naming the navigation that wrote it and the one whose page carries it; a mutant that reports staleness without the writing navigation reddens it.\" - a fact about this repository's own head record, the join that reads it and the lines that hold them, which no route of any page produces: it is proved by the citations this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a line of a suite holds, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\",\"E4\"] the intent itself assigns the criterion, held by the plan at [\"scripts/head-state.test.mjs\"], and the 5 line citation(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/head-state.test.mjs",
+      "test": "AC2: an entry one navigation wrote and another page carries is stale, naming both navigations",
+      "citations": [
+        {
+          "suite": "scripts/head-state.test.mjs",
+          "test": "AC2: an entry one navigation wrote and another page carries is stale, naming both navigations",
+          "line": 979,
+          "lineText": "it('AC2: an entry one navigation wrote and another page carries is stale",
+          "holds": "an entry one navigation wrote and another page carries answers `stale` naming the writing navigation and the carrying one, both of them"
+        },
+        {
+          "suite": "scripts/head-state.test.mjs",
+          "test": "AC2 mutant: a stale answer without the writing navigation reddens the pin, naming both navigations",
+          "line": 1234,
+          "lineText": "it('AC2 mutant: a stale answer without the writing navigation reddens the pin",
+          "holds": "the mutant that reports staleness without the writing navigation reddens the pin naming both navigations, so the writing navigation is measured"
+        },
+        {
+          "suite": "scripts/head-state.test.mjs",
+          "test": "E3: an entry the navigation whose page carries it wrote is current, and a stale one is not current",
+          "line": 1015,
+          "lineText": "it('E3: an entry the navigation whose page carries it wrote is current",
+          "holds": "an entry the carrying navigation itself wrote answers `current`, and a stale one does not: the two states are told apart by the navigations the record carries"
+        },
+        {
+          "suite": "scripts/head-state.test.mjs",
+          "test": "AC3: a write with no navigation beside it is cannot-tell, naming that fact and inferring no route",
+          "line": 1077,
+          "lineText": "it('AC3: a write with no navigation beside it is cannot-tell",
+          "holds": "a write the record attributes to no navigation answers `cannot-tell` naming that fact, and no route is read out of the entry text"
+        },
+        {
+          "suite": "scripts/head-state.test.mjs",
+          "test": "AC3 mutant: a join that names a remedy and a route reddens the pin, naming both",
+          "line": 1271,
+          "lineText": "it('AC3 mutant: a join that names a remedy and a route reddens the pin",
+          "holds": "the mutant that names a remedy and a route reddens the pin naming both, so no answer of this milestone offers a repair or a navigation it was not given"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E3",
+          "category": "precision",
+          "disposition": "criterion SC2",
+          "detail": "An entry written by the current navigation is not reported as stale, and a stale one is not reported as current.",
+          "suite": "scripts/head-state.test.mjs"
+        },
+        {
+          "edge": "E4",
+          "category": "boundary",
+          "disposition": "criterion SC2",
+          "detail": "A write with no navigation beside it is `cannot-tell`, and no route is inferred from the entry's text.",
+          "suite": "scripts/head-state.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/head-state.test.mjs",
+      "artefact": "scripts/head-state.test.mjs (test \"AC2: an entry one navigation wrote and another page carries is stale, naming both navigations\" at line 979; edge [\"E3\",\"E4\"] of the intent's own coverage: E3 precision criterion SC2: An entry written by the current navigation is not reported as stale, and a stale one is not reported as current.; E4 boundary criterion SC2: A write with no navigation beside it is `cannot-tell`, and no route is inferred from the entry's text.; the suite carries 19 test declaration(s) in 4 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "5 line citation(s) over 1 suite(s) hold SC2 through the edge row(s) [\"E3\",\"E4\"] the intent assigns it: every one is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-state.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "The observed entries and their writing navigations are read from a record this milestone writes, and the entry identity is asserted against the producer rather than derived a second time.",
+      "criterionCharacters": 187,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"The observed entries and their writing navigations are read from a record this milestone writes, and the entry identity is asserted against the producer rather than derived a second time.\" - a fact about this repository's own head record, the join that reads it and the lines that hold them, which no route of any page produces: it is proved by the citations this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a line of a suite holds, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E5\",\"E6\"] the intent itself assigns the criterion, held by the plan at [\"scripts/head-record.test.mjs\"], and the 5 line citation(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/head-record.test.mjs",
+      "test": "carries the identity the shipped reader of the same observation reads",
+      "citations": [
+        {
+          "suite": "scripts/head-record.test.mjs",
+          "test": "carries the identity the shipped reader of the same observation reads",
+          "line": 1808,
+          "lineText": "it('carries the identity the shipped reader of the same observation reads",
+          "holds": "the entry identity the record carries is the one `extension/title-input.js` reads from the same observation, asserted against that producer rather than derived a second time"
+        },
+        {
+          "suite": "scripts/head-record.test.mjs",
+          "test": "a second identity for the entry reddens the identity pin, naming the reader it is not in",
+          "line": 1948,
+          "lineText": "it('a second identity for the entry reddens the identity pin",
+          "holds": "a second identity reddens the identity pin naming the reader it is not in, so one entry keeps one spelling"
+        },
+        {
+          "suite": "scripts/head-record.test.mjs",
+          "test": "states the writing navigation and the duplicate as not read, each with the reason it could not be",
+          "line": 1785,
+          "lineText": "it('states the writing navigation and the duplicate as not read",
+          "holds": "the record states its writing navigation and its duplicate as measured absences, each with its own reason, rather than leaving the fields empty"
+        },
+        {
+          "suite": "scripts/head-record.test.mjs",
+          "test": "AC3: names the recording in the manifest and the suite in the census, both read at capture",
+          "line": 1686,
+          "lineText": "it('AC3: names the recording in the manifest and the suite in the census",
+          "holds": "the record is named in `scripts/recordings.json` with the suite and the arm that write it, both read at capture, so the record this milestone writes is a declared recording"
+        },
+        {
+          "suite": "scripts/head-state.test.mjs",
+          "test": "writes no recording: the committed record is read into memory and never re-captured",
+          "line": 792,
+          "lineText": "it('writes no recording: the committed record is read into memory and never re-captured",
+          "holds": "the join and its suite read the one record this milestone writes and re-capture nothing, so a writing navigation has one source rather than a second reader"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E5",
+          "category": "boundary",
+          "disposition": "criterion SC3",
+          "detail": "The record is the only source of a writing navigation; a second reader reddens the task's own suite.",
+          "suite": "scripts/head-record.test.mjs"
+        },
+        {
+          "edge": "E6",
+          "category": "precision",
+          "disposition": "criterion SC3",
+          "detail": "An entry identity this repository does not produce is `cannot-tell`, never a second identity derived here.",
+          "suite": "scripts/head-record.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/head-record.test.mjs",
+      "artefact": "scripts/head-record.test.mjs (test \"carries the identity the shipped reader of the same observation reads\" at line 1808; edge [\"E5\",\"E6\"] of the intent's own coverage: E5 boundary criterion SC3: The record is the only source of a writing navigation; a second reader reddens the task's own suite.; E6 precision criterion SC3: An entry identity this repository does not produce is `cannot-tell`, never a second identity derived here.; the suite carries 18 test declaration(s) in 4 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "5 line citation(s) over 2 suite(s) hold SC3 through the edge row(s) [\"E5\",\"E6\"] the intent assigns it: every one is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-record.test.mjs",
+        "node --test scripts/head-state.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "The panel renders exactly what the join returns: one new surface, its loader key, its route-table pin and every enumerating suite moved in the same task, and the answer names no remedy, no cause and no route the record did not carry.",
+      "criterionCharacters": 233,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC4 is \"The panel renders exactly what the join returns: one new surface, its loader key, its route-table pin and every enumerating suite moved in the same task, and the answer names no remedy, no cause and no route the record did not carry.\" - a fact about this repository's own head record, the join that reads it and the lines that hold them, which no route of any page produces: it is proved by the citations this claim names, at this head, and the gate's one `control-ai-browsers run` driver returns an element's toolElements, drawnRect, descriptor and noDevContext readings, none of which can say what a line of a suite holds, so a portal-backed row would name a driver that cannot carry the answer. The portal is named because the clause is answered rather than dodged: the evidence is the edge row(s) [\"E7\",\"E8\"] the intent itself assigns the criterion, held by the plan at [\"apps/angular-ai-devtools/src/app/app.spec.ts\"], and the 3 line citation(s) below name the file and the line that carry each part of them.",
+      "suite": "apps/angular-ai-devtools/src/app/app.spec.ts",
+      "test": "appends the panel surfaces last and installs each through the demo component",
+      "citations": [
+        {
+          "suite": "apps/angular-ai-devtools/src/app/app.spec.ts",
+          "test": "appends the panel surfaces last and installs each through the demo component",
+          "line": 75,
+          "lineText": "it('appends the panel surfaces last and installs each through the demo component",
+          "holds": "the route table enumerates the surface at its own place in the ordered list and installs it through the demo component, so the surface this milestone adds is reached by its own name"
+        },
+        {
+          "suite": "scripts/panel-routes.test.mjs",
+          "test": "E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name",
+          "line": 224,
+          "lineText": "test('E1: the panel routes are one list mapped over one literal",
+          "holds": "the route table is one list mapped over one literal and the surface keeps its own path, which is the pin this milestone moved in the same task"
+        },
+        {
+          "suite": "scripts/panel-routes.test.mjs",
+          "test": "E4: every declared route surface has a panel-demo LOADERS key",
+          "line": 817,
+          "lineText": "test('E4: every declared route surface has a panel-demo LOADERS key",
+          "holds": "every declared route surface has a loader key, so the surface this milestone adds is reached by its own key and a dropped key reddens naming the surface"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E7",
+          "category": "boundary",
+          "disposition": "criterion SC4",
+          "detail": "The route table, the loader map, the ordered path pins and the surface record move together; a mutant that omits one reddens naming it.",
+          "suite": "apps/angular-ai-devtools/src/app/app.spec.ts"
+        },
+        {
+          "edge": "E8",
+          "category": "precision",
+          "disposition": "criterion SC4",
+          "detail": "No answer names a remedy, a schematic, a cause or a route the record did not carry.",
+          "suite": "apps/angular-ai-devtools/src/app/app.spec.ts"
+        }
+      ],
+      "artefactPath": "apps/angular-ai-devtools/src/app/app.spec.ts",
+      "artefact": "apps/angular-ai-devtools/src/app/app.spec.ts (test \"appends the panel surfaces last and installs each through the demo component\" at line 75; edge [\"E7\",\"E8\"] of the intent's own coverage: E7 boundary criterion SC4: The route table, the loader map, the ordered path pins and the surface record move together; a mutant that omits one reddens naming it.; E8 precision criterion SC4: No answer names a remedy, a schematic, a cause or a route the record did not carry.; the suite carries 2 test declaration(s) in 2 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "3 line citation(s) over 2 suite(s) hold SC4 through the edge row(s) [\"E7\",\"E8\"] the intent assigns it: every one is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "npx nx run angular-ai-devtools:test",
+        "node --test scripts/panel-routes.test.mjs",
+        "npm run check"
+      ]
+    }
+  ],
+  "edgeClaims": [
+    {
+      "edge": "E1",
+      "criterion": "SC1",
+      "category": "empty",
+      "disposition": "criterion SC1",
+      "detail": "A head with one entry of each name reports no finding, never a finding with an empty comparison.",
+      "claim": "A head carrying one entry of the name answers with the entry still present and is never reported as two, so the comparison is a reading rather than an empty one.",
+      "fields": [
+        "state",
+        "entry",
+        "present"
+      ],
+      "suite": "scripts/head-state.test.mjs",
+      "test": "E1: a head with one entry of the name reports no duplicate, and no finding with an empty comparison",
+      "citations": [
+        {
+          "file": "scripts/head-state.test.mjs",
+          "line": 1055,
+          "lineText": "the record counted one entry carrying the name",
+          "holds": "the answer for a record that counted one entry is a state and not a duplicate, so one entry is not read as two"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 438,
+          "lineText": "if (count >= 2) {",
+          "holds": "the duplicate branch is taken only for a count of two or more, so a count of one never reaches it"
+        },
+        {
+          "file": "research/raw/m068-head-record.json",
+          "line": 229,
+          "lineText": "\"entries\": 1,",
+          "holds": "the committed record carries one entry, which is the head the criterion is about"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-state.test.mjs"
+      ]
+    },
+    {
+      "edge": "E2",
+      "criterion": "SC1",
+      "category": "ordering",
+      "disposition": "criterion SC1",
+      "detail": "When two entries share a name, the one written later is named as the one still present, and the earlier one as the observed write.",
+      "claim": "When two entries share a name, the second is named as the one still present beside the one the record observed, and the entry the record observed is never offered as the one still present.",
+      "fields": [
+        "state",
+        "entry",
+        "present"
+      ],
+      "suite": "scripts/head-state.test.mjs",
+      "test": "AC1: a name present twice is duplicate, and both entries are named",
+      "citations": [
+        {
+          "file": "scripts/head-state.test.mjs",
+          "line": 947,
+          "lineText": "the duplicate must name the entry the record observed being written",
+          "holds": "the duplicate names the entry the record observed being written, so the observed write is one of the two named"
+        },
+        {
+          "file": "scripts/head-state.test.mjs",
+          "line": 957,
+          "lineText": "the duplicate must name the second entry of the same name as the record names it",
+          "holds": "the entry still present is the second entry the record names, and the two entries named are not the same one"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 455,
+          "lineText": "presentOf(second, carrying),",
+          "holds": "the duplicate answer is built with the second entry as the entry still present, never with the first"
+        }
+      ],
+      "absence": {
+        "part": "a head record in this checkout that carries two entries sharing one name",
+        "searched": "research/raw/m068-head-record.json: `entries[].duplicate` on every row, and the record’s own `counts` block",
+        "found": "one entry (`title`) and `\"duplicate\": { \"read\": false }` on it, with `counts.duplicateRead` 0 and no count of entries sharing a name anywhere in the record: no second entry is named, so the duplicate instance is exercised on a record constructed from the same shape by scripts/head-state.test.mjs:934 and this absence is recorded here rather than cited from a line that does not exist"
+      },
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-state.test.mjs"
+      ]
+    },
+    {
+      "edge": "E3",
+      "criterion": "SC2",
+      "category": "precision",
+      "disposition": "criterion SC2",
+      "detail": "An entry written by the current navigation is not reported as stale, and a stale one is not reported as current.",
+      "claim": "An entry the page carrying it also wrote is current and an entry another navigation left behind is not, so a stale entry is never answered current and a current one is never answered stale.",
+      "fields": [
+        "state",
+        "writtenBy",
+        "present"
+      ],
+      "suite": "scripts/head-state.test.mjs",
+      "test": "E3: an entry the navigation whose page carries it wrote is current, and a stale one is not current",
+      "citations": [
+        {
+          "file": "scripts/head-state.test.mjs",
+          "line": 1024,
+          "lineText": "navigation 2 both wrote the entry and carries it",
+          "holds": "the current answer is the case where the writing navigation and the carrying one are one navigation"
+        },
+        {
+          "file": "scripts/head-state.test.mjs",
+          "line": 1039,
+          "lineText": "navigation 0 wrote the entry and navigation 2 carries it",
+          "holds": "the record that names two navigations is answered as not current, so a stale entry is not reported as current"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 522,
+          "lineText": "if (writesAt === carriesAt) {",
+          "holds": "the comparison is the record’s own two navigation indexes, and the state is decided by whether they are one"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 525,
+          "lineText": "return answer(STALE, entry, present, writtenBy, null, observed);",
+          "holds": "a record whose two navigations differ answers stale with both of them named"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-state.test.mjs"
+      ]
+    },
+    {
+      "edge": "E4",
+      "criterion": "SC2",
+      "category": "boundary",
+      "disposition": "criterion SC2",
+      "detail": "A write with no navigation beside it is `cannot-tell`, and no route is inferred from the entry's text.",
+      "claim": "A write the record attributes to no navigation is `cannot-tell` naming that fact, and no route is inferred from the entry text or its order in the head.",
+      "fields": [
+        "state",
+        "writtenBy",
+        "reason"
+      ],
+      "suite": "scripts/head-state.test.mjs",
+      "test": "AC3: a write with no navigation beside it is cannot-tell, naming that fact and inferring no route",
+      "citations": [
+        {
+          "file": "scripts/head-state.test.mjs",
+          "line": 1096,
+          "lineText": "'writtenBy-not-recorded',",
+          "holds": "the reason the answer states is the missing writing navigation, named rather than guessed at"
+        },
+        {
+          "file": "scripts/head-state.test.mjs",
+          "line": 1102,
+          "lineText": "a navigation read off the entry's text is an inference and not a reading",
+          "holds": "the answer names no navigation where the record carries none, and a navigation read off the entry text is refused by name"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 499,
+          "lineText": "if (writtenByFact === null || writtenByFact.read === false) {",
+          "holds": "a row whose writing-navigation fact was not read is answered before any comparison is made"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 505,
+          "lineText": "WRITTEN_BY_NOT_RECORDED,",
+          "holds": "the reason the join publishes for that row is the fact it is missing, and it carries no route in its place"
+        },
+        {
+          "file": "research/raw/m068-head-record.json",
+          "line": 218,
+          "lineText": "\"read\": false,",
+          "holds": "the committed record states its writing navigation as not read, which is the write with no navigation beside it"
+        }
+      ],
+      "absence": {
+        "part": "a row in this checkout whose writing navigation was read",
+        "searched": "research/raw/m068-head-record.json: `entries[].writtenBy`, the record’s own `writes` list, `counts.writtenByRead` and `counts.writesObserved`",
+        "found": "`\"writtenBy\": { \"read\": false, \"observed\": false }` with `counts.writtenByRead` 0 and `counts.writesObserved` 0: the observer saw no write, so no navigation is attributed to any entry, and the answers that name a writing navigation are exercised on records constructed from the same shape (scripts/head-state.test.mjs:979 and :1015) rather than on the committed bytes"
+      },
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-state.test.mjs"
+      ]
+    },
+    {
+      "edge": "E5",
+      "criterion": "SC3",
+      "category": "boundary",
+      "disposition": "criterion SC3",
+      "detail": "The record is the only source of a writing navigation; a second reader reddens the task's own suite.",
+      "claim": "The record is the only source of a writing navigation: the join reads the record’s own writing-navigation fact and never re-reads the record’s own writes list, so a second reader reddens the record’s own suite.",
+      "fields": [
+        "writtenBy",
+        "observed",
+        "state"
+      ],
+      "suite": "scripts/head-record.test.mjs",
+      "test": "states the writing navigation and the duplicate as not read, each with the reason it could not be",
+      "citations": [
+        {
+          "file": "scripts/head-record.test.mjs",
+          "line": 1837,
+          "lineText": "it('an invented writing navigation reddens the written-by pin",
+          "holds": "a writing navigation the record does not carry reddens the record’s own pin, naming the entry and the source it is not in"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 122,
+          "lineText": "writes` list is not re-read here",
+          "holds": "the join states that the record’s own writes list is not re-read, so the correlation T001 made is the only one"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 355,
+          "lineText": "export function headState(record, facts) {",
+          "holds": "one function is the whole reader of a head entry state, so there is one place a writing navigation can come from"
+        },
+        {
+          "file": "scripts/head-state.test.mjs",
+          "line": 792,
+          "lineText": "it('writes no recording: the committed record is read into memory and never re-captured",
+          "holds": "the join suite reads the committed record into memory and re-captures nothing, so a second writer is refused by the suite itself"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-record.test.mjs",
+        "node --test scripts/head-state.test.mjs"
+      ]
+    },
+    {
+      "edge": "E6",
+      "criterion": "SC3",
+      "category": "precision",
+      "disposition": "criterion SC3",
+      "detail": "An entry identity this repository does not produce is `cannot-tell`, never a second identity derived here.",
+      "claim": "An entry identity this repository does not produce is answered with the absence the join names, and no second identity is derived: the identity is the one `extension/title-input.js` reads from the same observation.",
+      "fields": [
+        "entry",
+        "reason",
+        "observed"
+      ],
+      "suite": "scripts/head-record.test.mjs",
+      "test": "carries the identity the shipped reader of the same observation reads",
+      "citations": [
+        {
+          "file": "scripts/head-record.test.mjs",
+          "line": 1948,
+          "lineText": "it('a second identity for the entry reddens the identity pin",
+          "holds": "a second identity reddens the identity pin naming the reader it is not in, so one entry keeps one spelling"
+        },
+        {
+          "file": "research/raw/m068-head-record.json",
+          "line": 110,
+          "lineText": "\"producer\": \"extension/title-input.js\",",
+          "holds": "the identity the record carries names the producer it is asserted against, so the reader is named in the record"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 403,
+          "lineText": "if (entry === null) {",
+          "holds": "a name fact that names no entry is answered as an absence rather than as an entry this join derived"
+        },
+        {
+          "file": "extension/head-state.js",
+          "line": 409,
+          "lineText": "NAME_NOT_AN_ENTRY,",
+          "holds": "the reason published for a name that names no entry is its own word, so no second identity is invented in its place"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-record.test.mjs",
+        "npx nx run angular-ai-devtools:test"
+      ]
+    },
+    {
+      "edge": "E7",
+      "criterion": "SC4",
+      "category": "boundary",
+      "disposition": "criterion SC4",
+      "detail": "The route table, the loader map, the ordered path pins and the surface record move together; a mutant that omits one reddens naming it.",
+      "claim": "The route table, the loader map, the ordered path pins and the surface record move together, so a surface dropped from any one of them reddens naming it.",
+      "fields": [
+        "state"
+      ],
+      "suite": "scripts/panel-routes.test.mjs",
+      "test": "E4: every declared route surface has a panel-demo LOADERS key",
+      "citations": [
+        {
+          "file": "scripts/panel-routes.test.mjs",
+          "line": 38,
+          "lineText": "'head-state',",
+          "holds": "the surface is one entry of the route table the table is built from, and one only"
+        },
+        {
+          "file": "scripts/panel-routes.test.mjs",
+          "line": 1766,
+          "lineText": "declaredSurfaces(routesSource).includes('head-state'),",
+          "holds": "the declared surface list is asserted to carry the surface, so a route dropped from the table reddens naming it"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-demo.ts",
+          "line": 76,
+          "lineText": "'head-state': () => import('./panel-head-state') as never,",
+          "holds": "the demo loader map carries the key that reaches this pane, and the pane module is the one it imports"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
+          "line": 106,
+          "lineText": "'head-state', // M068 SC4 surface:",
+          "holds": "the app spec enumerates the surface in the ordered route list the table installs it in"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/page-picker.component.spec.ts",
+          "line": 440,
+          "lineText": "expect(lazy).toContain('head-state');",
+          "holds": "the picker spec holds the lazy list to the surface, so a route appended without registering reddens here"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/chat-entry.component.spec.ts",
+          "line": 837,
+          "lineText": "'head-state',",
+          "holds": "the chat-entry spec enumerates the same surface in its own ordered list, so the third enumerating suite moves with the table"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/panel-routes.test.mjs",
+        "npx nx run angular-ai-devtools:test"
+      ]
+    },
+    {
+      "edge": "E8",
+      "criterion": "SC4",
+      "category": "precision",
+      "disposition": "criterion SC4",
+      "detail": "No answer names a remedy, a schematic, a cause or a route the record did not carry.",
+      "claim": "No answer names a remedy, a schematic, a cause or a route the record did not carry: the pane renders the five keys the join answers, and a sixth line is a line the join never produced.",
+      "fields": [
+        "state",
+        "entry",
+        "present",
+        "writtenBy",
+        "reason"
+      ],
+      "suite": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+      "test": "renders the five fields the join answers",
+      "citations": [
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+          "line": 10912,
+          "lineText": "renders no cause, no remedy and no navigation the answer did not carry",
+          "holds": "in every state the join answers, the pane renders no cause, no remedy and no navigation the answer did not carry"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-demo.spec.ts",
+          "line": 10597,
+          "lineText": "and reddens naming the surface and the remedy a pane invents",
+          "holds": "the keys the pane renders are held to the join own answer keys, and a pane that invents a remedy reddens here naming the surface"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-head-state.ts",
+          "line": 114,
+          "lineText": "export const FIELDS = [",
+          "holds": "the pane enumerates the five keys it renders once, in the join own order, so a sixth label is not a line it can write"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-head-state.ts",
+          "line": 128,
+          "lineText": "export const LABELS = {",
+          "holds": "every line the pane writes is one of these five labels and a value the answer carries"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/app/panel-head-state.ts",
+          "line": 301,
+          "lineText": "if (reason !== null) lines.push(line(LABELS.reason, reason));",
+          "holds": "the reason line is written only where the join published a reason, so the pane states no absence of its own"
+        },
+        {
+          "file": "scripts/head-state.test.mjs",
+          "line": 1107,
+          "lineText": "names no remedy, no cause and no route the record did not carry",
+          "holds": "the join own pin refuses a remedy, a cause and a route the record did not carry, so the rule is measured on the join rather than only rendered"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m068-verdict-claims.test.mjs",
+        "node --test scripts/head-state.test.mjs",
+        "npx nx run angular-ai-devtools:test"
+      ]
+    }
+  ]
+}

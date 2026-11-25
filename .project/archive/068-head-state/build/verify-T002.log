@@ -1,0 +1,77 @@
+head: 6c3e26453638a6408f240b76dacd53b937c50a66 at 2026-11-25T02:38:29.492Z
+extension/head-state.js: exports ["headState"] with 2 parameters
+committed record: 1 entry, joined state ["cannot-tell"] (duplicate-not-recorded)
+committed record: writtenBy and duplicate are measured absences -> cannot-tell (duplicate-not-recorded)
+duplicate: {"element":"title"} and {"element":"title","text":"Insurance Portal (second)"} are both named
+stale: navigation 0 wrote it, navigation 2 carries it
+current: navigation 2 wrote and carries it; stale stays "stale"
+the pin holds the untouched module to 18 case(s), answering all 4 states and all 13 reasons
+duplicate mutant: a record that counts two entries carrying the name and names the second: the duplicate names present as {"element":"title"} and the record names the second entry of the same name as {"element":"title","text":"Insurance Portal (second)"}: two entries share the name and both are named, so a duplicate that names only the first occurrence is not a duplicate answer
++ actual - expected
+
+  {
+    element: 'title',
+-   text: 'Insurance Portal (second)'
+  }
+
+stale mutant: an entry one navigation wrote and another navigation’s page carries: the stale answer names writtenBy as null and the record attributes the entry's write to {"index":0,"url":"/home"}: an entry written by one navigation and left behind by another names both navigations, and a staleness without the writing navigation is not this join's answer
+remedy mutant: the committed title entry, whose duplicate and whose writing navigation the record states as not read: the join names a remedy: ["count the entries sharing each name in the capture, then join the count","/panel/head-state"] - a state that cannot tell names the fact it is missing and stops there, and no answer carries a remedy, a cause or a route the record did not carry
++ actual - expected
+
++ '["count the entries sharing each name in the capture, then join the count","/panel/head-state"]'
+- null
+
+inferred-writer mutant (the entry’s text): the committed title entry, whose duplicate and whose writing navigation the record states as not read: the answer names the writing navigation writtenBy as {"index":0,"url":"/home"} and the record attributes no write to a navigation: a join that infers a writing navigation from the entry's text or its order in the head is the defect this pin names, and a state that cannot tell names no writer it was not given
++ actual - expected
+
++ {
++   index: 0,
++   url: '/home'
++ }
+- null
+
+inferred-writer mutant (the entry’s order in the head): the committed title entry, whose duplicate and whose writing navigation the record states as not read: the answer names the writing navigation writtenBy as {"index":0,"url":"/home"} and the record attributes no write to a navigation: a join that infers a writing navigation from the entry's text or its order in the head is the defect this pin names, and a state that cannot tell names no writer it was not given
++ actual - expected
+
++ {
++   index: 0,
++   url: '/home'
++ }
+- null
+
+four mutants, four defects: ["namesOnlyTheFirst","remedy","staleWithoutWriter","writerFromOrder"] each redden the pin; the record was neither rewritten nor re-captured
+▶ the interface
+  ✔ exports one function, at the name and the signature the contract states (0.8911ms)
+  ✔ is pure: no DOM, no I/O, no import, and nothing written (0.3405ms)
+  ✔ writes no recording: the committed record is read into memory and never re-captured (0.2283ms)
+✔ the interface (2.0847ms)
+▶ the committed record, joined as it stands
+  ✔ AC3: answers cannot-tell naming the duplicate the record did not count, for the entry it carries (0.3611ms)
+  ✔ states both absences as measured, and quotes each with the reason the record gives (0.4656ms)
+  ✔ quotes the record in observed, rather than paraphrasing what it read (0.9294ms)
+✔ the committed record, joined as it stands (1.9299ms)
+▶ records constructed from the same shape
+  ✔ AC1: a name present twice is duplicate, and both entries are named (0.3194ms)
+  ✔ AC2: an entry one navigation wrote and another page carries is stale, naming both navigations (0.1995ms)
+  ✔ E3: an entry the navigation whose page carries it wrote is current, and a stale one is not current (0.1403ms)
+  ✔ E1: a head with one entry of the name reports no duplicate, and no finding with an empty comparison (0.1298ms)
+  ✔ AC3: a write with no navigation beside it is cannot-tell, naming that fact and inferring no route (0.1888ms)
+  ✔ a state that cannot tell still quotes what it read, and names nothing it did not (0.1312ms)
+  ✔ purity: reads a frozen record and frozen facts, writes neither, and points into neither (0.2482ms)
+✔ records constructed from the same shape (1.5482ms)
+▶ the pin and its mutants
+  ✔ pins the untouched module first, so the mutants have something to move (1.4408ms)
+  ✔ AC1 mutant: a duplicate naming only the first occurrence reddens the pin, naming both entries (2.5093ms)
+  ✔ AC2 mutant: a stale answer without the writing navigation reddens the pin, naming both navigations (1.9538ms)
+  ✔ AC3 mutant: a join that names a remedy and a route reddens the pin, naming both (1.0114ms)
+  ✔ N2 mutant: a write inferred from the entry’s text or its order in the head reddens the pin, naming the inference (1.4219ms)
+  ✔ the four mutants are four different defects, each caught by the pin it names (1.3849ms)
+✔ the pin and its mutants (9.8536ms)
+ℹ tests 19
+ℹ suites 4
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 116.7215

@@ -27,10 +27,10 @@
       "readingLine": "gate-integrity: fix-record clean - examined 4 claim(s) in 5 task log(s) of .project/archive/044-gate-integrity/tasks (logs of M044) against 52 changed path(s) of d94502d174aff31b0b1ebbab200d5e47939dec39..5290d939497448823ca0f5d1ce5c1d777805ddb8 (rule ship: M043's ship commit, d94502d1 (ship: M043 — stability-explainer); the head is the commit the caller named, 5290d939 (plan(M056): T006 approved; build resumed); claims: declared)",
       "plainRun": {
         "command": "npm run gate:fix-record",
-        "milestone": "M067",
+        "milestone": "M068",
         "exitCode": 0,
         "refusal": null,
-        "summary": "gate-integrity: pass - 0 finding(s), 0 mention(s)",
+        "summary": "gate-integrity: pass - 0 finding(s), 19 mention(s)",
         "refusalLines": []
       }
     }

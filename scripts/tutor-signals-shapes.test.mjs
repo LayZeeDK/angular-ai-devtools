@@ -22,6 +22,14 @@
 //                the five write-record needles, and the union of every edge key under research/raw.
 //                The count it excluded as build output is re-derived too — the panel tree's own
 //                walk, which is the one number in the recording a panel build moves.
+//   the vocabulary
+//                the union's expected delta is the `## Edge coverage` table of the intent the
+//                milestone that moved it binds, counted from that table rather than from the
+//                capture: M068 declares eight edges and its claim record carries those rows, so
+//                `edge` counts 38 + 8 = 46 and each row field 32 + 8 = 40. A pin that followed
+//                whatever the capture produced could not fail — M030, M032 and M033 each paid for
+//                that — so a record that lands a row the intent does not declare, or drops one it
+//                does, reddens naming the intent table it was counted against.
 //   the second negative
 //                re-derived too, and it did not hold as the plan stated it: records do carry effect
 //                nodes, one of them in the recorded shape with an index. The suite asserts the
@@ -36,6 +44,8 @@ import { join, relative, sep } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createContext, runInContext } from 'node:vm';
+
+import { intentPathForMilestone } from './verdict-claims-intent.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const RECORD = 'research/raw/m057-record-shapes.json';
@@ -70,6 +80,28 @@ const ORDERISH = Object.freeze([
 /** The build output under `extension/`, gitignored, excluded from the authored-source scan. */
 const BUILD_OUTPUT = 'extension/panel/';
 
+/** The five column names an intent's edge-coverage table is headed with, in the order it names them. */
+const EDGE_COLUMNS = Object.freeze([
+  'Edge',
+  'Criterion',
+  'Category',
+  'Disposition',
+  'Detail',
+]);
+
+/**
+ * The record whose rows moved this vocabulary, and the milestone whose `## Edge coverage` table those
+ * rows are. M068 landed after this map was measured, and its claim record carries the intent's own
+ * five-column table as an `edges` list, so the union under `research/raw/` grew by exactly the rows the
+ * intent declares — eight of them. The expected delta is read from that table (see `intentEdgeRows`),
+ * never from the capture: a pin that follows the capture cannot fail, and this programme has paid for
+ * that lesson once in each of M030, M032 and M033.
+ */
+const MOVED_BY = Object.freeze({
+  milestone: 'M068',
+  record: 'm068-verdict-claims.json',
+});
+
 /** @param {string} p a repo-relative path */
 function readLines(p) {
   return readFileSync(join(ROOT, p), 'utf8').split(/\r?\n/);
@@ -85,6 +117,76 @@ function walkDir(dir) {
     else out.push(rel.split(sep).join('/'));
   }
   return out.sort();
+}
+
+/**
+ * The text of one `##` section of a document, up to the next `##` heading.
+ * @param {string} source @param {string} heading @returns {string}
+ */
+function sectionOf(source, heading) {
+  const at = source.indexOf(`\n${heading}`);
+  assert.ok(
+    at >= 0,
+    `the intent must carry a ${JSON.stringify(heading)} section, and it does not`,
+  );
+  const rest = source.slice(at + heading.length + 1);
+  const end = rest.indexOf('\n## ');
+  return end >= 0 ? rest.slice(0, end) : rest;
+}
+
+/**
+ * The data cells of every row of one pipe-delimited table, the header included. A row of another width
+ * is refused by name rather than skipped.
+ * @param {string} section @param {number} columns @param {string} what @returns {string[][]}
+ */
+function tableRows(section, columns, what) {
+  /** @type {string[][]} */
+  const rows = [];
+  for (const line of section.split(/\r?\n/)) {
+    if (!/^\s*\|/.test(line)) continue;
+    const data = line
+      .split('|')
+      .map((cell) => cell.trim())
+      .slice(1, -1);
+    if (data.length === 0) continue;
+    assert.equal(
+      data.length,
+      columns,
+      `${what} carries ${String(data.length)} column(s); the grammar this reading holds is ${String(columns)}, so a row of another width is a different shape`,
+    );
+    rows.push(data);
+  }
+  return rows;
+}
+
+/**
+ * The edge ids the `## Edge coverage` table of the intent a milestone binds declares, in the order the
+ * table states them. This is the one source of the expected vocabulary delta: the intent's own row
+ * count, read from `.project/intent/INTENT.md` while the milestone is live and from its archive once it
+ * ships, never from the rows a capture happened to land.
+ * @param {string} milestone
+ * @returns {string[]}
+ */
+function intentEdgeRows(milestone) {
+  const path = intentPathForMilestone(ROOT, milestone);
+  const cells = tableRows(
+    sectionOf(readFileSync(path, 'utf8'), '## Edge coverage'),
+    EDGE_COLUMNS.length,
+    `the intent ${milestone} binds`,
+  );
+  assert.deepEqual(
+    cells[0],
+    [...EDGE_COLUMNS],
+    `the intent ${milestone} binds must head its edge-coverage table exactly ${EDGE_COLUMNS.join(' | ')}, and it is headed ${JSON.stringify(cells[0])}`,
+  );
+  const rows = cells
+    .filter((row) => /^E\d+$/.test(row[0] ?? ''))
+    .map((row) => String(row[0]));
+  assert.ok(
+    rows.length > 0,
+    `the intent ${milestone} binds lists no edge rows, so this pin has no source for the delta it holds`,
+  );
+  return rows;
 }
 
 /** Every citation, by id. */
@@ -304,9 +406,16 @@ test('no write record exists anywhere in extension/', () => {
   }
 });
 
-test('no edge carries a field to order a write in', () => {
+/**
+ * The union of every edge key over every graph-bearing object under `research/raw/` — the first
+ * negative's own count, re-derived on every run rather than read back from the recording.
+ * @param {{ except?: readonly string[] }} [options] record file names to leave out of the union
+ * @returns {Map<string, number>}
+ */
+function edgeVocabulary(options = {}) {
+  const except = new Set([SELF, ...(options.except ?? [])]);
   const files = readdirSync(join(ROOT, RAW)).filter(
-    (f) => f.endsWith('.json') && f !== SELF,
+    (f) => f.endsWith('.json') && !except.has(f),
   );
   /** @type {Map<string, number>} */
   const edgeKeys = new Map();
@@ -337,6 +446,55 @@ test('no edge carries a field to order a write in', () => {
       stack.push(...Object.values(o));
     }
   }
+  return edgeKeys;
+}
+
+/** The five keys a record's row carries when it is the intent's own edge-coverage table. */
+const ROW_KEYS = Object.freeze([
+  'category',
+  'detail',
+  'disposition',
+  'edge',
+  'suite',
+]);
+
+/**
+ * The edge ids one record carries in the intent's own five-column table shape, sorted so a row stated
+ * twice is still two rows: the table is the intent's, so a record that lands a row the intent does not
+ * declare, or drops one it does, is what this reads.
+ * @param {string} file a file name under `research/raw/`
+ * @returns {string[]}
+ */
+function rowsCarriedBy(file) {
+  /** @type {string[]} */
+  const out = [];
+  /** @type {any[]} */
+  const stack = [JSON.parse(readFileSync(join(ROOT, RAW, file), 'utf8'))];
+  while (stack.length > 0) {
+    const o = stack.pop();
+    if (!o || typeof o !== 'object') continue;
+    if (Array.isArray(o)) {
+      stack.push(...o);
+      continue;
+    }
+    if (Array.isArray(o.edges)) {
+      for (const e of o.edges) {
+        if (!e || typeof e !== 'object') continue;
+        const keys = Object.keys(e).sort();
+        if (
+          keys.length === ROW_KEYS.length &&
+          keys.every((k, i) => k === ROW_KEYS[i])
+        )
+          out.push(String(e.edge));
+      }
+    }
+    stack.push(...Object.values(o));
+  }
+  return out.sort();
+}
+
+test('no edge carries a field to order a write in', () => {
+  const edgeKeys = edgeVocabulary();
 
   const stated = RECORDING.negativeMeasurements.noEdgeCarriesAnOrderField;
   const orderish = [...edgeKeys.keys()].filter((k) =>
@@ -352,6 +510,88 @@ test('no edge carries a field to order a write in', () => {
       Object.entries(stated.edgeKeys).sort((a, b) => a[0].localeCompare(b[0])),
     ),
     'the edge vocabulary under research/raw moved',
+  );
+});
+
+/**
+ * The comparison the vocabulary pin makes: the rows the intent declares, the rows the record carries,
+ * and the union's move for every key those rows are stated under. It is a function so a doctored
+ * capture can be put through the same pin, which is how the pin proves it can fail.
+ * @param {string[]} rows the edge ids the intent's `## Edge coverage` table declares
+ * @param {string[]} carried the edge ids the record carries in that table's shape
+ * @param {Map<string, number>} all the union over `research/raw/`
+ * @param {Map<string, number>} withoutTheRecord the same union with that record left out
+ * @returns {void}
+ */
+function assertVocabularyDelta(rows, carried, all, withoutTheRecord) {
+  assert.deepEqual(
+    carried,
+    [...rows].sort(),
+    `${MOVED_BY.record} carries the rows of the intent ${MOVED_BY.milestone} binds, whose \`## Edge coverage\` table declares ${rows.join(', ')}; it states ${carried.join(', ') || 'none'}. A record that lands a row the intent does not declare, drops one it does, or lands one twice is a vocabulary this pin cannot explain`,
+  );
+  for (const key of ['edge', 'category', 'detail', 'disposition', 'suite']) {
+    const before = withoutTheRecord.get(key) ?? 0;
+    const after = all.get(key) ?? 0;
+    assert.equal(
+      after - before,
+      rows.length,
+      `\`${key}\` is stated ${String(after)} time(s) over research/raw and ${String(before)} without ${MOVED_BY.record}, so the record moved it by ${String(after - before)}: the expected delta is the ${String(rows.length)} row(s) the \`## Edge coverage\` table of ${MOVED_BY.milestone}'s intent declares, counted from that table and not from this capture. A pin that follows the capture cannot fail, which is why the delta is the intent's`,
+    );
+  }
+}
+
+test('the vocabulary moved by the rows the intent declares, and by no other count', (t) => {
+  const rows = intentEdgeRows(MOVED_BY.milestone);
+  const all = edgeVocabulary();
+  const withoutTheRecord = edgeVocabulary({ except: [MOVED_BY.record] });
+  assertVocabularyDelta(
+    rows,
+    rowsCarriedBy(MOVED_BY.record),
+    all,
+    withoutTheRecord,
+  );
+
+  t.diagnostic(
+    `the ${MOVED_BY.milestone} intent's \`## Edge coverage\` table declares ${String(rows.length)} rows; ${MOVED_BY.record} carries them; the union states edge ${String(withoutTheRecord.get('edge') ?? 0)} + ${String(rows.length)} = ${String(all.get('edge') ?? 0)}, and each row field ${String(withoutTheRecord.get('category') ?? 0)} + ${String(rows.length)} = ${String(all.get('category') ?? 0)}`,
+  );
+});
+
+test('the vocabulary pin reddens on a capture that lands more or fewer rows than the intent declares', () => {
+  const rows = intentEdgeRows(MOVED_BY.milestone);
+  const carried = rowsCarriedBy(MOVED_BY.record);
+  const all = edgeVocabulary();
+  const withoutTheRecord = edgeVocabulary({ except: [MOVED_BY.record] });
+
+  // The real inputs pass first, so every mutant below is planted on a pin that holds.
+  assertVocabularyDelta(rows, carried, all, withoutTheRecord);
+
+  // Two rows dropped: the record states a vocabulary the intent does not declare.
+  assert.throws(
+    () => assertVocabularyDelta(rows, carried.slice(2), all, withoutTheRecord),
+    /carries the rows of the intent/,
+    'a record that drops a row the intent declares must redden naming the intent table',
+  );
+
+  // One row landed twice: a count that adds up to the intent's only if nobody reads the ids.
+  assert.throws(
+    () =>
+      assertVocabularyDelta(
+        rows,
+        [...carried.slice(1), carried[0], carried[0]],
+        all,
+        withoutTheRecord,
+      ),
+    /carries the rows of the intent/,
+    'a record that lands one row twice and drops another must redden naming the intent table',
+  );
+
+  // The union moved by one row fewer than the table declares, which a capture-following pin would
+  // have taken as the truth.
+  const short = new Map([...all].map(([key, count]) => [key, count - 1]));
+  assert.throws(
+    () => assertVocabularyDelta(rows, carried, short, withoutTheRecord),
+    new RegExp(`expected delta is the ${String(rows.length)} row`),
+    'a union that moved by one row fewer than the intent declares must redden naming the intent table',
   );
 });
 

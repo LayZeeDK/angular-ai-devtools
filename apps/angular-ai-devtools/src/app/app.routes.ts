@@ -66,15 +66,15 @@ const PANEL_SURFACES = [
   // its named absence, and the repeated work the frame recorded — three readings, each in its own
   // block, and every named absence in its own sentence.
   'stability',
-  // The M045 SC3-SC5 surface: the console join's own answer — the state the capture reported and one
-  // block of lines per captured diagnostic, each named by the code it carried — and nothing else: no
-  // cause, no element and no remedy, because the capture records none of the three.
+  // The M045 SC3-SC5 surface: the console join's own answer — the state the capture reported and one block of lines per captured diagnostic, each named by the code it carried — and nothing else: no cause, no element and no remedy, because the capture records none of the three. M068's `head-state` entry below is paid for by folding this note's three lines into one.
   'console',
   // The M046 SC1-SC3 surface: the hand-off the join `extension/copy-to-agent.js` answers for the text a pane drew — the control sentence naming what will be sent and the body itself as the pane rendered it, the same with the absence a finding names still stated, or the `cannot-tell` reason and nothing beside it.
   'console-read',
   'title-input',
   'schema',
   'field-binder',
+  // The M068 SC4 surface: one head entry's state against the entry still present for the navigation the record read it at — the state, the entry the record observed, the entry still present with the page that carries it, the writing navigation and the reason the comparison could not be made — each absence under the label of the fact it is about, and no cause, no remedy and no navigation the record did not carry.
+  'head-state',
   // The M062 SC4 surface: the outlet a route's own configuration requested, the outlet name the router state matched for it, that route's own path and every absence the record states about it — each under its own label, and no cause, no remedy and no outlet the answer did not carry.
   'outlet',
   // The M054 SC1-SC3 surface: each measured property's computed value beside the baseline stylesheet's declared value, each under its own label — or the three absences, named apart.

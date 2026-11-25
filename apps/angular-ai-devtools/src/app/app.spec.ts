@@ -31,8 +31,7 @@ describe('App', () => {
  * that, M042 appends `error-boundary` after that and M043 appends `stability` after that, the same
  * way. M045 appends `console` after `stability`, M046 appends `console-read` after that, M047
  * appends `components` after that and M048 appends `copy-check` after that, which is why the count
- * moved from twenty-four to twenty-eight. M049 appends `interaction-story` after that, which is why
- * the count moves from twenty-eight to twenty-nine, and M050 appends `dead-click` after that, which
+ * moved from twenty-four to twenty-eight. M049 appends `interaction-story` after that, which is why the count moves from twenty-eight to twenty-nine, and M050 appends `dead-click` after that, which
  * is why it moves from twenty-nine to thirty. M051 appends `what-changed` after that, which is why it
  * moves from thirty to thirty-one; M052's `webmcp` sits between `console-read` and `components`
  * rather than last, because every line `app.routes.ts` is cited at by `m047..m052` keeps its number
@@ -42,8 +41,7 @@ describe('App', () => {
  * `console-read` and `webmcp-rehearsal` for the same reason — the route records cite the routes below
  * the list — which is why the count moves from thirty-three to thirty-four without moving a citation.
  * M055's `tutor-foundations` follows `visual-qa`, which is why the count moves from thirty-four to
- * thirty-five without moving one. M057's `tutor-signals` follows it and is paid for out of that
- * paragraph's own note, which is why the count moves from thirty-five to thirty-six without moving a
+ * thirty-five without moving one. M057's `tutor-signals` follows it and is paid for out of that paragraph's own note, which is why the count moves from thirty-five to thirty-six without moving a
  * citation. M058's `tutor-routing` follows `tutor-signals` and is paid for by folding the M053 note
  * into that paragraph and deleting its line, which is why the count moves from thirty-six to
  * thirty-seven without moving one. M059's `teardown-leak` follows `webmcp` for the same reason and is
@@ -54,8 +52,7 @@ describe('App', () => {
  * and mapped-literal lines below the list — and is paid for by folding two lines of the M050 note
  * into their neighbours' text, which is why the count moves from thirty-eight to thirty-nine
  * without moving a cited line. M061's `locale-correctness` sits between `error-routing` and the
- * dead-click note for the same reason — the route records cite the path lines above it, the
- * `dead-click` and `what-changed` path lines below it and the declaration and mapped-literal lines
+ * dead-click note for the same reason — the route records cite the path lines above it, the `dead-click` and `what-changed` path lines below it and the declaration and mapped-literal lines
  * below the list — and is paid for by folding the M050 note's four lines into two, which is why the
  * count moves from thirty-nine to forty without moving a cited line. M062's `outlet` sits after
  * `console-read` for the same reason — the route records cite the loader's two lines, the path lines
@@ -70,7 +67,9 @@ describe('App', () => {
  * folding the M046 note's two lines into one, so neither costs the table a line: every cited path
  * line, the declaration and mapped-literal lines and this count keep their numbers. M066's `schema`
  * follows `title-input` and costs the table one line; M067's `field-binder` follows `schema`, is paid
- * for above the list, and costs it none: the count is forty-six now.
+ * for above the list, and costs it none: the count is forty-six now. M068's `head-state` follows
+ * `field-binder`, is paid for above the list by folding the M045 `console` note's three lines into one,
+ * and costs it none: the count is forty-seven now.
  */
 describe('the route table', () => {
   it('appends the panel surfaces last and installs each through the demo component', async () => {
@@ -104,6 +103,7 @@ describe('the route table', () => {
       'title-input', // M065 SC4 surface: the four states the title join answers — finding, agrees, cannot-tell, no-record — with the strategy, the document's title, the implied title and the observed-write count it carries, and no cause, no remedy and no title the answer did not carry
       'schema', // M066 SC2-4 surface: the attribution the join answers for one field — the state, the field, the schema node and the input it read where a declaration carries them, the reason, and the keys the record's own field row carries, with no cause, no remedy and no node the answer did not give it
       'field-binder', // M067 SC4 surface: the join's answer for one form field — the state, the identity the row is keyed by, the hosted control the record read, the control the record expects and the reason when the comparison could not be made, each absence in the place the fact would stand, with no cause, no remedy, no inferred control and no advice
+      'head-state', // M068 SC4 surface: one head entry's state against the entry still present for the navigation the record read it at — the state, the entry, the entry still present with the page that carries it, the writing navigation and the reason the comparison could not be made, each absence under the label of the fact it is about, and no cause, no remedy and no navigation the record did not carry
       'outlet', // M062 SC4 surface: the outlet the route configuration requested, the name the router state matched, that route's own path and each absence the record states, or the state that names why it cannot be told
       'visual-qa', // M054 SC1-3 surface: each measured property's computed value beside the baseline declaration, or the three absences named apart
       'tutor-foundations', // M055 SC1-3 surface: the artefact file, the milestone and the criterion a record states for a question, or the four absences named apart
@@ -532,6 +532,20 @@ describe('the route table', () => {
     // One entry, so the route this task adds is the only one that answers at that path.
     expect(
       appRoutes.filter((route) => route.path === 'field-binder'),
+    ).toHaveLength(1);
+
+    const headState = appRoutes.find((route) => route.path === 'head-state');
+    expect(headState?.component).toBeUndefined();
+    if (headState?.loadComponent === undefined) {
+      throw new Error('the head-state surface must load lazily');
+    }
+    expect(await headState.loadComponent()).toBe(PanelDemoComponent);
+    expect(headState.data?.['surface']).toBe('head-state');
+    // Its own name, so a copy of another surface's route cannot stand in for it.
+    expect(headState.data?.['surface']).not.toBe('field-binder');
+    // One entry, so the route this task adds is the only one that answers at that path.
+    expect(
+      appRoutes.filter((route) => route.path === 'head-state'),
     ).toHaveLength(1);
   });
 });

@@ -2347,8 +2347,8 @@ Open questions
 Depends on: [M020]
 Programme: Generation 3 · Batch: 5 · Group: @angular/core
 Surfaces: panel
-Status: pending
-Archive: null
+Status: shipped
+Archive: .project/archive/068-head-state
 Integrated: null
 
 Goal: The panel answers why a document head entry is stale or duplicated, naming the entry the app wrote, the one still present and the route that wrote it.

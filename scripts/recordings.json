@@ -18,5 +18,10 @@
     "recording": "research/raw/m055-record-shapes.json",
     "suite": "scripts/guard-record-shapes.test.mjs",
     "arm": "M055_CAPTURE=1"
+  },
+  {
+    "recording": "research/raw/m068-head-record.json",
+    "suite": "scripts/head-record.test.mjs",
+    "arm": "M068_CAPTURE=1"
   }
 ]

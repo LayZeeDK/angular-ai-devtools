@@ -1,0 +1,48 @@
+head: 422f38f2bdaf223931da86c5be76342f062582a5 at 2026-11-25T02:22:37.203Z
+research/raw/m065-title-record.json: 3 navigation(s) ["/home","/contract","/claim"], 3 read(s), writesSeen 0; the document carried "Insurance Portal" when the observation began at 2026-11-24T01:04:13.599Z
+AC1: 1 entry(ies); the four facts read for all of them; not read: ["title.writtenBy","title.duplicate"]
+research/raw/m068-head-record.json: one writer behind M068_CAPTURE=1; research/raw/m065-title-record.json unchanged at sha256 fc35ebc62db0
+scripts/recordings.json: {"recording":"research/raw/m068-head-record.json","suite":"scripts/head-record.test.mjs","arm":"M068_CAPTURE=1"}; scripts/gate-integrity.test.mjs: row present
+research/raw/m068-head-record.json at load and after the run: 11802 characters, sha256 2f14440cfdb5b03e2d8f964cb52d057c6f427cc7baa02643ac331264ee4b2f57
+research/raw/m068-head-record.json: re-derived fact for fact; a moved value names its path
+entry title: name {"element":"title"}, first seen at navigation 0 (/home) at 2026-11-24T01:04:13.599Z; remained {"element":"title","text":"Insurance Portal","navigationsCarrying":[0,1,2],"sameTextAtEveryRead":true}; carried by navigation 2 (/claim) at 2026-11-24T01:04:13.785Z
+not read: title.writtenBy (the title entry's writing navigation was not read: research/raw/m065-title-record.json#observation.writesSeen is 0 and 0 of its 3 read(s) recorded one, and the 1 entry its `writes` list holds carries observed [false], navigationIndex [null] and author [null], on the record's own basis "the title the document carried when the observation began at 2026-11-24T01:04:13.599Z; the observer saw no write for it, so the record carries no author and no navigation for it"; the record is the only source of a writing navigation and it attributes none, so none is named and no route is inferred from the entry's text) | title.duplicate (the title entry's duplicate was not read: research/raw/m065-title-record.json states 2 reading(s) at most for one navigation, each a single title value rather than a list of elements, and none of its 444 key path(s) names a count of entries carrying a name; a second `<title>` would be invisible to a reading shaped that way, so no second entry is named and no duplicate is invented)
+identity: ["title"] from extension/title-input.js via globalThis.angularAiTitleInput; RECORD_INPUTS carries 17 field(s)
+invented-writer mutant: defect: entries[title].writtenBy names navigation 1 as the navigation that wrote the title entry, and research/raw/m065-title-record.json's writes list carries 0 observed write(s) and attributes none of them to a navigation: the record is the only source of a writing navigation, and this one carries none
+invented-duplicate mutant: defect: entries[title].duplicate names 2 entr(ies) carrying the name and research/raw/m065-title-record.json carries no count of entries: a second entry the record did not count is the duplicate this pin refuses to believe
+invented-route mutant: defect: entries[title].carriedBy names navigation 3 ("/policy") and research/raw/m065-title-record.json carries [0,1,2]: a route the record did not carry is never named
+moved-first-sight mutant: defect: entries[title].firstSeenAt.value.index is 2 and the observation began after navigation 0 with the document already carrying the entry: that is the first navigation at which it was read
+second-identity mutant: defect: entries[titleName] is keyed by an identity extension/title-input.js does not read: RECORD_INPUTS carries ["navigations","index","strategy","resolved","className","route","data","state","keys","titleDeclared","titles","phase","value","writes","observed","title","navigationIndex"], and a second identity for an entry is the defect this pin exists for
+invented-name mutant: defect: entries[title].name.value.element is "meta" and research/raw/m065-title-record.json#observation records ["title"]: the name is the element the observation recorded, never one derived from the entry's text
+research/raw/m068-head-record.json: 8 pins hold 1 entry(ies) over 3 navigation(s)
+▶ measurement
+  ✔ reads the observation first: one head element, three navigations and three reads, no write seen (1.4982ms)
+  ✔ AC1: states each of the four facts per entry, and states which were not read and why (3.9972ms)
+  ✔ AC2: the writer is one place behind the arm, and a default run writes nothing (1.2119ms)
+  ✔ AC3: names the recording in the manifest and the suite in the census, both read at capture (0.9908ms)
+✔ measurement (8.4039ms)
+▶ the head record
+  ✔ is a read: a default run hashes the record the same before and after (0.2527ms)
+  ✔ is exactly what this head derives, and a value that moved is named (1.4171ms)
+  ✔ is serialized as the capture writes it, so a re-capture would move no byte (0.2131ms)
+  ✔ names the entry, the navigation it was first seen at, the entry that remained and the page carrying it (0.3467ms)
+  ✔ states the writing navigation and the duplicate as not read, each with the reason it could not be (0.5515ms)
+  ✔ carries the identity the shipped reader of the same observation reads (0.3161ms)
+✔ the head record (3.3847ms)
+▶ the mutants
+  ✔ an invented writing navigation reddens the written-by pin, naming the entry and the source (0.4644ms)
+  ✔ a duplicate invented beside the observed entry reddens the duplicate pin, naming the entry (1.2376ms)
+  ✔ a route the record did not carry reddens the carried-by pin, naming the navigation and the record (0.2311ms)
+  ✔ a first sight moved to a later navigation reddens the first-seen pin (0.187ms)
+  ✔ a second identity for the entry reddens the identity pin, naming the reader it is not in (0.1523ms)
+  ✔ a name taken from the entry text reddens the name pin, naming both elements (0.1698ms)
+  ✔ the six mutants are six different defects, and each is proved against the same record (0.4592ms)
+✔ the mutants (3.0767ms)
+ℹ tests 17
+ℹ suites 3
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 128.1878
