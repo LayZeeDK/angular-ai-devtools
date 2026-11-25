@@ -64,7 +64,7 @@ Every rule that renders a panel value reads a token; the token block precedes th
 ## Verify
 
 ```bash
-node --test scripts/m069-verdict-claims.test.mjs && node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test
+M069_CAPTURE=1 node --test scripts/guard-verdict-claims.test.mjs && node --test scripts/guard-verdict-claims.test.mjs && node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test
 ```
 
 ## Log
