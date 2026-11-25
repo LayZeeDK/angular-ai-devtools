@@ -81,6 +81,11 @@ Review depth: full
 | SC4 | T006 | AC2 |
 | SC4 | T007 | AC2 |
 | SC4 | T009 | AC3 |
+| SC3 | T001 | AC1 |
+| SC3 | T002 | AC1 |
+| SC3 | T003 | AC1 |
+| SC4 | T008 | AC1 |
+| SC4 | T010 | AC1 |
 
 ## Surface contract
 

@@ -1,0 +1,43 @@
+head: 1be8dad118825162e9d7338da6125fc533a1df7b at 2026-11-24T20:10:48.328Z
+M067: 4 criteria, 8 edge row(s), 0 held-out row(s), 10 coverage row(s), suites {"SC1":"scripts/gate-integrity.test.mjs","SC2":"scripts/gate-integrity.test.mjs","SC3":"scripts/gate-integrity.test.mjs","SC4":"apps/angular-ai-devtools/src/app/app.spec.ts"}
+M067: held to .project/intent/INTENT.md and .project/plan/PLAN.md; the join extension/field-binder.js, the surface apps/angular-ai-devtools/src/app/panel-field-binder.ts and the record research/raw/m067-field-binder.json are here
+research/raw/m067-verdict-claims.json at load and after the run: 26939 characters, sha256 6e4f403c46ebbcae63a4f7fae780f1491c9f72d28574ea8fb0b8d63fd686387c
+research/raw/m067-verdict-claims.json is exactly what this head derives: 4 claim(s) over 6 suite(s)
+research/raw/m067-verdict-claims.json: [["SC1",200,["E1","E2"]],["SC2",224,["E4","E7"]],["SC3",211,["E3","E6"]],["SC4",233,["E5","E8"]]]
+research/raw/m067-verdict-claims.json: tests ["AC1: a field hosting another control is mismatch, and the answer names both controls","AC2: a field that is not a components field is no-host, with that reason and no inferred control","AC3: the identity this record carries is the one extension/field-state.js produces","is the join’s own answer over T004’s record, reached by the route and loader key the table carries"]
+research/raw/m067-verdict-claims.json: plan disagreements []; resolved ["SC1 scripts/gate-integrity.test.mjs","SC2 scripts/gate-integrity.test.mjs","SC3 scripts/gate-integrity.test.mjs","SC4 apps/angular-ai-devtools/src/app/app.spec.ts"]
+quote mutant: SC1 must quote the intent character for character: claims[0].criterionText is "A field that hosts a control different from the one its record expects produces a finding naming both the hosted control and the expected one; a mutant that reports only the hosted control reddens it. (reworded here)" and the intent states "A field that hosts a control different from the one its record expects produces a finding naming both the hosted control and the expected one; a mutant that reports only the hosted control reddens it."
+missing-test mutant: SC1 cites scripts/field-binder.test.mjs for the test "a test no suite in this checkout declares", and that suite declares no such test at this head: it declares ["exports one function, at the name and the signature the contract states","is pure: no DOM, no I/O, no import, and nothing written","writes no recording: the committed record is read into memory and never re-captured","AC3: answers cannot-tell naming the missing expected control for every field that hosts an element","AC2: answers no-host for the field that hosts nothing, with that reason and no control","quotes the record in observed, rather than paraphrasing what it read","reads the same answer from the document, from its fields list and from one row","AC1: a field hosting another control is mismatch, and the answer names both controls","a field hosting the control its record expects is bound","compares a control in another case as the same one, and reports the string the record carries","AC2: a field that is not a components field is no-host, with that reason and no inferred control","AC3: a row without an expected control is cannot-tell, and names no remedy and no invented control","a row carrying no hosted fact at all is cannot-tell naming that fact, not no-host","a record carrying several fields and no field named is cannot-tell, not a guess","a field the record does not carry is cannot-tell, and names no control","an expected fact of a shape that is not a control name is not read as a control","purity: reads a frozen record and frozen facts, writes neither, and points into neither","pins the untouched module first, so the mutants have something to move","AC1 mutant: a mismatch reporting only the hosted control reddens the pin, naming hosted without expected","AC2 mutant: a join that infers a host from a label reddens the pin, naming the inference","AC3 mutant: a join that names a remedy reddens the pin, naming the remedy","the three mutants are three different defects, each caught by the pin it names"] | absent suite: SC2 cites scripts/absent-claims-suite.test.mjs, which this checkout does not carry
+dropped-plan-suite mutant: SC1 is resolved by the plan to scripts/gate-integrity.test.mjs, and the claim cites ["scripts/field-binder.test.mjs","scripts/field-binder.test.mjs","scripts/field-binder.test.mjs"]: the suite the milestone's own plan assigns the criterion must be among its citations
+edge-detail mutant: SC1's E1 must carry the detail the intent's edge row states: it carries "a detail this record wrote for itself" and the intent states "A field that hosts the expected control reports no finding, rather than a finding with an empty comparison."
+research/raw/m067-verdict-claims.json: 6 pins hold the committed record at once
+writer: one write behind M067_CAPTURE, deriving through the recorded document and the pin
+▶ measurement
+  ✔ reads the criteria, the edge rows, the plan’s coverage and the suites the plan resolves, and every cited file is here (1927.4965ms)
+  ✔ the documents this census reads belong to the milestone the branch binds (0.3533ms)
+✔ measurement (1928.565ms)
+▶ the claim record
+  ✔ is a read: a default run hashes the record the same before and after (0.3424ms)
+  ✔ is exactly what this head derives, and a value that moved is named (1.0728ms)
+  ✔ rules every criterion the intent declares, quotes it verbatim, and carries the edges it is held by (0.5083ms)
+  ✔ names a suite and a test this head declares for every citation, and refuses a claim whose test is missing (20.7921ms)
+  ✔ cites the suite the plan resolves for every criterion, and states the plan evidence it read (0.8982ms)
+✔ the claim record (23.8988ms)
+▶ the mutants
+  ✔ a claim quoting its criterion in its own words reddens naming the claim and the field (1.8462ms)
+  ✔ a claim naming a test this head does not declare reddens naming the test and the suite (38.3528ms)
+  ✔ a claim that drops the suite the plan resolves reddens naming the criterion and both suites (0.9786ms)
+  ✔ a claim whose edge cells are not the intent’s reddens naming the criterion and the edge (0.5524ms)
+  ✔ the four mutants are four different defects, and each is proved against the same record (16.0447ms)
+✔ the mutants (58.0292ms)
+▶ the writer
+  ✔ writes only behind its own arm, and derives the candidate through the recorded document (0.5094ms)
+✔ the writer (0.5847ms)
+ℹ tests 13
+ℹ suites 4
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2133.5605
