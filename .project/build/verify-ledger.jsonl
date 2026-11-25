@@ -1,0 +1,1 @@
+{"command": "node --test scripts/head-record.test.mjs", "commit": "422f38f2bdaf223931da86c5be76342f062582a5", "recorded_at": "2026-11-25T02:22:37+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
