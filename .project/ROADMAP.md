@@ -906,7 +906,7 @@ Depends on: [M019]
 Surfaces: none
 Status: shipped
 Archive: .project/archive/023-fixture-components
-Integrated: 6ea8aff4af2a162a30753c9b2eecd96c8cca97f1
+Integrated: 1f2351cf1ad3d29937a654582b6198ef6b7139c6
 
 Scope: in
 - `@angular/aria`, `@angular/cdk` and `@angular/material` in the verification fixture.
