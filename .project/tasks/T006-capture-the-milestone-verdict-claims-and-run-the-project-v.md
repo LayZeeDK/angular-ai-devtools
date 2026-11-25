@@ -9,6 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
+- scripts/head-record.test.mjs
 - scripts/m068-verdict-claims.test.mjs
 - research/raw/m068-verdict-claims.json
 - scripts/gate-integrity.test.mjs
@@ -29,7 +30,7 @@ files:
 
 ## Context
 
-Every milestone in this programme owes a verdict-claims record; M067 shipped without one and seven suites were red until it was captured. The census also needs a reason row for the new suite, and the project verify is the only run that can prove the milestone did not break the build it measures.
+Every milestone in this programme owes a verdict-claims record; M067 shipped without one and seven suites were red until it was captured. The census also needs a reason row for the new suite, and the record also moves the shape maps and the census, so this task stops at its own suite and the re-derivation follows it.
 
 ## Approach
 
@@ -43,12 +44,13 @@ Write the claims suite behind its own arm, derive the record from this milestone
 
 1. The record names one claim per intent criterion, quoting each verbatim, and a default run reproduces it byte for byte.
 2. The new suite carries its `SUITE_DIFF_REASONS` row, and the census reports zero findings at this head.
-3. The project verify runs at the final head and its exit code and counts are recorded in this task's Log with the command that produced them.
+3. The record names the sixteen artefact claims and the eight edge claims, every citation re-resolves at this head, and the two measured absences are recorded under `absence` with what was searched and what was found.
 
 ## Files
 
 Every path this task may touch, and nothing else:
 
+- `scripts/head-record.test.mjs`
 - `scripts/m068-verdict-claims.test.mjs`
 - `research/raw/m068-verdict-claims.json`
 - `scripts/gate-integrity.test.mjs`
@@ -81,7 +83,7 @@ carries them; `reason` names why the comparison could not be made.
 ## Verify
 
 ```bash
-node --test scripts/m068-verdict-claims.test.mjs && npm run check && npm test
+node --test scripts/m068-verdict-claims.test.mjs && npm run check
 ```
 
 ## Log

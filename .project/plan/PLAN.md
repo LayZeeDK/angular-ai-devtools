@@ -10,6 +10,8 @@ max_review_cycles: 3
 
 Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test`
 
+Plan patch 2026-11-25: the project verify moved from T006 to T009, because T006 writes the claims record and that record moves the census, the stability record and three shape maps — ten tests went red at the first project verify for exactly that reason. Three tasks re-derive what it moved before the verify runs.
+
 ## Waves
 
 ## Wave 1 — T001: measure the head entries and the navigations beside them
@@ -40,10 +42,24 @@ Review depth: full
 Goal: Re-derive the two maps that count the records and the edge vocabulary the new files move.
 Review depth: full
 
-## Wave 6 — T006: the milestone verdict claims, then the project verify
+## Wave 6 — T006: the milestone verdict claims
 
-Goal: Capture this milestone's claim record, give the new suite its reason row, and run the project verify at the final
-head.
+Goal: Capture this milestone's claim record and give the new suite its reason row.
+Review depth: full
+
+## Wave 7 — T007: re-derive the census and the stability record
+
+Goal: Re-derive the two recordings the claims record moved, each through its own arm.
+Review depth: full
+
+## Wave 8 — T008: re-derive the shape maps and the edge vocabulary
+
+Goal: Re-derive the shape maps and move the vocabulary pin the eight edges move.
+Review depth: full
+
+## Wave 9 — T009: the project verify at the final head
+
+Goal: Run the plan's project verify after the last file-adding landing and record its exit and counts.
 Review depth: full
 
 ## Intent coverage
@@ -59,6 +75,9 @@ Review depth: full
 | SC4 | T004 | AC1 |
 | SC4 | T005 | AC1 |
 | SC4 | T006 | AC3 |
+| SC4 | T007 | AC1 |
+| SC4 | T008 | AC1 |
+| SC4 | T009 | AC1 |
 
 ## Surface contract
 
