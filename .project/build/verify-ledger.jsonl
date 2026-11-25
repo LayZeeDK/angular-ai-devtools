@@ -1,3 +1,4 @@
 {"command": "node --test scripts/head-record.test.mjs", "commit": "422f38f2bdaf223931da86c5be76342f062582a5", "recorded_at": "2026-11-25T02:22:37+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "node --test scripts/head-state.test.mjs", "commit": "6c3e26453638a6408f240b76dacd53b937c50a66", "recorded_at": "2026-11-25T02:38:29+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
 {"command": "node --test scripts/panel-routes.test.mjs", "commit": "8059ad7e94c62dc9c0092c81603e5d4a9f5e09e0", "recorded_at": "2026-11-25T03:07:25+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "node --experimental-strip-types --test scripts/gate-integrity.test.mjs && node --test scripts/gate-stability-record.test.mjs", "commit": "c499b0a2e72db951290721062fad000e805c9ea2", "recorded_at": "2026-11-25T03:10:51+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
