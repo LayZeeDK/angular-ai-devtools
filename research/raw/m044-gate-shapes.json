@@ -3302,7 +3302,7 @@
         "file": "scripts/m069-verdict-claims.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 2365,
+        "addedLines": 2366,
         "removedLines": 0,
         "addedAssertionLines": 161,
         "removedAssertionLines": 0,
@@ -3887,6 +3887,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-25T13:03:37.288Z"
+    "at": "2026-11-25T13:45:10.900Z"
   }
 }

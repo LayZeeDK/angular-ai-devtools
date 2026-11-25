@@ -1360,6 +1360,7 @@ function derive(intentSource, planSource, intentPath, planPath) {
     },
     claims,
     edgeClaims,
+    byteStatement: `The stylesheet this record measures is ${String(Buffer.byteLength(stylesheet, 'utf8'))} bytes, the total evidence.stylesheet.bytes carries — stated here in prose because scripts/recording-consistency.test.mjs holds a recording that measures bytes to say that total in a sentence, and a scan that examined no sentence of a recording proves nothing, while the number stated stays the one the field beside the sentence records, so the prose cannot drift from the measurement it repeats.`,
   };
 }
 
