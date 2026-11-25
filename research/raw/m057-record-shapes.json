@@ -568,17 +568,17 @@
       "edgeKeys": {
         "consumer": 13,
         "producer": 13,
-        "edge": 38,
+        "edge": 46,
         "consumerLabel": 1,
         "producerLabel": 1,
-        "category": 32,
-        "detail": 32,
-        "disposition": 32,
-        "suite": 32
+        "category": 40,
+        "detail": 40,
+        "disposition": 40,
+        "suite": 40
       },
       "orderishEdgeKeys": [],
       "holds": true,
-      "conclusion": "An edge carries only `consumer` and `producer` (and, in derived readings, labels and a rendered `edge` string). No field, value or moment orders a write, so the ordering is a named absence and not a capture this milestone could add. This head's union has grown four records\u2019 worth: `research/raw/m062-verdict-claims.json`, `research/raw/m063-verdict-claims.json` and `research/raw/m064-verdict-claims.json` and `research/raw/m067-verdict-claims.json` each carry the intent's own five-column edge table as an `edges` list \u2014 8 rows apiece, keyed `edge`, `category`, `disposition`, `detail` and `suite` \u2014 which names the coverage category a row measures and the criterion it is disposed to. None of those five keys orders a write, so `orderishEdgeKeys` stays empty and only the vocabulary recount moved."
+      "conclusion": "An edge carries only `consumer` and `producer` (and, in derived readings, labels and a rendered `edge` string). No field, value or moment orders a write, so the ordering is a named absence and not a capture this milestone could add. This head's union has grown five records\u2019 worth: `research/raw/m062-verdict-claims.json`, `research/raw/m063-verdict-claims.json`, `research/raw/m064-verdict-claims.json`, `research/raw/m067-verdict-claims.json` and `research/raw/m068-verdict-claims.json` each carry the intent's own five-column edge table as an `edges` list \u2014 8 rows apiece, keyed `edge`, `category`, `disposition`, `detail` and `suite` \u2014 which names the coverage category a row measures and the criterion it is disposed to. Those 40 rows sit beside the six `edge` strings `research/raw/m039-render-phase.json` records for its derived graph, which is why `edge` counts 46 while each row field counts 40. M068's intent declares the eight rows its own claim record added, so that record is the whole of this milestone's move: `edge` 38 to 46 and each of the four row fields 32 to 40. None of those five keys orders a write, so `orderishEdgeKeys` stays empty and only the vocabulary recount moved."
     },
     "effectNodeInARecord": {
       "claimAsStatedInThePlan": "no record under research/raw/ carries a node of kind `effect`, and the closest one holds no `index` on its nodes and no index ends on its edges",
