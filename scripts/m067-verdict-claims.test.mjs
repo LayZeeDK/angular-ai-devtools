@@ -125,10 +125,10 @@ const PROOFS = Object.freeze({
         'the mutant that reports only the hosted control reddens the pin by name, so the comparison is measured rather than stated',
     },
     {
-      suite: 'scripts/gate-integrity.test.mjs',
-      test: 'T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails',
+      suite: 'scripts/field-binder.test.mjs',
+      test: 'reads the same answer from the document, from its fields list and from one row',
       holds:
-        'the suite the plan’s own `## Intent coverage` row assigns SC1 to, cited as the plan resolves it: it holds the gate’s reading of the suite diff at this head',
+        'the suite the plan’s own `## Intent coverage` row assigns SC1 to through T005, cited as the plan resolves it: the loop reads the committed record’s own document, its fields list and one row as one answer, so the mismatch this criterion names is the record’s own rather than one this suite invented',
     },
   ]),
   SC2: Object.freeze([
@@ -151,10 +151,10 @@ const PROOFS = Object.freeze({
         'the mutant that infers a host from a label reddens the pin by name, so the absence is measured rather than asserted',
     },
     {
-      suite: 'scripts/gate-integrity.test.mjs',
-      test: 'T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails',
+      suite: 'scripts/field-binder.test.mjs',
+      test: 'AC2: answers no-host for the field that hosts nothing, with that reason and no control',
       holds:
-        'the suite the plan’s own `## Intent coverage` row assigns SC2 to, cited as the plan resolves it: it holds the gate’s reading of the suite diff at this head',
+        'the suite the plan’s own `## Intent coverage` row assigns SC2 to through T005, cited as the plan resolves it: over the committed record it answers no-host for the one field that hosts nothing, with that reason and no control named in its place',
     },
   ]),
   SC3: Object.freeze([
@@ -177,10 +177,10 @@ const PROOFS = Object.freeze({
         'the join reads the one record this milestone writes and re-captures nothing, so the hosted control has one source rather than a second reader',
     },
     {
-      suite: 'scripts/gate-integrity.test.mjs',
-      test: 'T004 AC4: every suite is diffed against the measured head, and an unexplained difference fails',
+      suite: 'scripts/field-binder-record.test.mjs',
+      test: 'AC1: names each field’s identity, hosted element and expected control, or which of the three was not read and why',
       holds:
-        'the suite the plan’s own `## Intent coverage` row assigns SC3 to, cited as the plan resolves it: it holds the gate’s reading of the suite diff at this head',
+        'the suite the plan’s own `## Intent coverage` row assigns SC3 to through T004, cited as the plan resolves it: for every field read it names the identity, the hosted element and the expected control, or states which of the three was not read and why',
     },
   ]),
   SC4: Object.freeze([
@@ -219,9 +219,9 @@ const PROOFS = Object.freeze({
 
 /** The suite the plan resolves for each criterion, named here and held to the derivation below. */
 const PLAN_SUITES = Object.freeze({
-  SC1: 'scripts/gate-integrity.test.mjs',
-  SC2: 'scripts/gate-integrity.test.mjs',
-  SC3: 'scripts/gate-integrity.test.mjs',
+  SC1: 'scripts/field-binder.test.mjs',
+  SC2: 'scripts/field-binder.test.mjs',
+  SC3: 'scripts/field-binder-record.test.mjs',
   SC4: 'apps/angular-ai-devtools/src/app/app.spec.ts',
 });
 

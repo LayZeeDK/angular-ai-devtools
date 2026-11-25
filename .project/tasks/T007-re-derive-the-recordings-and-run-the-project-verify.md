@@ -2,10 +2,10 @@
 id: T007
 title: Re-derive the recordings and run the project verify
 wave: 7
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T007
+base: b43f97b7d136d94ecf506bb96c554ebd1ffecabd
 worktree: null
 task_branch: null
 files:
@@ -97,3 +97,9 @@ M044_CAPTURE=1 node --experimental-strip-types --test scripts/gate-integrity.tes
 ## Log
 
 - pending
+- 2026-11-23: the census record was re-derived after the coverage repair: the plan now resolves SC1/SC2 to T005 suite \scripts/field-binder.test.mjs\ and SC3 to T004 suite \scripts/field-binder-record.test.mjs\, so the suite table and the last citation of each criterion moved from the gate suite to the suite the plan actually assigns. Armed run wrote once, second armed run moved no byte, default run 13/13.
+- 2026-11-23: \m044-gate-shapes\ and \m056-gate-stability\ re-derived and byte-identical to HEAD (\8a796023…\, 8dc35e1…\); both default runs green.
+- 2026-11-23: \m057-record-shapes\ carries an edge vocabulary that grew by one record: edge 30 to 38, category/detail/disposition/suite 24 to 32, and the conclusion now names four records including m067. Its pin \scripts/tutor-signals-shapes.test.mjs\ went 21/21.
+- 2026-11-23: one failure was a stale build, not a budget overrun: \xtension/panel/index.html\ predated \pp.routes.ts\, so the bundle pin refused it. Rebuilding the panel brought it to 5/5 — the build is part of the project verify for exactly this reason.
+- 2026-11-23: project verify run and recorded: pm run check\ exit 0; pm test\ exit 0 with 2290 + 60 + 320 tests, 0 failures.
+- Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`, `scripts/gate-integrity.test.mjs`, `scripts/gate-stability-record.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `research/raw/m064-verdict-claims.json`, `scripts/panel-routes.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `research/raw/m067-verdict-claims.json`, `research/raw/m057-record-shapes.json`, `scripts/tutor-signals-shapes.test.mjs` — each is read from this tree, ready.

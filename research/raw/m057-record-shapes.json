@@ -63,7 +63,7 @@
       "id": "recordedShapeB",
       "path": "extension/linked-state.js",
       "line": 30,
-      "text": "//                     label, value }, …], edges: [{ consumer, producer }, …] }`. The recording's"
+      "text": "//                     label, value }, \u2026], edges: [{ consumer, producer }, \u2026] }`. The recording's"
     },
     {
       "id": "recordedShapeC",
@@ -117,7 +117,7 @@
       "id": "edgeIsDirectionOnly",
       "path": "extension/render-phase.js",
       "line": 18,
-      "text": "//     dependency and nothing else — no field, no value, no moment. A write is therefore not"
+      "text": "//     dependency and nothing else \u2014 no field, no value, no moment. A write is therefore not"
     },
     {
       "id": "writeNotRepresentable",
@@ -165,7 +165,7 @@
       "id": "nodeFieldsRead",
       "path": "extension/render-phase.js",
       "line": 32,
-      "text": "//                     …] }`, the shape the recordings carry. Only `index`, `kind` and `label` of a"
+      "text": "//                     \u2026] }`, the shape the recordings carry. Only `index`, `kind` and `label` of a"
     },
     {
       "id": "otherNodeFieldsIgnored",
@@ -207,7 +207,7 @@
       "id": "readsOfComment",
       "path": "extension/render-phase.js",
       "line": 246,
-      "text": "// no sort — the recorded order is the only order this module has (E3, E8)."
+      "text": "// no sort \u2014 the recorded order is the only order this module has (E3, E8)."
     },
     {
       "id": "readsOfSignature",
@@ -340,7 +340,7 @@
     },
     "recordedShape": {
       "description": "The shape a reader accepts: an object with a `nodes` list and an `edges` list, nodes keyed by a numeric `index`, edges keyed by the two index ends.",
-      "shape": "{ nodes: [{ index, kind, label, … }], edges: [{ consumer, producer }] }",
+      "shape": "{ nodes: [{ index, kind, label, \u2026 }], edges: [{ consumer, producer }] }",
       "citationIds": [
         "recordedShapeA",
         "recordedShapeB",
@@ -441,11 +441,11 @@
     },
     "readList": {
       "name": "reads",
-      "contents": "the labels of the producer ends of the effect’s consumer edges, in the order the edges appear",
+      "contents": "the labels of the producer ends of the effect\u2019s consumer edges, in the order the edges appear",
       "rules": [
         "a producer the graph does not hold names nothing and is skipped",
         "a producer whose label is empty names nothing and is skipped",
-        "no fallback, no borrowing, no sort — the recorded order is the only order"
+        "no fallback, no borrowing, no sort \u2014 the recorded order is the only order"
       ],
       "citationIds": [
         "readsOfComment",
@@ -477,7 +477,7 @@
       },
       {
         "reason": "reads",
-        "names": "the read list is built from the effect’s own index",
+        "names": "the read list is built from the effect\u2019s own index",
         "citationIds": [
           "readsCalledWithIndex"
         ]
@@ -528,7 +528,7 @@
           "needle": "writes:",
           "path": "extension/import-failure.js",
           "line": 1,
-          "text": "// import-failure.js — the record M064 writes: one entry per dynamic-import attempt the router makes —"
+          "text": "// import-failure.js \u2014 the record M064 writes: one entry per dynamic-import attempt the router makes \u2014"
         },
         {
           "needle": "writes:",
@@ -561,24 +561,24 @@
           "text": "matchDirectWrites: matchDirectWrites,"
         }
       ],
-      "conclusion": "No write record exists anywhere in extension/: the first four needles match nothing, and `writes:` matches 7 lines in 5 files — `extension/agent-main.test.mjs` (1), `extension/import-failure.js` (1), `extension/locale-correctness.js` (1), `extension/sanitizer-triage.js` (1), `extension/stale-view-worker.js` (3) — which are one test title, one record module’s own header comment, one locale module's own comment, one sanitizer binding’s documented field and three `matchDirectWrites:` identifiers. None of them is a record of a write, and none carries a moment."
+      "conclusion": "No write record exists anywhere in extension/: the first four needles match nothing, and `writes:` matches 7 lines in 5 files \u2014 `extension/agent-main.test.mjs` (1), `extension/import-failure.js` (1), `extension/locale-correctness.js` (1), `extension/sanitizer-triage.js` (1), `extension/stale-view-worker.js` (3) \u2014 which are one test title, one record module\u2019s own header comment, one locale module's own comment, one sanitizer binding\u2019s documented field and three `matchDirectWrites:` identifiers. None of them is a record of a write, and none carries a moment."
     },
     "noEdgeCarriesAnOrderField": {
       "command": "union of every edge key over every graph-bearing object under research/raw/",
       "edgeKeys": {
         "consumer": 13,
         "producer": 13,
-        "edge": 30,
+        "edge": 38,
         "consumerLabel": 1,
         "producerLabel": 1,
-        "category": 24,
-        "detail": 24,
-        "disposition": 24,
-        "suite": 24
+        "category": 32,
+        "detail": 32,
+        "disposition": 32,
+        "suite": 32
       },
       "orderishEdgeKeys": [],
       "holds": true,
-      "conclusion": "An edge carries only `consumer` and `producer` (and, in derived readings, labels and a rendered `edge` string). No field, value or moment orders a write, so the ordering is a named absence and not a capture this milestone could add. This head's union has grown three records’ worth: `research/raw/m062-verdict-claims.json`, `research/raw/m063-verdict-claims.json` and `research/raw/m064-verdict-claims.json` each carry the intent's own five-column edge table as an `edges` list — 8 rows apiece, keyed `edge`, `category`, `disposition`, `detail` and `suite` — which names the coverage category a row measures and the criterion it is disposed to. None of those five keys orders a write, so `orderishEdgeKeys` stays empty and only the vocabulary recount moved."
+      "conclusion": "An edge carries only `consumer` and `producer` (and, in derived readings, labels and a rendered `edge` string). No field, value or moment orders a write, so the ordering is a named absence and not a capture this milestone could add. This head's union has grown four records\u2019 worth: `research/raw/m062-verdict-claims.json`, `research/raw/m063-verdict-claims.json` and `research/raw/m064-verdict-claims.json` and `research/raw/m067-verdict-claims.json` each carry the intent's own five-column edge table as an `edges` list \u2014 8 rows apiece, keyed `edge`, `category`, `disposition`, `detail` and `suite` \u2014 which names the coverage category a row measures and the criterion it is disposed to. None of those five keys orders a write, so `orderishEdgeKeys` stays empty and only the vocabulary recount moved."
     },
     "effectNodeInARecord": {
       "claimAsStatedInThePlan": "no record under research/raw/ carries a node of kind `effect`, and the closest one holds no `index` on its nodes and no index ends on its edges",
@@ -747,7 +747,7 @@
             "producerLabel": "signal:count"
           }
         ],
-        "conclusion": "A record on disk carries an effect node in exactly the recorded shape — numeric `index` on every node, numeric `consumer`/`producer` ends on every edge — and the existing join answers from it."
+        "conclusion": "A record on disk carries an effect node in exactly the recorded shape \u2014 numeric `index` on every node, numeric `consumer`/`producer` ends on every edge \u2014 and the existing join answers from it."
       },
       "theJoinAnswersFromThatRecord": {
         "description": "The existing extension/render-phase.js, run in a bare node:vm context over { nodes: freshRead.nodes, edges: freshRead.allEdges }, authors nothing and returns:",
@@ -778,8 +778,8 @@
         }
       },
       "whatNoRecordCarriesInstead": {
-        "description": "What no record carries is the serialized shape: `serializeGraph` keys nodes by `id` and never by `index`, so no record the agent’s own serializer wrote carries a node index, and none of them can feed a reader that reads `index`. The graph in the recorded shape that does exist on disk is a capture (m039’s freshRead), not a serialized record.",
-        "conclusion": "The graph this milestone reads is a capture (T003) — the plan’s operative conclusion stands — but not for the reason the plan stated: records do carry effect nodes, one of them in the recorded shape with an index. The absence is of an `index` in the serializer’s own output."
+        "description": "What no record carries is the serialized shape: `serializeGraph` keys nodes by `id` and never by `index`, so no record the agent\u2019s own serializer wrote carries a node index, and none of them can feed a reader that reads `index`. The graph in the recorded shape that does exist on disk is a capture (m039\u2019s freshRead), not a serialized record.",
+        "conclusion": "The graph this milestone reads is a capture (T003) \u2014 the plan\u2019s operative conclusion stands \u2014 but not for the reason the plan stated: records do carry effect nodes, one of them in the recorded shape with an index. The absence is of an `index` in the serializer\u2019s own output."
       }
     }
   },
@@ -795,7 +795,7 @@
       "correct": false
     },
     {
-      "premise": "The five searches find a sanitizer binding’s `writes` field and a test title and nothing else (task Approach; intent C1).",
+      "premise": "The five searches find a sanitizer binding\u2019s `writes` field and a test title and nothing else (task Approach; intent C1).",
       "measured": "True of the conclusion and incomplete in the detail: `writes:` also matches three `matchDirectWrites:` identifiers in stale-view-worker.js, and two more lines inside the gitignored build bundle extension/panel/chunk-B8BF8DsE.js (excluded as build output).",
       "correct": false
     },
@@ -811,11 +811,11 @@
     "outsideTheMap": [
       {
         "path": "research/raw/m057-surface.json",
-        "why": "M057's T004 rendered the answer and landed the route, the loader key and the pane this milestone's surface record states, and T007 measured that record after this map was written, so the record is subtracted from the map by name rather than read as an unmeasured record — the refusal M055's T004 hit twice."
+        "why": "M057's T004 rendered the answer and landed the route, the loader key and the pane this milestone's surface record states, and T007 measured that record after this map was written, so the record is subtracted from the map by name rather than read as an unmeasured record \u2014 the refusal M055's T004 hit twice."
       },
       {
         "path": "research/raw/m057-verdict-claims.json",
-        "why": "M057's own verdict list, ruling the criteria the intent this milestone binds declares: T009 captured it after this map was measured, so it is named outside the map rather than read as an unmeasured record — the same subtraction T004's own map made for M055's verdict list and its surface record, which is the mechanism the two inventories apply."
+        "why": "M057's own verdict list, ruling the criteria the intent this milestone binds declares: T009 captured it after this map was measured, so it is named outside the map rather than read as an unmeasured record \u2014 the same subtraction T004's own map made for M055's verdict list and its surface record, which is the mechanism the two inventories apply."
       }
     ]
   },
