@@ -2,10 +2,10 @@
 id: T007
 title: Re-derive the census and the stability record the claims record moved
 wave: 7
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T007
+base: c7a87d1975fbfe6fc99837e0e1068975b5a95996
 worktree: null
 task_branch: null
 files:
@@ -91,3 +91,7 @@ node --experimental-strip-types --test scripts/gate-integrity.test.mjs && node -
 ## Log
 
 - pending
+- 2026-11-25: the census was re-derived by its own arm and moved one value the tree explains: `archiveReferences.filesExamined` 382 to 383 and `suitesExamined` 198 to 199, from the claims suite and its record that T006 landed. Default run 40/40.
+- 2026-11-25: the stability record was re-derived by its own arm at this head (6568 bytes, sha256 `2b2ef5c4…`) and its default run is 8/8. It moved because the census it reads had moved, not because any gate changed behaviour.
+- 2026-11-25: both were captured immediately before their landing, because a record pins the head it was captured at, and a default run of each writes nothing.
+- Landed paths: `scripts/teardown-leak-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/head-record.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/gate-stability-record.test.mjs`, `scripts/gate-integrity.test.mjs`, `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json` — each is read from this tree, ready.

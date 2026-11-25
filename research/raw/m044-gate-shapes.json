@@ -8,8 +8,8 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 382,
-    "suitesExamined": 198,
+    "filesExamined": 383,
+    "suitesExamined": 199,
     "examined": 237,
     "movedSubtrees": [
       "build",
@@ -1410,7 +1410,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 260,
+        "line": 300,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1418,7 +1418,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 263,
+        "line": 303,
         "path": ".project/STATE.md",
         "site": "path",
         "class": "undecided",
@@ -1426,7 +1426,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 695,
+        "line": 735,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1434,7 +1434,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 695,
+        "line": 735,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1442,7 +1442,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 696,
+        "line": 736,
         "path": null,
         "site": "comment",
         "class": "undecided",
@@ -1450,7 +1450,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 702,
+        "line": 742,
         "path": null,
         "site": "pattern",
         "class": "undecided",
@@ -1458,7 +1458,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 705,
+        "line": 745,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -1466,7 +1466,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1426,
+        "line": 1543,
         "path": ".project/intent/INTENT.md",
         "site": "path",
         "class": "archived-by-the-move",
@@ -1474,7 +1474,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1427,
+        "line": 1544,
         "path": ".project/intent/INTENT.md",
         "site": "message",
         "class": "archived-by-the-move",
@@ -1482,7 +1482,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1431,
+        "line": 1548,
         "path": ".project/plan/PLAN.md",
         "site": "path",
         "class": "archived-by-the-move",
@@ -1490,7 +1490,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1432,
+        "line": 1549,
         "path": ".project/plan/PLAN.md",
         "site": "message",
         "class": "archived-by-the-move",
@@ -1498,7 +1498,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1434,
+        "line": 1551,
         "path": ".project/the intent must sit under .project, and it resolves to ${shown(intentPath)}",
         "site": "segment",
         "class": "undecided",
@@ -1508,7 +1508,7 @@
       },
       {
         "file": "scripts/m067-verdict-claims.test.mjs",
-        "line": 1437,
+        "line": 1554,
         "path": ".project",
         "site": "message",
         "class": "undecided",
@@ -2500,8 +2500,8 @@
       "named": "d94502d1",
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
-    "examined": 228,
-    "filesListed": 557,
+    "examined": 229,
+    "filesListed": 558,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
@@ -3072,7 +3072,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5961,
+        "addedLines": 5970,
         "removedLines": 0,
         "addedAssertionLines": 348,
         "removedAssertionLines": 0,
@@ -3241,14 +3241,27 @@
         "file": "scripts/m067-verdict-claims.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 1738,
+        "addedLines": 1858,
         "removedLines": 0,
-        "addedAssertionLines": 120,
+        "addedAssertionLines": 127,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
         "recutAssertions": [],
         "reason": "wholly added at this head: M067 T008 writes the milestone’s claim list, `research/raw/m067-verdict-claims.json`, behind its own armed flag `M067_CAPTURE=1` and reads it back unarmed — one claim per criterion `.project/intent/INTENT.md` declares, each quoting that criterion character for character with the number of characters quoted, and each carrying the edge rows the intent’s five-column table assigns it with the detail cell verbatim; the suite a claim cites is read from the milestone’s own plan (which holds no edge out, so each criterion is resolved through the plan’s `## Intent coverage` rows and the first suite the owning task’s `files:` list declares that the task’s base does not carry) and the table must name what that resolution derives, so a plan or a task whose files list moves reddens naming both; every citation is opened at capture and must declare the test title it names on the line that declares it, and a claim’s artefact states the edge ids it is ruled on as `edge [\"E1\",\"E2\"]`; the plan’s cross-table disagreements are recorded under `evidence.plan.disagreements` with the count stated in the sentence that reads the tables rather than refused; four mutants — a reworded quote, a test no suite declares, a claim that drops the suite the plan resolves, and an edge cell that is not the intent’s — each redden the pin that names the criterion and the field; the armed writer derives through the recorded document and refuses a candidate that is not the fixed point of its own pin, an armed run writes only when a value moved, a second armed run is byte-identical and a default run writes nothing; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/m068-verdict-claims.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 2487,
+        "removedLines": 0,
+        "addedAssertionLines": 156,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M068 T006 writes the milestone’s claim list, `research/raw/m068-verdict-claims.json`, behind its own armed flag `M068_CAPTURE=1` and reads it back unarmed — one claim per criterion the intent declares, each quoting that criterion character for character with the number of characters quoted, and one claim per edge of the intent’s own five-column table carrying that row’s category, disposition and detail verbatim; every citation is re-resolved on every run by opening the file it names and reading the line it states — a criterion’s citation must be the line that declares the test title it names, so a line that slides, or a test the tree no longer declares, reddens naming the file, the line and the suite, and an edge’s citations carry the join’s own branches, the record’s own facts and the pane’s tables, each read back line by line; the suite a claim cites is read from the milestone’s own plan (which holds no edge out, so each criterion is resolved through the plan’s `## Intent coverage` rows and the first suite the owning task’s `files:` list declares that the task’s base does not carry, the resolution stated in a table and held to the derivation), and the record’s two measured absences — the committed head record’s `writtenBy.read: false` and `duplicate.read: false` — are recorded under an `absence` entry naming what was searched and what was found rather than softened into prose, with a mutant reddening both when one is dropped and when one stops saying what it searched; the plan’s cross-table disagreements are recorded under `evidence.plan.disagreements` with the count stated in the sentence that reads the tables; four further mutants — a reworded quote, a citation whose line moved, a claim that drops the suite the plan resolves, and an edge cell that is not the intent’s — each redden the pin that names the field that moved; the armed writer derives through the recorded document, refuses a candidate that is not the fixed point of its own pin, writes only when a value moved, and a second armed run is byte-identical while a default run writes nothing; the suite names no project-directory path and opens none, asking `scripts/verdict-claims-intent.mjs` for the intent, so the archive move stays that resolver’s decision; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
       },
       {
         "file": "scripts/navigation-blocking.test.mjs",
@@ -3508,7 +3521,7 @@
         "file": "scripts/tutor-answer.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 2104,
+        "addedLines": 2106,
         "removedLines": 0,
         "addedAssertionLines": 136,
         "removedAssertionLines": 0,
@@ -3701,32 +3714,32 @@
       }
     ],
     "counts": {
-      "differing": 76,
+      "differing": 77,
       "edited": 17,
-      "added": 59,
+      "added": 60,
       "removedAssertionLines": 203,
       "recutAssertionLines": 203,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 8697
+      "addedAssertionLines": 8860
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
-    "examined": 228,
-    "filesListed": 557,
+    "examined": 229,
+    "filesListed": 558,
     "suites": {
-      "scripts": 151,
+      "scripts": 152,
       "extension": 11,
       "apps": 36,
       "src": 2,
       "skills": 28,
-      "total": 228
+      "total": 229
     },
     "declarations": {
-      "tests": 3008,
-      "describes": 402,
-      "total": 3410
+      "tests": 3024,
+      "describes": 407,
+      "total": 3431
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -3800,6 +3813,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-25T03:08:07.125Z"
+    "at": "2026-11-25T04:45:23.548Z"
   }
 }
