@@ -1565,7 +1565,7 @@ Programme: core · Batch: 3 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/043-stability-explainer
-Integrated: null
+Integrated: 748ca84c62347a2fdb05f456930e5c766cb94172
 
 Scope: in
 - The outstanding work the fixture reports: pending tasks, in-flight requests and unsettled resources.
@@ -1596,7 +1596,7 @@ Surfaces: command-line gate, research notes
 
 Status: shipped
 Archive: .project/archive/044-gate-integrity
-Integrated: null
+Integrated: a83eff087fff563748df02da7e9ce8e3669771ea
 
 Scope: in
 - A deterministic ship check that fails when any committed test resolves a `.project/` path the milestone's own archive move deletes. Measured instances: `scripts/performance-capture.test.mjs:56` at `c03ed6fa` (M040), `scripts/error-boundary-capture.test.mjs:46` and `scripts/error-boundary-measure.test.mjs:53` at `fb84ff3b` (M042), both red at the shipped head after a green gate one commit earlier.
@@ -1623,7 +1623,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/045-console-read
-Integrated: null
+Integrated: ed3194b0a6c9af249c64847bc6c66b5f6559b8db
 
 Scope: in
 - The capture of console diagnostics the page agent already performs, read as the observable; no new page-side instrumentation.
@@ -1653,7 +1653,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/046-copy-to-agent
-Integrated: null
+Integrated: de01ec2c8ab156f9e0072f2e6257171f244567d4
 
 Scope: in
 - The panel's own rendered finding, passed to the agent with the identifiers the page record carries.
@@ -1683,7 +1683,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/047-component-search
-Integrated: null
+Integrated: 72b813b4c529fa0d3e1dbc4a5b9b2141946588ba
 
 Scope: in
 - The component tree the page agent already captures, read as the observable.
@@ -1713,7 +1713,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/048-ui-copy-check
-Integrated: null
+Integrated: e620c156302b985de9eeb3b39917ec7998a7c8f8
 
 Scope: in
 - The rendered text the page already publishes in its record, read as the observable.
@@ -1743,7 +1743,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/049-interaction-story
-Integrated: null
+Integrated: c28ba22a614ad55af44b481eb08330d72ee6a496
 
 Scope: in
 - The interaction and emit events the agent already records, in their recorded order.
@@ -1773,7 +1773,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/050-dead-click
-Integrated: null
+Integrated: d29f6b354d5857e057467d8adda7a84d4249af47
 
 Scope: in
 - The click events and the events that followed them within the recorded window.
@@ -1803,7 +1803,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/051-what-changed
-Integrated: null
+Integrated: bde53dcc0171e20b960fb7032821aff2295ea814
 
 Scope: in
 - Two records the agent captured for one page, compared field by field.
@@ -1833,7 +1833,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/052-webmcp-audit
-Integrated: null
+Integrated: 201d6587c96485009d704e9b20c830ee8a32534a
 
 Scope: in
 - The tool declarations the app's own WebMCP registration exposes to the page.
@@ -1863,7 +1863,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/053-webmcp-rehearsal
-Integrated: null
+Integrated: 79489b8f60358b2db7b21b69450f4711c896aaf3
 
 Scope: in
 - A declared tool and the panel-local model the companion already provides.
@@ -1893,7 +1893,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/054-visual-qa
-Integrated: null
+Integrated: a78b4595106f9a54eedc3d0320eb6e62767744a2
 
 Scope: in
 - Computed style readings the panel measures for a named element in its own document.
@@ -1923,7 +1923,7 @@ Programme: Generation 3 · Batch: 3 · Group: cross-package
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/055-tutor-foundations
-Integrated: null
+Integrated: 4dd334153c0ae88b328abd0b95729f66cad1f037
 
 Scope: in
 - The verdict claims and recordings the shipped milestones archived.
@@ -1960,7 +1960,7 @@ Programme: Generation 3 · Batch: 3 · Group: command-line
 Surfaces: command-line gate, research notes
 Status: shipped
 Archive: .project/archive/056-gate-phase-stability
-Integrated: null
+Integrated: 02bba9d28a55e4a639aeac2a17ab36660fbdad4f
 
 Scope: in
 - The fix-record stage's default task input, resolved to the live `.project/tasks` while a milestone is being
@@ -1997,7 +1997,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/057-tutor-signals
-Integrated: null
+Integrated: 30393e5efc20f29375b8d54fd0de4f57cb6d4621
 
 Goal: The tutor answers why a signal-driven template re-rendered, or failed to, citing the recorded graph and the write that preceded the render, so the answer names a rule the evidence supports rather than a plausible one.
 
@@ -2029,7 +2029,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/058-tutor-routing
-Integrated: null
+Integrated: 23736c46471a613db1bf5a2cf9e62a454a8fbbc1
 
 Goal: The tutor answers why a navigation landed where it did, naming the route node, the redirect and the guard verdict that decided it, from the recorded navigation stream and the router config.
 
@@ -2061,7 +2061,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/059-teardown-leak
-Integrated: null
+Integrated: 9cbba8ede502d5a273945c276933f5825b16d688
 
 Goal: The panel answers why a destroyed component still changes state, naming the subscription, effect or timer that outlived its injector and the owner it belonged to.
 
@@ -2093,7 +2093,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/060-error-routing
-Integrated: null
+Integrated: 522877a1717efc42a050a18a4ced5e0a9409d19f
 
 Goal: The panel answers why an error that should have reached an ErrorHandler was reported as uncaught, naming the handler chain in effect and the phase the error was thrown in.
 
@@ -2125,7 +2125,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/common
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/061-locale-correctness
-Integrated: null
+Integrated: e32373e7c5dff17b2deb7a31381009c597de9784
 
 Goal: The panel answers why a formatted date, number or currency renders in the wrong locale, naming the LOCALE_ID in effect, the provider that set it and the call that used it.
 
@@ -2157,7 +2157,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/062-outlet-explainer
-Integrated: null
+Integrated: 5235d67128e3657f5cb82ec79d3893bed37ebb06
 
 Goal: The panel answers why routed content appeared in the wrong outlet, or in none, naming the outlet name requested, the name matched and the route that supplied it.
 
@@ -2189,7 +2189,7 @@ Programme: Generation 3 · Batch: 4 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/063-guard-phase
-Integrated: null
+Integrated: 5cdf359b93f03d89506e7a57dfde8d37e2dc8740
 
 Goal: The panel answers why a guard's side effect ran even though the navigation was cancelled, naming the guard phase it ran in and the guard that produced the value.
 
@@ -2221,7 +2221,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/064-lazy-chunk-failure
-Integrated: null
+Integrated: 6007b8360d58862f18823f69a1055706356a193c
 
 Goal: The panel answers why a lazily loaded route failed to render, naming the import it could not load, the route that owns it and the chunk state the failure left behind.
 
@@ -2253,7 +2253,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/router
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/065-title-input-binding
-Integrated: null
+Integrated: 80e65555f897cbcc328e2ebc033d2d6bd9e76f05
 
 Goal: The panel answers why the document title, or a value bound from the route, did not follow the navigation, naming the strategy in effect and the last write that beat it.
 
@@ -2285,7 +2285,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/forms
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/066-schema-disabled-hidden
-Integrated: null
+Integrated: 0c88627d3b7c64ee0d40479c5793b9990c6e4da1
 
 Goal: The panel answers why a Signal Forms field is disabled or hidden, naming the schema node that declared it and the state that node derived from.
 
@@ -2317,7 +2317,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/material
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/067-formfield-binder
-Integrated: null
+Integrated: 2bd49d829fab5726582de391501bc859165d15cd
 
 Goal: The panel answers why a form field is not bound to the control its label names, naming the control the binder resolved and the field it attached it to.
 
@@ -2349,7 +2349,7 @@ Programme: Generation 3 · Batch: 5 · Group: @angular/core
 Surfaces: panel
 Status: shipped
 Archive: .project/archive/068-head-state
-Integrated: null
+Integrated: 170fff1137eadf3831c931ea803d5b840b9cc016
 
 Goal: The panel answers why a document head entry is stale or duplicated, naming the entry the app wrote, the one still present and the route that wrote it.
 
