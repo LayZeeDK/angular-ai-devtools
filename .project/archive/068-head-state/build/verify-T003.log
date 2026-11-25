@@ -1,0 +1,13 @@
+head: 8059ad7e94c62dc9c0092c81603e5d4a9f5e09e0 at 2026-11-25T03:07:25.263Z
+✔ E1: the panel routes are one list mapped over one literal, and every surface keeps its path and its own name (5.5607ms)
+✔ E2: the surface functions are still exported for their suites (1.8576ms)
+✔ E3: the demo module renders the surface text it is handed (0.7596ms)
+✔ E4: every declared route surface has a panel-demo LOADERS key (31.7443ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 137.5562

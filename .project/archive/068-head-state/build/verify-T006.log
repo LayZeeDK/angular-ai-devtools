@@ -1,0 +1,218 @@
+head: ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f at 2026-11-25T04:44:53.084Z
+M068: 4 criteria, 8 edge claim(s), 0 held-out row(s), 12 coverage row(s), suites {"SC1":"scripts/head-state.test.mjs","SC2":"scripts/head-state.test.mjs","SC3":"scripts/head-record.test.mjs","SC4":"apps/angular-ai-devtools/src/app/app.spec.ts"}
+M068: held to .project/intent/INTENT.md and .project/plan/PLAN.md; the record research/raw/m068-head-record.json, the join extension/head-state.js and the pane apps/angular-ai-devtools/src/app/panel-head-state.ts are here
+research/raw/m068-verdict-claims.json at load and after the run: 46451 characters, sha256 b83cdfc363d53c20a950285e23a817386d9206c46f4c417426eb38a7370fdd91
+research/raw/m068-verdict-claims.json is exactly what this head derives: 4 claim(s) and 8 edge claim(s) over 4 suite(s)
+research/raw/m068-verdict-claims.json: [["SC1",190,["E1","E2"]],["SC2",229,["E3","E4"]],["SC3",187,["E5","E6"]],["SC4",233,["E7","E8"]]]
+research/raw/m068-verdict-claims.json: 17 test-declaration citation(s), tests ["AC1: a name present twice is duplicate, and both entries are named","AC2: an entry one navigation wrote and another page carries is stale, naming both navigations","carries the identity the shipped reader of the same observation reads","appends the panel surfaces last and installs each through the demo component"]
+research/raw/m068-verdict-claims.json: plan disagreements []; resolved ["SC1 scripts/head-state.test.mjs","SC2 scripts/head-state.test.mjs","SC3 scripts/head-record.test.mjs","SC4 apps/angular-ai-devtools/src/app/app.spec.ts"]
+research/raw/m068-verdict-claims.json: 8 edge claim(s), absences on ["E2","E4"], 35 line citation(s)
+quote mutant: SC1 must quote the intent character for character: claims[0].criterionText is "A head entry present twice produces a finding naming both the entry the record observed being written and the entry still present; a mutant that reports only the first occurrence reddens it. (reworded here)" and the intent states "A head entry present twice produces a finding naming both the entry the record observed being written and the entry still present; a mutant that reports only the first occurrence reddens it."
+citation mutants: SC1 cites scripts/head-state.test.mjs:935 as the line that declares "AC1: a name present twice is duplicate, and both entries are named", and that line declares null: a citation whose suite declares no such test at this head names a test that is not there | SC1 cites scripts/head-state.test.mjs:934 as the line that declares "a test no suite in this checkout declares", and that line declares "AC1: a name present twice is duplicate, and both entries are named": a citation whose suite declares no such test at this head names a test that is not there
+dropped-plan-suite mutant: SC1 is resolved by the plan to scripts/head-state.test.mjs, and the claim cites ["scripts/head-record.test.mjs"]: the suite the milestone's own plan assigns the criterion must be among its citations
+edge-detail mutant: SC1's E1 must carry the detail the intent's edge row states: it carries "a detail this record wrote for itself" and the intent states "A head with one entry of each name reports no finding, never a finding with an empty comparison."
+absence mutants: the record must carry exactly the two absences this head measured - E2 (duplicate) and E4 (writtenBy) - and it carries ["E4"] | E2 records an absence and does not state its searched: "nothing was searched"
+research/raw/m068-verdict-claims.json: 7 pins hold the committed record at once
+writer: one write behind M068_CAPTURE, deriving through the recorded document and the pin
+▶ measurement
+  ✔ reads the criteria, the edge rows, the plan coverage and the suites the plan resolves (1213.6002ms)
+  ✔ the join answers with the six fields the intent names, and the artefacts this milestone ships are here (0.3571ms)
+✔ measurement (1214.6935ms)
+▶ the claim record
+  ✔ is a read: a default run hashes the record the same before and after (0.3881ms)
+  ✔ is exactly what this head derives, and a value that moved is named (1.0731ms)
+  ✔ rules every criterion the intent declares, quotes it verbatim, and carries the edges it is held by (0.4957ms)
+  ✔ names a test this head declares for every citation, and a line that states what the citation says (3.7065ms)
+  ✔ cites the suite the plan resolves for every criterion, and states the plan evidence it read (0.6278ms)
+  ✔ carries one claim per edge, with its lines read back and the two absences this head measured (7.0665ms)
+✔ the claim record (13.6791ms)
+▶ the mutants
+  ✔ a claim quoting its criterion in its own words reddens naming the claim and the field (1.579ms)
+  ✔ a citation whose line does not state what it says reddens naming the file and the line (8.7297ms)
+  ✔ a claim that drops the suite the plan resolves reddens naming the criterion and both suites (0.821ms)
+  ✔ a claim whose edge cells are not the intent’s reddens naming the criterion and the edge (0.6382ms)
+  ✔ a measured absence softened to prose reddens naming the edge and the field it lost (17.8775ms)
+  ✔ the pins are different checks rather than one check listed twice (8.1326ms)
+✔ the mutants (38.0475ms)
+▶ the writer
+  ✔ writes only behind its own arm, and derives the candidate through the recorded document (0.6213ms)
+✔ the writer (0.6892ms)
+ℹ tests 15
+ℹ suites 4
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1374.2941
+skill-lint: 22 SKILL.md files, no findings
+skills-registered: 22 project skill(s), the loader skips none of them
+  [OK  ] check-loads:di-doctor
+  [OK  ] check-tested:di-doctor: tests 6, pass 6, fail 0
+  [OK  ] check-loads:error-explainer
+  [OK  ] check-tested:error-explainer: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-panel
+  [OK  ] check-tested:extension-panel: tests 6, pass 6, fail 0
+  [OK  ] check-loads:interop
+  [OK  ] check-tested:interop: tests 10, pass 10, fail 0
+  [OK  ] check-loads:model-init
+  [OK  ] check-tested:model-init: tests 6, pass 6, fail 0
+  [OK  ] check-loads:signal-provenance
+  [OK  ] check-tested:signal-provenance: tests 6, pass 6, fail 0
+  [OK  ] check-loads:stale-view
+  [OK  ] check-tested:stale-view: tests 6, pass 6, fail 0
+  [OK  ] check-loads:state
+  [OK  ] check-tested:state: tests 12, pass 12, fail 0
+  [OK  ] check-loads:attached
+  [OK  ] check-tested:attached: tests 4, pass 4, fail 0
+  [OK  ] check-loads:coexist
+  [OK  ] check-tested:coexist: tests 6, pass 6, fail 0
+  [OK  ] check-loads:extension-enabled
+  [OK  ] check-tested:extension-enabled: tests 7, pass 7, fail 0
+  [OK  ] check-loads:live-reads
+  [OK  ] check-tested:live-reads: tests 10, pass 10, fail 0
+  [OK  ] check-loads:read-only
+  [OK  ] check-tested:read-only: tests 6, pass 6, fail 0
+  [OK  ] check-loads:setup
+  [OK  ] check-tested:setup: tests 8, pass 8, fail 0
+  [OK  ] contract:control-ai-browsers: contract checks pass
+  [OK  ] contract:control-angular-dev-app: contract checks pass
+  [OK  ] contract:control-angular-devtools: contract checks pass
+  [OK  ] contract:control-pangular-inspector: contract checks pass
+  [OK  ] contract:control-vitest-browser-angular: contract checks pass
+  [OK  ] scripts-in-step: 3 copies in step
+verification gate (structure): pass
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M068; stages archive-paths
+gate-integrity: archive-paths clean - examined 24 live path reference(s) of 237 reference(s) in 199 suite(s), across 6 relocated subtree(s)
+gate-integrity: pass - 0 finding(s)
+gate-integrity: D:/projects/sandbox/angular-ai-devtools milestone M068; stages fix-record
+gate-integrity: fix-record clean - examined 31 claim(s) in 9 task log(s) of .project/tasks (logs of M068) against 33 changed path(s) of 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f (rule ship: M067's ship commit, 72e916a0 (ship: M067 — formfield-binder); the head is this tree's HEAD, ef07cecf (build: verify ledger for T006); claims: declared)
+gate-integrity: fix-record pins - 89 declared path(s) byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as changes
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-verdict-claims.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-verdict-claims.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m067-verdict-claims.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/navigation-blocking.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/chunk-failure-claims.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-record-shapes.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-record-shapes.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak-shapes.test.mjs at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:98 (T001) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/chunk-failure-claims.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/chunk-failure-copy.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/component-search.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/copy-check.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/field-binder-record.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-verdict-claims.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/locale-correctness-shapes.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m067-verdict-claims.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-verdict-claims.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/panel-copy.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-guard-phase.spec.ts at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin apps/angular-ai-devtools/src/app/panel-outlet.spec.ts at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-record-shapes.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/navigation-blocking.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-record-shapes.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak-shapes.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin tests/held-out/fixture-explainers-unchanged.test.mjs at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:128 (T003) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/gate-stability-record.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-verdict-claims.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-verdict-claims.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m067-verdict-claims.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/navigation-blocking.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/chunk-failure-claims.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-record-shapes.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-record-shapes.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak-shapes.test.mjs at .project/tasks/T004-re-derive-the-census-and-stability-recordings-at-this-head.md:95 (T004) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin research/raw/m057-record-shapes.json at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-signals-shapes.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-signals.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/chunk-failure-claims.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-record-shapes.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-verdict-claims.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-record-shapes.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m067-verdict-claims.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-verdict-claims.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak-shapes.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/navigation-blocking.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:96 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak-shapes.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:98 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak-shapes.test.mjs at .project/tasks/T005-re-derive-the-shape-maps-the-new-suite-and-record-moved.md:102 (T005) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin research/raw/m068-verdict-claims.json at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:92 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m068-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:93 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m067-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:94 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin research/raw/m068-verdict-claims.json at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:94 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:94 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/navigation-blocking.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/chunk-failure-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-record-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-record-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m068-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m067-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:97 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:97 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m067-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:106 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m068-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin research/raw/m068-verdict-claims.json at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/gate-integrity-default-tasks.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/m067-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/navigation-blocking.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/chunk-failure-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-answer.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/tutor-record-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/guard-record-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/outlet-record-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: pin scripts/teardown-leak-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:108 (T006) - declared and byte-identical across 72e916a0a3ca9314bdbc76ab018d5c4f3bdf7282..ef07cecfb5cd3ad3dc7db6566c4f8414d7ae255f, recorded and not judged as a change
+gate-integrity: mention extension/title-input.js at .project/tasks/T001-measure-the-head-entries-the-portal-writes-and-the-navigat.md:92 (T001) - recorded and not judged
+gate-integrity: mention scripts/gate-integrity.test.mjs at .project/tasks/T002-join-the-observed-head-entry-against-the-entry-still-prese.md:71 (T002) - recorded and not judged
+gate-integrity: mention panel-head-state.ts at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:122 (T003) - recorded and not judged
+gate-integrity: mention m064-verdict-claims.json at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:123 (T003) - recorded and not judged
+gate-integrity: mention research/raw/m068-verdict-claims.json at .project/tasks/T003-render-the-join-on-one-panel-surface-and-move-every-pin-wi.md:127 (T003) - recorded and not judged
+gate-integrity: mention scripts/overlay-verdict-claims.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:95 (T006) - recorded and not judged
+gate-integrity: mention scripts/gate-stability-record.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:97 (T006) - recorded and not judged
+gate-integrity: mention scripts/tutor-signals-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:97 (T006) - recorded and not judged
+gate-integrity: mention research/raw/m044-gate-shapes.json at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:98 (T006) - recorded and not judged
+gate-integrity: mention research/raw/m057-record-shapes.json at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:98 (T006) - recorded and not judged
+gate-integrity: mention scripts/tutor-signals-shapes.test.mjs at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:98 (T006) - recorded and not judged
+gate-integrity: mention research/raw/m059-record-shapes.json at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:98 (T006) - recorded and not judged
+gate-integrity: mention research/raw/m056-gate-stability.json at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:98 (T006) - recorded and not judged
+gate-integrity: mention research/raw/m068-head-record.json at .project/tasks/T006-capture-the-milestone-verdict-claims-and-run-the-project-v.md:105 (T006) - recorded and not judged
+gate-integrity: pass - 0 finding(s), 14 mention(s)
+Checking formatting...
+All matched files use Prettier code style!
+npm notice run check
+npm notice run node scripts/ensure-sidecar-deps.mjs && tsc -p tsconfig.json && npm run lint:skills && npm run verify:skills && npm run check:skills && npm run check:panel && npm run check:extension && npm run check:companion && npm run gate:verification && npm run gate:archive-paths && npm run gate:fix-record && npm run format:check
+npm notice run lint:skills
+npm notice run node scripts/skill-lint.mjs
+npm notice run verify:skills
+npm notice run node scripts/skills-registered.mjs
+npm notice run check:skills
+npm notice run tsc -p .commandcode/skills/tsconfig.json && tsc -p .commandcode/skills/tsconfig.run-code.json
+npm notice run check:panel
+npm notice run tsc -p apps/angular-ai-devtools/tsconfig.check.json
+npm notice run check:extension
+npm notice run tsc -p extension/tsconfig.json
+npm notice run check:companion
+npm notice run tsc -p packages/ai-devtools-companion/tsconfig.json
+npm notice run gate:verification
+npm notice run node scripts/verification-gate.mjs
+npm notice run gate:archive-paths
+npm notice run node scripts/gate-integrity.mjs --check archive
+npm notice run gate:fix-record
+npm notice run node scripts/gate-integrity.mjs --check fix-record
+npm notice run format:check
+npm notice run prettier --check .

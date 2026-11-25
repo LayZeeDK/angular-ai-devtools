@@ -1,0 +1,28 @@
+head: 1b6cfe22074bae04b091ef4cf58317b558b7b2e8 at 2026-11-25T05:25:03.705Z
+✔ a default run is a read: the recording hashes the same before and after (0.8212ms)
+ℹ research/raw/m056-gate-stability.json at load: 6568 bytes, sha256 951cfe2fd20e748b958a40132092e3407ea597d9da9bde81ca27d917c61a0d24
+ℹ research/raw/m056-gate-stability.json after the run: sha256 951cfe2fd20e748b958a40132092e3407ea597d9da9bde81ca27d917c61a0d24
+✔ the recording is the canonical serialisation of its own record (0.2091ms)
+✔ the three sections are what this head derives, so the record cannot drift from the tree (17393.3992ms)
+ℹ archive: npm run gate:fix-record -- --milestone M044 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8 exited 0 with refusal null; counts {"refusalLines":0,"findings":0,"mentions":7,"claimsExamined":4,"taskLogsExamined":5,"changedPaths":52}
+ℹ fixRecord: node --test scripts/gate-integrity.test.mjs exited 0 with refusal null; counts {"watched":3,"green":3,"red":0}
+ℹ predecessor: node scripts/gate-integrity.mjs --check fix-record --milestone M056 --head 5290d939497448823ca0f5d1ce5c1d777805ddb8 exited 0 with refusal null; counts {"refusalLines":0,"findings":0}
+✔ the commit carrying the record sits ahead of the head the record pins (59.6085ms)
+ℹ carrier: git log --format=%H 5290d939497448823ca0f5d1ce5c1d777805ddb8..HEAD -- research/raw/m056-gate-stability.json names 54 commit(s), newest 3fe51101
+✔ the archive section records the clean pass the repaired task directory earns (0.6955ms)
+ℹ archive: exit 0 null over 5 task log(s); gate-integrity: pass - 0 finding(s), 7 mention(s)
+✔ the fixRecord section records the green suite its three repairs produced (0.2111ms)
+ℹ fixRecord: the recording still re-derives from the tree, the range and the stream this head carries is green at this head
+ℹ fixRecord: AC2: a red check reaches the gate as a refusal is green at this head
+ℹ fixRecord: AC7: a log token is a claim only where its task declares it is green at this head
+✔ the predecessor section records the range the repaired stage derives (0.2193ms)
+ℹ predecessor: exit 0 null - pass - 0 finding(s), 4 mention(s)
+✔ the arming gate guards the one write, and a default run spawns no writer (0.4ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17557.993
