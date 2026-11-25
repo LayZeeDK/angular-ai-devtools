@@ -41,7 +41,9 @@
         "SC4 T006 AC3",
         "SC4 T007 AC1",
         "SC4 T008 AC1",
-        "SC4 T009 AC1"
+        "SC4 T009 AC1",
+        "SC4 T010 AC1",
+        "SC4 T011 AC1"
       ],
       "resolved": [
         "SC1 scripts/head-state.test.mjs",
