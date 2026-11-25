@@ -2380,7 +2380,7 @@ Open questions
 Depends on: [M023]
 Programme: Generation 4 · Batch: design system · Group: design system
 Surfaces: panel
-Status: pending
+Status: active
 Archive: null
 Integrated: null
 
