@@ -1,1 +1,2 @@
 {"command": "node --test scripts/token-baseline.test.mjs", "commit": "7225d04d54b0a97d55170b823dedead2b8c1c26b", "recorded_at": "2026-11-25T08:38:34+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
+{"command": "node --test scripts/panel-styles.test.mjs", "commit": "b9a1bcc04fbf296580d1dcfd6e4cb9f85197c969", "recorded_at": "2026-11-25T09:22:17+00:00", "result": "pass", "schema": "gsd-path/verify-ledger/v2"}
