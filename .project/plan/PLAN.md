@@ -17,6 +17,12 @@ document seam may substitute as a browser does), and T002 now owns the two seam 
 `scripts/token-baseline.test.mjs` joined its files, because the record cannot represent a second media block, labels
 every non-dark media query as the dark scheme, and reads token rows through a property name that does not exist.
 
+Plan patch 2026-11-25 (second): the token layer moved the panel's bundle budget, and the pin that records it is a
+recording like any other, so it belongs to the wave that re-derives what this milestone moved. Measured: 534.67 kB at
+base, 538.25 kB after the tokens — 2.81 kB over the recorded 535.44 kB, from the token block's 3,580 emitted bytes.
+`scripts/panel-bundle-budget.test.mjs` therefore joins T004, which states the cost, the reason it is declared and
+M070's projection: Material and CDK arrive there and will need a further declared move rather than another quiet one.
+
 ## Waves
 
 ## Wave 1 — T001: measure the values the token layer must re-express

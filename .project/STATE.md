@@ -2,10 +2,10 @@
 pipeline: gsd-path/v2
 project: angular-ai-devtools
 milestone: ds-tokens
-phase: build
+phase: plan
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: blocked
+status: active
 branch: gsd-path/M069
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1422,3 +1422,5 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-25 — plan — plan approved
 - 2026-11-25 — build — build started
 - 2026-11-25 — build — build blocked
+- 2026-11-25 — plan — build plan repair requested
+- 2026-11-25 — plan — build recovery: {"base": "c4b26efd892421a3d97eef027c6f1f267f1135a5", "branch": "gsd-path/M069", "kind": "plan", "source": "build"}

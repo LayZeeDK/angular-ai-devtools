@@ -9,6 +9,10 @@ base: null
 worktree: null
 task_branch: null
 files:
+- scripts/panel-styles.test.mjs
+- scripts/nx-config-policy.test.mjs
+- scripts/image-budget.test.mjs
+- scripts/panel-bundle-budget.test.mjs
 - scripts/token-baseline.test.mjs
 - scripts/teardown-leak-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
@@ -33,6 +37,12 @@ files:
 
 ## Context
 
+The token block costs 3,580 emitted bytes: the panel bundle measured 534.67 kB at this milestone's base and 538.25 kB
+after the tokens landed, against a pin of 535.44 kB. That overrun is declared here and paid for deliberately, with its
+reason and the next milestone's projection, rather than absorbed by widening the pin quietly.
+
+## Context (recordings)
+
 Two suites and a stylesheet moved, so the census counts different files and the stability record pins a suite whose exit it must now describe. M068 paid three refusals for capturing these in the wrong order; the census is captured after the last suite edit and the stability record after the census.
 
 ## Approach
@@ -46,13 +56,17 @@ Re-derive the census through its own arm, then the stability record through its 
 ## Acceptance criteria
 
 1. Both recordings are re-derived at this head and their default runs report zero failures.
-2. Every value that moved is named with what moved it: the two suites and the stylesheet this milestone changed.
+2. Every value that moved is named with what moved it: the two suites and the stylesheet this milestone changed, and the bundle pin records the token block's measured cost with the reason it is declared rather than a widened tolerance.
 3. A second armed run of each writes nothing, and a default run writes nothing.
 
 ## Files
 
 Every path this task may touch, and nothing else:
 
+- `scripts/panel-styles.test.mjs`
+- `scripts/nx-config-policy.test.mjs`
+- `scripts/image-budget.test.mjs`
+- `scripts/panel-bundle-budget.test.mjs`
 - `scripts/token-baseline.test.mjs`
 - `scripts/teardown-leak-shapes.test.mjs`
 - `scripts/outlet-record-shapes.test.mjs`
