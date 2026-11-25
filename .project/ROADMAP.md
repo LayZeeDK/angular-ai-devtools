@@ -2375,3 +2375,360 @@ Risks
 Open questions
 - none
 
+
+### M069 — ds-tokens
+Depends on: [M023]
+Programme: Generation 4 · Batch: design system · Group: design system
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The design system ships its density, colour, type and motion custom properties, with a reduced-motion contract every later component inherits.
+
+Scope: in
+- The custom properties for density, colour, type and motion, in one stylesheet with one naming scheme.
+- The `prefers-reduced-motion` contract stated in CSS, with motion expressed only as transitions and keyframes.
+- A suite that reads the stylesheet as text and asserts every property it declares is named in one place.
+
+Scope: out
+- Motion implemented in an imperative animation API rather than CSS.
+- - A complete component library; A11 bounds the design system to what shipped features already use.
+
+Success criteria
+1. Every property the design system declares is present under both motion preferences, asserted by reading the stylesheet; a mutant that drops the reduced-motion block reddens naming it.
+2. No property is declared twice under two names, and a mutant that adds a second spelling reddens naming both.
+3. The stylesheet carries no colour literal outside the token block; a mutant that adds one reddens naming the line.
+
+Risks
+- A token set drifts from the surfaces that consume it unless one suite reads both sides.
+
+Open questions
+- none
+
+### M070 — ds-explainer-shell
+Depends on: [M069]
+Programme: Generation 4 · Batch: design system · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel renders its six explainer surfaces through one shared shell — picker, chain display, explain button, answer block, and the empty, loading and error states — instead of six copies.
+
+Scope: in
+- One shell component owning the picker, the chain display, the explain button, the answer block and the three states.
+- The six shipped explainer surfaces moved onto it, with their rendered output unchanged.
+- A suite that proves each surface renders through the shell and that the shell has one definition.
+
+Scope: out
+- A component library; the shell is harvested from what the six surfaces already repeat.
+- Restyling any surface beyond what the shell change requires.
+
+Success criteria
+1. All six surfaces render through the one shell, and a mutant that reintroduces a local copy reddens naming the surface.
+2. Each surface's rendered output is byte-identical to what it rendered before, asserted by the existing surface suites unchanged.
+3. The shell has exactly one definition; a mutant that duplicates it reddens naming both files.
+
+Risks
+- Moving six surfaces at once can hide a behavioural change inside a restyle, so the existing suites must stay untouched.
+
+Open questions
+- none
+
+### M071 — recordings-manifest-truth
+Depends on: [M068]
+Programme: Generation 4 · Batch: tooling · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: Every row of `scripts/recordings.json` names the suite that actually writes its record, and every capture-backed record has a true row.
+
+Scope: in
+- The `m055-record-shapes.json` row corrected to `scripts/tutor-record-shapes.test.mjs`, which is the suite whose arm writes it.
+- A read-only suite asserting, per row, that the named suite exists, names the record in its source, reads the row's arm, and that the record's own capture command names that suite and arm.
+- The reverse assertion: every record under `research/raw/` carrying an armed capture command has a row that names it.
+- An armed writer for `research/raw/m057-record-shapes.json`, the last record-shapes map with none, refusing a candidate its own pins reject.
+
+Scope: out
+- Widening the manifest to records that no armed capture writes, which would make the reverse assertion vacuous.
+
+Success criteria
+1. A row naming a suite that does not write its record reddens with all three sides named: the row, the suite the record's capture command names, and the record the named suite writes.
+2. The m068 row is asserted present and passing, so a stub or empty manifest cannot pass vacuously.
+3. `m057-record-shapes.json` is produced by an armed run, and a second armed run moves no byte; a mutant that makes the derivation non-idempotent is refused and nothing is written.
+4. The census is re-derived last, after every suite edit, and its default run is green.
+
+Risks
+- A manifest read by nothing decays silently, which is how this row survived three milestones.
+
+Open questions
+- none
+
+### M072 — ds-services
+Depends on: [M069]
+Programme: Generation 4 · Batch: design system · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel offers toast, tooltip and clipboard through presentational services, and an awaitable confirm gate rendered with the CDK dialog rather than a page protocol.
+
+Scope: in
+- Toast, tooltip and clipboard services with one canonical implementation each.
+- An awaitable `confirm(request): Promise<boolean>` rendered with the CDK dialog, never a page `confirm` or a protocol message.
+- A suite that proves each service is reachable from a surface and that the confirm gate resolves both answers.
+
+Scope: out
+- A page-side dialog or protocol message for confirmation.
+- A second toast or tooltip implementation beside the canonical one.
+
+Success criteria
+1. The confirm gate resolves `true` on accept and `false` on dismiss, proven by driving both; a mutant that resolves a constant reddens naming the branch.
+2. No surface calls a page protocol or `window.confirm`; a mutant that adds one reddens naming the surface.
+3. Each service has exactly one definition, and a mutant that copies one reddens naming both.
+
+Risks
+- A CDK dialog inside the panel depends on a stylesheet the panel must carry, which the bundle budget measures.
+
+Open questions
+- none
+
+### M073 — ds-harnesses
+Depends on: [M070]
+Programme: Generation 4 · Batch: design system · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The design system ships the two panel harnesses the shipped surfaces need, and claims only those two.
+
+Scope: in
+- Harness claims HAR-1 and HAR-2 for the shell and the answer block.
+- HAR-3 and HAR-4 stay with M023, which own the ambiguous host and the action-reached-Angular claim.
+- A suite that proves each harness loads against the shipped surface it claims.
+
+Scope: out
+- A harness for an ambiguous host or an action claim, which have no clean design-system subject.
+
+Success criteria
+1. Each claimed harness loads and drives its surface, and a mutant that points a harness at the wrong surface reddens naming both.
+2. No harness claims HAR-3 or HAR-4; a mutant that adds such a claim reddens naming the claim.
+3. The harness list is one declaration, and a mutant that duplicates it reddens.
+
+Risks
+- A harness written against a shell that later changes shape fails silently unless the harness drives a rendered assertion.
+
+Open questions
+- none
+
+### M074 — ds-playwright
+Depends on: [M068]
+Programme: Generation 4 · Batch: design system · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: Playwright proves what a browser outside DevTools can prove about this extension: that it loads, that the panel bundle and its `baseHref` resolve, and that the background relay answers an ordinary tab.
+
+Scope: in
+- A Playwright project that loads the built extension in a throwaway, git-ignored profile.
+- Assertions for extension load, panel bundle presence, `baseHref` resolution and the background/relay path driven from an ordinary tab.
+- The stated limit recorded in the suite: the DevTools panel itself cannot be driven, because `chrome.devtools` is undefined outside DevTools.
+
+Scope: out
+- Driving the DevTools panel, which lives in a `devtools://` target Playwright does not surface as a page.
+- Using a `control-ai-browsers` instance; the run must use its own profile.
+
+Success criteria
+1. The run proves extension load, the panel bundle and `baseHref`, and the relay path from an ordinary tab, each with its own assertion.
+2. The suite states the DevTools-panel limit and no assertion claims it; a mutant that adds such a claim reddens naming the limit.
+3. The profile is throwaway and git-ignored, and a run that finds a shared browser profile refuses before driving.
+
+Risks
+- A Playwright browser that signs into an account would leak it into the repository; the profile rule is the guard.
+
+Open questions
+- none
+
+### M075 — storybook-story-index
+Depends on: [M074]
+Programme: Generation 4 · Batch: Storybook · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel detects a Storybook application and lists its stories, naming the resume it used and the count it read.
+
+Scope: in
+- Detection of `window.__STORYBOOK_PREVIEW__` and its story index without page-side instrumentation.
+- A panel surface listing stories with their ids and titles.
+- A named absence when the page is not a Storybook application.
+
+Scope: out
+- Reading a story's rendered DOM as its own evidence; the index is read, not the iframe.
+
+Success criteria
+1. A Storybook page yields its story index with the count the page itself states; a mutant that fabricates a count reddens naming it.
+2. A non-Storybook page answers the named absence and never an empty list; a mutant that returns an empty list reddens naming the absence.
+3. The detection reads only the documented global; a mutant that sniffs the URL instead reddens naming the global.
+
+Risks
+- Storybook's global is undocumented API and may move between majors; the absence state must survive that.
+
+Open questions
+- none
+
+### M076 — storybook-story-gap
+Depends on: [M075]
+Programme: Generation 4 · Batch: Storybook · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel names the components a Storybook application covers with no story, and the stories that exist for a component it cannot find.
+
+Scope: in
+- Coverage join between the story index and the components the panel already enumerates.
+- The two absences named separately: a component with no story, and a story naming a component not found.
+- One panel surface rendering the join.
+
+Scope: out
+- A remedy, a suggested story, or a scaffolded file.
+
+Success criteria
+1. A component with no story is named with its selector; a mutant that reports it as covered reddens naming it.
+2. A story naming an unknown component is named with its id; a mutant that drops it reddens naming the id.
+3. The answer names no remedy and no generated file; a mutant that adds either reddens.
+
+Risks
+- Component enumeration and story ids use different naming schemes, so the join key must be derived and asserted, not assumed.
+
+Open questions
+- none
+
+### M077 — storybook-story-explain
+Depends on: [M076]
+Programme: Generation 4 · Batch: Storybook · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel explains one story: its args, its variants and what it does not exercise.
+
+Scope: in
+- Per-story reading of args and variants from the story index.
+- A panel surface rendering them, with the panel-local Prompt API answer on request.
+- A named absence when the index carries no args for the story.
+
+Scope: out
+- Running the story; the panel reads the index, it does not render the iframe.
+
+Success criteria
+1. A story with args is explained with every arg named; a mutant that drops one reddens naming the arg.
+2. A story with no declared args answers the named absence rather than an empty list; a mutant that returns an empty list reddens.
+3. A story with one variant and a story with three are both reported with the count the index states; a mutant that hardcodes a count reddens.
+
+Risks
+- Story args are type-less at runtime, so the panel must report the value it read, never a coerced one.
+
+Open questions
+- none
+
+### M078 — ds-story-variants
+Depends on: [M069]
+Programme: Generation 4 · Batch: design system · Group: design system
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: Every design-system component ships a story that exposes its args and at least one variant, so the design system can be reviewed in its own Storybook.
+
+Scope: in
+- One story per design-system component, exposing args and at least one variant.
+- A suite that proves each component has a story, that the story declares args, and that it renders at least one variant.
+- The Storybook application that hosts them, with no interaction test wired into `npm test`.
+
+Scope: out
+- An interaction test as a gate; Storybook is a review surface, not a gate.
+- Storybook mocks of `chrome.*`, which would be a second unowned copy of the wire contract.
+
+Success criteria
+1. Every component has a story with declared args; a mutant that removes one component's story reddens naming it.
+2. Every story renders at least one variant, proven from the story's own declaration; a mutant that drops the variant reddens.
+3. No Storybook test runs in `npm test`; a mutant that wires one in reddens naming the stage.
+
+Risks
+- Stories are the only review surface for the design system, so a missing story is invisible until someone looks.
+
+Open questions
+- none
+
+### M079 — cap-1-capability-guidance
+Depends on: [M075]
+Programme: Generation 4 · Batch: Storybook · Group: panel
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The panel turns a missing Prompt API into a stated capability gap with the guidance to enable it, never a silent failure.
+
+Scope: in
+- Capability detection for the panel-local Prompt API.
+- The guidance state naming what is missing and what enables it, on every surface that can call it.
+- A suite that proves the guidance appears in place of the call, and the call never runs when the capability is absent.
+
+Scope: out
+- A silent fallback that answers as if the model had run.
+
+Success criteria
+1. With the capability absent, the guidance state renders and no call is attempted; a mutant that calls anyway reddens naming the call.
+2. With the capability present, the guidance does not render; a mutant that renders both reddens.
+3. The guidance names the capability and never a remedy outside it; a mutant that names a page edit reddens.
+
+Risks
+- A capability check read once at startup goes stale when the model downloads mid-session.
+
+Open questions
+- none
+
+### M080 — show-1-showcase-stories
+Depends on: [M078]
+Programme: Generation 4 · Batch: design system · Group: design system
+Surfaces: panel
+Status: pending
+Archive: null
+Integrated: null
+
+Goal: The design system's Storybook also hosts the six panel surfaces as showcase stories, so the shell and the surfaces are reviewed on one surface.
+
+Scope: in
+- One story per shipped panel surface, rendering it with recorded data.
+- The showcase stories kept out of `npm test`, as every Storybook story is.
+- A suite that proves each surface has a showcase story and that the story's data is the surface's own recorded fact.
+
+Scope: out
+- A second rendering path for any surface; the showcase renders the shipped component.
+- A mock of `chrome.*`.
+
+Success criteria
+1. Each of the six surfaces has a showcase story rendering the shipped component; a mutant that removes one reddens naming the surface.
+2. Each story's data is the recorded fact the surface's own suite uses; a mutant that inlines different data reddens naming both.
+3. No showcase story runs in `npm test`; a mutant that wires one in reddens naming the stage.
+
+Risks
+- A showcase story rendering a copy of a surface would drift from the shipped one without any gate noticing.
+
+Open questions
+- none
+
