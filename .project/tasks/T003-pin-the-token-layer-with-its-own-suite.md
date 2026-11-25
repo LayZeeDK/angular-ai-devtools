@@ -9,6 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
+- scripts/token-baseline.test.mjs
 - scripts/teardown-leak-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
 - scripts/guard-record-shapes.test.mjs
@@ -51,6 +52,7 @@ One read-only suite reading the stylesheet as text: every token the rules read i
 
 Every path this task may touch, and nothing else:
 
+- `scripts/token-baseline.test.mjs`
 - `scripts/teardown-leak-shapes.test.mjs`
 - `scripts/outlet-record-shapes.test.mjs`
 - `scripts/guard-record-shapes.test.mjs`

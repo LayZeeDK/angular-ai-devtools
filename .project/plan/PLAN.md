@@ -10,6 +10,13 @@ max_review_cycles: 3
 
 Project verify: `node scripts/ensure-sidecar-deps.mjs && npx nx run angular-ai-devtools:build-extension && npm run check && npm test`
 
+Plan patch 2026-11-25: T002's first attempt was blocked by a measured oracle gap, not by the CSS. jsdom 27.4.0
+resolves no custom property, so a token layer is invisible to a `getComputedStyle` measure and the intent's
+"passes unmodified" forbade the only correct repair. The intent gained correction C4 (no assertion may be edited; the
+document seam may substitute as a browser does), and T002 now owns the two seam repairs as well as the tokens —
+`scripts/token-baseline.test.mjs` joined its files, because the record cannot represent a second media block, labels
+every non-dark media query as the dark scheme, and reads token rows through a property name that does not exist.
+
 ## Waves
 
 ## Wave 1 — T001: measure the values the token layer must re-express

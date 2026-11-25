@@ -9,6 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
+- scripts/token-baseline.test.mjs
 - scripts/teardown-leak-shapes.test.mjs
 - scripts/outlet-record-shapes.test.mjs
 - scripts/guard-record-shapes.test.mjs
@@ -52,6 +53,7 @@ Re-derive the census through its own arm, then the stability record through its 
 
 Every path this task may touch, and nothing else:
 
+- `scripts/token-baseline.test.mjs`
 - `scripts/teardown-leak-shapes.test.mjs`
 - `scripts/outlet-record-shapes.test.mjs`
 - `scripts/guard-record-shapes.test.mjs`
