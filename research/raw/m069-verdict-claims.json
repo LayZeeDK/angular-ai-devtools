@@ -1,0 +1,705 @@
+{
+  "schema": "m069-verdict-claims/v1",
+  "milestone": "M069",
+  "quotes": {
+    "from": "scripts/verdict-claims-intent.mjs (intentPathForMilestone(ROOT, \"M069\"))",
+    "how": "parsed with the same routine scripts/overlay-verdict-claims.test.mjs uses, extracted into this file and run over the resolved intent, so every criterionText is the intent's own text: the 4 criteria it declares are [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] and scripts/overlay-verdict-claims.test.mjs compares them character for character",
+    "edges": "read from the intent's own five-column edge-coverage table (Edge | Criterion | Category | Disposition | Detail) for the edge-to-criterion rows, and the edge-to-suite mapping stated by this census because this plan's ## Held-out checks holds nothing out: it reads 0 held-out row(s) and 8 coverage row(s), so 8 edge row(s) over the criteria [\"SC1\",\"SC2\",\"SC3\",\"SC4\"] each get one claim and one suite - [\"E1 -> scripts/ds-tokens.test.mjs\",\"E2 -> scripts/ds-tokens.test.mjs\",\"E3 -> scripts/token-baseline.test.mjs\",\"E4 -> scripts/token-baseline.test.mjs\",\"E5 -> scripts/panel-styles.test.mjs\",\"E6 -> scripts/ds-tokens.test.mjs\",\"E7 -> scripts/panel-bundle-budget.test.mjs\",\"E8 -> scripts/ds-tokens.test.mjs\"] - and every criterion's claim cites every suite its own edges name. The plan's ## Held-out checks and its ## Intent coverage table disagree at 0 row(s) [], recorded under evidence.plan.disagreements rather than refused, because the census scripts/navigation-blocking.test.mjs refuses to derive across the two tables and holds this record to the list",
+    "citations": "every citation is a line this checkout carries at capture: 15 test-declaration citation(s) over [\"scripts/ds-tokens.test.mjs\",\"scripts/token-baseline.test.mjs\",\"scripts/panel-styles.test.mjs\",\"scripts/panel-bundle-budget.test.mjs\"], each opened at the line it states and each held to the test title that line declares, and 32 further line citation(s) over the eight edge claims, each opened and read back"
+  },
+  "ruling": {
+    "required": 0,
+    "notRequired": 4,
+    "why": [
+      "No row is required, and the record therefore names no driver, no instance and no verdict path: scripts/overlay-verdict-claims.test.mjs refuses a list with no required row that names a driver, so naming one would be the opposite defect.",
+      "The reason is not convenience. A required row must name the driver a control-ai-browsers run expression takes to the wave gate, and that driver must return the gate's four readings - toolElements, drawnRect, descriptor and noDevContext. Every fact the 4 criteria this milestone declares is written about is a fact about the stylesheet's own text, the record that measured what it renders and the 12 stage(s) of the check chain; none of them is an element's rect or a dev context, so naming a driver would make the gate return a page reading for a claim about the page's stylesheet.",
+      "The portal is not lost by that ruling: each reason names the clause that would have made a row required, and each claim names the suite, the test, the line and the commands that prove it."
+    ]
+  },
+  "evidence": {
+    "intent": {
+      "path": ".project/intent/INTENT.md",
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ]
+    },
+    "plan": {
+      "path": ".project/plan/PLAN.md",
+      "heldOut": [],
+      "coverage": [
+        "SC1 T002 AC1",
+        "SC2 T002 AC2",
+        "SC3 T001 AC1",
+        "SC3 T002 AC3",
+        "SC3 T003 AC1",
+        "SC4 T003 AC2",
+        "SC4 T004 AC1",
+        "SC4 T005 AC2"
+      ],
+      "assigned": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ],
+      "missingTasks": [],
+      "disagreements": [],
+      "edgeSuites": [
+        "E1 scripts/ds-tokens.test.mjs",
+        "E2 scripts/ds-tokens.test.mjs",
+        "E3 scripts/token-baseline.test.mjs",
+        "E4 scripts/token-baseline.test.mjs",
+        "E5 scripts/panel-styles.test.mjs",
+        "E6 scripts/ds-tokens.test.mjs",
+        "E7 scripts/panel-bundle-budget.test.mjs",
+        "E8 scripts/ds-tokens.test.mjs"
+      ]
+    },
+    "edges": {
+      "rows": 8,
+      "criteria": [
+        "SC1",
+        "SC2",
+        "SC3",
+        "SC4"
+      ],
+      "columns": [
+        "Edge",
+        "Criterion",
+        "Category",
+        "Disposition",
+        "Detail"
+      ]
+    },
+    "suites": [
+      {
+        "path": "scripts/ds-tokens.test.mjs",
+        "tests": 21,
+        "groups": 3
+      },
+      {
+        "path": "scripts/token-baseline.test.mjs",
+        "tests": 24,
+        "groups": 5
+      },
+      {
+        "path": "scripts/panel-styles.test.mjs",
+        "tests": 8,
+        "groups": 0
+      },
+      {
+        "path": "scripts/panel-bundle-budget.test.mjs",
+        "tests": 6,
+        "groups": 0
+      }
+    ],
+    "stylesheet": {
+      "path": "apps/angular-ai-devtools/src/styles.css",
+      "lines": 302,
+      "bytes": 11648,
+      "sha256": "4926ba86a8553bb2216247e1fc5459026af0eac680fd0f0ad8a65e3eb05ec799"
+    },
+    "records": [
+      "research/raw/m069-token-baseline.json"
+    ],
+    "absences": []
+  },
+  "capture": {
+    "command": "M069_CAPTURE=1 node --test scripts/m069-verdict-claims.test.mjs",
+    "check": "node --test scripts/m069-verdict-claims.test.mjs",
+    "records": "research/raw/m069-verdict-claims.json",
+    "criteria": [
+      "SC1",
+      "SC2",
+      "SC3",
+      "SC4"
+    ],
+    "reading": "an armed run re-derives the record from the intent this checkout binds, its five-column edge coverage, the four suites this milestone ships and the lines this checkout states, and writes it only when a value moved; a default run reads the file and asserts it is exactly what this head derives, naming the field that moved when it is not, and the writer refuses a candidate that is not the fixed point of this pin."
+  },
+  "claims": [
+    {
+      "criterion": "SC1",
+      "criterionText": "One token block declares the density, colour, type and motion properties, and every value the panel renders resolves through it rather than from a literal at the point of use; a mutant that drops a token reddens naming the property.",
+      "criterionCharacters": 232,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC1 is \"One token block declares the density, colour, type and motion properties, and every value the panel renders resolves through it rather than from a literal at the point of use; a mutant that drops a token reddens naming the property.\" - a fact about this repository's own stylesheet, the record that measured it and the suites that hold it, which no route of any page produces: a page renders computed values, and no page reading can say whether a declaration reads a token, whether the token block precedes its readers or whether a build is newer than the source it carries, so a portal-backed row would name a driver that cannot carry the answer. The clause is answered rather than dodged: the evidence is the edge row(s) [\"E1\",\"E2\"] the intent itself assigns the criterion, each held by [\"scripts/ds-tokens.test.mjs\",\"scripts/ds-tokens.test.mjs\"], and the 4 test declaration(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/ds-tokens.test.mjs",
+      "test": "AC3: the sheet opens with one :root token block, and every rule that reads a token comes after it",
+      "citations": [
+        {
+          "suite": "scripts/ds-tokens.test.mjs",
+          "test": "AC3: the sheet opens with one :root token block, and every rule that reads a token comes after it",
+          "line": 924,
+          "lineText": "it('AC3: the sheet opens with one :root token block",
+          "holds": "the sheet opens with one `:root` token block and every rule that reads a token comes after it, so the block is one place and the readers are downstream of it"
+        },
+        {
+          "suite": "scripts/ds-tokens.test.mjs",
+          "test": "AC2: every custom property is declared inside a :root block, and every token names one of the four groups",
+          "line": 971,
+          "lineText": "it('AC2: every custom property is declared inside a :root block",
+          "holds": "every custom property is declared inside a `:root` block and every token names one of the four groups, so density, colour, type and motion are declared in the one block rather than one at a time"
+        },
+        {
+          "suite": "scripts/token-baseline.test.mjs",
+          "test": "AC1: every rendering declaration reads a token, apart from the three the style suite anchors",
+          "line": 2441,
+          "lineText": "it('AC1: every rendering declaration reads a token, apart from the three",
+          "holds": "every rendering declaration that is not one of the three anchored literals reads a token from the block, so the value a surface renders comes from the token rather than from a literal at the point of use"
+        },
+        {
+          "suite": "scripts/token-baseline.test.mjs",
+          "test": "AC1 mutant: a dropped token reddens naming the property it left unresolved",
+          "line": 2468,
+          "lineText": "it('AC1 mutant: a dropped token reddens naming the property it left unresolved",
+          "holds": "a token dropped from the block reddens naming the property it left unresolved and the token that is missing, which is the mutant the criterion names"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E1",
+          "category": "empty",
+          "disposition": "criterion SC1",
+          "detail": "A surface that declares no token-consuming property still resolves the baseline values, never a blank or inherited-from-nowhere value.",
+          "suite": "scripts/ds-tokens.test.mjs"
+        },
+        {
+          "edge": "E2",
+          "category": "ordering",
+          "disposition": "criterion SC1",
+          "detail": "The token block precedes every rule that reads it, so a rule never resolves a token declared after it.",
+          "suite": "scripts/ds-tokens.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/ds-tokens.test.mjs",
+      "artefact": "scripts/ds-tokens.test.mjs (test \"AC3: the sheet opens with one :root token block, and every rule that reads a token comes after it\" at line 924; edge [\"E1\",\"E2\"] of the intent's own coverage: E1 empty criterion SC1: A surface that declares no token-consuming property still resolves the baseline values, never a blank or inherited-from-nowhere value.; E2 ordering criterion SC1: The token block precedes every rule that reads it, so a rule never resolves a token declared after it.; the suite carries 21 test declaration(s) in 3 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "4 test declaration citation(s) over 2 suite(s) hold SC1 through the edge row(s) [\"E1\",\"E2\"] the intent assigns it: every one is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/ds-tokens.test.mjs",
+        "node --test scripts/token-baseline.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC2",
+      "criterionText": "Every token is present under both motion preferences, with the reduced-motion block asserted as a block; a mutant that removes that block reddens naming it.",
+      "criterionCharacters": 156,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC2 is \"Every token is present under both motion preferences, with the reduced-motion block asserted as a block; a mutant that removes that block reddens naming it.\" - a fact about this repository's own stylesheet, the record that measured it and the suites that hold it, which no route of any page produces: a page renders computed values, and no page reading can say whether a declaration reads a token, whether the token block precedes its readers or whether a build is newer than the source it carries, so a portal-backed row would name a driver that cannot carry the answer. The clause is answered rather than dodged: the evidence is the edge row(s) [\"E3\",\"E4\"] the intent itself assigns the criterion, each held by [\"scripts/token-baseline.test.mjs\",\"scripts/token-baseline.test.mjs\"], and the 3 test declaration(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/token-baseline.test.mjs",
+      "test": "AC2: the reduced-motion block exists as a block and restates every motion token",
+      "citations": [
+        {
+          "suite": "scripts/token-baseline.test.mjs",
+          "test": "AC2: the reduced-motion block exists as a block and restates every motion token",
+          "line": 2503,
+          "lineText": "it('AC2: the reduced-motion block exists as a block and restates every motion token",
+          "holds": "the reduced-motion contract is a block the sheet carries, asserted as a block and restating every motion token, rather than inferred from an absent animation"
+        },
+        {
+          "suite": "scripts/token-baseline.test.mjs",
+          "test": "AC2 mutant: deleting the reduced-motion block reddens naming it",
+          "line": 2523,
+          "lineText": "it('AC2 mutant: deleting the reduced-motion block reddens naming it",
+          "holds": "deleting the reduced-motion block reddens naming it, which is the mutant the criterion names"
+        },
+        {
+          "suite": "scripts/ds-tokens.test.mjs",
+          "test": "AC2: the only re-declarations are the three reduced-motion restatements, each made once",
+          "line": 1058,
+          "lineText": "it('AC2: the only re-declarations are the three reduced-motion restatements",
+          "holds": "the only re-declarations in the sheet are the three reduced-motion restatements, each made once, so the reduced block restates the motion tokens and adds no second layer"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E3",
+          "category": "boundary",
+          "disposition": "criterion SC2",
+          "detail": "The reduced-motion block is proved present as a block, not inferred from an absent animation, which no reading can distinguish from a missing rule.",
+          "suite": "scripts/token-baseline.test.mjs"
+        },
+        {
+          "edge": "E4",
+          "category": "precision",
+          "disposition": "criterion SC2",
+          "detail": "With motion allowed, the reduced-motion block's declarations do not leak into the base block, and vice versa.",
+          "suite": "scripts/token-baseline.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/token-baseline.test.mjs",
+      "artefact": "scripts/token-baseline.test.mjs (test \"AC2: the reduced-motion block exists as a block and restates every motion token\" at line 2503; edge [\"E3\",\"E4\"] of the intent's own coverage: E3 boundary criterion SC2: The reduced-motion block is proved present as a block, not inferred from an absent animation, which no reading can distinguish from a missing rule.; E4 precision criterion SC2: With motion allowed, the reduced-motion block's declarations do not leak into the base block, and vice versa.; the suite carries 24 test declaration(s) in 5 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "3 test declaration citation(s) over 2 suite(s) hold SC2 through the edge row(s) [\"E3\",\"E4\"] the intent assigns it: every one is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/token-baseline.test.mjs",
+        "node --test scripts/ds-tokens.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC3",
+      "criterionText": "No colour, spacing, type or duration literal remains outside the token block, and `scripts/panel-styles.test.mjs` passes **unmodified** — proving the token layer re-expressed the rendered values instead of retuning the assertions.",
+      "criterionCharacters": 230,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC3 is \"No colour, spacing, type or duration literal remains outside the token block, and `scripts/panel-styles.test.mjs` passes **unmodified** — proving the token layer re-expressed the rendered values instead of retuning the assertions.\" - a fact about this repository's own stylesheet, the record that measured it and the suites that hold it, which no route of any page produces: a page renders computed values, and no page reading can say whether a declaration reads a token, whether the token block precedes its readers or whether a build is newer than the source it carries, so a portal-backed row would name a driver that cannot carry the answer. The clause is answered rather than dodged: the evidence is the edge row(s) [\"E5\",\"E6\"] the intent itself assigns the criterion, each held by [\"scripts/panel-styles.test.mjs\",\"scripts/ds-tokens.test.mjs\"], and the 4 test declaration(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/ds-tokens.test.mjs",
+      "test": "AC1: no colour, spacing, type or duration literal is declared outside the block, apart from the three exemptions",
+      "citations": [
+        {
+          "suite": "scripts/ds-tokens.test.mjs",
+          "test": "AC1: no colour, spacing, type or duration literal is declared outside the block, apart from the three exemptions",
+          "line": 1143,
+          "lineText": "it('AC1: no colour, spacing, type or duration literal is declared outside the block",
+          "holds": "no colour, spacing, type or duration literal is declared outside the block apart from the three declarations a mutant of the style suite anchors, and the count of declarations reading no token is asserted to be exactly those three"
+        },
+        {
+          "suite": "scripts/ds-tokens.test.mjs",
+          "test": "AC1: a literal in a comment is not a declaration, and the scan names the one it saw",
+          "line": 1236,
+          "lineText": "it('AC1: a literal in a comment is not a declaration, and the scan names the one it saw",
+          "holds": "a literal inside a comment is not a declaration and the scan names the comment spellings it saw, so the scan reads declarations rather than matching text"
+        },
+        {
+          "suite": "scripts/panel-styles.test.mjs",
+          "test": "the pin reads computed style, and reads no font-family",
+          "line": 556,
+          "lineText": "test('the pin reads computed style, and reads no font-family'",
+          "holds": "the style suite pins computed values through `getComputedStyle` on a document built from its own markup, not the rule text, so its assertions cannot be satisfied by editing a string in the stylesheet"
+        },
+        {
+          "suite": "scripts/panel-styles.test.mjs",
+          "test": "the applied stylesheet gives the heading, the row, the surface and the controls a padding, a border and a background",
+          "line": 569,
+          "lineText": "test('the applied stylesheet gives the heading, the row, the surface and the controls",
+          "holds": "the heading, the row, the surface and the controls still resolve a padding, a border and a background through the applied sheet, so the values the token layer re-expressed are the values the panel renders"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E5",
+          "category": "boundary",
+          "disposition": "criterion SC3",
+          "detail": "The literal-value suite runs unmodified; a run that edits its expectations reddens by naming the edited assertion.",
+          "suite": "scripts/panel-styles.test.mjs"
+        },
+        {
+          "edge": "E6",
+          "category": "precision",
+          "disposition": "criterion SC3",
+          "detail": "A literal inside a comment or a token definition is not counted as a stray literal, and a literal in a real declaration is.",
+          "suite": "scripts/ds-tokens.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/ds-tokens.test.mjs",
+      "artefact": "scripts/ds-tokens.test.mjs (test \"AC1: no colour, spacing, type or duration literal is declared outside the block, apart from the three exemptions\" at line 1143; edge [\"E5\",\"E6\"] of the intent's own coverage: E5 boundary criterion SC3: The literal-value suite runs unmodified; a run that edits its expectations reddens by naming the edited assertion.; E6 precision criterion SC3: A literal inside a comment or a token definition is not counted as a stray literal, and a literal in a real declaration is.; the suite carries 21 test declaration(s) in 3 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "4 test declaration citation(s) over 2 suite(s) hold SC3 through the edge row(s) [\"E5\",\"E6\"] the intent assigns it: every one is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/ds-tokens.test.mjs",
+        "node --test scripts/panel-styles.test.mjs",
+        "npm run check"
+      ]
+    },
+    {
+      "criterion": "SC4",
+      "criterionText": "The stylesheet stays within the bundle budget its own suite records, and a mutant that duplicates a token block reddens naming both blocks.",
+      "criterionCharacters": 139,
+      "ruling": "not-required",
+      "reason": "The charter's portal clause makes a verdict required where an insurance-portal route can produce a criterion's facts. SC4 is \"The stylesheet stays within the bundle budget its own suite records, and a mutant that duplicates a token block reddens naming both blocks.\" - a fact about this repository's own stylesheet, the record that measured it and the suites that hold it, which no route of any page produces: a page renders computed values, and no page reading can say whether a declaration reads a token, whether the token block precedes its readers or whether a build is newer than the source it carries, so a portal-backed row would name a driver that cannot carry the answer. The clause is answered rather than dodged: the evidence is the edge row(s) [\"E7\",\"E8\"] the intent itself assigns the criterion, each held by [\"scripts/panel-bundle-budget.test.mjs\",\"scripts/ds-tokens.test.mjs\"], and the 4 test declaration(s) below name the file and the line that carry each part of them.",
+      "suite": "scripts/panel-bundle-budget.test.mjs",
+      "test": "the measured initial total does not exceed the 535.44 kB baseline",
+      "citations": [
+        {
+          "suite": "scripts/panel-bundle-budget.test.mjs",
+          "test": "the measured initial total does not exceed the 535.44 kB baseline",
+          "line": 597,
+          "lineText": "test('the measured initial total does not exceed the 535.44 kB baseline'",
+          "holds": "the measured initial total is compared against the ceiling the suite records, after the build is proved current, so the sheet stays within the budget its own suite records"
+        },
+        {
+          "suite": "scripts/panel-bundle-budget.test.mjs",
+          "test": "a budget move is declared with its milestone and its measured cost",
+          "line": 465,
+          "lineText": "test('a budget move is declared with its milestone and its measured cost'",
+          "holds": "the one budget move this milestone takes names its milestone, its measured cost and the reason it is declared, and the ceiling is asserted to be the measurement plus that cost"
+        },
+        {
+          "suite": "scripts/ds-tokens.test.mjs",
+          "test": "AC2: every token a rule reads is declared exactly once, and a token declared twice reddens naming both lines",
+          "line": 1015,
+          "lineText": "it('AC2: every token a rule reads is declared exactly once, and a token declared twice reddens naming both lines",
+          "holds": "a token declared twice reddens naming both of its lines, which is the duplicate-block mutant the criterion names"
+        },
+        {
+          "suite": "scripts/ds-tokens.test.mjs",
+          "test": "AC2: two tokens may carry one value, which is not a duplicate",
+          "line": 1081,
+          "lineText": "it('AC2: two tokens may carry one value, which is not a duplicate",
+          "holds": "two names carrying one value are asserted not to be a duplicate, so the duplicate rule keys on the name rather than on the value"
+        }
+      ],
+      "edges": [
+        {
+          "edge": "E7",
+          "category": "ordering",
+          "disposition": "criterion SC4",
+          "detail": "The budget is measured after the token block lands, so a fresh build's total is compared, never a stale one.",
+          "suite": "scripts/panel-bundle-budget.test.mjs"
+        },
+        {
+          "edge": "E8",
+          "category": "precision",
+          "disposition": "criterion SC4",
+          "detail": "A token declared twice under one name reddens naming both, and two names for one value are not treated as a duplicate.",
+          "suite": "scripts/ds-tokens.test.mjs"
+        }
+      ],
+      "artefactPath": "scripts/panel-bundle-budget.test.mjs",
+      "artefact": "scripts/panel-bundle-budget.test.mjs (test \"the measured initial total does not exceed the 535.44 kB baseline\" at line 597; edge [\"E7\",\"E8\"] of the intent's own coverage: E7 ordering criterion SC4: The budget is measured after the token block lands, so a fresh build's total is compared, never a stale one.; E8 precision criterion SC4: A token declared twice under one name reddens naming both, and two names for one value are not treated as a duplicate.; the suite carries 6 test declaration(s) in 0 group(s)) -> package.json (\"check\": 12 stage(s), [\"npm run gate:fix-record\",\"npm run format:check\"] last)",
+      "reading": "4 test declaration citation(s) over 2 suite(s) hold SC4 through the edge row(s) [\"E7\",\"E8\"] the intent assigns it: every one is a line this checkout carries at this head, opened and read back by this suite, so the criterion is proved by a line a reader can open rather than by a drive no driver here performs",
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/panel-bundle-budget.test.mjs",
+        "node --test scripts/ds-tokens.test.mjs",
+        "npm run check"
+      ]
+    }
+  ],
+  "edgeClaims": [
+    {
+      "edge": "E1",
+      "criterion": "SC1",
+      "category": "empty",
+      "disposition": "criterion SC1",
+      "detail": "A surface that declares no token-consuming property still resolves the baseline values, never a blank or inherited-from-nowhere value.",
+      "claim": "A declaration that reads a token resolves the value the block declares rather than a blank, and a declaration that reads no token resolves the literal it states: no value a surface renders comes from nowhere.",
+      "suite": "scripts/ds-tokens.test.mjs",
+      "test": "AC2: every token a rule reads is declared exactly once, and a token declared twice reddens naming both lines",
+      "citations": [
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 1025,
+          "lineText": "every token a rule reads is declared in a token block",
+          "holds": "every token a rule reads is declared in a token block, so a read resolves a declared value and never an empty one"
+        },
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 1048,
+          "lineText": "so the one-to-one rule asserts nothing",
+          "holds": "the suite refuses a layer that declares or reads no token, so the reading is measured rather than passing on an empty sheet"
+        },
+        {
+          "file": "research/raw/m069-token-baseline.json",
+          "line": 2818,
+          "lineText": "\"unresolvedValues\": 0,",
+          "holds": "the record this milestone measured before landing the tokens states zero unresolved values, so every declaration it read resolved a value"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/styles.css",
+          "line": 217,
+          "lineText": "color: #6b5200;",
+          "holds": "the one state colour that stays a literal resolves that literal, so a declaration reading no token still has a value rather than a blank"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/ds-tokens.test.mjs",
+        "node --test scripts/token-baseline.test.mjs"
+      ]
+    },
+    {
+      "edge": "E2",
+      "criterion": "SC1",
+      "category": "ordering",
+      "disposition": "criterion SC1",
+      "detail": "The token block precedes every rule that reads it, so a rule never resolves a token declared after it.",
+      "claim": "The token block is the sheet’s first rule and precedes every rule that reads it, so a rule never resolves a token declared after it.",
+      "suite": "scripts/ds-tokens.test.mjs",
+      "test": "AC3: the sheet opens with one :root token block, and every rule that reads a token comes after it",
+      "citations": [
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 940,
+          "lineText": "the token block is not the sheet's first rule",
+          "holds": "the suite asserts the first `:root` block is the sheet’s first rule, naming the rule that precedes it when it is not"
+        },
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 950,
+          "lineText": "the token block must precede every rule that reads a token",
+          "holds": "the order failures are asserted empty, so a rule that reads a token above the block reddens"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/styles.css",
+          "line": 59,
+          "lineText": ":root {",
+          "holds": "the token block opens the sheet, before the first rule that renders a value"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/styles.css",
+          "line": 132,
+          "lineText": "margin: var(--ds-density-flush);",
+          "holds": "the first rule that reads a token sits after the block and reads a token the block declares"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/ds-tokens.test.mjs"
+      ]
+    },
+    {
+      "edge": "E3",
+      "criterion": "SC2",
+      "category": "boundary",
+      "disposition": "criterion SC2",
+      "detail": "The reduced-motion block is proved present as a block, not inferred from an absent animation, which no reading can distinguish from a missing rule.",
+      "claim": "The reduced-motion contract is proved present as a block the sheet carries, restating the motion tokens, and not inferred from an absent animation — which no reading could distinguish from a missing rule.",
+      "suite": "scripts/token-baseline.test.mjs",
+      "test": "AC2: the reduced-motion block exists as a block and restates every motion token",
+      "citations": [
+        {
+          "file": "scripts/token-baseline.test.mjs",
+          "line": 2512,
+          "lineText": "the reduced-motion contract must be a block the sheet carries",
+          "holds": "the block is asserted present as a block, so a missing rule reddens rather than reading as a pane that never animates"
+        },
+        {
+          "file": "scripts/token-baseline.test.mjs",
+          "line": 2533,
+          "lineText": "failures.some((one) => one.includes('prefers-reduced-motion'))",
+          "holds": "deleting the block reddens naming the media query, so the absence is a failure rather than a silence"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/styles.css",
+          "line": 295,
+          "lineText": "@media (prefers-reduced-motion: reduce) {",
+          "holds": "the block the suite reads is in the sheet, under its own media query"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/styles.css",
+          "line": 297,
+          "lineText": "--ds-motion-duration-fast: 0ms;",
+          "holds": "the block restates a motion token to its reduced value inside the block itself"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/token-baseline.test.mjs"
+      ]
+    },
+    {
+      "edge": "E4",
+      "criterion": "SC2",
+      "category": "precision",
+      "disposition": "criterion SC2",
+      "detail": "With motion allowed, the reduced-motion block's declarations do not leak into the base block, and vice versa.",
+      "claim": "Each declaration is resolved in the media context it is declared in, so the reduced-motion block’s declarations do not leak into the base block and the base block’s values do not leak into it.",
+      "suite": "scripts/token-baseline.test.mjs",
+      "test": "AC1: every rendering declaration reads a token, apart from the three the style suite anchors",
+      "citations": [
+        {
+          "file": "scripts/token-baseline.test.mjs",
+          "line": 2456,
+          "lineText": "unresolvedFailures(css, recordContexts()),",
+          "holds": "every declaration is resolved against the documents of its own context, so a value from one media block is not used to resolve a declaration of another"
+        },
+        {
+          "file": "scripts/token-baseline.test.mjs",
+          "line": 2458,
+          "lineText": "every declaration that reads a token must resolve through the seam",
+          "holds": "an unresolved reading is a value no browser would render, so a leak between contexts reddens instead of passing"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/styles.css",
+          "line": 126,
+          "lineText": "--ds-motion-duration-fast: 120ms;",
+          "holds": "the base block declares the motion duration its own context carries, beside the reduced block’s restatement rather than instead of it"
+        },
+        {
+          "file": "scripts/token-baseline.test.mjs",
+          "line": 2550,
+          "lineText": "only the motion contract may be unconsumed",
+          "holds": "the suite states that only the motion contract may carry an unconsumed token, so the two blocks stay distinguishable rather than merging"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/token-baseline.test.mjs"
+      ]
+    },
+    {
+      "edge": "E5",
+      "criterion": "SC3",
+      "category": "boundary",
+      "disposition": "criterion SC3",
+      "detail": "The literal-value suite runs unmodified; a run that edits its expectations reddens by naming the edited assertion.",
+      "claim": "The literal-value suite runs unmodified: it pins computed values read off a document rather than rule text, and a run whose expectation was edited reddens naming the assertion and the text it expected.",
+      "suite": "scripts/panel-styles.test.mjs",
+      "test": "the pin reads computed style, and reads no font-family",
+      "citations": [
+        {
+          "file": "scripts/panel-styles.test.mjs",
+          "line": 559,
+          "lineText": "'borderTopWidth', 'backgroundColor'",
+          "holds": "the discriminator list is exactly the three properties the pane can lose visibly, and it is read as computed style rather than as declaration text"
+        },
+        {
+          "file": "scripts/panel-styles.test.mjs",
+          "line": 580,
+          "lineText": "the baseline must apply to the demo surface, read off the document rather than off the rule text",
+          "holds": "the baseline is read off the document, so an edited stylesheet cannot satisfy the pin by spelling the value the assertion expects"
+        },
+        {
+          "file": "scripts/panel-styles.test.mjs",
+          "line": 655,
+          "lineText": "must fail naming",
+          "holds": "every mutant must fail naming the text it expected, so an expectation edited to fit the sheet reddens naming the mutant and the text it no longer produces"
+        },
+        {
+          "file": "scripts/panel-styles.test.mjs",
+          "line": 504,
+          "lineText": "'color: #6b5200;'",
+          "holds": "the mutant anchors a literal declaration the token layer kept, so the excuse for retuning one is measured against the sheet rather than asserted here"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/panel-styles.test.mjs"
+      ]
+    },
+    {
+      "edge": "E6",
+      "criterion": "SC3",
+      "category": "precision",
+      "disposition": "criterion SC3",
+      "detail": "A literal inside a comment or a token definition is not counted as a stray literal, and a literal in a real declaration is.",
+      "claim": "A literal inside a comment or inside a token definition is not counted as a stray literal, and a literal in a real declaration is: the scan reads declarations rather than matching text.",
+      "suite": "scripts/ds-tokens.test.mjs",
+      "test": "AC1: a literal in a comment is not a declaration, and the scan names the one it saw",
+      "citations": [
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 1148,
+          "lineText": "declares outside the token block are the three",
+          "holds": "the only literals the scan admits outside the block are the three the style suite anchors, and it says so by name"
+        },
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 1169,
+          "lineText": "rendering declaration(s) that read no token",
+          "holds": "the count of rendering declarations that read no token is asserted to be exactly the three exemptions, so a fourth literal cannot pass as prose"
+        },
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 1246,
+          "lineText": "a comment is not a declaration, so the values its prose spells do not redden the scan",
+          "holds": "a comment spelling a literal does not redden the scan, and the scan names the comment spellings it saw rather than dropping them silently"
+        },
+        {
+          "file": "apps/angular-ai-devtools/src/styles.css",
+          "line": 81,
+          "lineText": "--ds-color-ink: #1b1f24;",
+          "holds": "a literal a token carries is a token definition rather than a stray declaration, which is the case the exemption rule distinguishes"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/ds-tokens.test.mjs"
+      ]
+    },
+    {
+      "edge": "E7",
+      "criterion": "SC4",
+      "category": "ordering",
+      "disposition": "criterion SC4",
+      "detail": "The budget is measured after the token block lands, so a fresh build's total is compared, never a stale one.",
+      "claim": "The budget is measured after the token block lands: the total is read only from a build proved newer than the newest source it must carry, and the declared ceiling is the pre-milestone measurement plus the declared cost rather than a number chosen on its own.",
+      "suite": "scripts/panel-bundle-budget.test.mjs",
+      "test": "a present build older than the newest source file it must carry is refused as stale",
+      "citations": [
+        {
+          "file": "scripts/panel-bundle-budget.test.mjs",
+          "line": 612,
+          "lineText": "const current = assertBuildIsCurrent(PANEL_OUTPUT_DIR);",
+          "holds": "a present build is proved current before the total is measured, so a stale bundle is refused rather than counted"
+        },
+        {
+          "file": "scripts/panel-bundle-budget.test.mjs",
+          "line": 636,
+          "lineText": "a present build older than the newest source file it must carry is refused as stale",
+          "holds": "the stale-build refusal is a test of its own, so the ordering the criterion states is pinned in both directions"
+        },
+        {
+          "file": "scripts/panel-bundle-budget.test.mjs",
+          "line": 488,
+          "lineText": "is not the measurement plus its declared cost",
+          "holds": "the ceiling is asserted to be the measurement plus the declared cost, so the move is derived from its reason rather than set independently"
+        },
+        {
+          "file": "scripts/panel-bundle-budget.test.mjs",
+          "line": 108,
+          "lineText": "milestone: 'M069',",
+          "holds": "the one declared move names this milestone, so a reader sees which landing paid for the bytes"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/panel-bundle-budget.test.mjs",
+        "npx nx run angular-ai-devtools:build-extension"
+      ]
+    },
+    {
+      "edge": "E8",
+      "criterion": "SC4",
+      "category": "precision",
+      "disposition": "criterion SC4",
+      "detail": "A token declared twice under one name reddens naming both, and two names for one value are not treated as a duplicate.",
+      "claim": "A token declared twice under one name reddens naming both of its lines, and two names carrying one value are not treated as a duplicate: the rule keys on the name, not on the value.",
+      "suite": "scripts/ds-tokens.test.mjs",
+      "test": "AC2: every token a rule reads is declared exactly once, and a token declared twice reddens naming both lines",
+      "citations": [
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 1020,
+          "lineText": "is declared twice",
+          "holds": "the duplicate failures are asserted empty on the untouched sheet, so the reading is taken before any mutant is planted"
+        },
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 1287,
+          "lineText": "failure.includes('--ds-color-ink')",
+          "holds": "the duplicate refusal must name the token that was declared twice, not only the number of duplicates"
+        },
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 1290,
+          "lineText": "the refusal must name the file, the token and both lines",
+          "holds": "the refusal names the file, the token and both of the lines the two declarations sit on"
+        },
+        {
+          "file": "scripts/ds-tokens.test.mjs",
+          "line": 1086,
+          "lineText": "a value two names carry is not a duplicate, and the duplicate rule keys on the name",
+          "holds": "two names carrying one value are asserted not to be a duplicate, so the rule cannot be satisfied by renaming a value"
+        }
+      ],
+      "absence": null,
+      "proves": [
+        "node --test scripts/m069-verdict-claims.test.mjs",
+        "node --test scripts/ds-tokens.test.mjs"
+      ]
+    }
+  ]
+}
