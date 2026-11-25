@@ -12,7 +12,8 @@ files:
 - scripts/m069-verdict-claims.test.mjs
 - research/raw/m069-verdict-claims.json
 - research/raw/m044-gate-shapes.json
-- research/raw/m056-gate-stability.json---
+- research/raw/m056-gate-stability.json
+---
 
 # T005 — Run the project verify at the final head
 
