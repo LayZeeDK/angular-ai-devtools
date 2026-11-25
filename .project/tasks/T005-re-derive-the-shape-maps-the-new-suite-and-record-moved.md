@@ -9,6 +9,7 @@ base: null
 worktree: null
 task_branch: null
 files:
+- research/raw/m059-record-shapes.json
 - research/raw/m055-record-shapes.json
 - research/raw/m057-record-shapes.json
 - scripts/tutor-answer.test.mjs
@@ -51,6 +52,7 @@ Re-derive each through its own arm — the m055 map now has a writer that derive
 
 Every path this task may touch, and nothing else:
 
+- `research/raw/m059-record-shapes.json`
 - `research/raw/m055-record-shapes.json`
 - `research/raw/m057-record-shapes.json`
 - `scripts/tutor-answer.test.mjs`
@@ -91,3 +93,4 @@ node --test scripts/tutor-record-shapes.test.mjs && node --test scripts/tutor-si
 ## Log
 
 - pending
+- Landed paths: `research/raw/m059-record-shapes.json`, `research/raw/m055-record-shapes.json`, `research/raw/m057-record-shapes.json`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/tutor-signals-shapes.test.mjs`, `scripts/tutor-signals.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/gate-integrity.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/teardown-leak-shapes.test.mjs`, `scripts/navigation-blocking.test.mjs` — each is read from this tree, ready.
