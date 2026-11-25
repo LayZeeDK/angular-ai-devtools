@@ -2,10 +2,10 @@
 id: T004
 title: Re-derive the census and stability recordings at this head
 wave: 4
-status: pending
+status: done
 deps: []
-agent: null
-base: null
+agent: build_T004
+base: 616645517c222fbd9b26ef0a174468496e195679
 worktree: null
 task_branch: null
 files:
@@ -89,3 +89,7 @@ node --experimental-strip-types --test scripts/gate-integrity.test.mjs && node -
 ## Log
 
 - pending
+- 2026-11-25: the census recording was re-derived by its own arm and moved one value the tree explains: `archiveReferences.filesExamined` 378 to 382 and `suitesExamined` 196 to 197, from the suite and record this milestone added. Default run 40 tests / 40 pass.
+- 2026-11-25: the stability record was re-derived by its own arm at this head (6567 bytes, sha256 `74c40074…`) and its default run is 8/8.
+- 2026-11-25: both were captured last, so the head did not move between the capture and the landing, and a default run of each writes nothing.
+- Landed paths: `research/raw/m044-gate-shapes.json`, `research/raw/m056-gate-stability.json`, `scripts/gate-integrity.test.mjs`, `scripts/gate-stability-record.test.mjs`, `scripts/gate-integrity-default-tasks.test.mjs`, `scripts/outlet-verdict-claims.test.mjs`, `scripts/guard-verdict-claims.test.mjs`, `scripts/m067-verdict-claims.test.mjs`, `scripts/navigation-blocking.test.mjs`, `scripts/chunk-failure-claims.test.mjs`, `scripts/tutor-answer.test.mjs`, `scripts/tutor-record-shapes.test.mjs`, `scripts/guard-record-shapes.test.mjs`, `scripts/outlet-record-shapes.test.mjs`, `scripts/teardown-leak-shapes.test.mjs` — each is read from this tree, ready.
