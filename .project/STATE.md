@@ -5,7 +5,7 @@ milestone: ds-tokens
 phase: define
                     # inspect only for brownfield; greenfield starts at define
                     # roadmap only in program flow (CHARTER.md exists)
-status: active
+status: done
 branch: gsd-path/M069
 archive: null
                     # the router rebinds before any next-milestone file change
@@ -1412,3 +1412,4 @@ it on completion. If this file and the artifacts disagree, the artifacts win
 - 2026-11-25 — roadmap — roadmap re-slice started
 - 2026-11-25 — roadmap — program roadmap approved
 - 2026-11-25 — define — define started
+- 2026-11-25 — define — milestone intent approved
