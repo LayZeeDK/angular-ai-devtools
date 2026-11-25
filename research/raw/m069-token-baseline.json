@@ -47,15 +47,15 @@
   "derivedFrom": {
     "stylesheet": {
       "path": "apps/angular-ai-devtools/src/styles.css",
-      "bytes": 4461,
-      "lines": 179,
-      "sha256": "8a1f5719d0233720c1f66e3907e34f1ac187c364914678bfe595d83f66cb755d",
+      "bytes": 11648,
+      "lines": 302,
+      "sha256": "4926ba86a8553bb2216247e1fc5459026af0eac680fd0f0ad8a65e3eb05ec799",
       "darkMedia": "(prefers-color-scheme: dark)",
       "darkRules": 7
     },
     "measuredBy": {
       "path": "scripts/panel-styles.test.mjs",
-      "sha256": "c4f42715b4dddacf03413ef73ad7314a6378ec212d5a7aec16e7f910fbf55c28",
+      "sha256": "8cae976e71bb2ddb479c4c806e081eae0d95ac04b0a8cc18e5541bc59ba1277d",
       "markupSha256": "2f9300a4451b147c8f2259ca39ee66d563a0b8f594f814ed288c4c7d74d11650",
       "hooks": [
         {
@@ -116,13 +116,22 @@
     },
     "documents": {
       "default": "the default document `scripts/panel-styles.test.mjs` builds from its own `panelMarkup()` — a `section.panel-demo` carrying `data-surface=\"render-phase\"` and its state, an `h2`, a `p.state`, two `section.panel-block` elements with their own `p.block-state` and `p.line` rows, a `button` and a `select`",
-      "dark": "the default document with the dark block’s own rules appended as a second sheet, which is how `scripts/panel-styles.test.mjs` measures a scheme jsdom offers no `matchMedia` for",
+      "media:(prefers-color-scheme: dark)": "the default document with the rules of the \"(prefers-color-scheme: dark)\" block appended as a second sheet, which is how `scripts/panel-styles.test.mjs` measures a media context jsdom offers no `matchMedia` for",
+      "media:(prefers-reduced-motion: reduce)": "the default document with the rules of the \"(prefers-reduced-motion: reduce)\" block appended as a second sheet, which is how `scripts/panel-styles.test.mjs` measures a media context jsdom offers no `matchMedia` for",
       "state:finding": "the document `scripts/panel-styles.test.mjs` builds for the state \"finding\" — its own `panelMarkup` with that state on the surface and on one block, which is the document its `stateColours` reads",
       "state:differing": "the document `scripts/panel-styles.test.mjs` builds for the state \"differing\" — its own `panelMarkup` with that state on the surface and on one block, which is the document its `stateColours` reads",
       "state:cannot-tell": "the document `scripts/panel-styles.test.mjs` builds for the state \"cannot-tell\" — its own `panelMarkup` with that state on the surface and on one block, which is the document its `stateColours` reads",
       "state:idle": "the document `scripts/panel-styles.test.mjs` builds for the state \"idle\" — its own `panelMarkup` with that state on the surface and on one block, which is the document its `stateColours` reads"
     },
     "rules": [
+      {
+        "media": "all",
+        "selector": ":root",
+        "selectorParts": [
+          ":root"
+        ],
+        "declarations": 57
+      },
       {
         "media": "all",
         "selector": "body",
@@ -309,10 +318,1044 @@
           "select"
         ],
         "declarations": 3
+      },
+      {
+        "media": "(prefers-reduced-motion: reduce)",
+        "selector": ":root",
+        "selectorParts": [
+          ":root"
+        ],
+        "declarations": 3
       }
     ]
   },
   "declarations": [
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-flush",
+      "declared": "0",
+      "computed": [
+        {
+          "property": "--ds-density-flush",
+          "read": true,
+          "element": ":root",
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-body-block",
+      "declared": "14px 16px 20px",
+      "computed": [
+        {
+          "property": "--ds-density-body-block",
+          "read": true,
+          "element": ":root",
+          "value": "14px 16px 20px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-heading-margin",
+      "declared": "0 0 10px",
+      "computed": [
+        {
+          "property": "--ds-density-heading-margin",
+          "read": true,
+          "element": ":root",
+          "value": "0 0 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-heading-block",
+      "declared": "8px 0 6px",
+      "computed": [
+        {
+          "property": "--ds-density-heading-block",
+          "read": true,
+          "element": ":root",
+          "value": "8px 0 6px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-surface-block",
+      "declared": "16px 18px 18px",
+      "computed": [
+        {
+          "property": "--ds-density-surface-block",
+          "read": true,
+          "element": ":root",
+          "value": "16px 18px 18px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-state-margin",
+      "declared": "0 0 12px",
+      "computed": [
+        {
+          "property": "--ds-density-state-margin",
+          "read": true,
+          "element": ":root",
+          "value": "0 0 12px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-state-block",
+      "declared": "4px 10px",
+      "computed": [
+        {
+          "property": "--ds-density-state-block",
+          "read": true,
+          "element": ":root",
+          "value": "4px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-block-margin",
+      "declared": "0 0 12px",
+      "computed": [
+        {
+          "property": "--ds-density-block-margin",
+          "read": true,
+          "element": ":root",
+          "value": "0 0 12px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-block-block",
+      "declared": "10px 12px",
+      "computed": [
+        {
+          "property": "--ds-density-block-block",
+          "read": true,
+          "element": ":root",
+          "value": "10px 12px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-word-margin",
+      "declared": "0 0 6px",
+      "computed": [
+        {
+          "property": "--ds-density-word-margin",
+          "read": true,
+          "element": ":root",
+          "value": "0 0 6px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-row-block",
+      "declared": "5px 10px",
+      "computed": [
+        {
+          "property": "--ds-density-row-block",
+          "read": true,
+          "element": ":root",
+          "value": "5px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-control-block",
+      "declared": "5px 10px",
+      "computed": [
+        {
+          "property": "--ds-density-control-block",
+          "read": true,
+          "element": ":root",
+          "value": "5px 10px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-stroke-hairline",
+      "declared": "1px",
+      "computed": [
+        {
+          "property": "--ds-density-stroke-hairline",
+          "read": true,
+          "element": ":root",
+          "value": "1px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-stroke-emphasis",
+      "declared": "2px",
+      "computed": [
+        {
+          "property": "--ds-density-stroke-emphasis",
+          "read": true,
+          "element": ":root",
+          "value": "2px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-stroke-state",
+      "declared": "3px",
+      "computed": [
+        {
+          "property": "--ds-density-stroke-state",
+          "read": true,
+          "element": ":root",
+          "value": "3px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-radius-surface",
+      "declared": "6px",
+      "computed": [
+        {
+          "property": "--ds-density-radius-surface",
+          "read": true,
+          "element": ":root",
+          "value": "6px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-density-cursor-control",
+      "declared": "pointer",
+      "computed": [
+        {
+          "property": "--ds-density-cursor-control",
+          "read": true,
+          "element": ":root",
+          "value": "pointer"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink",
+      "declared": "#1b1f24",
+      "computed": [
+        {
+          "property": "--ds-color-ink",
+          "read": true,
+          "element": ":root",
+          "value": "#1b1f24"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink-strong",
+      "declared": "#10151b",
+      "computed": [
+        {
+          "property": "--ds-color-ink-strong",
+          "read": true,
+          "element": ":root",
+          "value": "#10151b"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas",
+      "declared": "#ffffff",
+      "computed": [
+        {
+          "property": "--ds-color-canvas",
+          "read": true,
+          "element": ":root",
+          "value": "#ffffff"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-heading",
+      "declared": "#f6f8fa",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-heading",
+          "read": true,
+          "element": ":root",
+          "value": "#f6f8fa"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-raised",
+      "declared": "#fbfcfd",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-raised",
+          "read": true,
+          "element": ":root",
+          "value": "#fbfcfd"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-state",
+      "declared": "#eef1f5",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-state",
+          "read": true,
+          "element": ":root",
+          "value": "#eef1f5"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-block",
+      "declared": "#ffffff",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-block",
+          "read": true,
+          "element": ":root",
+          "value": "#ffffff"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-row",
+      "declared": "#f7f8fa",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-row",
+          "read": true,
+          "element": ":root",
+          "value": "#f7f8fa"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-control",
+      "declared": "#ffffff",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-control",
+          "read": true,
+          "element": ":root",
+          "value": "#ffffff"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule",
+      "declared": "#cfd6e2",
+      "computed": [
+        {
+          "property": "--ds-color-rule",
+          "read": true,
+          "element": ":root",
+          "value": "#cfd6e2"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-soft",
+      "declared": "#dde2ea",
+      "computed": [
+        {
+          "property": "--ds-color-rule-soft",
+          "read": true,
+          "element": ":root",
+          "value": "#dde2ea"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-block",
+      "declared": "#b9c2cf",
+      "computed": [
+        {
+          "property": "--ds-color-rule-block",
+          "read": true,
+          "element": ":root",
+          "value": "#b9c2cf"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-row",
+      "declared": "#e6eaf0",
+      "computed": [
+        {
+          "property": "--ds-color-rule-row",
+          "read": true,
+          "element": ":root",
+          "value": "#e6eaf0"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-control",
+      "declared": "#c2cad6",
+      "computed": [
+        {
+          "property": "--ds-color-rule-control",
+          "read": true,
+          "element": ":root",
+          "value": "#c2cad6"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-focus",
+      "declared": "#2f6fd0",
+      "computed": [
+        {
+          "property": "--ds-color-focus",
+          "read": true,
+          "element": ":root",
+          "value": "#2f6fd0"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-state-finding",
+      "declared": "#0b4a8c",
+      "computed": [
+        {
+          "property": "--ds-color-state-finding",
+          "read": true,
+          "element": ":root",
+          "value": "#0b4a8c"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-state-differing",
+      "declared": "#8a4b06",
+      "computed": [
+        {
+          "property": "--ds-color-state-differing",
+          "read": true,
+          "element": ":root",
+          "value": "#8a4b06"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-state-idle",
+      "declared": "#565e6b",
+      "computed": [
+        {
+          "property": "--ds-color-state-idle",
+          "read": true,
+          "element": ":root",
+          "value": "#565e6b"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink-dark",
+      "declared": "#e4e7ec",
+      "computed": [
+        {
+          "property": "--ds-color-ink-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#e4e7ec"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink-strong-dark",
+      "declared": "#f1f3f6",
+      "computed": [
+        {
+          "property": "--ds-color-ink-strong-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#f1f3f6"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-ink-row-dark",
+      "declared": "#dfe3e9",
+      "computed": [
+        {
+          "property": "--ds-color-ink-row-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#dfe3e9"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-dark",
+      "declared": "#2b313a",
+      "computed": [
+        {
+          "property": "--ds-color-rule-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#2b313a"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-rule-control-dark",
+      "declared": "#3a424e",
+      "computed": [
+        {
+          "property": "--ds-color-rule-control-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#3a424e"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-heading-dark",
+      "declared": "#1f242b",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-heading-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#1f242b"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-raised-dark",
+      "declared": "#1a1e24",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-raised-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#1a1e24"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-state-dark",
+      "declared": "#232830",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-state-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#232830"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-block-dark",
+      "declared": "#22272f",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-block-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#22272f"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-color-canvas-control-dark",
+      "declared": "#262c35",
+      "computed": [
+        {
+          "property": "--ds-color-canvas-control-dark",
+          "read": true,
+          "element": ":root",
+          "value": "#262c35"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-size-body",
+      "declared": "13px",
+      "computed": [
+        {
+          "property": "--ds-type-size-body",
+          "read": true,
+          "element": ":root",
+          "value": "13px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-size-heading",
+      "declared": "15px",
+      "computed": [
+        {
+          "property": "--ds-type-size-heading",
+          "read": true,
+          "element": ":root",
+          "value": "15px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-size-word",
+      "declared": "11px",
+      "computed": [
+        {
+          "property": "--ds-type-size-word",
+          "read": true,
+          "element": ":root",
+          "value": "11px"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-weight-semibold",
+      "declared": "600",
+      "computed": [
+        {
+          "property": "--ds-type-weight-semibold",
+          "read": true,
+          "element": ":root",
+          "value": "600"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-weight-bold",
+      "declared": "700",
+      "computed": [
+        {
+          "property": "--ds-type-weight-bold",
+          "read": true,
+          "element": ":root",
+          "value": "700"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-leading-body",
+      "declared": "1.5",
+      "computed": [
+        {
+          "property": "--ds-type-leading-body",
+          "read": true,
+          "element": ":root",
+          "value": "1.5"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-leading-row",
+      "declared": "1.6",
+      "computed": [
+        {
+          "property": "--ds-type-leading-row",
+          "read": true,
+          "element": ":root",
+          "value": "1.6"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-transform-word",
+      "declared": "uppercase",
+      "computed": [
+        {
+          "property": "--ds-type-transform-word",
+          "read": true,
+          "element": ":root",
+          "value": "uppercase"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-type-control-font",
+      "declared": "inherit",
+      "computed": [
+        {
+          "property": "--ds-type-control-font",
+          "read": true,
+          "element": ":root",
+          "value": "inherit"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-motion-duration-fast",
+      "declared": "120ms",
+      "computed": [
+        {
+          "property": "--ds-motion-duration-fast",
+          "read": true,
+          "element": ":root",
+          "value": "120ms"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-motion-duration-base",
+      "declared": "200ms",
+      "computed": [
+        {
+          "property": "--ds-motion-duration-base",
+          "read": true,
+          "element": ":root",
+          "value": "200ms"
+        }
+      ]
+    },
+    {
+      "media": "all",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "default",
+      "property": "--ds-motion-easing-standard",
+      "declared": "cubic-bezier(0.2, 0, 0.2, 1)",
+      "computed": [
+        {
+          "property": "--ds-motion-easing-standard",
+          "read": true,
+          "element": ":root",
+          "value": "cubic-bezier(0.2, 0, 0.2, 1)"
+        }
+      ]
+    },
     {
       "media": "all",
       "selector": "body",
@@ -321,7 +1364,7 @@
       ],
       "document": "default",
       "property": "margin",
-      "declared": "0",
+      "declared": "var(--ds-density-flush)",
       "computed": [
         {
           "property": "margin",
@@ -339,7 +1382,7 @@
       ],
       "document": "default",
       "property": "padding",
-      "declared": "14px 16px 20px",
+      "declared": "var(--ds-density-body-block)",
       "computed": [
         {
           "property": "padding",
@@ -357,7 +1400,7 @@
       ],
       "document": "default",
       "property": "color",
-      "declared": "#1b1f24",
+      "declared": "var(--ds-color-ink)",
       "computed": [
         {
           "property": "color",
@@ -375,7 +1418,7 @@
       ],
       "document": "default",
       "property": "background",
-      "declared": "#ffffff",
+      "declared": "var(--ds-color-canvas)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -414,7 +1457,7 @@
       ],
       "document": "default",
       "property": "font-size",
-      "declared": "13px",
+      "declared": "var(--ds-type-size-body)",
       "computed": [
         {
           "property": "fontSize",
@@ -432,7 +1475,7 @@
       ],
       "document": "default",
       "property": "line-height",
-      "declared": "1.5",
+      "declared": "var(--ds-type-leading-body)",
       "computed": [
         {
           "property": "lineHeight",
@@ -452,7 +1495,7 @@
       ],
       "document": "default",
       "property": "margin",
-      "declared": "0 0 10px",
+      "declared": "var(--ds-density-heading-margin)",
       "computed": [
         {
           "property": "margin",
@@ -472,7 +1515,7 @@
       ],
       "document": "default",
       "property": "padding",
-      "declared": "8px 0 6px",
+      "declared": "var(--ds-density-heading-block)",
       "computed": [
         {
           "property": "padding",
@@ -492,7 +1535,7 @@
       ],
       "document": "default",
       "property": "border-top",
-      "declared": "2px solid #cfd6e2",
+      "declared": "var(--ds-density-stroke-emphasis) solid var(--ds-color-rule)",
       "computed": [
         {
           "property": "borderTopWidth",
@@ -524,7 +1567,7 @@
       ],
       "document": "default",
       "property": "background",
-      "declared": "#f6f8fa",
+      "declared": "var(--ds-color-canvas-heading)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -544,7 +1587,7 @@
       ],
       "document": "default",
       "property": "color",
-      "declared": "#10151b",
+      "declared": "var(--ds-color-ink-strong)",
       "computed": [
         {
           "property": "color",
@@ -564,7 +1607,7 @@
       ],
       "document": "default",
       "property": "font-weight",
-      "declared": "600",
+      "declared": "var(--ds-type-weight-semibold)",
       "computed": [
         {
           "property": "fontWeight",
@@ -582,7 +1625,7 @@
       ],
       "document": "default",
       "property": "font-size",
-      "declared": "15px",
+      "declared": "var(--ds-type-size-heading)",
       "computed": [
         {
           "property": "fontSize",
@@ -600,7 +1643,7 @@
       ],
       "document": "default",
       "property": "padding",
-      "declared": "16px 18px 18px",
+      "declared": "var(--ds-density-surface-block)",
       "computed": [
         {
           "property": "padding",
@@ -618,7 +1661,7 @@
       ],
       "document": "default",
       "property": "border",
-      "declared": "1px solid #cfd6e2",
+      "declared": "var(--ds-density-stroke-hairline) solid var(--ds-color-rule)",
       "computed": [
         {
           "property": "borderTopWidth",
@@ -648,7 +1691,7 @@
       ],
       "document": "default",
       "property": "border-radius",
-      "declared": "6px",
+      "declared": "var(--ds-density-radius-surface)",
       "computed": [
         {
           "property": "borderRadius",
@@ -666,7 +1709,7 @@
       ],
       "document": "default",
       "property": "background",
-      "declared": "#fbfcfd",
+      "declared": "var(--ds-color-canvas-raised)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -684,7 +1727,7 @@
       ],
       "document": "default",
       "property": "margin",
-      "declared": "0 0 12px",
+      "declared": "var(--ds-density-state-margin)",
       "computed": [
         {
           "property": "margin",
@@ -702,7 +1745,7 @@
       ],
       "document": "default",
       "property": "padding",
-      "declared": "4px 10px",
+      "declared": "var(--ds-density-state-block)",
       "computed": [
         {
           "property": "padding",
@@ -720,7 +1763,7 @@
       ],
       "document": "default",
       "property": "border-left",
-      "declared": "3px solid currentcolor",
+      "declared": "var(--ds-density-stroke-state) solid currentcolor",
       "computed": [
         {
           "property": "borderLeftWidth",
@@ -750,7 +1793,7 @@
       ],
       "document": "default",
       "property": "background",
-      "declared": "#eef1f5",
+      "declared": "var(--ds-color-canvas-state)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -768,7 +1811,7 @@
       ],
       "document": "default",
       "property": "font-weight",
-      "declared": "700",
+      "declared": "var(--ds-type-weight-bold)",
       "computed": [
         {
           "property": "fontWeight",
@@ -786,7 +1829,7 @@
       ],
       "document": "default",
       "property": "margin",
-      "declared": "0 0 12px",
+      "declared": "var(--ds-density-block-margin)",
       "computed": [
         {
           "property": "margin",
@@ -804,7 +1847,7 @@
       ],
       "document": "default",
       "property": "padding",
-      "declared": "10px 12px",
+      "declared": "var(--ds-density-block-block)",
       "computed": [
         {
           "property": "padding",
@@ -822,7 +1865,7 @@
       ],
       "document": "default",
       "property": "border",
-      "declared": "1px solid #dde2ea",
+      "declared": "var(--ds-density-stroke-hairline) solid var(--ds-color-rule-soft)",
       "computed": [
         {
           "property": "borderTopWidth",
@@ -852,7 +1895,7 @@
       ],
       "document": "default",
       "property": "border-left",
-      "declared": "3px solid #b9c2cf",
+      "declared": "var(--ds-density-stroke-state) solid var(--ds-color-rule-block)",
       "computed": [
         {
           "property": "borderLeftWidth",
@@ -882,7 +1925,7 @@
       ],
       "document": "default",
       "property": "background",
-      "declared": "#ffffff",
+      "declared": "var(--ds-color-canvas-block)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -900,7 +1943,7 @@
       ],
       "document": "default",
       "property": "margin",
-      "declared": "0 0 6px",
+      "declared": "var(--ds-density-word-margin)",
       "computed": [
         {
           "property": "margin",
@@ -918,7 +1961,7 @@
       ],
       "document": "default",
       "property": "font-size",
-      "declared": "11px",
+      "declared": "var(--ds-type-size-word)",
       "computed": [
         {
           "property": "fontSize",
@@ -936,7 +1979,7 @@
       ],
       "document": "default",
       "property": "font-weight",
-      "declared": "700",
+      "declared": "var(--ds-type-weight-bold)",
       "computed": [
         {
           "property": "fontWeight",
@@ -954,7 +1997,7 @@
       ],
       "document": "default",
       "property": "text-transform",
-      "declared": "uppercase",
+      "declared": "var(--ds-type-transform-word)",
       "computed": [
         {
           "property": "textTransform",
@@ -972,7 +2015,7 @@
       ],
       "document": "default",
       "property": "margin",
-      "declared": "0",
+      "declared": "var(--ds-density-flush)",
       "computed": [
         {
           "property": "margin",
@@ -990,7 +2033,7 @@
       ],
       "document": "default",
       "property": "padding",
-      "declared": "5px 10px",
+      "declared": "var(--ds-density-row-block)",
       "computed": [
         {
           "property": "padding",
@@ -1008,7 +2051,7 @@
       ],
       "document": "default",
       "property": "border-top",
-      "declared": "1px solid #e6eaf0",
+      "declared": "var(--ds-density-stroke-hairline) solid var(--ds-color-rule-row)",
       "computed": [
         {
           "property": "borderTopWidth",
@@ -1038,7 +2081,7 @@
       ],
       "document": "default",
       "property": "background",
-      "declared": "#f7f8fa",
+      "declared": "var(--ds-color-canvas-row)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -1056,7 +2099,7 @@
       ],
       "document": "default",
       "property": "color",
-      "declared": "#1b1f24",
+      "declared": "var(--ds-color-ink)",
       "computed": [
         {
           "property": "color",
@@ -1074,7 +2117,7 @@
       ],
       "document": "default",
       "property": "line-height",
-      "declared": "1.6",
+      "declared": "var(--ds-type-leading-row)",
       "computed": [
         {
           "property": "lineHeight",
@@ -1093,7 +2136,7 @@
       ],
       "document": "state:finding",
       "property": "color",
-      "declared": "#0b4a8c",
+      "declared": "var(--ds-color-state-finding)",
       "computed": [
         {
           "property": "color",
@@ -1112,7 +2155,7 @@
       ],
       "document": "state:differing",
       "property": "color",
-      "declared": "#8a4b06",
+      "declared": "var(--ds-color-state-differing)",
       "computed": [
         {
           "property": "color",
@@ -1150,7 +2193,7 @@
       ],
       "document": "state:idle",
       "property": "color",
-      "declared": "#565e6b",
+      "declared": "var(--ds-color-state-idle)",
       "computed": [
         {
           "property": "color",
@@ -1169,7 +2212,7 @@
       ],
       "document": "default",
       "property": "padding",
-      "declared": "5px 10px",
+      "declared": "var(--ds-density-control-block)",
       "computed": [
         {
           "property": "padding",
@@ -1188,7 +2231,7 @@
       ],
       "document": "default",
       "property": "border",
-      "declared": "1px solid #c2cad6",
+      "declared": "var(--ds-density-stroke-hairline) solid var(--ds-color-rule-control)",
       "computed": [
         {
           "property": "borderTopWidth",
@@ -1219,7 +2262,7 @@
       ],
       "document": "default",
       "property": "background",
-      "declared": "#ffffff",
+      "declared": "var(--ds-color-canvas-control)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -1238,7 +2281,7 @@
       ],
       "document": "default",
       "property": "color",
-      "declared": "#1b1f24",
+      "declared": "var(--ds-color-ink)",
       "computed": [
         {
           "property": "color",
@@ -1257,7 +2300,7 @@
       ],
       "document": "default",
       "property": "font",
-      "declared": "inherit",
+      "declared": "var(--ds-type-control-font)",
       "computed": [
         {
           "property": "font",
@@ -1279,7 +2322,7 @@
       ],
       "document": "default",
       "property": "cursor",
-      "declared": "pointer",
+      "declared": "var(--ds-density-cursor-control)",
       "computed": [
         {
           "property": "cursor",
@@ -1297,7 +2340,7 @@
       ],
       "document": "default",
       "property": "font-weight",
-      "declared": "600",
+      "declared": "var(--ds-type-weight-semibold)",
       "computed": [
         {
           "property": "fontWeight",
@@ -1316,7 +2359,7 @@
       ],
       "document": "default",
       "property": "outline",
-      "declared": "2px solid #2f6fd0",
+      "declared": "var(--ds-density-stroke-emphasis) solid var(--ds-color-focus)",
       "computed": [
         {
           "property": "outlineWidth",
@@ -1338,9 +2381,9 @@
       "selectorParts": [
         "body"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "color",
-      "declared": "#e4e7ec",
+      "declared": "var(--ds-color-ink-dark)",
       "computed": [
         {
           "property": "color",
@@ -1356,7 +2399,7 @@
       "selectorParts": [
         "body"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "background",
       "declared": "#14171c",
       "computed": [
@@ -1376,9 +2419,9 @@
         "h2",
         "h3"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "border-top-color",
-      "declared": "#2b313a",
+      "declared": "var(--ds-color-rule-dark)",
       "computed": [
         {
           "property": "borderTopColor",
@@ -1396,9 +2439,9 @@
         "h2",
         "h3"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "background",
-      "declared": "#1f242b",
+      "declared": "var(--ds-color-canvas-heading-dark)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -1416,9 +2459,9 @@
         "h2",
         "h3"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "color",
-      "declared": "#f1f3f6",
+      "declared": "var(--ds-color-ink-strong-dark)",
       "computed": [
         {
           "property": "color",
@@ -1434,9 +2477,9 @@
       "selectorParts": [
         "section.panel-demo[data-surface][data-state]"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "border-color",
-      "declared": "#2b313a",
+      "declared": "var(--ds-color-rule-dark)",
       "computed": [
         {
           "property": "borderTopColor",
@@ -1452,9 +2495,9 @@
       "selectorParts": [
         "section.panel-demo[data-surface][data-state]"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "background",
-      "declared": "#1a1e24",
+      "declared": "var(--ds-color-canvas-raised-dark)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -1470,9 +2513,9 @@
       "selectorParts": [
         "p.state"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "background",
-      "declared": "#232830",
+      "declared": "var(--ds-color-canvas-state-dark)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -1488,9 +2531,9 @@
       "selectorParts": [
         "section.panel-block[data-block-kind][data-block-state]"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "border-color",
-      "declared": "#2b313a",
+      "declared": "var(--ds-color-rule-dark)",
       "computed": [
         {
           "property": "borderTopColor",
@@ -1506,9 +2549,9 @@
       "selectorParts": [
         "section.panel-block[data-block-kind][data-block-state]"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "background",
-      "declared": "#22272f",
+      "declared": "var(--ds-color-canvas-block-dark)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -1524,9 +2567,9 @@
       "selectorParts": [
         "p.line"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "border-top-color",
-      "declared": "#2b313a",
+      "declared": "var(--ds-color-rule-dark)",
       "computed": [
         {
           "property": "borderTopColor",
@@ -1542,9 +2585,9 @@
       "selectorParts": [
         "p.line"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "background",
-      "declared": "#232830",
+      "declared": "var(--ds-color-canvas-state-dark)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -1560,9 +2603,9 @@
       "selectorParts": [
         "p.line"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "color",
-      "declared": "#dfe3e9",
+      "declared": "var(--ds-color-ink-row-dark)",
       "computed": [
         {
           "property": "color",
@@ -1579,9 +2622,9 @@
         "button",
         "select"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "border-color",
-      "declared": "#3a424e",
+      "declared": "var(--ds-color-rule-control-dark)",
       "computed": [
         {
           "property": "borderTopColor",
@@ -1598,9 +2641,9 @@
         "button",
         "select"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "background",
-      "declared": "#262c35",
+      "declared": "var(--ds-color-canvas-control-dark)",
       "computed": [
         {
           "property": "backgroundColor",
@@ -1617,15 +2660,69 @@
         "button",
         "select"
       ],
-      "document": "dark",
+      "document": "media:(prefers-color-scheme: dark)",
       "property": "color",
-      "declared": "#e4e7ec",
+      "declared": "var(--ds-color-ink-dark)",
       "computed": [
         {
           "property": "color",
           "read": true,
           "element": "button",
           "value": "rgb(228, 231, 236)"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-reduced-motion: reduce)",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "media:(prefers-reduced-motion: reduce)",
+      "property": "--ds-motion-duration-fast",
+      "declared": "0ms",
+      "computed": [
+        {
+          "property": "--ds-motion-duration-fast",
+          "read": true,
+          "element": ":root",
+          "value": "0ms"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-reduced-motion: reduce)",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "media:(prefers-reduced-motion: reduce)",
+      "property": "--ds-motion-duration-base",
+      "declared": "0ms",
+      "computed": [
+        {
+          "property": "--ds-motion-duration-base",
+          "read": true,
+          "element": ":root",
+          "value": "0ms"
+        }
+      ]
+    },
+    {
+      "media": "(prefers-reduced-motion: reduce)",
+      "selector": ":root",
+      "selectorParts": [
+        ":root"
+      ],
+      "document": "media:(prefers-reduced-motion: reduce)",
+      "property": "--ds-motion-easing-standard",
+      "declared": "linear",
+      "computed": [
+        {
+          "property": "--ds-motion-easing-standard",
+          "read": true,
+          "element": ":root",
+          "value": "linear"
         }
       ]
     }
@@ -1707,21 +2804,21 @@
     }
   ],
   "counts": {
-    "rules": 22,
+    "rules": 24,
     "darkRules": 7,
-    "mediaBlocks": 1,
-    "selectors": 17,
-    "properties": 18,
-    "declarations": 66,
+    "mediaBlocks": 3,
+    "selectors": 18,
+    "properties": 75,
+    "declarations": 126,
     "darkDeclarations": 16,
-    "readings": 80,
-    "readingsRead": 77,
+    "readings": 140,
+    "readingsRead": 137,
     "readingsAbsent": 3,
     "policyAbsences": 2,
     "unresolvedValues": 0,
     "unmatchedSelectors": 1,
     "selectorPartsNotRendered": 6,
-    "documents": 6
+    "documents": 7
   },
-  "statement": "66 declaration(s) over 22 rule(s), 17 selector(s) and 18 property(ies) were read from apps/angular-ai-devtools/src/styles.css, 16 of them inside the (prefers-color-scheme: dark) block: 77 of 80 reading(s) resolved through scripts/panel-styles.test.mjs's own document and getComputedStyle, and 3 did not. What was not resolved, with the reason: font-family under \"body\" (`font-family` under \"body\" was not resolved: the style suite refuses `font-family` as a discriminator on purpose, because Chrome injects `font-family: \"Segoe UI\"` into a `chrome-extension://` document and a reading on it passes on a pane with no typography of its own — so this record states the absence rather than writing a value the browser would not agree with) font under \"button,\\nselect\" (`font` under \"button,\\nselect\" was not resolved: `font` is the shorthand that carries `font-family`, so it inherits that refusal: the only reading jsdom offers for it here is `inherit`, which is the declaration echoed back rather than the font the panel paints — so this record states the absence rather than writing a value the browser would not agree with) outline under \"button:focus-visible,\\nselect:focus-visible\" (`outline` under \"button:focus-visible,\\nselect:focus-visible\" was not resolved: in this document \"button:focus-visible\" matched no element; \"select:focus-visible\" matched no element, so no element carries the declaration and a computed value would have to be invented rather than read) What the style suite measures — heading h2, row p.line, surface section.panel-demo, control button on padding, borderTopWidth, backgroundColor — is carried by these rows' own readings, so the token layer that follows can be proved to re-express these values rather than retune them."
+  "statement": "126 declaration(s) over 24 rule(s), 18 selector(s) and 75 property(ies) were read from apps/angular-ai-devtools/src/styles.css, 16 of them inside the (prefers-color-scheme: dark) block: 137 of 140 reading(s) resolved through scripts/panel-styles.test.mjs's own document and getComputedStyle, and 3 did not. What was not resolved, with the reason: font-family under \"body\" (`font-family` under \"body\" was not resolved: the style suite refuses `font-family` as a discriminator on purpose, because Chrome injects `font-family: \"Segoe UI\"` into a `chrome-extension://` document and a reading on it passes on a pane with no typography of its own — so this record states the absence rather than writing a value the browser would not agree with) font under \"button,\\nselect\" (`font` under \"button,\\nselect\" was not resolved: `font` is the shorthand that carries `font-family`, so it inherits that refusal: the only reading jsdom offers for it here is `inherit`, which is the declaration echoed back rather than the font the panel paints — so this record states the absence rather than writing a value the browser would not agree with) outline under \"button:focus-visible,\\nselect:focus-visible\" (`outline` under \"button:focus-visible,\\nselect:focus-visible\" was not resolved: in this document \"button:focus-visible\" matched no element; \"select:focus-visible\" matched no element, so no element carries the declaration and a computed value would have to be invented rather than read) The tokens no declaration reads are --ds-motion-duration-base, --ds-motion-duration-fast, --ds-motion-easing-standard: the motion contract, declared in the token block and restated for a reader who asks for less motion, is read by no declaration because this sheet carries no transition and no animation — recorded here rather than given a consumer by inventing one, which would be a rendered change. What the style suite measures — heading h2, row p.line, surface section.panel-demo, control button on padding, borderTopWidth, backgroundColor — is carried by these rows' own readings, so the token layer that follows can be proved to re-express these values rather than retune them."
 }

@@ -144,10 +144,92 @@ export function panelMarkup({
   </section>`;
 }
 
+// ---------------------------------------------------------------------------
+// The seam: the custom properties `:root` declares, resolved the way a browser does
+// ---------------------------------------------------------------------------
+
+/**
+ * The top-level rules of a stylesheet as written: each rule's prelude and its body, comments
+ * removed. An at-rule comes back as the block it is, so a `:root` nested inside a media block is
+ * never mistaken for the one a document's defaults come from.
+ */
+function topLevelRules(css) {
+  const text = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rules = [];
+  let index = 0;
+  while (index < text.length) {
+    const open = text.indexOf('{', index);
+    if (open === -1) break;
+    const prelude = text.slice(index, open).trim();
+    let depth = 1;
+    let cursor = open + 1;
+    while (cursor < text.length && depth > 0) {
+      const character = text[cursor];
+      if (character === '{') depth += 1;
+      else if (character === '}') depth -= 1;
+      cursor += 1;
+    }
+    rules.push({ prelude, body: text.slice(open + 1, cursor - 1) });
+    index = cursor;
+  }
+  return rules;
+}
+
+/** One `--name: value` declaration, as a `:root` block writes it. */
+const CUSTOM_PROPERTY = /(?:^|;)\s*(--[A-Za-z0-9-]+)\s*:\s*([^;]*)/g;
+
+/** One `var(--name)` reference, with the optional fallback a stylesheet may write after it. */
+const VARIABLE_REFERENCE = /var\(\s*(--[A-Za-z0-9-]+)\s*(?:,\s*([^()]*))?\)/g;
+
+/**
+ * The custom properties a sheet declares on `:root`, in the order it declares them. Only the
+ * top-level block is read, which is the one a browser applies to the document these readings are
+ * taken from; a block that restates a token for one media context is read where that context is
+ * measured, by appending its own rules as a second sheet.
+ */
+function rootCustomProperties(css) {
+  const declared = new Map();
+  for (const rule of topLevelRules(css)) {
+    if (!/(?:^|,)\s*:root\s*(?:,|$)/.test(rule.prelude)) continue;
+    for (const match of rule.body.matchAll(CUSTOM_PROPERTY)) {
+      declared.set(match[1], match[2].trim());
+    }
+  }
+  return declared;
+}
+
+/**
+ * The stylesheet with every `var(--name)` substituted from `:root`, which is the one thing jsdom
+ * does not do and a browser does. Without it a longhand reads back as the literal `var(...)` string
+ * and a shorthand carrying one reads back empty, so a tokenised declaration cannot be measured at
+ * all; with it, the readings this file takes are the readings the browser renders.
+ *
+ * A reference `:root` does not declare is left standing rather than emptied: a dropped token then
+ * shows up in the reading that lost it, naming itself, instead of resolving to nothing and passing.
+ * Passes repeat until nothing changes, so a token whose value reads another token resolves too.
+ */
+function withCustomPropertiesResolved(css) {
+  const declared = rootCustomProperties(css);
+  if (declared.size === 0) return css;
+  let text = css;
+  for (let pass = 0; pass < 8; pass += 1) {
+    const next = text.replace(
+      VARIABLE_REFERENCE,
+      (reference, name, fallback) => {
+        if (declared.has(name)) return declared.get(name);
+        return fallback === undefined ? reference : fallback.trim();
+      },
+    );
+    if (next === text) return text;
+    text = next;
+  }
+  return text;
+}
+
 /** A window with `css` applied and the demo's markup in its body. */
 export function documentWith(css, options) {
   const dom = new JSDOM(
-    `<!doctype html><html><head><style>${css}</style></head><body>${panelMarkup(options)}</body></html>`,
+    `<!doctype html><html><head><style>${withCustomPropertiesResolved(css)}</style></head><body>${panelMarkup(options)}</body></html>`,
     { pretendToBeVisual: true },
   );
   return dom.window;

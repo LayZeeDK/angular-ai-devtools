@@ -1,5 +1,5 @@
 /*
- * The DevTools panel's one global baseline (M039 T005).
+ * The DevTools panel's one global baseline (M039 T005), carried by tokens (M069 T002).
  *
  * Every `panel-demo` surface — the ten that shipped before this milestone and the
  * render-phase pane it adds — renders the same hooks: a `section.panel-demo`
@@ -11,26 +11,131 @@
  *
  * Five groups, each reachable from that markup: typography, spacing and line
  * rhythm, state colours, control normalisation, and a dark-scheme block that
- * restates the colours instead of inverting the page. Literal values only —
- * `scripts/panel-styles.test.mjs` reads the computed style of a document built
- * from this file's own markup, and a custom property is not a value a reader
- * resolves for it.
+ * restates the colours instead of inverting the page.
+ *
+ * One token block, first, before every rule: density (spacing, strokes, radii and
+ * the control's affordance), colour (the light palette, and the dark one beside
+ * it), type, and motion. Every rendering declaration below reads a token from it,
+ * and the token is the only place its value is written. `scripts/panel-styles.test.mjs`
+ * reads computed styles off a document built from this file's own markup, and
+ * jsdom substitutes no custom property — a longhand carrying `var()` reads back as
+ * that literal string and a shorthand carrying one reads back empty — so that
+ * suite's document seam substitutes `var(--name)` from `:root` before the sheet is
+ * applied, the way a browser's cascade does, and this layer is measurable through
+ * it. Its readings are then the readings the panel renders.
+ *
+ * Three declarations stay literal on purpose. Three mutant anchors in
+ * `scripts/panel-styles.test.mjs` match their exact declaration text exactly once,
+ * and this task may not edit, retune or skip an assertion there. Their text is not
+ * repeated here, in prose or in a comment, because a second spelling of one would
+ * make the anchor ambiguous:
+ *
+ *   - the cannot-tell state colour — M5 substitutes the finding colour for it and
+ *     expects the two states to collide, which is how "a state the pane cannot tell
+ *     must not look like a finding" is proved;
+ *   - the dark body's background — M7 substitutes white for it and expects the dark
+ *     failure to name a white slab;
+ *   - the body's font family — M8 deletes it and expects the pin to stay green,
+ *     which is how typography is proved not to be a discriminator.
+ *
+ * No token is declared for those three values: a token nothing reads would be
+ * worse than the literal it duplicated, and a fourth spelling of one of them would
+ * make the anchor ambiguous. The other 63 declarations read a token.
+ *
+ * The reduced-motion block at the end restates the motion tokens. No declaration
+ * in this sheet transitions or animates yet, so those tokens are consumed by
+ * nothing — recorded rather than papered over by inventing a transition, which
+ * would be a rendered change in the milestone whose proof is that no rendered
+ * value moved.
  *
  * The emitted sheet is held to the 535.44 kB initial total
- * `scripts/panel-bundle-budget.test.mjs` records, so the declarations below are
- * as few as the five groups allow: a state colour sits on the surface or block
- * that carries it and is inherited by the state word, while `p.line` and the
- * heading restate the body colour so content never takes a state's tint.
+ * `scripts/panel-bundle-budget.test.mjs` records, so each value is written once, in
+ * the token block, and the declarations below read it rather than restating it: a
+ * state colour sits on the surface or block that carries it and is inherited by the
+ * state word, while `p.line` and the heading restate the body colour so content
+ * never takes a state's tint.
  */
 
+:root {
+  /* Density: the sheet's spacing rhythm, stroke widths, radius and affordance. */
+  --ds-density-flush: 0;
+  --ds-density-body-block: 14px 16px 20px;
+  --ds-density-heading-margin: 0 0 10px;
+  --ds-density-heading-block: 8px 0 6px;
+  --ds-density-surface-block: 16px 18px 18px;
+  --ds-density-state-margin: 0 0 12px;
+  --ds-density-state-block: 4px 10px;
+  --ds-density-block-margin: 0 0 12px;
+  --ds-density-block-block: 10px 12px;
+  --ds-density-word-margin: 0 0 6px;
+  --ds-density-row-block: 5px 10px;
+  --ds-density-control-block: 5px 10px;
+  --ds-density-stroke-hairline: 1px;
+  --ds-density-stroke-emphasis: 2px;
+  --ds-density-stroke-state: 3px;
+  --ds-density-radius-surface: 6px;
+  --ds-density-cursor-control: pointer;
+
+  /* Colour, light: ink, the canvases a surface is painted on, and the rules
+   * between them. */
+  --ds-color-ink: #1b1f24;
+  --ds-color-ink-strong: #10151b;
+  --ds-color-canvas: #ffffff;
+  --ds-color-canvas-heading: #f6f8fa;
+  --ds-color-canvas-raised: #fbfcfd;
+  --ds-color-canvas-state: #eef1f5;
+  --ds-color-canvas-block: #ffffff;
+  --ds-color-canvas-row: #f7f8fa;
+  --ds-color-canvas-control: #ffffff;
+  --ds-color-rule: #cfd6e2;
+  --ds-color-rule-soft: #dde2ea;
+  --ds-color-rule-block: #b9c2cf;
+  --ds-color-rule-row: #e6eaf0;
+  --ds-color-rule-control: #c2cad6;
+  --ds-color-focus: #2f6fd0;
+  --ds-color-state-finding: #0b4a8c;
+  --ds-color-state-differing: #8a4b06;
+  --ds-color-state-idle: #565e6b;
+
+  /* Colour, dark: the values the dark block restates its declarations with, so a
+   * scheme is a choice of token rather than a second place a value is written. */
+  --ds-color-ink-dark: #e4e7ec;
+  --ds-color-ink-strong-dark: #f1f3f6;
+  --ds-color-ink-row-dark: #dfe3e9;
+  --ds-color-rule-dark: #2b313a;
+  --ds-color-rule-control-dark: #3a424e;
+  --ds-color-canvas-heading-dark: #1f242b;
+  --ds-color-canvas-raised-dark: #1a1e24;
+  --ds-color-canvas-state-dark: #232830;
+  --ds-color-canvas-block-dark: #22272f;
+  --ds-color-canvas-control-dark: #262c35;
+
+  /* Type. */
+  --ds-type-size-body: 13px;
+  --ds-type-size-heading: 15px;
+  --ds-type-size-word: 11px;
+  --ds-type-weight-semibold: 600;
+  --ds-type-weight-bold: 700;
+  --ds-type-leading-body: 1.5;
+  --ds-type-leading-row: 1.6;
+  --ds-type-transform-word: uppercase;
+  --ds-type-control-font: inherit;
+
+  /* Motion: read by no declaration in this sheet yet, and restated for a reader who
+   * asks for less of it at the end of this file. */
+  --ds-motion-duration-fast: 120ms;
+  --ds-motion-duration-base: 200ms;
+  --ds-motion-easing-standard: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
 body {
-  margin: 0;
-  padding: 14px 16px 20px;
-  color: #1b1f24;
-  background: #ffffff;
+  margin: var(--ds-density-flush);
+  padding: var(--ds-density-body-block);
+  color: var(--ds-color-ink);
+  background: var(--ds-color-canvas);
   font-family: system-ui, sans-serif;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: var(--ds-type-size-body);
+  line-height: var(--ds-type-leading-body);
 }
 
 /* A heading scale: one weight, background and top rule for every level, the panel's size
@@ -38,72 +143,75 @@ body {
 h1,
 h2,
 h3 {
-  margin: 0 0 10px;
-  padding: 8px 0 6px;
-  border-top: 2px solid #cfd6e2;
-  background: #f6f8fa;
-  color: #10151b;
-  font-weight: 600;
+  margin: var(--ds-density-heading-margin);
+  padding: var(--ds-density-heading-block);
+  border-top: var(--ds-density-stroke-emphasis) solid var(--ds-color-rule);
+  background: var(--ds-color-canvas-heading);
+  color: var(--ds-color-ink-strong);
+  font-weight: var(--ds-type-weight-semibold);
 }
 
 h2 {
-  font-size: 15px;
+  font-size: var(--ds-type-size-heading);
 }
 
 /* The surface: one card per panel route, with its own edge and background. */
 section.panel-demo[data-surface][data-state] {
-  padding: 16px 18px 18px;
-  border: 1px solid #cfd6e2;
-  border-radius: 6px;
-  background: #fbfcfd;
+  padding: var(--ds-density-surface-block);
+  border: var(--ds-density-stroke-hairline) solid var(--ds-color-rule);
+  border-radius: var(--ds-density-radius-surface);
+  background: var(--ds-color-canvas-raised);
 }
 
 /* The state line: the word the surface answered with, set apart from its content. */
 p.state {
-  margin: 0 0 12px;
-  padding: 4px 10px;
-  border-left: 3px solid currentcolor;
-  background: #eef1f5;
-  font-weight: 700;
+  margin: var(--ds-density-state-margin);
+  padding: var(--ds-density-state-block);
+  border-left: var(--ds-density-stroke-state) solid currentcolor;
+  background: var(--ds-color-canvas-state);
+  font-weight: var(--ds-type-weight-bold);
 }
 
 /* One block per part a surface keeps apart. */
 section.panel-block[data-block-kind][data-block-state] {
-  margin: 0 0 12px;
-  padding: 10px 12px;
-  border: 1px solid #dde2ea;
-  border-left: 3px solid #b9c2cf;
-  background: #ffffff;
+  margin: var(--ds-density-block-margin);
+  padding: var(--ds-density-block-block);
+  border: var(--ds-density-stroke-hairline) solid var(--ds-color-rule-soft);
+  border-left: var(--ds-density-stroke-state) solid var(--ds-color-rule-block);
+  background: var(--ds-color-canvas-block);
 }
 
 p.block-state {
-  margin: 0 0 6px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
+  margin: var(--ds-density-word-margin);
+  font-size: var(--ds-type-size-word);
+  font-weight: var(--ds-type-weight-bold);
+  text-transform: var(--ds-type-transform-word);
 }
 
 /* One row per line the surface handed over: a ruled rhythm, not spans run together. */
 p.line {
-  margin: 0;
-  padding: 5px 10px;
-  border-top: 1px solid #e6eaf0;
-  background: #f7f8fa;
-  color: #1b1f24;
-  line-height: 1.6;
+  margin: var(--ds-density-flush);
+  padding: var(--ds-density-row-block);
+  border-top: var(--ds-density-stroke-hairline) solid var(--ds-color-rule-row);
+  background: var(--ds-color-canvas-row);
+  color: var(--ds-color-ink);
+  line-height: var(--ds-type-leading-row);
 }
 
 /* State colours: one colour per state, wherever the pane prints the word. */
 section.panel-demo[data-state='finding'],
 section.panel-block[data-block-state='finding'] {
-  color: #0b4a8c;
+  color: var(--ds-color-state-finding);
 }
 
 section.panel-demo[data-state='differing'],
 section.panel-block[data-block-state='differing'] {
-  color: #8a4b06;
+  color: var(--ds-color-state-differing);
 }
 
+/* The one literal left in a rule body: M5 in `scripts/panel-styles.test.mjs`
+ * substitutes the finding state's colour for this exact declaration and expects the
+ * two states to collide, so it is anchored here rather than tokenised. */
 section.panel-demo[data-state='cannot-tell'],
 section.panel-block[data-block-state='cannot-tell'] {
   color: #6b5200;
@@ -111,68 +219,83 @@ section.panel-block[data-block-state='cannot-tell'] {
 
 section.panel-demo[data-state='idle'],
 section.panel-block[data-block-state='idle'] {
-  color: #565e6b;
+  color: var(--ds-color-state-idle);
 }
 
 /* Controls: the picker's buttons and selects stop being browser chrome. */
 button,
 select {
-  padding: 5px 10px;
-  border: 1px solid #c2cad6;
-  background: #ffffff;
-  color: #1b1f24;
-  font: inherit;
-  cursor: pointer;
+  padding: var(--ds-density-control-block);
+  border: var(--ds-density-stroke-hairline) solid var(--ds-color-rule-control);
+  background: var(--ds-color-canvas-control);
+  color: var(--ds-color-ink);
+  font: var(--ds-type-control-font);
+  cursor: var(--ds-density-cursor-control);
 }
 
 button {
-  font-weight: 600;
+  font-weight: var(--ds-type-weight-semibold);
 }
 
 button:focus-visible,
 select:focus-visible {
-  outline: 2px solid #2f6fd0;
+  outline: var(--ds-density-stroke-emphasis) solid var(--ds-color-focus);
 }
 
 /* Dark DevTools theme: restate the colours, so the panel is not a white slab. */
 @media (prefers-color-scheme: dark) {
   body {
-    color: #e4e7ec;
+    color: var(--ds-color-ink-dark);
+    /* The second literal in a rule body: M7 substitutes white for this exact
+     * declaration and expects the dark failure to name a white slab. */
     background: #14171c;
   }
 
   h1,
   h2,
   h3 {
-    border-top-color: #2b313a;
-    background: #1f242b;
-    color: #f1f3f6;
+    border-top-color: var(--ds-color-rule-dark);
+    background: var(--ds-color-canvas-heading-dark);
+    color: var(--ds-color-ink-strong-dark);
   }
 
   section.panel-demo[data-surface][data-state] {
-    border-color: #2b313a;
-    background: #1a1e24;
+    border-color: var(--ds-color-rule-dark);
+    background: var(--ds-color-canvas-raised-dark);
   }
 
   p.state {
-    background: #232830;
+    background: var(--ds-color-canvas-state-dark);
   }
 
   section.panel-block[data-block-kind][data-block-state] {
-    border-color: #2b313a;
-    background: #22272f;
+    border-color: var(--ds-color-rule-dark);
+    background: var(--ds-color-canvas-block-dark);
   }
 
   p.line {
-    border-top-color: #2b313a;
-    background: #232830;
-    color: #dfe3e9;
+    border-top-color: var(--ds-color-rule-dark);
+    background: var(--ds-color-canvas-state-dark);
+    color: var(--ds-color-ink-row-dark);
   }
 
   button,
   select {
-    border-color: #3a424e;
-    background: #262c35;
-    color: #e4e7ec;
+    border-color: var(--ds-color-rule-control-dark);
+    background: var(--ds-color-canvas-control-dark);
+    color: var(--ds-color-ink-dark);
+  }
+}
+
+/* Reduced motion: the motion tokens restated, so a pane that animates later reads
+ * the contract instead of inventing one. Nothing in this sheet transitions,
+ * animates or carries a duration today, so these three declarations are read by no
+ * rule below them — a measured absence, not a gap. That is why the block restates
+ * tokens rather than adding a `transition` nothing renders. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ds-motion-duration-fast: 0ms;
+    --ds-motion-duration-base: 0ms;
+    --ds-motion-easing-standard: linear;
   }
 }

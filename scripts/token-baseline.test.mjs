@@ -105,6 +105,14 @@ const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 /** The label a rule outside any media block is recorded under. */
 const MEDIA_ALL = 'all';
 
+/**
+ * The prefix a media block's document key carries. Each block is measured in its own document, so a
+ * block that is not the dark scheme is never labelled as if it were: the reduced-motion contract is
+ * a second block, and a key that says `dark` for it would record its values under a context no
+ * reading was taken from.
+ */
+const MEDIA_KEY = 'media:';
+
 /** The dark block, as jsdom's CSSOM spells its media text — the label its own rules are recorded under. */
 const DARK_MEDIA = /prefers-color-scheme\s*:\s*dark/;
 
@@ -496,39 +504,72 @@ function darkMediaLabel() {
 // ------------------------------------------------------------- the documents ----
 
 /**
+ * Every media block the stylesheet carries, as the CSSOM parsed it: the block's own media text and
+ * the text of each rule it holds. Read as text, so one block's rules can be appended to a fresh
+ * document without carrying nodes from one window into another.
+ * @returns {Array<{ media: string, rules: string[] }>}
+ */
+let MEDIA_BLOCKS = null;
+function mediaBlocks() {
+  if (MEDIA_BLOCKS !== null) return MEDIA_BLOCKS;
+  const window = documentWith(stylesheet());
+  const sheet = window.document.styleSheets[0];
+  assert.ok(
+    sheet,
+    `defect: the document built from ${STYLES_REL} carries no stylesheet, so no media block can be measured`,
+  );
+  MEDIA_BLOCKS = [...sheet.cssRules]
+    .filter((rule) => rule.media)
+    .map((rule) => ({
+      media: rule.media.mediaText,
+      rules: [...rule.cssRules].map((inner) => inner.cssText),
+    }));
+  return MEDIA_BLOCKS;
+}
+
+/** The document key one media block's rules are read under. @param {string} mediaText */
+function mediaDocumentKey(mediaText) {
+  return `${MEDIA_KEY}${mediaText}`;
+}
+
+/**
  * The documents the readings are taken from, built once and reused: the default markup
- * `scripts/panel-styles.test.mjs` renders, one per state its `stateColours` builds, and the default
- * document with the dark block's rules appended as a second sheet — the mechanism its `darkReadings` uses.
+ * `scripts/panel-styles.test.mjs` renders, one per state its `stateColours` builds, and — per media
+ * block the sheet carries, the dark scheme and the reduced-motion contract alike — the default
+ * document with that block's own rules appended as a second sheet, which is the mechanism its
+ * `darkReadings` uses.
  * @returns {Record<string, any>}
  */
 let DOCUMENT_SET = null;
 function documents() {
   if (DOCUMENT_SET !== null) return DOCUMENT_SET;
   const css = stylesheet();
-  const block = darkBlock(css);
+  const blocks = mediaBlocks();
   assert.ok(
-    block !== null,
-    `defect: ${STYLES_REL} carries no @media (prefers-color-scheme: dark) block, so the scheme cannot be measured the way ${MEASURED_BY_REL} measures it`,
+    blocks.length > 0,
+    `defect: ${STYLES_REL} carries no @media block, so no media context can be measured the way ${MEASURED_BY_REL} measures one`,
   );
-  const dark = documentWith(css);
-  const applied = dark.document.createElement('style');
-  applied.textContent = [...block.cssRules]
-    .map((rule) => rule.cssText)
-    .join('\n');
-  dark.document.head.appendChild(applied);
+  const media = new Map();
+  for (const block of blocks) {
+    const window = documentWith(css);
+    const applied = window.document.createElement('style');
+    applied.textContent = block.rules.join('\n');
+    window.document.head.appendChild(applied);
+    media.set(block.media, window);
+  }
   const states = new Map(
     STATES.map((state) => [
       state,
       documentWith(css, { state, blocks: [['effect', state]] }),
     ]),
   );
-  DOCUMENT_SET = { default: documentWith(css), states, dark };
+  DOCUMENT_SET = { default: documentWith(css), states, media };
   return DOCUMENT_SET;
 }
 
 /** The document key a rule's readings are taken from. @param {Record<string, any>} rule */
 function documentKeyOf(rule) {
-  if (rule.media !== MEDIA_ALL) return 'dark';
+  if (rule.media !== MEDIA_ALL) return mediaDocumentKey(rule.media);
   for (const part of rule.selectorParts) {
     for (const match of part.matchAll(
       /\[(?:data-(?:block-)?state)\s*=\s*['"]?([A-Za-z-]+)['"]?\]/g,
@@ -543,7 +584,15 @@ function documentKeyOf(rule) {
 function windowOf(key) {
   const set = documents();
   if (key === 'default') return set.default;
-  if (key === 'dark') return set.dark;
+  if (key.startsWith(MEDIA_KEY)) {
+    const mediaText = key.slice(MEDIA_KEY.length);
+    const window = set.media.get(mediaText);
+    assert.ok(
+      window,
+      `defect: ${JSON.stringify(key)} names no media block this sheet carries; the blocks it carries are ${JSON.stringify([...set.media.keys()])}`,
+    );
+    return window;
+  }
   const window = set.states.get(key.slice('state:'.length));
   assert.ok(
     window,
@@ -552,16 +601,35 @@ function windowOf(key) {
   return window;
 }
 
+/**
+ * Every document key this suite builds, in the order the record names them: the default document,
+ * one per media block, and one per state.
+ * @returns {string[]}
+ */
+let DOCUMENT_KEYS = null;
+function documentKeys() {
+  if (DOCUMENT_KEYS !== null) return DOCUMENT_KEYS;
+  DOCUMENT_KEYS = [
+    'default',
+    ...mediaBlocks().map((block) => mediaDocumentKey(block.media)),
+    ...STATES.map((state) => `state:${state}`),
+  ];
+  return DOCUMENT_KEYS;
+}
+
 /** The prose each document key stands for, so a reader knows where a reading came from. */
 const DOCUMENT_MEANING = {
   default:
     'the default document `scripts/panel-styles.test.mjs` builds from its own `panelMarkup()` — a `section.panel-demo` carrying `data-surface="render-phase"` and its state, an `h2`, a `p.state`, two `section.panel-block` elements with their own `p.block-state` and `p.line` rows, a `button` and a `select`',
-  dark: 'the default document with the dark block’s own rules appended as a second sheet, which is how `scripts/panel-styles.test.mjs` measures a scheme jsdom offers no `matchMedia` for',
 };
 
 /** @param {string} key @returns {string} */
 function documentMeaning(key) {
   if (Object.hasOwn(DOCUMENT_MEANING, key)) return DOCUMENT_MEANING[key];
+  if (key.startsWith(MEDIA_KEY)) {
+    const mediaText = key.slice(MEDIA_KEY.length);
+    return `the default document with the rules of the ${JSON.stringify(mediaText)} block appended as a second sheet, which is how \`scripts/panel-styles.test.mjs\` measures a media context jsdom offers no \`matchMedia\` for`;
+  }
   const state = key.slice('state:'.length);
   return `the document \`scripts/panel-styles.test.mjs\` builds for the state ${JSON.stringify(state)} — its own \`panelMarkup\` with that state on the surface and on one block, which is the document its \`stateColours\` reads`;
 }
@@ -581,12 +649,51 @@ function darkRuleCount() {
   return block.cssRules.length;
 }
 
+/**
+ * The number of rules each media block carries, keyed by the block's own media text — one count per
+ * block, so a second block is held to its own rules instead of to the dark block's.
+ * @param {Array<Record<string, any>>} rules
+ * @returns {Map<string, number>}
+ */
+function mediaRuleCounts(rules) {
+  const counts = new Map();
+  for (const rule of rules) {
+    if (rule.media === MEDIA_ALL) continue;
+    counts.set(rule.media, (counts.get(rule.media) ?? 0) + 1);
+  }
+  return counts;
+}
+
 // ------------------------------------------------------------- the readings ----
 
 /** The reason a policy-refused value carries. @param {string} selector @param {string} property */
 function policyReason(selector, property) {
   const policy = NOT_RESOLVED_BY_POLICY[property];
   return `\`${property}\` under ${JSON.stringify(selector)} was not resolved: ${policy.why} — so this record states the absence rather than writing a value the browser would not agree with`;
+}
+
+/**
+ * The name a computed style is asked for a declaration's value under. A custom property is read
+ * under the name it is declared with: camel-casing `--ds-color-ink` gives `-DsColorInk`, which no
+ * `CSSStyleDeclaration` answers, so every token the sheet declares would have been recorded as an
+ * absence it is not.
+ * @param {string} property
+ */
+function computedNameOf(property) {
+  return property.startsWith('--') ? property : camel(property);
+}
+
+/**
+ * One value off a computed style. A custom property is not a driver on the declaration object —
+ * `style['--ds-color-ink']` is `undefined` — so it is read through `getPropertyValue`, which is the
+ * one way jsdom answers it and the way a browser's own cascade is read.
+ * @param {any} style @param {string} name
+ */
+function readingOf(style, name) {
+  const value = name.startsWith('--')
+    ? style.getPropertyValue(name)
+    : style[name];
+  return typeof value === 'string' ? value.trim() : '';
 }
 
 /**
@@ -662,7 +769,7 @@ function readingsOf(rule, declaration) {
   }
 
   const names = COMPUTED_NAMES[declaration.property] ?? [
-    camel(declaration.property),
+    computedNameOf(declaration.property),
   ];
   const used = parts.find((part) => part.element !== null) ?? null;
   if (used === null) {
@@ -684,7 +791,7 @@ function readingsOf(rule, declaration) {
   const style = window.getComputedStyle(used.element);
   const readings = [];
   for (const name of names) {
-    const value = typeof style[name] === 'string' ? style[name].trim() : '';
+    const value = readingOf(style, name);
     if (value === '') continue;
     readings.push({ property: name, read: true, element: used.part, value });
   }
@@ -829,11 +936,12 @@ function derive(capturedAt) {
 
   const selectors = [...new Set(declarations.map((row) => row.selector))];
   const properties = [...new Set(declarations.map((row) => row.property))];
-  const darkRows = declarations.filter((row) => row.media !== MEDIA_ALL);
+  const darkMedia = darkMediaLabel();
+  const darkRows = declarations.filter((row) => row.media === darkMedia);
   const counts = {
     rules: rules.length,
     darkRules: darkRuleCount(),
-    mediaBlocks: 1,
+    mediaBlocks: new Set(declarations.map((row) => row.media)).size,
     selectors: selectors.length,
     properties: properties.length,
     declarations: declarations.length,
@@ -848,7 +956,7 @@ function derive(capturedAt) {
       (one) => one.kind === 'unmatched-selector',
     ).length,
     selectorPartsNotRendered: partsNotRendered.length,
-    documents: 2 + STATES.length,
+    documents: documentKeys().length,
   };
   assert.ok(
     unread.length > 0,
@@ -864,6 +972,7 @@ function derive(capturedAt) {
           `${one.property} under ${JSON.stringify(one.selector)} (${String(one.reason)})`,
       )
       .join(' ')}`,
+    `The tokens no declaration reads are ${unreadTokensOf(declarations).join(', ')}: the motion contract, declared in the token block and restated for a reader who asks for less motion, is read by no declaration because this sheet carries no transition and no animation — recorded here rather than given a consumer by inventing one, which would be a rendered change.`,
     `What the style suite measures — ${MEASURED_HOOKS.map(([label, selector]) => `${label} ${selector}`).join(', ')} on ${MEASURED_PROPERTIES.join(', ')} — is carried by these rows' own readings, so the token layer that follows can be proved to re-express these values rather than retune them.`,
   ].join(' ');
 
@@ -912,14 +1021,9 @@ function derive(capturedAt) {
         states: [...STATES],
         document: documentMeaning('default'),
       },
-      documents: Object.fromEntries([
-        ['default', documentMeaning('default')],
-        ['dark', documentMeaning('dark')],
-        ...STATES.map((state) => [
-          `state:${state}`,
-          documentMeaning(`state:${state}`),
-        ]),
-      ]),
+      documents: Object.fromEntries(
+        documentKeys().map((key) => [key, documentMeaning(key)]),
+      ),
       rules: rules.map((rule) => ({
         media: rule.media,
         selector: rule.selector,
@@ -1129,12 +1233,12 @@ function pinShape(record) {
   const expectedCounts = {
     rules: record.derivedFrom.rules.length,
     darkRules: record.derivedFrom.stylesheet.darkRules,
-    mediaBlocks: 1,
+    mediaBlocks: new Set(record.declarations.map((row) => row.media)).size,
     selectors: new Set(record.declarations.map((row) => row.selector)).size,
     properties: new Set(record.declarations.map((row) => row.property)).size,
     declarations: record.declarations.length,
     darkDeclarations: record.declarations.filter(
-      (row) => row.media !== MEDIA_ALL,
+      (row) => row.media === record.derivedFrom.stylesheet.darkMedia,
     ).length,
     readings: readings.length,
     readingsRead: readings.filter((one) => one.read === true).length,
@@ -1148,7 +1252,7 @@ function pinShape(record) {
       (one) => one.kind === 'unmatched-selector',
     ).length,
     selectorPartsNotRendered: record.partsNotRendered.length,
-    documents: 2 + STATES.length,
+    documents: Object.keys(record.derivedFrom.documents ?? {}).length,
   };
   if (JSON.stringify(counts) !== JSON.stringify(expectedCounts)) {
     fail(
@@ -1356,7 +1460,8 @@ function pinSurface(record) {
       }
     }
   }
-  const dark = documents().dark;
+  const darkMedia = darkMediaLabel();
+  const dark = windowOf(mediaDocumentKey(darkMedia));
   for (const [label, selector] of DARK_HOOKS) {
     const element = dark.document.querySelector(selector);
     assert.ok(
@@ -1367,7 +1472,7 @@ function pinSurface(record) {
     const found = record.declarations
       .filter(
         (row) =>
-          row.media !== MEDIA_ALL &&
+          row.media === darkMedia &&
           row.selectorParts.some((part) => element.matches(part)),
       )
       .flatMap((row) => row.computed)
@@ -1569,11 +1674,29 @@ describe('measurement', () => {
         );
       }
     }
-    assert.equal(
-      rules.filter((rule) => rule.media !== MEDIA_ALL).length,
-      darkRuleCount(),
-      `defect: the dark block's rules are not the rules the CSSOM carries for ${JSON.stringify(darkMediaLabel())}`,
+    // Counted per block, not as one non-`all` total: a second media block — the reduced-motion
+    // contract is one — carries its own rules, and comparing every non-`all` rule to the dark
+    // block's count would read that block as dark rules that went missing.
+    const parsedBlocks = mediaRuleCounts(rules);
+    const cssomBlocks = mediaRuleCounts(
+      cssom.map((entry) => ({ media: entry.media })),
     );
+    assert.ok(
+      parsedBlocks.size > 0,
+      `defect: ${STYLES_REL} parses to no media block, so there is no per-block count to hold to the CSSOM`,
+    );
+    assert.deepEqual(
+      [...parsedBlocks.keys()].sort(),
+      [...cssomBlocks.keys()].sort(),
+      `defect: this suite parses the media block(s) ${JSON.stringify([...parsedBlocks.keys()])} and the CSSOM the style suite navigates carries ${JSON.stringify([...cssomBlocks.keys()])}`,
+    );
+    for (const [mediaText, carried] of parsedBlocks) {
+      assert.equal(
+        carried,
+        cssomBlocks.get(mediaText),
+        `defect: the ${JSON.stringify(mediaText)} block carries ${String(carried)} rule(s) in this suite's parse and ${String(cssomBlocks.get(mediaText))} in the CSSOM the style suite navigates`,
+      );
+    }
     t.diagnostic(
       `token-baseline: ${STYLES_REL} parses to ${String(rules.length)} rule(s) and ${String(rules.reduce((sum, rule) => sum + rule.declarations.length, 0))} declaration(s), the CSSOM carries the same, and ${String(darkRuleCount())} of the rules sit inside ${darkMediaLabel()}`,
     );
@@ -1708,8 +1831,13 @@ describe('the token baseline', () => {
       `${RECORD_REL} is not what this head derives: ${firstDifference(recorded, expected, '')} - re-capture with ${CAPTURE_COMMAND}`,
     );
     const planted = clone(recorded);
+    // Located by the value the fixture anchors, not by the property that carries it: the body's ink
+    // declaration now names a token rather than writing `#1b1f24`, and the row that still declares
+    // that value is the token's own. Every assertion below is the one it was.
     const row = planted.declarations.find(
-      (one) => one.property === 'color' && one.declared === '#1b1f24',
+      (one) =>
+        one.declared === '#1b1f24' &&
+        one.computed.some((reading) => reading.read === true),
     );
     assert.ok(
       row,
@@ -1999,6 +2127,442 @@ describe('the mutants', () => {
     }
     console.log(
       `${RECORD_REL}: ${String(pins.length)} pins hold ${String(recorded.declarations.length)} row(s) over ${String(recorded.counts.selectors)} selector(s)`,
+    );
+  });
+});
+
+// -------------------------------------------------------------- the token layer ---
+
+/**
+ * The three declarations that stay literal, each named by the mutant in
+ * `scripts/panel-styles.test.mjs` that keeps it there — a selector fragment, the property and the
+ * media context, never the value text, so the exception is a piece of the sheet and not a string
+ * this suite happens to match.
+ */
+const LITERAL_ANCHORS = [
+  {
+    mutant: 'M5',
+    media: MEDIA_ALL,
+    selector: /cannot-tell/,
+    property: 'color',
+    why: 'M5 substitutes the finding state colour for this declaration and expects the two state colours to collide',
+  },
+  {
+    mutant: 'M7',
+    media: DARK_MEDIA,
+    selector: /^body$/,
+    property: 'background',
+    why: 'M7 substitutes white for this declaration and expects the dark failure to name a white slab',
+  },
+  {
+    mutant: 'M8',
+    media: MEDIA_ALL,
+    selector: /^body$/,
+    property: 'font-family',
+    why: 'M8 deletes this declaration and expects the pin to stay green, so typography is anchored rather than tokenised',
+  },
+];
+
+/** A value that reads a token. */
+const TOKEN_REFERENCE = /var\(\s*--[a-z0-9-]+/;
+
+/** A reading that still carries a `var(...)` reference: a value a browser would have resolved. */
+const VAR_SURVIVED = /var\(\s*--[a-z0-9-]+/;
+
+/** The block that restates the motion contract. */
+const REDUCED_MOTION = /prefers-reduced-motion\s*:\s*reduce/;
+
+/** The characters a token name contributes to a regular expression. @param {string} text */
+function escaped(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Whether one rule sits in the media context an anchor names. @param {number|string|RegExp} media @param {string} mediaText */
+function inMedia(media, mediaText) {
+  if (media instanceof RegExp) return media.test(mediaText);
+  return media === mediaText;
+}
+
+/**
+ * The first part of a rule's selector the document renders, or `undefined` when it renders none of
+ * them — a declaration no element carries cannot be measured and is not claimed to be.
+ * @param {any} window @param {Record<string, any>} rule
+ */
+function renderedPart(window, rule) {
+  for (const part of rule.selectorParts) {
+    try {
+      if (window.document.querySelector(part) !== null) return part;
+    } catch {
+      // A selector this document cannot parse renders nothing here either.
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Every rendering declaration that reads no token, apart from the three the style suite anchors, and
+ * every anchor that no longer matches exactly one declaration — a stale exception, which would leave
+ * a literal unaccounted for the next time the sheet moved.
+ * @param {string} css
+ * @returns {string[]}
+ */
+function literalFailures(css) {
+  const failures = [];
+  const matched = new Map(LITERAL_ANCHORS.map((anchor) => [anchor.mutant, 0]));
+  for (const rule of parseRules(css)) {
+    for (const declaration of rule.declarations) {
+      // The token block declares values; it does not render one, so it is not a rendering
+      // declaration and reads no other token by construction.
+      if (declaration.property.startsWith('--')) continue;
+      if (TOKEN_REFERENCE.test(declaration.value)) continue;
+      const anchor = LITERAL_ANCHORS.find(
+        (one) =>
+          inMedia(one.media, rule.media) &&
+          one.selector.test(rule.selector.replace(/\s+/g, ' ')) &&
+          one.property === declaration.property,
+      );
+      if (anchor === undefined) {
+        failures.push(
+          `token: \`${declaration.property}\` under ${JSON.stringify(rule.selector)} declares ${JSON.stringify(declaration.value)} and reads no token, and no mutant anchor in ${MEASURED_BY_REL} holds it literal, so a value the token layer does not carry is rendered`,
+        );
+        continue;
+      }
+      matched.set(anchor.mutant, matched.get(anchor.mutant) + 1);
+    }
+  }
+  for (const anchor of LITERAL_ANCHORS) {
+    if (matched.get(anchor.mutant) === 1) continue;
+    failures.push(
+      `token: the ${anchor.mutant} literal exception matches ${String(matched.get(anchor.mutant))} declaration(s) of \`${anchor.property}\`, and it is an exception for exactly one: ${anchor.why}`,
+    );
+  }
+  return failures;
+}
+
+/**
+ * Every reading of a tokenised declaration that still carries a `var(...)` reference: the token it
+ * names is not declared, so the value a browser would resolve was never resolved. The failure names
+ * the selector, the property and the value, so a dropped token is reported as the property it left
+ * unresolved.
+ * @param {string} css @param {Map<string, any>} contexts the document each media context is measured in
+ * @returns {string[]}
+ */
+function unresolvedFailures(css, contexts) {
+  const failures = [];
+  for (const rule of parseRules(css)) {
+    const window = contexts.get(rule.media);
+    if (window === undefined) continue;
+    const part = renderedPart(window, rule);
+    if (part === undefined) continue;
+    const style = window.getComputedStyle(window.document.querySelector(part));
+    for (const declaration of rule.declarations) {
+      if (declaration.property.startsWith('--')) continue;
+      if (!TOKEN_REFERENCE.test(declaration.value)) continue;
+      const names = COMPUTED_NAMES[declaration.property] ?? [
+        computedNameOf(declaration.property),
+      ];
+      for (const name of names) {
+        const value = readingOf(style, name);
+        if (!VAR_SURVIVED.test(value)) continue;
+        failures.push(
+          `token: \`${declaration.property}\` under ${JSON.stringify(rule.selector)} in ${JSON.stringify(rule.media)} is unresolved — its ${name} reads ${JSON.stringify(value)}, so the token it names is declared nowhere the seam resolves`,
+        );
+      }
+    }
+  }
+  return failures;
+}
+
+/** The document each media context of a sheet is measured in, built from that sheet. @param {string} css */
+function documentsFor(css) {
+  const contexts = new Map([[MEDIA_ALL, documentWith(css)]]);
+  const sheet = documentWith(css).document.styleSheets[0];
+  for (const rule of sheet === undefined ? [] : [...sheet.cssRules]) {
+    if (!rule.media) continue;
+    const window = documentWith(css);
+    const applied = window.document.createElement('style');
+    applied.textContent = [...rule.cssRules]
+      .map((inner) => inner.cssText)
+      .join('\n');
+    window.document.head.appendChild(applied);
+    contexts.set(rule.media.mediaText, window);
+  }
+  return contexts;
+}
+
+/** The media contexts of the record's own documents. @returns {Map<string, any>} */
+function recordContexts() {
+  const set = documents();
+  return new Map([[MEDIA_ALL, set.default], ...set.media]);
+}
+
+/**
+ * The first declaration in the sheet's own `all` context that reads a token and that the default
+ * document renders — the consumer a dropped token is proved on.
+ * @param {string} css
+ * @returns {{ token: string, selector: string, part: string, property: string, names: string[] } | null}
+ */
+function firstTokenConsumer(css) {
+  const window = documentWith(css);
+  for (const rule of parseRules(css)) {
+    if (rule.media !== MEDIA_ALL) continue;
+    const part = renderedPart(window, rule);
+    if (part === undefined) continue;
+    for (const declaration of rule.declarations) {
+      if (declaration.property.startsWith('--')) continue;
+      const match = /var\(\s*(--[a-z0-9-]+)/.exec(declaration.value);
+      if (match === null) continue;
+      return {
+        token: match[1],
+        selector: rule.selector,
+        part,
+        property: declaration.property,
+        names: COMPUTED_NAMES[declaration.property] ?? [
+          computedNameOf(declaration.property),
+        ],
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * The readings one consumer's declaration resolves to in a document built from `css`.
+ * @param {string} css @param {{ part: string, names: string[] }} consumer
+ * @returns {Array<{ name: string, value: string }>}
+ */
+function resolvedIn(css, consumer) {
+  const window = documentWith(css);
+  const element = window.document.querySelector(consumer.part);
+  assert.ok(
+    element,
+    `${JSON.stringify(consumer.part)} must be rendered by the document the token layer is measured in`,
+  );
+  const style = window.getComputedStyle(element);
+  return consumer.names.map((name) => ({
+    name,
+    value: readingOf(style, name),
+  }));
+}
+
+/**
+ * The sheet with one token's declaration removed from the token block, anchored so the mutant fails
+ * loudly rather than silently dropping nothing.
+ * @param {string} css @param {string} token
+ */
+function withoutToken(css, token) {
+  const declaration = new RegExp(`\\n\\s*${escaped(token)}\\s*:[^;]*;`);
+  const occurrences = (css.match(declaration) ?? []).length;
+  assert.equal(
+    occurrences,
+    1,
+    `${STYLES_REL} declares ${token} ${String(occurrences)} time(s), and dropping one token is a mutation of exactly one declaration; the mutant's anchor is stale`,
+  );
+  return css.replace(declaration, '');
+}
+
+/**
+ * The tokens no rendering declaration reads, derived from the rows themselves: what a declared token
+ * is worth is whether anything renders it.
+ * @param {Array<Record<string, any>>} declarations
+ * @returns {string[]}
+ */
+function unreadTokensOf(declarations) {
+  const declared = new Set();
+  const read = new Set();
+  for (const row of declarations) {
+    if (row.property.startsWith('--')) declared.add(row.property);
+    for (const match of row.declared.matchAll(/var\(\s*(--[a-z0-9-]+)/g)) {
+      read.add(match[1]);
+    }
+  }
+  return [...declared].filter((token) => !read.has(token)).sort();
+}
+
+/**
+ * The reduced-motion contract, measured as a block: it exists, it restates every motion token the
+ * token block declares, each restatement changes the value it restates, and it restates no token
+ * that was never declared.
+ * @param {string} css
+ * @returns {string[]}
+ */
+function reducedMotionFailures(css) {
+  const rules = parseRules(css);
+  const motionOf = (selected) => {
+    const found = new Map();
+    for (const rule of selected) {
+      if (!/^:root$/.test(rule.selector)) continue;
+      for (const declaration of rule.declarations) {
+        if (declaration.property.startsWith('--ds-motion-')) {
+          found.set(declaration.property, declaration.value);
+        }
+      }
+    }
+    return found;
+  };
+  const declared = motionOf(rules.filter((rule) => rule.media === MEDIA_ALL));
+  const blocks = rules.filter((rule) => REDUCED_MOTION.test(rule.media));
+  if (blocks.length === 0) {
+    return [
+      `motion: ${STYLES_REL} carries no @media (prefers-reduced-motion: reduce) block — the motion tokens are declared and never restated, so a reader who asks for less motion is told nothing`,
+    ];
+  }
+  if (declared.size === 0) {
+    return [
+      `motion: ${STYLES_REL} declares no --ds-motion-* token for the @media (prefers-reduced-motion: reduce) block to restate`,
+    ];
+  }
+  const restated = motionOf(blocks);
+  const failures = [];
+  for (const [token, value] of declared) {
+    if (!restated.has(token)) {
+      failures.push(
+        `motion: the @media (prefers-reduced-motion: reduce) block does not restate ${token}, so a reader asking for less motion is handed ${JSON.stringify(value)}`,
+      );
+      continue;
+    }
+    if (restated.get(token) === value) {
+      failures.push(
+        `motion: the @media (prefers-reduced-motion: reduce) block restates ${token} as ${JSON.stringify(value)}, which is the value it already carries — a restatement that changes nothing states no contract`,
+      );
+    }
+  }
+  for (const token of restated.keys()) {
+    if (!declared.has(token)) {
+      failures.push(
+        `motion: the @media (prefers-reduced-motion: reduce) block restates ${token}, and the token block declares no such token`,
+      );
+    }
+  }
+  return failures;
+}
+
+describe('the token layer', () => {
+  it('AC1: every rendering declaration reads a token, apart from the three the style suite anchors', (t) => {
+    const css = stylesheet();
+    const rules = parseRules(css);
+    const rendering = rules.flatMap((rule) =>
+      rule.declarations.filter((one) => !one.property.startsWith('--')),
+    );
+    const tokenised = rendering.filter((one) =>
+      TOKEN_REFERENCE.test(one.value),
+    );
+    assert.deepEqual(literalFailures(css), []);
+    assert.ok(
+      rendering.length > 0 && tokenised.length > 0,
+      `defect: ${STYLES_REL} carries no rendering declaration that reads a token, so the token layer asserts nothing`,
+    );
+    assert.deepEqual(
+      unresolvedFailures(css, recordContexts()),
+      [],
+      `every declaration that reads a token must resolve through the seam: an unresolved reading is a value no browser would render`,
+    );
+    t.diagnostic(
+      `token-baseline: ${String(tokenised.length)} of ${String(rendering.length)} rendering declaration(s) read a token; ${String(LITERAL_ANCHORS.length)} stay literal at ${LITERAL_ANCHORS.map((one) => one.mutant).join(', ')}`,
+    );
+    console.log(
+      `AC1: ${String(tokenised.length)} of ${String(rendering.length)} rendering declaration(s) read a token from the token block, and ${String(LITERAL_ANCHORS.length)} stay literal because ${LITERAL_ANCHORS.map((one) => one.mutant).join(' and ')} anchor them`,
+    );
+  });
+
+  it('AC1 mutant: a dropped token reddens naming the property it left unresolved', (t) => {
+    const css = stylesheet();
+    const consumer = firstTokenConsumer(css);
+    assert.ok(
+      consumer,
+      `defect: no declaration of ${STYLES_REL} in its own context reads a token, so there is no consumer to drop one from`,
+    );
+    const sound = resolvedIn(css, consumer);
+    assert.ok(
+      sound.some((one) => one.value !== ''),
+      `the ${consumer.property} of ${JSON.stringify(consumer.selector)} must resolve before the token is dropped, or the mutant proves nothing`,
+    );
+    for (const one of sound) {
+      assert.ok(
+        !VAR_SURVIVED.test(one.value),
+        `the ${one.name} of ${JSON.stringify(consumer.selector)} reads ${JSON.stringify(one.value)} before any token is dropped`,
+      );
+    }
+    const dropped = withoutToken(css, consumer.token);
+    assert.notEqual(dropped, css, 'the mutant changed nothing');
+    const failures = unresolvedFailures(dropped, documentsFor(dropped));
+    assert.ok(
+      failures.some((one) => one.includes(`\`${consumer.property}\``)),
+      `dropping ${consumer.token} must redden naming the property it left unresolved (${consumer.property}); it read ${JSON.stringify(failures)}`,
+    );
+    assert.ok(
+      failures.some((one) => one.includes(consumer.token)),
+      `the refusal must name the token that is missing; it read ${JSON.stringify(failures)}`,
+    );
+    t.diagnostic(`token-baseline: dropped ${consumer.token} -> ${failures[0]}`);
+    console.log(
+      `AC1 mutant: dropping ${consumer.token} reddens — ${failures[0]}`,
+    );
+  });
+
+  it('AC2: the reduced-motion block exists as a block and restates every motion token', (t) => {
+    const css = stylesheet();
+    const failures = reducedMotionFailures(css);
+    assert.deepEqual(failures, []);
+    const blocks = parseRules(css).filter((rule) =>
+      REDUCED_MOTION.test(rule.media),
+    );
+    assert.ok(
+      blocks.length > 0,
+      'the reduced-motion contract must be a block the sheet carries',
+    );
+    const restated = blocks
+      .flatMap((rule) => rule.declarations)
+      .map((one) => `${one.property}: ${one.value}`);
+    t.diagnostic(`token-baseline: reduced motion ${JSON.stringify(restated)}`);
+    console.log(
+      `AC2: @media ${JSON.stringify(blocks[0].media)} restates ${String(restated.length)} motion token(s): ${restated.join(', ')}`,
+    );
+  });
+
+  it('AC2 mutant: deleting the reduced-motion block reddens naming it', (t) => {
+    const css = stylesheet();
+    assert.deepEqual(reducedMotionFailures(css), []);
+    const anchor = css.indexOf('@media (prefers-reduced-motion: reduce)');
+    assert.ok(
+      anchor > 0,
+      `the stylesheet no longer carries an @media (prefers-reduced-motion: reduce) block; the mutant's anchor is stale`,
+    );
+    const failures = reducedMotionFailures(css.slice(0, anchor));
+    assert.ok(
+      failures.some((one) => one.includes('prefers-reduced-motion')),
+      `deleting the block must redden naming it; it read ${JSON.stringify(failures)}`,
+    );
+    t.diagnostic(`token-baseline: reduced motion dropped -> ${failures[0]}`);
+    console.log(`AC2 mutant: ${failures[0]}`);
+  });
+
+  it('AC2: the motion tokens are read by no declaration, and that is recorded rather than animated', (t) => {
+    const record = JSON.parse(readFileSync(RECORD_PATH, 'utf8'));
+    const unread = unreadTokensOf(record.declarations);
+    assert.ok(
+      unread.length > 0,
+      'defect: every declared token is read, so nothing states what a consumer-less token is',
+    );
+    for (const token of unread) {
+      assert.ok(
+        token.startsWith('--ds-motion-'),
+        `defect: ${token} is declared and read by no declaration; only the motion contract may be unconsumed, and ${STYLES_REL} carries no transition or animation for it to drive`,
+      );
+    }
+    assert.doesNotMatch(
+      stylesheet(),
+      /\b(?:transition|animation)\s*[:-]/,
+      `defect: ${STYLES_REL} gained a transition or an animation; the motion tokens stop being consumer-less, which is a rendered change this milestone's record does not carry`,
+    );
+    assert.match(
+      record.statement,
+      /read by no declaration/,
+      'the record must state that the motion tokens are consumed by nothing, rather than leaving a reader to infer it',
+    );
+    t.diagnostic(`token-baseline: unread tokens ${JSON.stringify(unread)}`);
+    console.log(
+      `AC2: ${String(unread.length)} token(s) are read by no declaration — ${unread.join(', ')} — and the sheet carries no transition or animation to consume them`,
     );
   });
 });
