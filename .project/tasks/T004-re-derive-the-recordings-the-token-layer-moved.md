@@ -41,6 +41,14 @@ The token block costs 3,580 emitted bytes: the panel bundle measured 534.67 kB a
 after the tokens landed, against a pin of 535.44 kB. That overrun is declared here and paid for deliberately, with its
 reason and the next milestone's projection, rather than absorbed by widening the pin quietly.
 
+## Approach
+
+The bundle pin is not edited; the **historical** number stays the fact it is. `PRE_MILESTONE_INITIAL_KB` keeps 535.44
+and the test that calls it the pre-milestone measurement keeps asserting exactly that. Beside it, a declared ceiling:
+`MILESTONE_INITIAL_KB`, with `MILESTONE_BUDGET_MOVE_REASON` naming the milestone, the byte cost and what it bought.
+`assertWithinBaseline` compares against the ceiling, so both suites that measure the total follow it, and a reason that
+does not name the milestone or the cost fails, so the next move cannot be quiet.
+
 ## Context (recordings)
 
 Two suites and a stylesheet moved, so the census counts different files and the stability record pins a suite whose exit it must now describe. M068 paid three refusals for capturing these in the wrong order; the census is captured after the last suite edit and the stability record after the census.
