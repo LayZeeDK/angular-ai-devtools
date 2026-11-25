@@ -83,5 +83,27 @@ Walkthrough:
 
 ## Held-out checks
 
-Nothing is held out: every edge the intent declares is proved by the suite of the task that owns it, and that task's
-Verify runs that suite.
+Every edge is proved by the suite of the task that owns it, and that task's Verify runs that suite. The table is written
+out because the census suites require one row per edge: a plan that declines to hold anything out leaves the edges'
+owning suites unnamed, and an edge with no named suite cites nothing.
+
+| Edge | Task | Test |
+| ---- | ---- | ---- |
+| E1 | T003 | `scripts/ds-tokens.test.mjs` |
+| E2 | T003 | `scripts/ds-tokens.test.mjs` |
+| E3 | T002 | `scripts/token-baseline.test.mjs` |
+| E4 | T002 | `scripts/token-baseline.test.mjs` |
+| E5 | T002 | `scripts/panel-styles.test.mjs` |
+| E6 | T003 | `scripts/ds-tokens.test.mjs` |
+| E7 | T004 | `scripts/panel-bundle-budget.test.mjs` |
+| E8 | T003 | `scripts/ds-tokens.test.mjs` |
+
+### Why each edge sits where it does
+
+E1 and E2 are the token block's own shape — a surface that declares nothing token-consuming, and a block that precedes
+every rule that reads it — so they are read from the stylesheet as text by the suite that pins the layer. E3 and E4 are
+the reduced-motion contract, which is measured through the record rather than through the text: the block must be present
+as a block, and with motion allowed its declarations must change nothing. E5 is `scripts/panel-styles.test.mjs` running
+with no assertion edited, which is why that file appears as a suite rather than as a task. E6 is the comment-versus-
+declaration distinction, which only a text scan can make. E7 is the budget, measured after the token block lands. E8 is
+the duplicate-token rule, which names both lines.

@@ -2,14 +2,13 @@
 id: T005
 title: Run the project verify at the final head
 wave: 5
-status: in-progress
+status: pending
 deps: []
-agent: build_T005
-base: 917f1fadd0d84023f5a1d8c5535ec6c325ebd961
-worktree: D:\projects\sandbox\angular-ai-devtools
+agent: null
+base: null
+worktree: null
 task_branch: null
 files:
-- scripts/m069-verdict-claims.test.mjs
 - research/raw/m069-verdict-claims.json
 ---
 
@@ -20,6 +19,13 @@ files:
 The project verify is the only run that proves the milestone did not break the build it measures, and it must run from a landing that changes nothing the recordings count. Every milestone that skipped that ordering paid a red verify for it.
 
 ## Approach
+
+The milestone's claim census already exists: `scripts/guard-verdict-claims.test.mjs` reads the milestone the STATE branch
+binds, so at this head it is the census of M069 and `M069_CAPTURE=1 node --test scripts/guard-verdict-claims.test.mjs`
+is what writes `research/raw/m069-verdict-claims.json`. No second suite is added — a per-milestone copy of a shared
+census is how two records drift apart.
+
+## Approach (the earlier draft)
 
 Capture this milestone's verdict claims, run the plan's project verify unchanged, and record its exit and counts. This landing adds no suite and changes no stylesheet, so the recordings T004 re-derived stay true.
 
@@ -37,7 +43,6 @@ Capture this milestone's verdict claims, run the plan's project verify unchanged
 
 Every path this task may touch, and nothing else:
 
-- `scripts/m069-verdict-claims.test.mjs`
 - `research/raw/m069-verdict-claims.json`
 
 ## Interface contract
