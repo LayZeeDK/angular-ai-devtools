@@ -1,0 +1,77 @@
+head: 1b873cd5d851a58ed04c47973825f1bacf65985d at 2026-11-25T09:44:16.873Z
+AC3: apps/angular-ai-devtools/src/styles.css opens with the token block at line 59, 21 of 24 rule(s) read a token, and every one of them comes after it
+AC2: 57 token(s), all inside a `:root` block: 17 density, 28 color, 9 type, 3 motion
+AC2: 54 distinct token(s) are read by the sheet's rules, each declared exactly once in the block; declared and unread: --ds-motion-duration-base, --ds-motion-duration-fast, --ds-motion-easing-standard
+AC2: 3 re-declaration(s), all in the reduced-motion block: --ds-motion-duration-fast, --ds-motion-duration-base, --ds-motion-easing-standard
+AC2: 3 value(s) are carried by more than one token name and none of them is a duplicate: 0 0 12px (2 names), 5px 10px (2 names), #ffffff (3 names)
+AC3: 2 stylesheet(s) under apps/ (apps/angular-ai-devtools/src/app/app.css, apps/angular-ai-devtools/src/styles.css), and only apps/angular-ai-devtools/src/styles.css carries the layer
+scripts/gate-integrity.test.mjs: SUITE_DIFF_REASONS carries 'scripts/ds-tokens.test.mjs': for this suite
+AC1: 63 of 66 rendering declaration(s) read a token, and 3 are declared literal by M5, M7, M8
+AC1: the scan recognises colour, duration, spacing, type literals in the 60 value(s) the block declares, so a clean sheet is a reading rather than an unread one
+AC1: 3 exemptions, each anchored by a mutant in scripts/panel-styles.test.mjs: M5 color: #6b5200; M7 background: #14171c; M8 font-family: system-ui, sans-serif
+AC1: apps/angular-ai-devtools/src/styles.css spells 7 literal(s) in its comments (white at line 36, white at line 37, green at line 38, 535.44 at line 51, white at line 245, white at line 249, white at line 250), and a comment emits no declaration
+AC2 mutant: apps/angular-ai-devtools/src/styles.css: the token `--ds-color-ink` is declared 2 times, at line 81 as "#1b1f24" in the token block and line 82 as "#10151b" in the token block — a token is declared exactly once, so a second spelling is a value the cascade takes instead of the first and no reader can tell which one the layer means
+AC2 mutant: apps/angular-ai-devtools/src/styles.css:149: `background` under "h1, h2, h3" in "all" reads `--ds-color-canvas-bottom`, and no `:root` block declares it (the block at line 59 declares 57 token(s)) — a rule reading a token the block never declares resolves to nothing
+AC2 mutant: apps/angular-ai-devtools/src/styles.css:193: `--ds-line-ink` is declared inside the rule "p.line" in "all", and a token belongs in a `:root` block — a value declared in a rule body is carried by the elements that match it and by nothing else, which is the drift the block exists to prevent
+AC2 mutant: apps/angular-ai-devtools/src/styles.css: the `--ds-motion-easing-standard` restatement is declared 0 time(s) outside the token block, and it is the exemption for exactly one: the reduced-motion block restates the easing curve as `linear`, which is the curve that carries no acceleration to remove — a restatement nobody makes is an exemption the duplicate rule no longer needs
+AC2 mutant: 4 names carry #ffffff (--ds-color-canvas, --ds-color-canvas-block, --ds-color-canvas-control, --ds-color-canvas-raised) and the duplicate pin stays green
+AC3 mutant: apps/angular-ai-devtools/src/styles.css:59: the rule "body" reads --ds-density-flush, --ds-density-body-block, --ds-color-ink, --ds-color-canvas, --ds-type-size-body, --ds-type-leading-body and begins at line 59, before the token block that declares them closes at line 139 — the block precedes every rule that reads it
+AC1 mutant: apps/angular-ai-devtools/src/styles.css:193: `padding` under "p.line" in "all" declares "4px", which carries the spacing literal "4px" (a length) — a value the token block declares nowhere, and no declared exemption holds it literal, so it is a value rendered outside the layer
+AC1 mutant: apps/angular-ai-devtools/src/styles.css:168: `color` under "p.state" in "all" declares "white", which carries the colour literal "white" (a named colour) — a value the token block declares nowhere, and no declared exemption holds it literal, so it is a value rendered outside the layer
+AC1 mutant: apps/angular-ai-devtools/src/styles.css: the M5 exemption (color "#6b5200" under "section.panel-demo[data-state='cannot-tell'], section.panel-block[data-block-state='cannot-tell']") matches 0 declaration(s) and it is the exemption for exactly one: the anchor of `scripts/panel-styles.test.mjs` mutant M5, which substitutes the finding state colour for this exact declaration and expects the two state colours to collide; a token here would let one retune keep the mutant green while the state went on looking like a finding — a stale exemption is a literal the scan no longer sees
+AC1 mutant: a comment spelling #ffffff and 4px at line 193 reddens nothing, and the scan names it as a comment
+▶ the token block
+  ✔ AC3: the sheet opens with one :root token block, and every rule that reads a token comes after it (17.3795ms)
+  ℹ ds-tokens: the block at line 59 declares 57 token(s) and 21 rule(s) read one, the first at line 131
+  ✔ AC2: every custom property is declared inside a :root block, and every token names one of the four groups (15.5171ms)
+  ℹ ds-tokens: 57 token(s) in the token block, {"density":17,"color":28,"type":9,"motion":3}; 3 restatement(s) beside it
+  ✔ AC2: every token a rule reads is declared exactly once, and a token declared twice reddens naming both lines (14.3757ms)
+  ℹ ds-tokens: 54 token(s) read by the rules of apps/angular-ai-devtools/src/styles.css, all of them declared; 3 declared and read by no rule (--ds-motion-duration-base, --ds-motion-duration-fast, --ds-motion-easing-standard)
+  ✔ AC2: the only re-declarations are the three reduced-motion restatements, each made once (9.553ms)
+  ℹ ds-tokens: restatements ["--ds-motion-duration-fast at line 297 in (prefers-reduced-motion: reduce)","--ds-motion-duration-base at line 298 in (prefers-reduced-motion: reduce)","--ds-motion-easing-standard at line 299 in (prefers-reduced-motion: reduce)"]
+  ✔ AC2: two tokens may carry one value, which is not a duplicate (9.8944ms)
+  ℹ ds-tokens: 3 value(s) carried by more than one name: 0 0 12px = --ds-density-block-margin + --ds-density-state-margin; 5px 10px = --ds-density-control-block + --ds-density-row-block; #ffffff = --ds-color-canvas + --ds-color-canvas-block + --ds-color-canvas-control
+  ✔ AC3: no second stylesheet under apps/ declares or reads a --ds- token (2.0861ms)
+  ℹ ds-tokens: stylesheets under apps/: apps/angular-ai-devtools/src/app/app.css, apps/angular-ai-devtools/src/styles.css
+  ✔ AC3: the census carries this suite’s reason row in the same task that adds it (0.9975ms)
+✔ the token block (71.3961ms)
+▶ the literals
+  ✔ AC1: no colour, spacing, type or duration literal is declared outside the block, apart from the three exemptions (12.2898ms)
+  ℹ ds-tokens: 63 of 66 rendering declaration(s) read a token; 3 stay literal at M5, M7, M8
+  ✔ AC1: the scan sees all four families where the block declares them, so an unmatched shape cannot pass for a clean sheet (5.1456ms)
+  ℹ ds-tokens: the four families are seen in the block itself: ["colour","duration","spacing","type"]
+  ✔ AC1: the three exemptions are the three declarations the style suite anchors, and no fourth is admitted (0.9581ms)
+  ℹ ds-tokens: exemptions M5 -> color: #6b5200; M7 -> background: #14171c; M8 -> font-family: system-ui, sans-serif
+  ✔ AC1: a literal in a comment is not a declaration, and the scan names the one it saw (8.5595ms)
+  ℹ ds-tokens: comment literals ["white (colour) at line 36","white (colour) at line 37","green (colour) at line 38","535.44 (type) at line 51","white (colour) at line 245","white (colour) at line 249","white (colour) at line 250"]
+✔ the literals (27.3221ms)
+▶ the mutants
+  ✔ AC2 mutant: a token declared twice reddens naming both lines (19.0579ms)
+  ℹ ds-tokens: duplicate -> apps/angular-ai-devtools/src/styles.css: the token `--ds-color-ink` is declared 2 times, at line 81 as "#1b1f24" in the token block and line 82 as "#10151b" in the token block — a token is declared exactly once, so a second spelling is a value the cascade takes instead of the first and no reader can tell which one the layer means
+  ✔ AC2 mutant: a token read and never declared reddens naming the token, the rule and the line (14.058ms)
+  ℹ ds-tokens: undeclared read -> apps/angular-ai-devtools/src/styles.css:149: `background` under "h1, h2, h3" in "all" reads `--ds-color-canvas-bottom`, and no `:root` block declares it (the block at line 59 declares 57 token(s)) — a rule reading a token the block never declares resolves to nothing
+  ✔ AC2 mutant: a token declared in a rule body reddens naming the rule (13.5606ms)
+  ℹ ds-tokens: token outside the block -> apps/angular-ai-devtools/src/styles.css:193: `--ds-line-ink` is declared inside the rule "p.line" in "all", and a token belongs in a `:root` block — a value declared in a rule body is carried by the elements that match it and by nothing else, which is the drift the block exists to prevent
+  ✔ AC2 mutant: a restatement that is no longer made reddens naming the token (13.745ms)
+  ℹ ds-tokens: stale restatement -> apps/angular-ai-devtools/src/styles.css: the `--ds-motion-easing-standard` restatement is declared 0 time(s) outside the token block, and it is the exemption for exactly one: the reduced-motion block restates the easing curve as `linear`, which is the curve that carries no acceleration to remove — a restatement nobody makes is an exemption the duplicate rule no longer needs
+  ✔ AC2 mutant: a token given another token’s value does not redden the duplicate pin (18.6187ms)
+  ℹ ds-tokens: shared value {"value":"#ffffff","names":["--ds-color-canvas","--ds-color-canvas-block","--ds-color-canvas-control","--ds-color-canvas-raised"]} reddens no duplicate
+  ✔ AC3 mutant: a rule moved above the token block reddens naming the rule (18.7281ms)
+  ℹ ds-tokens: rule hoisted -> apps/angular-ai-devtools/src/styles.css:59: the rule "body" reads --ds-density-flush, --ds-density-body-block, --ds-color-ink, --ds-color-canvas, --ds-type-size-body, --ds-type-leading-body and begins at line 59, before the token block that declares them closes at line 139 — the block precedes every rule that reads it
+  ✔ AC1 mutant: a fourth literal reddens naming the selector, the property and the line (14.2842ms)
+  ℹ ds-tokens: fourth literal -> apps/angular-ai-devtools/src/styles.css:193: `padding` under "p.line" in "all" declares "4px", which carries the spacing literal "4px" (a length) — a value the token block declares nowhere, and no declared exemption holds it literal, so it is a value rendered outside the layer
+  ✔ AC1 mutant: a named colour reddens where a hex colour would (10.3233ms)
+  ℹ ds-tokens: named colour -> apps/angular-ai-devtools/src/styles.css:168: `color` under "p.state" in "all" declares "white", which carries the colour literal "white" (a named colour) — a value the token block declares nowhere, and no declared exemption holds it literal, so it is a value rendered outside the layer
+  ✔ AC1 mutant: an exemption that no longer matches a declaration reddens as stale (15.1748ms)
+  ℹ ds-tokens: stale exemption -> apps/angular-ai-devtools/src/styles.css: the M5 exemption (color "#6b5200" under "section.panel-demo[data-state='cannot-tell'], section.panel-block[data-block-state='cannot-tell']") matches 0 declaration(s) and it is the exemption for exactly one: the anchor of `scripts/panel-styles.test.mjs` mutant M5, which substitutes the finding state colour for this exact declaration and expects the two state colours to collide; a token here would let one retune keep the mutant green while the state went on looking like a finding — a stale exemption is a literal the scan no longer sees
+  ✔ AC1 mutant: a literal planted in a comment leaves the scan green and is named as a comment (12.0333ms)
+  ℹ ds-tokens: comment literals planted at line 193 -> ["#ffffff (colour)","4px (spacing)"]
+✔ the mutants (150.3429ms)
+ℹ tests 21
+ℹ suites 3
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1204.6238

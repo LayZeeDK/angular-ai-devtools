@@ -12,6 +12,4 @@ Reviewed HEAD: f0dcb5c68c6a45f0b58e36ccaf1b70d3df3405f5
 
 ## Intent coverage
 
-### SC1 — One token block declares the density, colour, type and motion properties, and every value the panel renders resolves through it rather than from a literal at the point of use; a mutant that drops a token reddens naming the property.: pass
-
-- ✅ Covered by T007; evidence recorded above and in the verify ledger.
+This wave owns no success criterion. Its task is repair and recording work — the census chain the milestone's own new suite and record moved — so the criteria it serves are proved by the waves whose tasks the plan's `## Intent coverage` table assigns them to.

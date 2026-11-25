@@ -1,0 +1,101 @@
+head: 7225d04d54b0a97d55170b823dedead2b8c1c26b at 2026-11-25T08:38:34.632Z
+panel-styles: measured extension/panel/styles.css at 1955 bytes against the 1024-byte floor, and its computed readings apply to the demo surface
+token-baseline: 22 rule(s), 66 declaration(s), 7 in the dark block
+AC1: 66 declaration(s) over 17 selector(s) and 18 property(ies); 77 computed value(s), 3 named absence(s)
+AC1 not resolved: font-family under "body" [policy] `font-family` under "body" was not resolved: the style suite refuses `font-family` as a discriminator on purpose, because Chrome injects `font-family: "Segoe UI"` into a `chrome-extension://` document and a reading on it passes on a pane with no typography of its own — so this record states the absence rather than writing a value the browser would not agree with
+AC1 not resolved: font under "button,\nselect" [policy] `font` under "button,\nselect" was not resolved: `font` is the shorthand that carries `font-family`, so it inherits that refusal: the only reading jsdom offers for it here is `inherit`, which is the declaration echoed back rather than the font the panel paints — so this record states the absence rather than writing a value the browser would not agree with
+AC1 not resolved: outline under "button:focus-visible,\nselect:focus-visible" [unmatched-selector] `outline` under "button:focus-visible,\nselect:focus-visible" was not resolved: in this document "button:focus-visible" matched no element; "select:focus-visible" matched no element, so no element carries the declaration and a computed value would have to be invented rather than read
+AC1 not rendered: selector part "h1" of "h1,\nh2,\nh3" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it
+AC1 not rendered: selector part "h3" of "h1,\nh2,\nh3" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it
+AC1 not rendered: selector part "button:focus-visible" of "button:focus-visible,\nselect:focus-visible" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it
+AC1 not rendered: selector part "select:focus-visible" of "button:focus-visible,\nselect:focus-visible" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it
+AC1 not rendered: selector part "h1" of "h1,\n  h2,\n  h3" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it
+AC1 not rendered: selector part "h3" of "h1,\n  h2,\n  h3" is recorded as rendered by nothing: in the document this record reads it matched no element, so no element of this record was measured through it
+AC1: scripts/panel-styles.test.mjs measures heading h2, row p.line, surface section.panel-demo, control button on padding, borderTopWidth, backgroundColor, and every one of those readings is a value this record carries
+research/raw/m069-token-baseline.json: one writer behind M069_CAPTURE=1; the sheet is sha256 8a1f5719d023 and unchanged
+scripts/recordings.json: {"recording":"research/raw/m069-token-baseline.json","suite":"scripts/token-baseline.test.mjs","arm":"M069_CAPTURE=1"}; scripts/gate-integrity.test.mjs: row present
+research/raw/m069-token-baseline.json at load and after the run: 50787 characters, sha256 a596a461aad5d1bc7751aad78e85e07146e66058043ffbec6c4fb14a9ac525cf
+research/raw/m069-token-baseline.json: re-derived declaration for declaration; a moved value names its path and its value
+not resolved: font-family under "body" [policy] | font under "button,\nselect" [policy] | outline under "button:focus-visible,\nselect:focus-visible" [unmatched-selector]
+research/raw/m069-token-baseline.json: 66 row(s) held to apps/angular-ai-devtools/src/styles.css sha256 8a1f5719d023
+retuned-value mutant: defect: declarations[2].declared is "#1b1f25" and apps/angular-ai-devtools/src/styles.css declares "#1b1f24" for "body" — the color value at that selector moved, and a re-expression is re-captured rather than retyped
+moved-rendered-value mutant: defect: the rendered value of "margin" under "body" moved in the "all" context: [0].value: "rgb(0, 0, 0)" -> "0px" (recorded -> derived) — the record is a measurement of what the panel renders, so a value is re-captured with M069_CAPTURE=1 node --test scripts/token-baseline.test.mjs rather than retyped
+invented-font-family mutant: defect: "font-family" under "body" carries the computed value "serif", and a value the panel does not render is not invented here
+dropped-row mutant: defect: the record carries 65 row(s) and apps/angular-ai-devtools/src/styles.css declares 66 value(s): a declaration the record does not carry is a value the token layer is not held to
+softened-absence mutant: defect: declarations[4] carries a resolved reading with the keys ["element","kind","probed","property","read","reason","value"]
+moved-counts mutant: defect: the record states the counts {"rules":22,"darkRules":7,"mediaBlocks":1,"selectors":17,"properties":18,"declarations":66,"darkDeclarations":16,"readings":80,"readingsRead":78,"readingsAbsent":3,"policyAbsences":2,"unresolvedValues":0,"unmatchedSelectors":1,"selectorPartsNotRendered":6,"documents":6} and its own rows carry {"rules":22,"darkRules":7,"mediaBlocks":1,"selectors":17,"properties":18,"declarations":66,"darkDeclarations":16,"readings":80,"readingsRead":77,"readingsAbsent":3,"policyAbsences":2,"unresolvedValues":0,"unmatchedSelectors":1,"selectorPartsNotRendered":6,"documents":6}
+refusal path: defect: the rendered value of "margin" under "body" moved in the "all" context: [0].value: "rgb(1, 2, 3)" -> "0px" (recorded -> derived) — the record is a measurement of what the panel renders, so a value is re-captured with M069_CAPTURE=1 node --test scripts/token-baseline.test.mjs rather than retyped — research/raw/m069-token-baseline.json unchanged at sha256 a596a461aad5
+research/raw/m069-token-baseline.json: 6 pins hold 66 row(s) over 17 selector(s)
+✔ the source stylesheet is a baseline, not the CLI placeholder (1.6669ms)
+✔ the pin reads computed style, and reads no font-family (140.6324ms)
+✔ the applied stylesheet gives the heading, the row, the surface and the controls a padding, a border and a background (59.5289ms)
+ℹ panel-styles: heading h2 {"padding":"8px 0px 6px","borderTopWidth":"2px","backgroundColor":"rgb(246, 248, 250)","color":"rgb(16, 21, 27)"}
+ℹ panel-styles: row p.line {"padding":"5px 10px","borderTopWidth":"1px","backgroundColor":"rgb(247, 248, 250)","color":"rgb(27, 31, 36)"}
+ℹ panel-styles: surface section.panel-demo {"padding":"16px 18px 18px","borderTopWidth":"1px","backgroundColor":"rgb(251, 252, 253)","color":"rgb(27, 31, 36)"}
+ℹ panel-styles: control button {"padding":"5px 10px","borderTopWidth":"1px","backgroundColor":"rgb(255, 255, 255)","color":"rgb(27, 31, 36)"}
+✔ the four states do not share a colour treatment (203.8045ms)
+ℹ panel-styles: state finding {"state":"rgb(11, 74, 140)","block":"rgb(11, 74, 140)"}
+ℹ panel-styles: state differing {"state":"rgb(138, 75, 6)","block":"rgb(138, 75, 6)"}
+ℹ panel-styles: state cannot-tell {"state":"rgb(107, 82, 0)","block":"rgb(107, 82, 0)"}
+ℹ panel-styles: state idle {"state":"rgb(86, 94, 107)","block":"rgb(86, 94, 107)"}
+✔ the dark-scheme block restates the colours rather than inverting the page (253.4574ms)
+ℹ panel-styles: dark block "(prefers-color-scheme: dark)" with body, h1, h2, h3, section.panel-demo[data-surface][data-state], p.state, section.panel-block[data-block-kind][data-block-state], p.line, button, select
+ℹ panel-styles: dark body body light rgb(255, 255, 255) dark rgb(20, 23, 28)
+ℹ panel-styles: dark surface section.panel-demo light rgb(251, 252, 253) dark rgb(26, 30, 36)
+ℹ panel-styles: dark block section.panel-block light rgb(255, 255, 255) dark rgb(34, 39, 47)
+ℹ panel-styles: dark row p.line light rgb(247, 248, 250) dark rgb(35, 40, 48)
+ℹ panel-styles: dark state p.state light rgb(238, 241, 245) dark rgb(35, 40, 48)
+ℹ panel-styles: dark control button light rgb(255, 255, 255) dark rgb(38, 44, 53)
+✔ the pin is not vacuous: the untouched stylesheet names the property it lost (22.3623ms)
+ℹ panel-styles: untouched heading h2 {"padding":"","borderTopWidth":"","backgroundColor":"rgba(0, 0, 0, 0)","color":"rgb(0, 0, 0)"}
+ℹ panel-styles: untouched row p.line {"padding":"","borderTopWidth":"","backgroundColor":"rgba(0, 0, 0, 0)","color":"rgb(0, 0, 0)"}
+ℹ panel-styles: untouched surface section.panel-demo {"padding":"","borderTopWidth":"","backgroundColor":"rgba(0, 0, 0, 0)","color":"rgb(0, 0, 0)"}
+ℹ panel-styles: untouched control button {"padding":"","borderTopWidth":"","backgroundColor":"rgba(0, 0, 0, 0)","color":"rgb(0, 0, 0)"}
+✔ mutant M1 the heading loses its padding: the pin names the defect (20.5799ms)
+✔ mutant M2 the row loses its top border: the pin names the defect (36.3092ms)
+✔ mutant M3 the row loses its background: the pin names the defect (27.46ms)
+✔ mutant M4 the surface loses its border: the pin names the defect (16.8722ms)
+✔ mutant M5 cannot-tell borrows the finding colour: the pin names the defect (60.404ms)
+✔ mutant M6 the dark block is dropped: the pin names the defect (5.5359ms)
+✔ mutant M7 the dark block restates the light background: the pin names the defect (54.2982ms)
+✔ mutant M8 every font-family declaration is dropped: the pin names the defect (16.9903ms)
+✔ the extension build emits a stylesheet the baseline applies from (179.4031ms)
+ℹ panel-styles: extension/panel/styles.css is 1955 bytes
+▶ measurement
+  ✔ reads the stylesheet `panel-styles.test.mjs` measures, and its rules are the rules the CSSOM carries (111.3692ms)
+  ℹ token-baseline: apps/angular-ai-devtools/src/styles.css parses to 22 rule(s) and 66 declaration(s), the CSSOM carries the same, and 7 of the rules sit inside (prefers-color-scheme: dark)
+  ✔ AC1: records each selector and property with its declared text and its computed value or a named absence (170.7403ms)
+  ℹ token-baseline: {"rules":22,"darkRules":7,"mediaBlocks":1,"selectors":17,"properties":18,"declarations":66,"darkDeclarations":16,"readings":80,"readingsRead":77,"readingsAbsent":3,"policyAbsences":2,"unresolvedValues":0,"unmatchedSelectors":1,"selectorPartsNotRendered":6,"documents":6}; 6 selector part(s) rendered by nothing
+  ✔ AC1: describes the same surface `panel-styles.test.mjs` measures, read through that suite’s own functions (65.157ms)
+  ℹ token-baseline: heading h2 {"padding":"8px 0px 6px","borderTopWidth":"2px","backgroundColor":"rgb(246, 248, 250)","color":"rgb(16, 21, 27)"}
+  ℹ token-baseline: row p.line {"padding":"5px 10px","borderTopWidth":"1px","backgroundColor":"rgb(247, 248, 250)","color":"rgb(27, 31, 36)"}
+  ℹ token-baseline: surface section.panel-demo {"padding":"16px 18px 18px","borderTopWidth":"1px","backgroundColor":"rgb(251, 252, 253)","color":"rgb(27, 31, 36)"}
+  ℹ token-baseline: control button {"padding":"5px 10px","borderTopWidth":"1px","backgroundColor":"rgb(255, 255, 255)","color":"rgb(27, 31, 36)"}
+  ✔ AC2: the writer is one place behind the arm, and a default run writes nothing (50.6508ms)
+  ✔ AC3: names the recording in the manifest and the suite in the census, both read at capture (50.2987ms)
+✔ measurement (449.0569ms)
+▶ the token baseline
+  ✔ is a read: a default run hashes the record the same before and after (0.399ms)
+  ✔ is exactly what this head derives, and a value that moved is named (53.2873ms)
+  ✔ is serialized as the capture writes it, so a re-capture would move no byte (0.6794ms)
+  ✔ states the values it could not resolve as named absences, each with its reason (26.1809ms)
+  ✔ derives the recorded value from the stylesheet rather than from itself (26.2299ms)
+✔ the token baseline (107.0405ms)
+▶ the mutants
+  ✔ a declared value retuned in the record reddens the declared pin, naming the selector and the property (1.2914ms)
+  ✔ a computed value moved in the record reddens the rendered-value pin, naming both values (84.0844ms)
+  ✔ a computed value invented for a policy-refused property reddens the absence pin (93.7594ms)
+  ✔ a declaration dropped from the record reddens the declared pin, naming the count (1.4345ms)
+  ✔ an absence softened into a value reddens the shape pin (94.4608ms)
+  ✔ a counts block moved reddens the shape pin, naming the field (83.4012ms)
+  ✔ the armed writer refuses a candidate that is not the fixed point of its pin, and writes nothing (205.6604ms)
+  ✔ the six pins hold one record, and every mutant above reddened a different one (69.6499ms)
+✔ the mutants (634.2357ms)
+ℹ tests 33
+ℹ suites 3
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3237.7639

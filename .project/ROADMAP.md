@@ -2380,8 +2380,8 @@ Open questions
 Depends on: [M023]
 Programme: Generation 4 · Batch: design system · Group: design system
 Surfaces: panel
-Status: active
-Archive: null
+Status: shipped
+Archive: .project/archive/069-ds-tokens
 Integrated: null
 
 Goal: The design system ships its density, colour, type and motion custom properties, with a reduced-motion contract every later component inherits.

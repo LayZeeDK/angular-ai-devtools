@@ -1,0 +1,45 @@
+head: b9a1bcc04fbf296580d1dcfd6e4cb9f85197c969 at 2026-11-25T09:22:17.026Z
+panel-styles: measured extension/panel/styles.css at 5535 bytes against the 1024-byte floor, and its computed readings apply to the demo surface
+✔ the source stylesheet is a baseline, not the CLI placeholder (1.2765ms)
+✔ the pin reads computed style, and reads no font-family (160.6703ms)
+✔ the applied stylesheet gives the heading, the row, the surface and the controls a padding, a border and a background (75.9964ms)
+ℹ panel-styles: heading h2 {"padding":"8px 0px 6px","borderTopWidth":"2px","backgroundColor":"rgb(246, 248, 250)","color":"rgb(16, 21, 27)"}
+ℹ panel-styles: row p.line {"padding":"5px 10px","borderTopWidth":"1px","backgroundColor":"rgb(247, 248, 250)","color":"rgb(27, 31, 36)"}
+ℹ panel-styles: surface section.panel-demo {"padding":"16px 18px 18px","borderTopWidth":"1px","backgroundColor":"rgb(251, 252, 253)","color":"rgb(27, 31, 36)"}
+ℹ panel-styles: control button {"padding":"5px 10px","borderTopWidth":"1px","backgroundColor":"rgb(255, 255, 255)","color":"rgb(27, 31, 36)"}
+✔ the four states do not share a colour treatment (207.7148ms)
+ℹ panel-styles: state finding {"state":"rgb(11, 74, 140)","block":"rgb(11, 74, 140)"}
+ℹ panel-styles: state differing {"state":"rgb(138, 75, 6)","block":"rgb(138, 75, 6)"}
+ℹ panel-styles: state cannot-tell {"state":"rgb(107, 82, 0)","block":"rgb(107, 82, 0)"}
+ℹ panel-styles: state idle {"state":"rgb(86, 94, 107)","block":"rgb(86, 94, 107)"}
+✔ the dark-scheme block restates the colours rather than inverting the page (168.1595ms)
+ℹ panel-styles: dark block "(prefers-color-scheme: dark)" with body, h1, h2, h3, section.panel-demo[data-surface][data-state], p.state, section.panel-block[data-block-kind][data-block-state], p.line, button, select
+ℹ panel-styles: dark body body light rgb(255, 255, 255) dark rgb(20, 23, 28)
+ℹ panel-styles: dark surface section.panel-demo light rgb(251, 252, 253) dark rgb(26, 30, 36)
+ℹ panel-styles: dark block section.panel-block light rgb(255, 255, 255) dark rgb(34, 39, 47)
+ℹ panel-styles: dark row p.line light rgb(247, 248, 250) dark rgb(35, 40, 48)
+ℹ panel-styles: dark state p.state light rgb(238, 241, 245) dark rgb(35, 40, 48)
+ℹ panel-styles: dark control button light rgb(255, 255, 255) dark rgb(38, 44, 53)
+✔ the pin is not vacuous: the untouched stylesheet names the property it lost (26.8193ms)
+ℹ panel-styles: untouched heading h2 {"padding":"","borderTopWidth":"","backgroundColor":"rgba(0, 0, 0, 0)","color":"rgb(0, 0, 0)"}
+ℹ panel-styles: untouched row p.line {"padding":"","borderTopWidth":"","backgroundColor":"rgba(0, 0, 0, 0)","color":"rgb(0, 0, 0)"}
+ℹ panel-styles: untouched surface section.panel-demo {"padding":"","borderTopWidth":"","backgroundColor":"rgba(0, 0, 0, 0)","color":"rgb(0, 0, 0)"}
+ℹ panel-styles: untouched control button {"padding":"","borderTopWidth":"","backgroundColor":"rgba(0, 0, 0, 0)","color":"rgb(0, 0, 0)"}
+✔ mutant M1 the heading loses its padding: the pin names the defect (27.8251ms)
+✔ mutant M2 the row loses its top border: the pin names the defect (30.0026ms)
+✔ mutant M3 the row loses its background: the pin names the defect (23.5146ms)
+✔ mutant M4 the surface loses its border: the pin names the defect (18.9984ms)
+✔ mutant M5 cannot-tell borrows the finding colour: the pin names the defect (66.1998ms)
+✔ mutant M6 the dark block is dropped: the pin names the defect (10.6253ms)
+✔ mutant M7 the dark block restates the light background: the pin names the defect (59.2433ms)
+✔ mutant M8 every font-family declaration is dropped: the pin names the defect (20.7303ms)
+✔ the extension build emits a stylesheet the baseline applies from (168.7396ms)
+ℹ panel-styles: extension/panel/styles.css is 5535 bytes
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1878.0961

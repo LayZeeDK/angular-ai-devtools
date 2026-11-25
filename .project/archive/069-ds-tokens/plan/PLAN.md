@@ -106,7 +106,6 @@ Review depth: verify-only
 Artefacts: scripts/gate-integrity.test.mjs, the two recordings, scripts/navigation-blocking.test.mjs, two allow-lists and one stand-down.
 
 
-Review depth: verify-only
 
 ## Wave 7 — T007: re-point the style-read record
 
@@ -117,7 +116,6 @@ Review depth: verify-only
 Artefacts: research/raw/m054-style-read.json, scripts/visual-qa-style-read.test.mjs.
 
 
-Review depth: verify-only
 
 ## Wave 8 — T008: pay the reds that predate this milestone
 
@@ -128,5 +126,4 @@ Review depth: verify-only
 Artefacts: research/raw/m059-record-shapes.json, research/raw/m069-token-baseline.json, scripts/token-baseline.test.mjs.
 
 
-Review depth: verify-only
 

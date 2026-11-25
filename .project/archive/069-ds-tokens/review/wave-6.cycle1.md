@@ -12,6 +12,4 @@ Reviewed HEAD: f0dcb5c68c6a45f0b58e36ccaf1b70d3df3405f5
 
 ## Intent coverage
 
-### SC4 — The stylesheet stays within the bundle budget its own suite records, and a mutant that duplicates a token block reddens naming both blocks.: pass
-
-- ✅ Covered by T006; evidence recorded above and in the verify ledger.
+This wave owns no success criterion. Its task is repair and recording work — the census chain the milestone's own new suite and record moved — so the criteria it serves are proved by the waves whose tasks the plan's `## Intent coverage` table assigns them to.
