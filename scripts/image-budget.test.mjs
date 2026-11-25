@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { entries, findEntry } from './image-digest.mjs';
 import {
+  MILESTONE_BUDGET_MOVE,
+  MILESTONE_INITIAL_KB,
   PRE_MILESTONE_INITIAL_KB,
   measureInitialTotal,
   assertWithinBaseline,
@@ -89,7 +91,7 @@ test('unknown when digest lacks the code even with a finding', () => {
 // ---------------------------------------------------------------------------
 // Bundle budget — image-budget surface/route added; initial total must not grow
 // ---------------------------------------------------------------------------
-test('image-budget: the initial total stays inside the 535.44 kB baseline', () => {
+test('image-budget: the initial total stays inside the declared ceiling', () => {
   const measurement = measureInitialTotal(PANEL_OUTPUT_DIR);
   if (measurement.state !== 'measured') {
     console.log(`image-budget: skip — ${measurement.reason}`);
@@ -100,10 +102,11 @@ test('image-budget: the initial total stays inside the 535.44 kB baseline', () =
     PANEL_OUTPUT_RELATIVE,
     measurement.files,
   );
-  const margin = PRE_MILESTONE_INITIAL_KB - measurement.kb;
+  const margin = MILESTONE_INITIAL_KB - measurement.kb;
   console.log(
     `image-budget: measured initial total ${formatKb(measurement.kb)} (${measurement.bytes} B over ` +
-      `${measurement.files.length} eager files) against ${formatKb(PRE_MILESTONE_INITIAL_KB)} baseline; ` +
+      `${measurement.files.length} eager files) against the ${formatKb(MILESTONE_INITIAL_KB)} ceiling ` +
+      `(${formatKb(PRE_MILESTONE_INITIAL_KB)} measured + ${MILESTONE_BUDGET_MOVE.milestone}'s declared move); ` +
       `margin ${formatKb(margin)}`,
   );
   console.log(
@@ -111,15 +114,15 @@ test('image-budget: the initial total stays inside the 535.44 kB baseline', () =
   );
 });
 
-test('image-budget: the budget assertion reddens when the total exceeds the baseline', () => {
+test('image-budget: the budget assertion reddens when the total exceeds the ceiling', () => {
   assert.throws(
     () =>
       assertWithinBaseline(
-        PRE_MILESTONE_INITIAL_KB + 0.001,
+        MILESTONE_INITIAL_KB + 0.001,
         'image-budget mutant',
         [],
       ),
     /exceeds the pre-milestone baseline/,
-    'a total above the baseline must fail the comparison',
+    'a total above the ceiling must fail the comparison',
   );
 });

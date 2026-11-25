@@ -8,8 +8,8 @@
   "archiveReferences": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps",
     "suiteSelection": "a tracked file under scripts/, extension/ or apps/ whose basename carries `.test.` or `.spec.` before its extension",
-    "filesExamined": 383,
-    "suitesExamined": 199,
+    "filesExamined": 385,
+    "suitesExamined": 201,
     "examined": 238,
     "movedSubtrees": [
       "build",
@@ -21,7 +21,7 @@
     ],
     "movedSubtreesDerivedFrom": {
       "command": "readdir .project\\archive/<NNN>-<slug>",
-      "archivesExamined": 67,
+      "archivesExamined": 68,
       "rule": "every directory name any archived milestone directory carries is a subtree the archive move relocates; a file the archive writes there (MANIFEST.md) is not"
     },
     "counts": {
@@ -2268,6 +2268,7 @@
           ".project/archive/065-title-input-binding/research/SYNTHESIS.md",
           ".project/archive/066-schema-disabled-hidden/research/SYNTHESIS.md",
           ".project/archive/067-formfield-binder/research/SYNTHESIS.md",
+          ".project/archive/068-head-state/research/SYNTHESIS.md",
           "research/SYNTHESIS.md"
         ],
         "presentInTheTree": true
@@ -2508,8 +2509,8 @@
       "named": "d94502d1",
       "commit": "d94502d174aff31b0b1ebbab200d5e47939dec39"
     },
-    "examined": 229,
-    "filesListed": 558,
+    "examined": 231,
+    "filesListed": 560,
     "differing": [
       {
         "file": "apps/angular-ai-devtools/src/app/app.spec.ts",
@@ -2999,6 +3000,19 @@
         "reason": "same reason: the cross-tree loop became a single read, the three assertions that existed only to prove the two trees agreed were replaced by equivalents on the maintained file alone, and the re-attribution pin now asserts checks/state.mjs:321, the line that carries the 600 s timeout, instead of :253 - the Chromium build-and-revision shape, the maintain rationale standing as its own paragraph, and the reference citing the `.commandcode` path"
       },
       {
+        "file": "scripts/ds-tokens.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 1537,
+        "removedLines": 0,
+        "addedAssertionLines": 90,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M069 T003 pins the token layer `apps/angular-ai-devtools/src/styles.css` as text, where `scripts/token-baseline.test.mjs` pins what that sheet renders — the sheet opens with one `:root` block and every rule that reads a token comes after it; every custom property is declared inside a `:root` block and every token is a `--ds-<density|color|type|motion>-...` name in one of the four groups; every token a rule reads is declared exactly once, so a token declared twice reddens naming both of its lines and a rule reading a name no block declares reddens naming the token, the selector, the property and the line, while two names carrying one value are asserted not to be a duplicate; no colour, spacing, type or duration literal is declared outside the block apart from three exemptions, each declared with the mutant in `scripts/panel-styles.test.mjs` that anchors it — M5 `color: #6b5200`, M7 `background: #14171c`, M8 `font-family: system-ui, sans-serif` — and each exemption is non-vacuous in both directions, so an exemption that no longer matches a declaration reddens as stale, a fourth literal reddens naming the selector, the property and the line, and an exemption whose anchor that suite no longer carries reddens as one admitted without a reason; the three reduced-motion restatements are the only re-declarations the sheet may carry, declared here with their reasons and matched in both directions; no second stylesheet under `apps/` declares or reads a `--ds-` token; and the scan reports the literal spellings the sheet comments carry rather than counting them, with an in-memory mutant for every pin — a token declared twice, a token read and never declared, a token planted in a rule body, a restatement removed, two names given one value, the `body` rule moved above the block, a fourth literal, a named colour, a stale exemption and a literal planted in a comment — each driven against the untouched sheet first and each reddening the pin that names its defect by file, selector, property and line. Nothing here writes a file, and the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
         "file": "scripts/error-routing-shapes.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
@@ -3080,7 +3094,7 @@
         "file": "scripts/gate-integrity.test.mjs",
         "status": "A",
         "atTheMeasuredHead": false,
-        "addedLines": 5970,
+        "addedLines": 6006,
         "removedLines": 0,
         "addedAssertionLines": 348,
         "removedAssertionLines": 0,
@@ -3179,6 +3193,19 @@
         "droppedAssertionLines": 0,
         "recutAssertions": [],
         "reason": "wholly added at this head: M068 T002 pins the join `extension/head-state.js`, `headState(record, facts)`, over the record T001 wrote — one answer of exactly six fields in every state, `state` one of `current`, `stale`, `duplicate` and `cannot-tell`, `entry` the name the record recorded for the entry it observed, `present` the entry still present together with the navigation whose page carries it (`{ entry, carriedBy }`), `writtenBy` the navigation the record correlates the write with and nothing inferred, `reason` null exactly when the comparison was made and otherwise one of the thirteen named absences, and `observed` the row and its facts as recorded; the committed record states its writing navigation and its duplicate as measured absences, so the join over it answers `cannot-tell`/`duplicate-not-recorded` and `current`, `stale` and `duplicate` are exercised on records constructed from the same shape, with the record read into memory and never re-captured; every string an answer carries either appears in the record it was made from or is one of the join’s own state and reason names, so no route, cause or remedy the record did not carry can appear; each of the four mutants — a duplicate naming only the first occurrence, a staleness without the writing navigation, a join that names a remedy and a route, and a writing navigation inferred from the entry’s text or its order in the head — is planted on a decorated copy with the untouched module pinned before and again after it, and the four are then held to be four different defects the pin catches one by one, so a mutant that changed nothing observable cannot pass for a caught defect; the module is proved pure of DOM, I/O, imports and writes, and nothing here builds or opens a page; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/image-budget.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 9,
+        "removedLines": 6,
+        "addedAssertionLines": 0,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "edited at this head: M069 T004 moves the ceiling both budget suites measure against from the pre-milestone measurement to a declared ceiling, and this suite reads it rather than its own copy — the image surface added no bytes of its own, so its assertion follows the same declaration instead of repeating a number that would then disagree with the other suite."
       },
       {
         "file": "scripts/import-failure.test.mjs",
@@ -3368,9 +3395,9 @@
         "file": "scripts/panel-bundle-budget.test.mjs",
         "status": "M",
         "atTheMeasuredHead": true,
-        "addedLines": 177,
-        "removedLines": 2,
-        "addedAssertionLines": 5,
+        "addedLines": 242,
+        "removedLines": 11,
+        "addedAssertionLines": 11,
         "removedAssertionLines": 0,
         "recutAssertionLines": 0,
         "droppedAssertionLines": 0,
@@ -3407,6 +3434,19 @@
           "assert.ok("
         ],
         "reason": "the surface list gained `console-read`, so E1 checks that route and E2 exports it; E4 gained a mutant that drops its LOADERS key and E1 gained one that deletes its route entry, and no existing assertion was removed; M047 T003 appends `components` to the same list and adds its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M048 T003 appends `copy-check` to the same list with its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M049 T003 appends `interaction-story` to the same list with its E2 export, its E3 direct-call guard and the E1/E4 mutants that delete its route entry and drop its LOADERS key, and every earlier assertion still runs; M050 T005 replaced the twenty-one per-surface route literals with the PANEL_SURFACES list and one literal mapped over it, so E1 now reads the list, the single literal and the absence of any spelled-out surface route, its per-surface mutants drop a name from that list, the own-closure and second-definition mutants and every E2/E3/E4 assertion are carried unchanged, `console` joins the per-surface list it was missing from, and no assertion line was removed"
+      },
+      {
+        "file": "scripts/panel-styles.test.mjs",
+        "status": "M",
+        "atTheMeasuredHead": true,
+        "addedLines": 83,
+        "removedLines": 1,
+        "addedAssertionLines": 0,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "edited at this head: M069 T002 lands the token layer its stylesheet is measured through, and the one edit to this suite is its document-building seam. `documentWith(css, options)` passes the sheet through `withCustomPropertiesResolved` before jsdom parses it, substituting every `var(--name)` from the top-level `:root` block, which is the one cascade step jsdom does not perform: a longhand carrying a custom property reads back as that literal string and a shorthand carrying one reads back empty, so a tokenised declaration could not be measured at all and the token layer would have been unprovable. Nothing else moves — no assertion, mutant anchor, expected value or measured hook is edited, retuned or skipped, and the assertion lines are all additions with none removed. The substitution is a no-op on a sheet that declares no `:root`, which is how the seam was proved to change no rendered value before any token landed: the committed `research/raw/m069-token-baseline.json` was re-derived with the stylesheet unchanged, and the only value that moved was this suite’s own sha256 — none of the 66 declaration rows and none of the 77 rendered readings did. A reference to a name `:root` does not declare is left standing rather than emptied, so a token a mutant drops stays visible in the value that lost it and names the property, where emptying it would have read as a browser default and passed. The eight mutants M1 to M8 redden the same eight defects they reddened before the tokens landed, and the built stylesheet the build-output pin measures is read through the same seam."
       },
       {
         "file": "scripts/panel-typecheck-scope.test.mjs",
@@ -3524,6 +3564,19 @@
         "droppedAssertionLines": 0,
         "recutAssertions": [],
         "reason": "wholly added at this head: M065 T002 pins the pure join `extension/title-input.js`, which reads T001’s title recording as one of four states — the module publishes one join, four states, four reasons and the two input lists, and is run in a bare `node:vm` context with no `document`, no `window`, no `performance` and no console to prove it touches none of them where they do exist; AC1 holds a document title that differs from the route’s implied title as a `finding` naming both values and the strategy, with a mutant that copies the route’s title over the document’s required to redden the pin by naming `documentTitle`; AC2 holds an observation that began after the write as `cannot-tell` with `observation-started-after-the-write` and no observed write, with a mutant that takes the pre-observation title as observed required to redden it by naming the reason; AC3 holds every navigation of the committed recording as `cannot-tell`/`route-binds-nothing` rather than an empty object, with a mutant that answers `{}` required to redden it by naming `state`; SC3 holds the record’s fields and the join’s inputs to one exported list, the fields the module actually reads recorded through a proxy that also refuses a write, and every name in that list to a field the committed recording carries, with a mutant that reads a field and does not publish it required to redden by naming the field; the suite also pins the decided order of the absences, that the last navigation answers and no navigation is folded into another, that nothing captured answers `no-record` rather than an empty object, that the join is pure and writes nothing into the records it is handed, and that the mutants ran from scratch copies while the committed module is the one the suite read; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
+      },
+      {
+        "file": "scripts/token-baseline.test.mjs",
+        "status": "A",
+        "atTheMeasuredHead": false,
+        "addedLines": 2568,
+        "removedLines": 0,
+        "addedAssertionLines": 118,
+        "removedAssertionLines": 0,
+        "recutAssertionLines": 0,
+        "droppedAssertionLines": 0,
+        "recutAssertions": [],
+        "reason": "wholly added at this head: M069 T001 measures what the panel renders today, before any token exists, and writes it as `research/raw/m069-token-baseline.json` behind its own armed flag `M069_CAPTURE=1` — one row per selector and per property `apps/angular-ai-devtools/src/styles.css` declares a value for, carrying the media context, the selector exactly as authored with its parts, the property as authored, the declared value as its author wrote it (hex colours, `currentcolor`, `inherit` and shorthands unexpanded, because a normalised value could not tell a re-expression from a retune) and the value `window.getComputedStyle` resolves for it. The readings are taken through `scripts/panel-styles.test.mjs` itself rather than through a copy of it: `panelMarkup`, `documentWith`, `darkBlock`, `measure`, `MEASURED_HOOKS`, `DARK_HOOKS`, `MEASURED_PROPERTIES` and `STATES` are imported from that suite, so a row for a surface state is read off the document its own `stateColours` builds and the dark block is applied as a second sheet the way its `darkReadings` applies it, and a pin then asserts that every value that suite measures on its four hooks is a value the record carries. What cannot be resolved without a browser is recorded as a named absence with the measurement that showed it unread: `font-family` and `font` are refused by policy for the reason the style suite refuses them (Chrome injects `font-family: \"Segoe UI\"` into a `chrome-extension://` document, so a reading on it passes on a pane with no typography), and a declaration whose value jsdom answers as the empty string, or whose selector no measured document renders, is stated as unread with the parts and the probes named rather than softened into a number. A default run hashes the committed record before and after, asserts nothing moved, and asserts the record is exactly what this head derives, naming the selector, the property and the value that moved; the writer derives through the recorded instant, refuses a candidate that is not the fixed point of its own default pin, and writes only when a value moved, so a second armed run is byte-identical. Six mutants — a declared value retuned in the record, a computed value moved with no re-capture, a computed value invented for a policy-refused property, a declaration dropped from the record, an absence softened into a value and a counts block moved — each redden the pin that names its defect by selector and by property, and the refusal path is driven on a doctored candidate and proved to leave the bytes of that file untouched. The recording is named in `scripts/recordings.json` with its suite and its arm and owes this file its row, both read at capture rather than stated in the record; the assertion lines are all additions and none was removed, a reading the measured commit carries no file to edit"
       },
       {
         "file": "scripts/tutor-answer.test.mjs",
@@ -3722,32 +3775,32 @@
       }
     ],
     "counts": {
-      "differing": 77,
-      "edited": 17,
-      "added": 60,
+      "differing": 81,
+      "edited": 19,
+      "added": 62,
       "removedAssertionLines": 203,
       "recutAssertionLines": 203,
       "droppedAssertionLines": 0,
-      "addedAssertionLines": 8869
+      "addedAssertionLines": 9083
     },
     "reading": "every suite this tree carries is compared with the head the intent measured at, and each one that differs carries the reason it differs, the lines it moved and the assertion lines among them; a removed assertion line whose own assertion was added back with the same call and the same subject is recorded as re-cut, and one that was not is recorded as dropped, so no suite that differs is left unexplained and no assertion is argued about rather than counted"
   },
   "wholeTree": {
     "command": "git ls-files --cached --others --exclude-standard -- scripts extension apps src .claude/skills .commandcode/skills",
-    "examined": 229,
-    "filesListed": 558,
+    "examined": 231,
+    "filesListed": 560,
     "suites": {
-      "scripts": 152,
+      "scripts": 154,
       "extension": 11,
       "apps": 36,
       "src": 2,
       "skills": 28,
-      "total": 229
+      "total": 231
     },
     "declarations": {
-      "tests": 3026,
-      "describes": 407,
-      "total": 3433
+      "tests": 3072,
+      "describes": 415,
+      "total": 3487
     },
     "rule": "a suite is a file under one of the named roots whose basename carries `.test.` or `.spec.` before its extension; a declaration is a line whose first token is `test(`, `it(` or `describe(`",
     "run": {
@@ -3821,6 +3874,6 @@
       "wholeTree.suites"
     ],
     "reading": "an armed run re-measures all three sections from the repository it is standing in: the suites git tracks, the range git records for the milestone, and the recorded navigation stream with its event types read from the installed router chunk. A default run reads the same three measurements back and asserts the recording is exactly what this head derives.",
-    "at": "2026-11-25T05:20:51.298Z"
+    "at": "2026-11-25T10:12:22.443Z"
   }
 }
