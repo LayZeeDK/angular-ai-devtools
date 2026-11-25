@@ -1862,32 +1862,32 @@
           "hook": "h2 (via the h1, h2, h3 group rule)",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 42,
-            "text": "padding: 8px 0 6px;"
+            "line": 147,
+            "text": "padding: var(--ds-density-heading-block);"
           }
         },
         {
           "hook": "section.panel-demo[data-surface][data-state]",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 55,
-            "text": "padding: 16px 18px 18px;"
+            "line": 160,
+            "text": "padding: var(--ds-density-surface-block);"
           }
         },
         {
           "hook": "p.state",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 64,
-            "text": "padding: 4px 10px;"
+            "line": 169,
+            "text": "padding: var(--ds-density-state-block);"
           }
         },
         {
           "hook": "p.line",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 89,
-            "text": "padding: 5px 10px;"
+            "line": 194,
+            "text": "padding: var(--ds-density-row-block);"
           }
         }
       ],
@@ -1913,24 +1913,24 @@
           "hook": "h2 (via the h1, h2, h3 group rule)",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 43,
-            "text": "border-top: 2px solid #cfd6e2;"
+            "line": 148,
+            "text": "border-top: var(--ds-density-stroke-emphasis) solid var(--ds-color-rule);"
           }
         },
         {
           "hook": "section.panel-demo[data-surface][data-state]",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 56,
-            "text": "border: 1px solid #cfd6e2;"
+            "line": 161,
+            "text": "border: var(--ds-density-stroke-hairline) solid var(--ds-color-rule);"
           }
         },
         {
           "hook": "p.line",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 90,
-            "text": "border-top: 1px solid #e6eaf0;"
+            "line": 195,
+            "text": "border-top: var(--ds-density-stroke-hairline) solid var(--ds-color-rule-row);"
           }
         }
       ],
@@ -1945,12 +1945,12 @@
         "observedOn": "the root element and an unnamed div"
       },
       "discriminates": true,
-      "note": "p.state is in the reading but declares border-left at styles.css:65 and no border-top, so its 0px is the true computed value on both sides, not an absence of measurement. The sheet declares 1px and 2px and the browser serialises the used value as 0.571429px and 1.71429px at devicePixelRatio 1.75 (E2).",
+      "note": "p.state is in the reading but declares border-left at styles.css:170 and no border-top, so its 0px is the true computed value on both sides, not an absence of measurement. The sheet declares 1px and 2px and the browser serialises the used value as 0.571429px and 1.71429px at devicePixelRatio 1.75 (E2).",
       "alsoDeclaredAt": [
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 65,
-          "text": "border-left: 3px solid currentcolor;"
+          "line": 170,
+          "text": "border-left: var(--ds-density-stroke-state) solid currentcolor;"
         }
       ]
     },
@@ -1963,32 +1963,32 @@
           "hook": "h2 (via the h1, h2, h3 group rule)",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 44,
-            "text": "background: #f6f8fa;"
+            "line": 149,
+            "text": "background: var(--ds-color-canvas-heading);"
           }
         },
         {
           "hook": "section.panel-demo[data-surface][data-state]",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 58,
-            "text": "background: #fbfcfd;"
+            "line": 163,
+            "text": "background: var(--ds-color-canvas-raised);"
           }
         },
         {
           "hook": "p.state",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 66,
-            "text": "background: #eef1f5;"
+            "line": 171,
+            "text": "background: var(--ds-color-canvas-state);"
           }
         },
         {
           "hook": "p.line",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 91,
-            "text": "background: #f7f8fa;"
+            "line": 196,
+            "text": "background: var(--ds-color-canvas-row);"
           }
         }
       ],
@@ -2007,23 +2007,23 @@
       "alsoDeclaredAt": [
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 148,
-          "text": "background: #1f242b;"
+          "line": 258,
+          "text": "background: var(--ds-color-canvas-heading-dark);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 154,
-          "text": "background: #1a1e24;"
+          "line": 264,
+          "text": "background: var(--ds-color-canvas-raised-dark);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 158,
-          "text": "background: #232830;"
+          "line": 268,
+          "text": "background: var(--ds-color-canvas-state-dark);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 168,
-          "text": "background: #232830;"
+          "line": 278,
+          "text": "background: var(--ds-color-canvas-state-dark);"
         }
       ]
     },
@@ -2036,24 +2036,24 @@
           "hook": "h2 (via the h1, h2, h3 group rule)",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 45,
-            "text": "color: #10151b;"
+            "line": 150,
+            "text": "color: var(--ds-color-ink-strong);"
           }
         },
         {
           "hook": "p.line",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 92,
-            "text": "color: #1b1f24;"
+            "line": 197,
+            "text": "color: var(--ds-color-ink);"
           }
         },
         {
           "hook": "section.panel-demo[data-surface][data-state] and p.state, under the finding state",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 99,
-            "text": "color: #0b4a8c;"
+            "line": 204,
+            "text": "color: var(--ds-color-state-finding);"
           }
         }
       ],
@@ -2079,16 +2079,16 @@
           "hook": "h2 (the rule the hook line opens)",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 50,
-            "text": "font-size: 15px;"
+            "line": 155,
+            "text": "font-size: var(--ds-type-size-heading);"
           }
         },
         {
           "hook": "every hook, inherited from body",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 32,
-            "text": "font-size: 13px;"
+            "line": 137,
+            "text": "font-size: var(--ds-type-size-body);"
           }
         }
       ],
@@ -2114,7 +2114,7 @@
           "hook": "every hook, inherited from body; no hook rule declares it",
           "citation": {
             "path": "apps/angular-ai-devtools/src/styles.css",
-            "line": 31,
+            "line": 136,
             "text": "font-family: system-ui, sans-serif;"
           }
         }
@@ -2598,22 +2598,22 @@
       "citations": [
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 49,
+          "line": 154,
           "text": "h2 {"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 54,
+          "line": 159,
           "text": "section.panel-demo[data-surface][data-state] {"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 62,
+          "line": 167,
           "text": "p.state {"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 87,
+          "line": 192,
           "text": "p.line {"
         }
       ],
@@ -2628,7 +2628,7 @@
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
           "line": 2,
-          "text": "* The DevTools panel's one global baseline (M039 T005)."
+          "text": "* The DevTools panel's one global baseline (M039 T005), carried by tokens (M069 T002)."
         },
         {
           "path": "apps/angular-ai-devtools/project.json",
@@ -2640,7 +2640,7 @@
     },
     {
       "id": "L4",
-      "statement": "With the artefact at head (extension/panel/index.html:9 links styles.css with no media condition), the baseline applies: every value the sheet declares for a hook is what that hook computes, and the only differences between the two sides are borderTopWidth, which the browser serialises as the device-pixel-snapped used value (2px reads 1.71429px and 1px reads 0.571429px at the measured devicePixelRatio 1.75), p.state, whose rule declares border-left at styles.css:65 and no border-top so its borderTopWidth reads 0px on both sides, and the colour p.state inherits from the section finding rule rather than declaring itself. At this head the artefact is the copy T003 landed: the panel target builds with `optimization.styles.inlineCritical` false (PLAN C5), so the line quoted above is the line `npx nx run angular-ai-devtools:build-extension --skip-nx-cache` writes, rather than an emit a rebuild would replace.",
+      "statement": "With the artefact at head (extension/panel/index.html:9 links styles.css with no media condition), the baseline applies: every value the sheet declares for a hook is what that hook computes, and the only differences between the two sides are borderTopWidth, which the browser serialises as the device-pixel-snapped used value (2px reads 1.71429px and 1px reads 0.571429px at the measured devicePixelRatio 1.75), p.state, whose rule declares border-left at styles.css:170 and no border-top so its borderTopWidth reads 0px on both sides, and the colour p.state inherits from the section finding rule rather than declaring itself. At this head the artefact is the copy T003 landed: the panel target builds with `optimization.styles.inlineCritical` false (PLAN C5), so the line quoted above is the line `npx nx run angular-ai-devtools:build-extension --skip-nx-cache` writes, rather than an emit a rebuild would replace.",
       "kind": "live",
       "observedHere": true,
       "citations": [
@@ -2651,23 +2651,23 @@
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 43,
-          "text": "border-top: 2px solid #cfd6e2;"
+          "line": 148,
+          "text": "border-top: var(--ds-density-stroke-emphasis) solid var(--ds-color-rule);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 56,
-          "text": "border: 1px solid #cfd6e2;"
+          "line": 161,
+          "text": "border: var(--ds-density-stroke-hairline) solid var(--ds-color-rule);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 65,
-          "text": "border-left: 3px solid currentcolor;"
+          "line": 170,
+          "text": "border-left: var(--ds-density-stroke-state) solid currentcolor;"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 90,
-          "text": "border-top: 1px solid #e6eaf0;"
+          "line": 195,
+          "text": "border-top: var(--ds-density-stroke-hairline) solid var(--ds-color-rule-row);"
         }
       ],
       "note": "This is the reading run instrument.runs[1] took, after extension/panel/index.html was restored to the artefact at head. T003 re-cited the citation above to the line this head's artefact carries, after the artefact was rebuilt with the inlineCritical fix; the reading itself is unchanged, and the element it measured is the same plain link the fix restores to every fresh build."
@@ -2680,33 +2680,33 @@
       "citations": [
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 42,
-          "text": "padding: 8px 0 6px;"
+          "line": 147,
+          "text": "padding: var(--ds-density-heading-block);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 43,
-          "text": "border-top: 2px solid #cfd6e2;"
+          "line": 148,
+          "text": "border-top: var(--ds-density-stroke-emphasis) solid var(--ds-color-rule);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 44,
-          "text": "background: #f6f8fa;"
+          "line": 149,
+          "text": "background: var(--ds-color-canvas-heading);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 55,
-          "text": "padding: 16px 18px 18px;"
+          "line": 160,
+          "text": "padding: var(--ds-density-surface-block);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 64,
-          "text": "padding: 4px 10px;"
+          "line": 169,
+          "text": "padding: var(--ds-density-state-block);"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 89,
-          "text": "padding: 5px 10px;"
+          "line": 194,
+          "text": "padding: var(--ds-density-row-block);"
         },
         {
           "path": "apps/angular-ai-devtools/project.json",
@@ -2729,17 +2729,17 @@
       "citations": [
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 54,
+          "line": 159,
           "text": "section.panel-demo[data-surface][data-state] {"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 62,
+          "line": 167,
           "text": "p.state {"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 87,
+          "line": 192,
           "text": "p.line {"
         }
       ],
@@ -2753,13 +2753,13 @@
       "citations": [
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 31,
+          "line": 136,
           "text": "font-family: system-ui, sans-serif;"
         },
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
-          "line": 32,
-          "text": "font-size: 13px;"
+          "line": 137,
+          "text": "font-size: var(--ds-type-size-body);"
         }
       ],
       "note": "This is what makes an injected default unreadable as a declaration (N2, N4): the value exists whether or not the baseline named the property, and here it differs from every value the baseline declares."
@@ -2798,7 +2798,7 @@
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
           "line": 2,
-          "text": "* The DevTools panel's one global baseline (M039 T005)."
+          "text": "* The DevTools panel's one global baseline (M039 T005), carried by tokens (M069 T002)."
         }
       ]
     },
@@ -2816,7 +2816,7 @@
         {
           "path": "apps/angular-ai-devtools/src/styles.css",
           "line": 2,
-          "text": "* The DevTools panel's one global baseline (M039 T005)."
+          "text": "* The DevTools panel's one global baseline (M039 T005), carried by tokens (M069 T002)."
         }
       ],
       "note": "instrument.portal records the URL, title and ng-version the portal tab answered with."
@@ -2844,7 +2844,7 @@
         },
         {
           "path": "scripts/panel-styles.test.mjs",
-          "line": 168,
+          "line": 250,
           "text": "const style = window.getComputedStyle(element);"
         }
       ]
